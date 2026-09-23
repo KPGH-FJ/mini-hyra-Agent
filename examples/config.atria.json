@@ -1,0 +1,16 @@
+{
+  "task_dir": "tasks/circle_packing",
+  "work_dir": "run_out",
+  "model": "Atria-Dawn-Preview",
+  "base_url": "https://api.atria-asi.ai/v1",
+  "workers": 4,
+  "queue_target": 6,
+  "llm_concurrency": 4,
+  "max_solutions": 60,
+  "wall_clock": 7200,
+  "sandbox_timeout": 600,
+  "eval_timeout": 300,
+  "eval_rounds": 2,
+  "sandbox_backend": "local",
+  "seed": 0
+}

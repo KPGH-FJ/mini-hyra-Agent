@@ -45,10 +45,16 @@ hyra run --task tasks/symbolic_fit --mock --solutions 40 --workers 4
 hyra run --task tasks/circle_packing --mock --solutions 30 --workers 4
 
 # real run — any OpenAI-compatible endpoint (OpenAI, vLLM, DeepSeek,
-# Qwen, Hunyuan, one-api/ LiteLLM gateways, ...):
+# Qwen, Hunyuan, Atria, one-api/LiteLLM gateways, ...):
 export OPENAI_API_KEY=sk-...
 export OPENAI_BASE_URL=https://api.openai.com/v1   # or your gateway
 export OPENAI_MODEL=gpt-4o
+
+# e.g. Atria Dawn Preview:
+export ATRIA_API_KEY=atr_xxx   # from https://api.atria-asi.ai/console
+export OPENAI_API_KEY=$ATRIA_API_KEY
+export OPENAI_BASE_URL=https://api.atria-asi.ai/v1
+export OPENAI_MODEL=Atria-Dawn-Preview
 hyra run --task tasks/circle_packing --solutions 60 --workers 4 \
     --eval-rounds 2 --wall-clock 7200
 
