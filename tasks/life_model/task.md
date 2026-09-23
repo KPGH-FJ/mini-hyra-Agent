@@ -76,16 +76,34 @@ Honesty rule: claiming ~zero cost while answering non-trivially is flagged
 `cost_how=suspicious`. Hardcoding `stats()` constants to fake cheapness is
 reward hacking — implement real metering instead.
 
-`score = probe_quality − 0.001·KB(asset) − 0.002·KB(probe) − 0.0001·tokens`.
+`score = probe_quality − 0.002·KB(asset) − 0.0002·KB(probe) − 0.0002·tokens`.
 
 ## What to explore (the research space)
 
-- asset structure: flat map / temporal store / graph / tiered summary
-- formation: when to compress, what to keep verbatim, how to mark confidence
-- update semantics: supersede chains, correction propagation, expiry checks
+This round is scoped to **M2 representation** — the store's structure.
+Everything else is pinned by the probe semantics above; what varies is how
+the asset keeps state, history, and attribution.
+
+Candidate families (from the literature survey, docs/literature/m2_*.md):
+- **bitemporal ledger**: track both when the value became true and when we
+  learned it → as_of probes become lookups, not replays
+- **per-slot history index**: slot → [(value, from_day, to_day)]; small,
+  answers as_of without storing everything
+- **episode + fact two-layer**: keep recent episodes verbatim, distill
+  older ones into compact facts (MemoryBank/Generative Agents style)
+- **event-sourced projection**: append-only event log + materialized state
+  view; forget = tombstone projection
+- **subject-indexed hearsay store**: (person, slot) → value so rumors stay
+  attributable but never touch self-state
+- **graph / hybrid**: nodes per (person, slot) with temporal edges
+  (Zep-lite); only if it wins on quality-per-byte
+
+Also in play:
+- formation: when to compress, what to keep verbatim, confidence marking
 - provenance: tracking source per assertion cheaply
-- retrieval: what to consult per probe (probe_bytes matters)
-- control ops: retraction propagation to derived content
+- retrieval: what to consult per probe (probe_bytes matters — seed pays
+  41MB!)
+- control ops: forget() must delete the slot from state AND history
 
 Baselines to beat (same stream+probes, run by the evaluator): raw records,
-last-write-wins ledger, keyword RAG.
+last-write-wins ledger, keyword RAG — and the seed's honest 88.86.

@@ -38,7 +38,7 @@ asset.py itself and drives the whole lifecycle.
 Scoring:
     quality = Σ per-probe score (1.0 hit / 0.5 partial / 0 miss /
               −0.5 stale-leak via must_not)
-    cost    = asset_bytes_kb*0.001 + probe_bytes_kb*0.002 + llm_tokens*0.0001
+    cost    = asset_bytes_kb*0.002 + probe_bytes_kb*0.0002 + llm_tokens*0.0002
     score   = quality − cost          (higher better)
     also runs the 3 baselines on the same stream for the feedback digest.
 
