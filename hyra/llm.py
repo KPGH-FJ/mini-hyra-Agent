@@ -36,10 +36,14 @@ class LLMError(RuntimeError):
     pass
 
 
+class LLMLengthError(LLMError):
+    """Completion hit the token cap (finish_reason='length')."""
+
+
 class OpenAICompatLLM:
     def __init__(self, model: str | None = None, base_url: str | None = None,
                  api_key: str | None = None, max_tokens: int = 16384,
-                 temperature: float = 0.7, retries: int = 4):
+                 temperature: float = 0.7, retries: int = 8):
         self.model = model or os.environ.get("OPENAI_MODEL", "gpt-4o")
         self.base_url = (base_url or os.environ.get("OPENAI_BASE_URL")
                          or "https://api.openai.com/v1").rstrip("/")
@@ -52,16 +56,17 @@ class OpenAICompatLLM:
             raise LLMError("no API key: set OPENAI_API_KEY or pass api_key=")
 
     async def complete(self, system: str, prompt: str) -> str:
-        body = json.dumps({
-            "model": self.model,
-            "messages": [{"role": "system", "content": system},
-                         {"role": "user", "content": prompt}],
-            "temperature": self.temperature,
-            "max_tokens": self.max_tokens,
-        }).encode()
         delay = 1.0
         last: Exception | None = None
+        max_tokens = self.max_tokens
         for attempt in range(self.retries):
+            body = json.dumps({
+                "model": self.model,
+                "messages": [{"role": "system", "content": system},
+                             {"role": "user", "content": prompt}],
+                "temperature": self.temperature,
+                "max_tokens": max_tokens,
+            }).encode()
             try:
                 data, usage = await asyncio.to_thread(self._post, body)
                 self.usage["calls"] += 1
@@ -69,12 +74,19 @@ class OpenAICompatLLM:
                 self.usage["completion_tokens"] += usage.get(
                     "completion_tokens", 0)
                 return data
+            except LLMLengthError as e:
+                # reasoning models can burn the whole budget on reasoning;
+                # raise the cap and retry without counting it as a failure
+                last = e
+                max_tokens = min(max_tokens * 2, 131072)
+                log.warning("truncated; retrying max_tokens=%d", max_tokens)
+                await asyncio.sleep(0.5)
             except Exception as e:
                 last = e
                 log.warning("llm call failed (attempt %d/%d): %s",
                             attempt + 1, self.retries, e)
-                await asyncio.sleep(delay)
-                delay = min(delay * 2, 30)
+                await asyncio.sleep(delay + random.uniform(0, delay * 0.5))
+                delay = min(delay * 2, 60)
         raise LLMError(f"llm failed after {self.retries} retries: {last}")
 
     def _post(self, body: bytes) -> tuple[str, dict]:
@@ -84,8 +96,15 @@ class OpenAICompatLLM:
                      "Authorization": f"Bearer {self.api_key}"})
         with urllib.request.urlopen(req, timeout=600) as r:
             payload = json.loads(r.read())
-        return (payload["choices"][0]["message"]["content"],
-                payload.get("usage", {}))
+        choice = payload["choices"][0]
+        content = choice["message"].get("content")
+        if choice.get("finish_reason") == "length" or not content:
+            if choice.get("finish_reason") == "length":
+                raise LLMLengthError("completion truncated at token cap")
+            raise LLMError(
+                f"empty completion (finish_reason="
+                f"{choice.get('finish_reason')})")
+        return content, payload.get("usage", {})
 
 
 FILE_RE = re.compile(r"<<<FILE:\s*(.+?)>>>\n(.*?)<<<END>>>", re.S)
