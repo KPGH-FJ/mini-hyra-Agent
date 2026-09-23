@@ -154,49 +154,50 @@ INDEX_HTML = r"""<!doctype html>
 :root{--bg:#0d1117;--panel:#161b22;--line:#30363d;--fg:#e6edf3;--dim:#8b949e;
 --acc:#58a6ff;--good:#3fb950;--bad:#f85149;--warn:#d29922}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--fg);font:14px/1.5 -apple-system,Segoe UI,
-Roboto,"Helvetica Neue",monospace-ui,sans-serif;padding:14px}
-h1{font-size:17px;display:flex;align-items:center;gap:10px;margin-bottom:12px}
+body{background:var(--bg);color:var(--fg);font:15px/1.55 -apple-system,Segoe UI,
+Roboto,"Helvetica Neue",monospace-ui,sans-serif;padding:18px}
+h1{font-size:19px;display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .dot{width:9px;height:9px;border-radius:50%;background:var(--dim);display:inline-block}
 .dot.on{background:var(--good);box-shadow:0 0 8px var(--good)}
 .dot.done{background:var(--acc)}
-.stats{display:flex;gap:18px;flex-wrap:wrap;color:var(--dim);margin:6px 0 14px;
-font-size:13px}
+.stats{display:flex;gap:24px;flex-wrap:wrap;color:var(--dim);margin:8px 0 16px;
+font-size:14px}
+.stats>span{display:inline-flex;gap:6px;align-items:center}
 .stats b{color:var(--fg);font-weight:600}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;
 padding:12px;min-width:0}
-.panel h2{font-size:12px;color:var(--dim);text-transform:uppercase;
-letter-spacing:.06em;margin-bottom:8px}
-table{width:100%;border-collapse:collapse;font-size:12.5px}
-th{color:var(--dim);text-align:left;font-weight:500;padding:4px 6px;
+.panel h2{font-size:13px;color:var(--dim);text-transform:uppercase;
+letter-spacing:.07em;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{color:var(--dim);text-align:left;font-weight:500;padding:6px 8px;
 border-bottom:1px solid var(--line)}
-td{padding:4px 6px;border-bottom:1px solid #21262d;white-space:nowrap;
-max-width:340px;overflow:hidden;text-overflow:ellipsis}
+td{padding:5px 8px;border-bottom:1px solid #21262d;white-space:nowrap;
+max-width:460px;overflow:hidden;text-overflow:ellipsis}
 tr.sel td{background:#1f2a3a}
 tr:hover td{background:#1b2330;cursor:pointer}
-.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
-.tag{display:inline-block;padding:0 6px;border-radius:10px;font-size:11px;
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
+.tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12.5px;
 border:1px solid var(--line);color:var(--dim)}
 svg{display:block;width:100%}
 pre{background:#0a0d12;border:1px solid var(--line);border-radius:6px;
-padding:10px;overflow:auto;max-height:300px;font-size:12px;white-space:pre}
-.files{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+padding:12px;overflow:auto;max-height:340px;font-size:13px;white-space:pre}
+.files{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 8px}
 .fbtn{background:#21262d;border:1px solid var(--line);border-radius:6px;
-padding:2px 9px;font-size:12px;cursor:pointer;color:var(--fg)}
+padding:3px 11px;font-size:13px;cursor:pointer;color:var(--fg)}
 .fbtn.on{border-color:var(--acc);color:var(--acc)}
 .best{color:var(--good);font-weight:600}
 .neg{color:var(--bad)}
 .logbox{max-height:220px}
 .node{cursor:pointer}
-.node text{font-size:9px;fill:var(--dim)}
-.small{font-size:12px;color:var(--dim)}
-.brow{display:flex;align-items:center;gap:8px;margin:3px 0;font-size:12px}
-.blab{width:64px;color:var(--dim);text-align:right;flex:none}
-.bwrap{flex:1;height:9px;background:#21262d;border-radius:5px;overflow:hidden}
-.bfill{height:100%;background:var(--acc);border-radius:5px}
-.bval{width:44px;color:var(--dim);flex:none}
-.fb{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0 10px}
+.node text{font-size:11px;fill:var(--dim)}
+.small{font-size:13px;color:var(--dim)}
+.brow{display:flex;align-items:center;gap:10px;margin:4px 0;font-size:13px}
+.blab{width:70px;color:var(--dim);text-align:right;flex:none}
+.bwrap{flex:1;height:11px;background:#21262d;border-radius:6px;overflow:hidden}
+.bfill{height:100%;background:var(--acc);border-radius:6px}
+.bval{width:48px;color:var(--dim);flex:none}
+.fb{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 10px}
 #detail{display:none;margin-top:14px}
 @media(max-width:900px){.grid{grid-template-columns:1fr}}
 </style>
@@ -206,9 +207,9 @@ padding:2px 9px;font-size:12px;cursor:pointer;color:var(--fg)}
  <span class="small" id="taskName"></span></h1>
 <div class="stats" id="stats"></div>
 <div class="grid">
-  <div class="panel"><h2>Score 进化曲线</h2><svg id="curve" height="240"></svg>
+  <div class="panel"><h2>Score 进化曲线</h2><svg id="curve" height="280"></svg>
     <div class="small" id="legend"></div></div>
-  <div class="panel"><h2>解谱系（点击节点查看解）</h2><svg id="tree" height="240"></svg></div>
+  <div class="panel"><h2>解谱系（点击节点查看解）</h2><svg id="tree" height="280"></svg></div>
 </div>
 <div id="detail" class="panel">
   <h2 id="detTitle">Solution</h2>
@@ -238,7 +239,7 @@ async function j(u){const r=await fetch(u);return r.json()}
 
 function drawCurve(svg,idx,s){
   const el=document.getElementById(svg);el.innerHTML='';
-  const W=el.clientWidth||560,H=240,P=26,RM=64;
+  const W=el.clientWidth||560,H=280,P=28,RM=76;
   el.setAttribute('viewBox',`0 0 ${W} ${H}`);
   const pts=idx.filter(e=>e.score!=null);
   if(!pts.length){el.innerHTML='<text x="20" y="120" fill="#8b949e">no scored solutions yet</text>';return}
@@ -252,11 +253,11 @@ function drawCurve(svg,idx,s){
   const x=i=>P+i/Math.max(idx.length-1,1)*(W-P-RM);
   let g='';
   [lo,hi].forEach(v=>{g+=`<line x1="${P}" x2="${W-P}" y1="${y(v)}" y2="${y(v)}"
-    stroke="#30363d" stroke-dasharray="3"/><text x="2" y="${y(v)+4}"
-    fill="#8b949e" font-size="9">${v.toPrecision(4)}</text>`});
+    stroke="#30363d" stroke-dasharray="3"/><text x="3" y="${y(v)+4}"
+    fill="#8b949e" font-size="11">${v.toPrecision(4)}</text>`});
   refs.forEach(([k,v,c])=>{g+=`<line x1="${P}" x2="${W-RM}" y1="${y(v)}" y2="${y(v)}"
     stroke="${c}" stroke-dasharray="2 4" opacity=".6"/>
-    <text x="${W-RM+4}" y="${y(v)+3}" font-size="9" fill="${c}">${k} ${v.toPrecision(4)}</text>`});
+    <text x="${W-RM+5}" y="${y(v)+4}" font-size="11" fill="${c}">${k} ${v.toPrecision(4)}</text>`});
   let best=-1e18,bpath='';
   idx.forEach((e,i)=>{if(e.score!=null&&e.score>best){best=e.score;
     bpath+=`${i?'L':'M'}${x(i)},${y(best)} `}});
@@ -267,7 +268,7 @@ function drawCurve(svg,idx,s){
     '" fill="none" stroke="#58a6ff" stroke-width="1.4" opacity=".85"/>';
   idx.forEach((e,i)=>{if(e.score==null)return;
     g+=`<circle class="node" data-sid="${e.id}" cx="${x(i)}" cy="${y(e.score)}"
-      r="4.5" fill="${col(e.direction)}"><title>${e.id} ${e.score}</title></circle>`});
+      r="5.5" fill="${col(e.direction)}"><title>${e.id} ${e.score}</title></circle>`});
   el.innerHTML=g;
   el.querySelectorAll('.node').forEach(n=>n.onclick=()=>pick(n.dataset.sid));
   document.getElementById('legend').innerHTML=
@@ -276,7 +277,7 @@ function drawCurve(svg,idx,s){
 
 function drawTree(idx){
   const el=document.getElementById('tree');el.innerHTML='';
-  const W=el.clientWidth||560,H=240;
+  const W=el.clientWidth||560,H=280;
   const dep={},ord={};
   idx.forEach(e=>{dep[e.id]=e.parents&&e.parents.length?
     Math.max(...e.parents.map(p=>(dep[p]??0)))+1:0});
@@ -285,13 +286,13 @@ function drawTree(idx){
   Object.keys(byD).forEach(d=>byD[d].sort().forEach((id,i)=>ord[id]=i));
   const px=id=>40+dep[id]/Math.max(D,1)*(W-80);
   const py=id=>{const n=byD[dep[id]].length;
-    return n===1?H/2:30+ord[id]/(n-1)*(H-60)};
+    return n===1?H/2:34+ord[id]/(n-1)*(H-68)};
   let g='';
   idx.forEach(e=>(e.parents||[]).forEach(p=>{if(dep[p]==null)return;
     g+=`<line x1="${px(p)}" y1="${py(p)}" x2="${px(e.id)}" y2="${py(e.id)}"
       stroke="#30363d" stroke-width="1"/>`}));
   const best=document._best;
-  idx.forEach(e=>{const r=e.id===best?7:5;
+  idx.forEach(e=>{const r=e.id===best?8:5.5;
     g+=`<g class="node" data-sid="${e.id}"><circle cx="${px(e.id)}" cy="${py(e.id)}"
       r="${r}" fill="${e.score==null?DC.err:col(e.direction)}"
       ${e.id===best?'stroke="#3fb950" stroke-width="2"':''}></circle>
