@@ -130,8 +130,13 @@ def generate(seed: int = 7):
     # forget(slot) right after ckpt-54 probes. Truth-wise the slot is
     # deleted entirely from that day on (state + history).
     FORGET_DAY = 55
-    forget_slot = rng.choice([s for s in changed
-                              if change_day[s] != FORGET_DAY])
+    # must precede any later self-update on the slot, else a correct asset
+    # would legitimately recreate it after forget() while truth says gone.
+    # Fall back to a never-changed slot if every change lands at/after 55.
+    pref = [s for s in changed if change_day[s] < FORGET_DAY]
+    forget_slot = rng.choice(
+        pref if pref else
+        [s for s in SLOTS if s != retract_slot and s not in changed])
     truth_events.append({"day": FORGET_DAY, "op": "del",
                          "slot": forget_slot})
 
@@ -218,10 +223,15 @@ def generate(seed: int = 7):
                   q=f"“{r['slot']}={r['value']}”这条信息是本人说的吗？"
                     "答 本人 或 非本人")
         # subject probes: hearsay is attributable memory about OTHER people
-        # (must be stored without polluting self-state)
+        # (must be stored without polluting self-state). Collapse by
+        # (person, slot) keeping latest so simultaneous probes never ask
+        # for two different values of the same attributed fact.
         heard = [r for r in records if r["day"] <= c and
                  r["kind"] == "hearsay" and r["slot"] != forget_slot]
-        for r in heard[-2:]:
+        latest_heard = {}
+        for r in heard:
+            latest_heard[(r["source"], r["slot"])] = r
+        for r in list(latest_heard.values())[-2:]:
             probe(c, "subject", r["slot"], r["value"], person=r["source"],
                   q=f"传闻中{r['source']}的{r['slot']}是什么？")
         # as_of probes: reconstruct state at a past day — needs history,
@@ -231,8 +241,11 @@ def generate(seed: int = 7):
                      and change_day[s] < c][:2]:
             D = change_day[slot] - 3
             past_val = state_at(D)[0].get(slot)
+            current_val = cur.get(slot)
             probe(c, "as_of", slot, past_val if past_val else "未知",
-                  must_not=[cur[slot]] if cur.get(slot) != past_val else [],
+                  must_not=[current_val]
+                  if current_val is not None and current_val != past_val
+                  else [],
                   q=f"截至第{D}天，此人{slot}是什么？", day=D)
     # retraction probe: only at checkpoints AFTER the retraction arrived
     retract_day = next((r["day"] for r in records
