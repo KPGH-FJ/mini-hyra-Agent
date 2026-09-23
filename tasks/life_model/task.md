@@ -11,7 +11,11 @@ Your solution dir MUST contain `asset.py` exposing module-level:
 ```python
 def ingest(rec: dict) -> None: ...
 def answer(probe: dict) -> str: ...
-def stats() -> dict: ...   # optional but recommended
+def state() -> dict: ...        # recommended: serializable asset — cost is
+                                # MEASURED by serializing this
+def probe_bytes() -> int: ...  # recommended: cumulative bytes consulted
+def stats() -> dict: ...   # legacy fallback; DO NOT hardcode small numbers —
+                            # fabricated cost is a reward-hack and is flagged
 ```
 
 `solve.sh` may be a no-op (`exit 0`) — the evaluator imports `asset.py` and
@@ -49,10 +53,16 @@ match (normalized), with a hard penalty for surfacing a `must_not` value.
 
 ## Cost accounting
 
-`stats()` returns `{"asset_bytes": int, "probe_bytes": int, "llm_tokens": int}`.
-- asset_bytes: serialized size of what you retain.
-- probe_bytes: bytes of records/asset consulted answering probes (cumulative).
-- llm_tokens: 0 unless your asset itself calls an LLM.
+Cost is MEASURED by the evaluator, not self-reported:
+- asset_bytes: `len(json.dumps(asset.state()))` if `state()` exists, else
+  `stats()["asset_bytes"]` (fallback, flagged as reported).
+- probe_bytes: `asset.probe_bytes()` if it exists (cumulative consulted
+  bytes), else `stats()["probe_bytes"]`.
+- llm_tokens: `stats()["llm_tokens"]` (0 unless your asset calls an LLM).
+
+Honesty rule: claiming ~zero cost while answering non-trivially is flagged
+`cost_how=suspicious`. Hardcoding `stats()` constants to fake cheapness is
+reward hacking — implement real metering instead.
 
 `score = probe_quality − 0.001·KB(asset) − 0.002·KB(probe) − 0.0001·tokens`.
 

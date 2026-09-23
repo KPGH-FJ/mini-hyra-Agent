@@ -12,9 +12,15 @@ The solution dir must contain `asset.py` exposing module-level:
 
     ingest(rec: dict) -> None
     answer(probe: dict) -> str
-    stats() -> dict           # optional; {"asset_bytes": int,
+    stats() -> dict           # optional legacy; {"asset_bytes": int,
                               #            "probe_bytes": int (cumulative),
                               #            "llm_tokens": int}
+    state() -> dict           # optional; serializable asset — MEASURED cost
+    probe_bytes() -> int      # optional; cumulative consulted bytes
+
+Cost is MEASURED, not self-reported (v1 fix: s0023 gamed stats()): when the
+asset exposes state()/probe_bytes() the evaluator serializes them itself;
+stats() values are only a fallback and are flagged as "reported".
 
 solve.sh is a trivial no-op (`#!/bin/bash\nexit 0`) — the evaluator imports
 asset.py itself and drives the whole lifecycle.
@@ -67,12 +73,42 @@ def score_probe(probe, answer):
     return 1.0 if norm(expect) in a else 0.0
 
 
+def measure_cost(asset, cum_probe_bytes_reported: int, answered: bool):
+    """Measure cost honestly: state()/probe_bytes() beat stats() self-report.
+    Returns (cost_dict, how: 'measured'|'reported')."""
+    how = "reported"
+    st = asset.stats() if hasattr(asset, "stats") else {}
+    try:
+        asset_bytes = int(st.get("asset_bytes", 0))
+    except Exception:
+        asset_bytes = 0
+    probe_bytes = cum_probe_bytes_reported or int(st.get("probe_bytes", 0))
+    llm = int(st.get("llm_tokens", 0))
+    if hasattr(asset, "state"):
+        try:
+            asset_bytes = len(json.dumps(asset.state(), ensure_ascii=False))
+            how = "measured"
+        except Exception:
+            pass
+    if hasattr(asset, "probe_bytes"):
+        try:
+            probe_bytes = int(asset.probe_bytes())
+            how = "measured"
+        except Exception:
+            pass
+    if answered and probe_bytes <= 0:
+        # answered something yet claims zero retrieval cost — flag it
+        how = "suspicious"
+    return {"asset_bytes": asset_bytes, "probe_bytes": probe_bytes,
+            "llm_tokens": llm}, how
+
+
 def drive(asset, records, probes):
-    """Run the lifecycle; return per-probe rows + cost."""
+    """Run the lifecycle; return per-probe rows + cost + honesty flag."""
     by_ckpt = {}
     for p in probes:
         by_ckpt.setdefault(p["ckpt"], []).append(p)
-    rows, cum_probe_bytes = [], 0
+    rows, cum_reported, answered = [], 0, False
     for ckpt in CHECKPOINTS:
         for r in [x for x in records if x["day"] <= ckpt
                   and not x.get("_fed")]:
@@ -80,16 +116,15 @@ def drive(asset, records, probes):
             r["_fed"] = True
         for p in by_ckpt.get(ckpt, []):
             ans = asset.answer(p)
+            if str(ans).strip() not in ("", "未知"):
+                answered = True
             st = asset.stats() if hasattr(asset, "stats") else {}
-            cum_probe_bytes += int(st.get("probe_bytes", 0))
+            if not hasattr(asset, "probe_bytes"):
+                cum_reported += int(st.get("probe_bytes", 0))
             rows.append({"probe": p, "answer": str(ans),
                          "score": score_probe(p, ans)})
-        # reset per-probe counter if impl reports cumulative bytes
-    stats = asset.stats() if hasattr(asset, "stats") else {}
-    cost = {"asset_bytes": int(stats.get("asset_bytes", 0)),
-            "probe_bytes": cum_probe_bytes or int(stats.get("probe_bytes", 0)),
-            "llm_tokens": int(stats.get("llm_tokens", 0))}
-    return rows, cost
+    cost, how = measure_cost(asset, cum_reported, answered)
+    return rows, cost, how
 
 
 def load_asset(sol: Path):
@@ -194,7 +229,7 @@ def main():
 
     recs = copy.deepcopy(records)
     try:
-        rows, cost = drive(asset, recs, probes)
+        rows, cost, how = drive(asset, recs, probes)
     except Exception as e:
         print(json.dumps({"score": -1e9,
                           "feedback": f"asset raised: {e!r}"}))
@@ -212,12 +247,13 @@ def main():
                       ("rag", RAGBaseline)]:
         rr = copy.deepcopy(records)
         try:
-            rws, _ = drive(cls(), rr, probes)
+            rws, _c, _h = drive(cls(), rr, probes)
             bl[name] = round(sum(r["score"] for r in rws), 3)
         except Exception as e:
             bl[name] = f"err:{e!r}"
 
-    fb = (f"quality={quality:.2f} cost={cost} breakdown={quality_breakdown(rows)}"
+    fb = (f"quality={quality:.2f} cost={cost} cost_how={how}"
+          f" breakdown={quality_breakdown(rows)}"
           f" baselines={bl} meta={meta}")
     print(json.dumps({"score": score, "feedback": fb}))
 
