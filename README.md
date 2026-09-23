@@ -62,7 +62,21 @@ hyra run --task tasks/circle_packing --solutions 60 --workers 4 \
 hyra status --work run_out
 hyra best   --work run_out
 hyra eval   --task tasks/circle_packing --solution run_out/eb/solutions/s0042
+
+# live web dashboard (works while a run is in progress and after):
+hyra serve --work run_out --port 8000        # then open http://127.0.0.1:8000
 ```
+
+## Dashboard
+
+`hyra serve` starts a zero-dependency web UI over the work dir:
+
+- **score curve** — every commit plotted, colored by direction, with a
+  best-so-far overlay;
+- **lineage tree** — parent→child graph of the search, best node ringed;
+- **solution browser** — click any node/row to read its files
+  (`solve.sh`, code, `solution.json`, `run.log`, `proposal.txt`);
+- **EB table + harness log tail** — everything on disk, refreshed ~2s.
 
 ## Defining a task
 

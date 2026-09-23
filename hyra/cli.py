@@ -79,6 +79,12 @@ def cmd_best(a: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_serve(a: argparse.Namespace) -> int:
+    from .web import serve
+    serve(a.work, host=a.host, port=a.port)
+    return 0
+
+
 def cmd_eval(a: argparse.Namespace) -> int:
     import tempfile
     sol = Path(a.solution)
@@ -130,6 +136,12 @@ def main() -> int:
     e.add_argument("--task", required=True)
     e.add_argument("--solution", required=True)
     e.set_defaults(fn=cmd_eval)
+
+    v = sub.add_parser("serve", help="web dashboard over --work dir")
+    v.add_argument("--work", dest="work", default="run_out")
+    v.add_argument("--host", default="127.0.0.1")
+    v.add_argument("--port", type=int, default=8000)
+    v.set_defaults(fn=cmd_serve)
 
     a = ap.parse_args()
     return a.fn(a)
