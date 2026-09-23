@@ -1,0 +1,13 @@
+{
+  "id": "s0023",
+  "score": 77.0,
+  "direction": "exploit",
+  "parents": [
+    "s0011"
+  ],
+  "eval_version": 0,
+  "created": 1790168222.716699,
+  "feedback": "quality=77.00 cost={'asset_bytes': 1, 'probe_bytes': 77, 'llm_tokens': 0} breakdown={'state': 1.0, 'stale': 1.0, 'prov': 1.0, 'retract': 1.0, 'transfer': 1.0} baselines={'raw': 74.5, 'ledger': 76.0, 'rag': 53.0} meta={'changed': ['diet', 'device', 'contact', 'learning', 'risk'], 'retract_slot': 'time_budget', 'exp_day': 48, 'n_records': 44}",
+  "error": null,
+  "path": "lm_run/eb/solutions/s0023"
+}
