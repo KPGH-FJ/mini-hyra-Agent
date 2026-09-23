@@ -8,8 +8,10 @@ afterwards. Single-file frontend, no external assets.
 """
 from __future__ import annotations
 
+import ast
 import json
 import logging
+import re
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -58,6 +60,48 @@ def _solution_files(sol_dir: Path) -> dict:
     return out
 
 
+_FB_QUALITY = re.compile(r"quality=(-?[\d.eE+]+)")
+_FB_DICT = re.compile(r"(cost|breakdown|baselines)=(\{.*?\})(?=[ )]|$)")
+
+
+def parse_feedback(fb: str | None) -> dict | None:
+    """Extract structured fields from an evaluator feedback string such as
+    ``quality=77.0 cost={'asset_bytes': 123} breakdown={...} baselines={...}``.
+    Tolerates plain-text feedback (returns None then)."""
+    if not fb or not isinstance(fb, str):
+        return None
+    out: dict = {}
+    m = _FB_QUALITY.search(fb)
+    if m:
+        try:
+            out["quality"] = float(m.group(1))
+        except ValueError:
+            pass
+    for key, lit in _FB_DICT.findall(fb):
+        try:
+            out[key] = ast.literal_eval(lit)
+        except Exception:
+            continue
+    return out or None
+
+
+def err_kind(err: str | None) -> str:
+    e = (err or "").lower()
+    if "proposal error" in e:
+        if any(x in e for x in ("502", "503", "504", "bad gateway",
+                                "http error", "timed out", "timeout",
+                                "connection", "llm")):
+            return "api/llm"
+        return "proposal"
+    if "evaluator" in e:
+        return "evaluator"
+    if "timeout" in e:
+        return "timeout"
+    if "solve.sh" in e or "exit" in e or "docker" in e:
+        return "solve.sh"
+    return "other"
+
+
 def build_status(work: Path) -> dict:
     idx = _read_json(work / "eb" / "index.json", [])
     scored = [e for e in idx if e.get("score") is not None]
@@ -70,6 +114,19 @@ def build_status(work: Path) -> dict:
     except OSError:
         pass
     running = report is None and idx_mtime > time.time() - 30
+    baselines: dict = {}
+    seed_score = None
+    error_kinds: dict = {}
+    for e in idx:
+        if e.get("error"):
+            k = err_kind(e["error"])
+            error_kinds[k] = error_kinds.get(k, 0) + 1
+        if not baselines:
+            fb = parse_feedback(e.get("feedback"))
+            if fb and isinstance(fb.get("baselines"), dict):
+                baselines = fb["baselines"]
+        if e.get("direction") == "seed" and e.get("score") is not None:
+            seed_score = e["score"]
     return {
         "running": running,
         "finished": report is not None,
@@ -81,6 +138,9 @@ def build_status(work: Path) -> dict:
         "elapsed": (max(created) - min(created)) if created else 0,
         "now": time.time(),
         "report": report,
+        "baselines": baselines,
+        "seed_score": seed_score,
+        "error_kinds": error_kinds,
     }
 
 
@@ -131,6 +191,12 @@ padding:2px 9px;font-size:12px;cursor:pointer;color:var(--fg)}
 .node{cursor:pointer}
 .node text{font-size:9px;fill:var(--dim)}
 .small{font-size:12px;color:var(--dim)}
+.brow{display:flex;align-items:center;gap:8px;margin:3px 0;font-size:12px}
+.blab{width:64px;color:var(--dim);text-align:right;flex:none}
+.bwrap{flex:1;height:9px;background:#21262d;border-radius:5px;overflow:hidden}
+.bfill{height:100%;background:var(--acc);border-radius:5px}
+.bval{width:44px;color:var(--dim);flex:none}
+.fb{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0 10px}
 #detail{display:none;margin-top:14px}
 @media(max-width:900px){.grid{grid-template-columns:1fr}}
 </style>
@@ -146,6 +212,8 @@ padding:2px 9px;font-size:12px;cursor:pointer;color:var(--fg)}
 </div>
 <div id="detail" class="panel">
   <h2 id="detTitle">Solution</h2>
+  <div class="fb" id="detFb"></div>
+  <div id="detBars"></div>
   <div class="files" id="detFiles"></div>
   <pre class="mono" id="detBody"></pre>
 </div>
@@ -168,19 +236,27 @@ const col=d=>DC[d]||'#8b949e';
 
 async function j(u){const r=await fetch(u);return r.json()}
 
-function drawCurve(svg,idx){
+function drawCurve(svg,idx,s){
   const el=document.getElementById(svg);el.innerHTML='';
-  const W=el.clientWidth||560,H=240,P=26;
+  const W=el.clientWidth||560,H=240,P=26,RM=64;
   el.setAttribute('viewBox',`0 0 ${W} ${H}`);
   const pts=idx.filter(e=>e.score!=null);
   if(!pts.length){el.innerHTML='<text x="20" y="120" fill="#8b949e">no scored solutions yet</text>';return}
-  const ys=pts.map(e=>e.score),lo=Math.min(...ys),hi=Math.max(...ys);
+  const refs=[];
+  if(s&&s.seed_score!=null)refs.push(['seed',s.seed_score,'#8b949e']);
+  if(s&&s.baselines)Object.entries(s.baselines).forEach(([k,v])=>{
+    if(typeof v==='number')refs.push([k,v,'#d29922'])});
+  const ys=[...pts.map(e=>e.score),...refs.map(r=>r[1])];
+  const lo=Math.min(...ys),hi=Math.max(...ys);
   const y=v=>H-P-(v-lo)/((hi-lo)||1)*(H-2*P);
-  const x=i=>P+i/Math.max(idx.length-1,1)*(W-2*P);
+  const x=i=>P+i/Math.max(idx.length-1,1)*(W-P-RM);
   let g='';
   [lo,hi].forEach(v=>{g+=`<line x1="${P}" x2="${W-P}" y1="${y(v)}" y2="${y(v)}"
     stroke="#30363d" stroke-dasharray="3"/><text x="2" y="${y(v)+4}"
     fill="#8b949e" font-size="9">${v.toPrecision(4)}</text>`});
+  refs.forEach(([k,v,c])=>{g+=`<line x1="${P}" x2="${W-RM}" y1="${y(v)}" y2="${y(v)}"
+    stroke="${c}" stroke-dasharray="2 4" opacity=".6"/>
+    <text x="${W-RM+4}" y="${y(v)+3}" font-size="9" fill="${c}">${k} ${v.toPrecision(4)}</text>`});
   let best=-1e18,bpath='';
   idx.forEach((e,i)=>{if(e.score!=null&&e.score>best){best=e.score;
     bpath+=`${i?'L':'M'}${x(i)},${y(best)} `}});
@@ -224,12 +300,34 @@ function drawTree(idx){
   el.querySelectorAll('.node').forEach(n=>n.onclick=()=>pick(n.dataset.sid));
 }
 
+function fbView(d){
+  const f=d.fb,out=document.getElementById('detFb'),
+        bars=document.getElementById('detBars');
+  out.innerHTML='';bars.innerHTML='';
+  if(!f)return;
+  const s=d.meta&&d.meta.score;
+  let h='';
+  if(f.quality!=null)h+=`<span class="tag">quality ${f.quality.toPrecision(5)}</span>`;
+  if(f.cost)h+='<span class="tag">cost '+Object.entries(f.cost).map(([k,v])=>
+    k==='llm_tokens'?`${k}=${v}`:`${k}=${(v/1024).toFixed(1)}KB`).join(' ')+'</span>';
+  if(f.baselines)h+=Object.entries(f.baselines).map(([k,v])=>{
+    const beat=typeof v==='number'&&s!=null&&s>v;
+    return `<span class="tag" style="color:${beat?'var(--good)':'var(--bad)'};border-color:${beat?'var(--good)':'var(--bad)'}">${k} ${typeof v==='number'?v.toPrecision(4):v} ${beat?'beat':'below'}</span>`}).join('');
+  out.innerHTML=h;
+  if(f.breakdown)bars.innerHTML='<h2 style="margin:4px 0">探针类型得分</h2>'+
+    Object.entries(f.breakdown).map(([k,v])=>{const pct=Math.max(0,Math.min(1,v))*100;
+      return `<div class="brow"><span class="blab">${k}</span>
+      <div class="bwrap"><div class="bfill" style="width:${pct}%;background:${pct>=99?'var(--good)':pct<50?'var(--warn)':'var(--acc)'}"></div></div>
+      <span class="bval">${pct.toFixed(0)}%</span></div>`}).join('');
+}
+
 async function pick(sid){
   sel=sid;
   const d=await j('/api/solution/'+sid);
   document.getElementById('detail').style.display='block';
   document.getElementById('detTitle').textContent=
     `Solution ${sid}  ·  score=${fmt(d.meta&&d.meta.score)}  ·  ${d.meta?d.meta.direction:''}`;
+  fbView(d);
   const fs=document.getElementById('detFiles');fs.innerHTML='';
   const names=Object.keys(d.files);
   names.forEach(n=>{const b=document.createElement('button');
@@ -253,9 +351,12 @@ async function tick(){
        <span>best <b class="best">${s.best?fmt(s.best.score)+' ('+s.best.id+')':'—'}</b></span>
        <span>eval_v ${s.eval_versions.join(',')}</span>
        <span>elapsed ${Math.round(s.elapsed)}s</span>`+
+      (s.error_kinds&&Object.keys(s.error_kinds).length?
+        '<span>err '+Object.entries(s.error_kinds).map(([k,n])=>
+          `<span class="tag" style="color:var(--bad);border-color:var(--bad)">${k}:${n}</span>`).join(' ')+'</span>':'')+
       (s.report&&s.report.llm_usage?
         `<span>llm ${s.report.llm_usage.calls} calls / ${s.report.llm_usage.completion_tokens} tok</span>`:'');
-    drawCurve('curve',idx);drawTree(idx);
+    drawCurve('curve',idx,s);drawTree(idx);
     const tb=document.querySelector('#tbl tbody');tb.innerHTML=idx.map(e=>
       `<tr class="${e.id===sel?'sel':''}" onclick="pick('${e.id}')"><td class="mono">${e.id}</td>
       <td class="mono ${e.score==null?'neg':''}">${e.score==null?(e.error?'ERR':'—'):Number(e.score).toPrecision(6)}</td>
@@ -306,6 +407,7 @@ class Handler(BaseHTTPRequestHandler):
             sol = self.work / "eb" / "solutions" / sid
             meta = _read_json(sol / "meta.json", None)
             self._json({"id": sid, "meta": meta,
+                        "fb": parse_feedback((meta or {}).get("feedback")),
                         "files": _solution_files(sol)})
         elif path == "/api/log":
             n = int(q.get("n", ["300"])[0])
