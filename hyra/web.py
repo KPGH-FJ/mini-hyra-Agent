@@ -62,6 +62,7 @@ def _solution_files(sol_dir: Path) -> dict:
 
 _FB_QUALITY = re.compile(r"quality=(-?[\d.eE+]+)")
 _FB_DICT = re.compile(r"(cost|breakdown|baselines)=(\{.*?\})(?=[ )]|$)")
+_FB_COSTHOW = re.compile(r"cost_how=(\w+)")
 
 
 def parse_feedback(fb: str | None) -> dict | None:
@@ -82,6 +83,9 @@ def parse_feedback(fb: str | None) -> dict | None:
             out[key] = ast.literal_eval(lit)
         except Exception:
             continue
+    m = _FB_COSTHOW.search(fb)
+    if m:
+        out["cost_how"] = m.group(1)
     return out or None
 
 
@@ -102,8 +106,18 @@ def err_kind(err: str | None) -> str:
     return "other"
 
 
+def _enrich(idx: list) -> list:
+    """In-place: add parsed quality/cost_how onto each index entry."""
+    for e in idx:
+        fb = parse_feedback(e.get("feedback"))
+        if fb:
+            e["quality"] = fb.get("quality")
+            e["cost_how"] = fb.get("cost_how")
+    return idx
+
+
 def build_status(work: Path) -> dict:
-    idx = _read_json(work / "eb" / "index.json", [])
+    idx = _enrich(_read_json(work / "eb" / "index.json", []))
     scored = [e for e in idx if e.get("score") is not None]
     best = max(scored, key=lambda e: e["score"], default=None)
     report = _read_json(work / "report.json", None)
@@ -117,13 +131,16 @@ def build_status(work: Path) -> dict:
     baselines: dict = {}
     seed_score = None
     error_kinds: dict = {}
+    suspicious = 0
     for e in idx:
         if e.get("error"):
             k = err_kind(e["error"])
             error_kinds[k] = error_kinds.get(k, 0) + 1
-        if not baselines:
-            fb = parse_feedback(e.get("feedback"))
-            if fb and isinstance(fb.get("baselines"), dict):
+        fb = parse_feedback(e.get("feedback"))
+        if fb:
+            if fb.get("cost_how") == "suspicious":
+                suspicious += 1
+            if not baselines and isinstance(fb.get("baselines"), dict):
                 baselines = fb["baselines"]
         if e.get("direction") == "seed" and e.get("score") is not None:
             seed_score = e["score"]
@@ -141,6 +158,7 @@ def build_status(work: Path) -> dict:
         "baselines": baselines,
         "seed_score": seed_score,
         "error_kinds": error_kinds,
+        "suspicious": suspicious,
     }
 
 
@@ -266,13 +284,18 @@ function drawCurve(svg,idx,s){
   g+='<path d="'+idx.map((e,i)=>e.score==null?'':
     `${i?'L':'M'}${x(i)},${y(e.score)}`).filter(s=>s).join(' ')+
     '" fill="none" stroke="#58a6ff" stroke-width="1.4" opacity=".85"/>';
+  const qp=idx.map((e,i)=>e.quality==null?'':
+    `${i?'L':'M'}${x(i)},${y(e.quality)}`).filter(s=>s).join(' ');
+  if(qp)g+=`<path d="${qp}" fill="none" stroke="#bc8cff" stroke-width="1"
+    stroke-dasharray="2 3" opacity=".6"/>`;
   idx.forEach((e,i)=>{if(e.score==null)return;
     g+=`<circle class="node" data-sid="${e.id}" cx="${x(i)}" cy="${y(e.score)}"
       r="5.5" fill="${col(e.direction)}"><title>${e.id} ${e.score}</title></circle>`});
   el.innerHTML=g;
   el.querySelectorAll('.node').forEach(n=>n.onclick=()=>pick(n.dataset.sid));
   document.getElementById('legend').innerHTML=
-    Object.keys(DC).map(k=>`<span class="tag" style="border-color:${col(k)};color:${col(k)}">${k}</span>`).join(' ');
+    Object.keys(DC).map(k=>`<span class="tag" style="border-color:${col(k)};color:${col(k)}">${k}</span>`).join(' ')+
+    '<span class="tag" style="border-color:#bc8cff;color:#bc8cff">quality</span>';
 }
 
 function drawTree(idx){
@@ -311,6 +334,9 @@ function fbView(d){
   if(f.quality!=null)h+=`<span class="tag">quality ${f.quality.toPrecision(5)}</span>`;
   if(f.cost)h+='<span class="tag">cost '+Object.entries(f.cost).map(([k,v])=>
     k==='llm_tokens'?`${k}=${v}`:`${k}=${(v/1024).toFixed(1)}KB`).join(' ')+'</span>';
+  if(f.cost_how){const ch=f.cost_how,
+    c=ch==='measured'?'var(--good)':ch==='suspicious'?'var(--bad)':'var(--warn)';
+    h+=`<span class="tag" style="color:${c};border-color:${c}" title="cost accounting honesty">${ch}</span>`}
   if(f.baselines)h+=Object.entries(f.baselines).map(([k,v])=>{
     const beat=typeof v==='number'&&s!=null&&s>v;
     return `<span class="tag" style="color:${beat?'var(--good)':'var(--bad)'};border-color:${beat?'var(--good)':'var(--bad)'}">${k} ${typeof v==='number'?v.toPrecision(4):v} ${beat?'beat':'below'}</span>`}).join('');
@@ -352,6 +378,7 @@ async function tick(){
        <span>best <b class="best">${s.best?fmt(s.best.score)+' ('+s.best.id+')':'—'}</b></span>
        <span>eval_v ${s.eval_versions.join(',')}</span>
        <span>elapsed ${Math.round(s.elapsed)}s</span>`+
+      (s.suspicious?`<span><span class="tag" style="color:var(--bad);border-color:var(--bad)">suspicious:${s.suspicious}</span></span>`:'')+
       (s.error_kinds&&Object.keys(s.error_kinds).length?
         '<span>err '+Object.entries(s.error_kinds).map(([k,n])=>
           `<span class="tag" style="color:var(--bad);border-color:var(--bad)">${k}:${n}</span>`).join(' ')+'</span>':'')+
@@ -360,7 +387,7 @@ async function tick(){
     drawCurve('curve',idx,s);drawTree(idx);
     const tb=document.querySelector('#tbl tbody');tb.innerHTML=idx.map(e=>
       `<tr class="${e.id===sel?'sel':''}" onclick="pick('${e.id}')"><td class="mono">${e.id}</td>
-      <td class="mono ${e.score==null?'neg':''}">${e.score==null?(e.error?'ERR':'—'):Number(e.score).toPrecision(6)}</td>
+      <td class="mono ${e.score==null?'neg':''}">${e.score==null?(e.error?'ERR':'—'):Number(e.score).toPrecision(6)}${e.cost_how==='suspicious'?' <span class="neg" title="cost_how=suspicious">⚠</span>':''}</td>
       <td><span class="tag" style="color:${col(e.direction)};border-color:${col(e.direction)}">${e.direction||'?'}</span></td>
       <td class="mono">${(e.parents||[]).join(',')}</td><td>${e.eval_version}</td>
       <td class="small">${esc((e.feedback||e.error||'').slice(0,90))}</td></tr>`).join('');
@@ -400,7 +427,8 @@ class Handler(BaseHTTPRequestHandler):
         elif path == "/api/status":
             self._json(build_status(self.work))
         elif path == "/api/eb":
-            self._json(_read_json(self.work / "eb" / "index.json", []))
+            self._json(_enrich(
+                _read_json(self.work / "eb" / "index.json", [])))
         elif path.startswith("/api/solution/"):
             sid = path.rsplit("/", 1)[-1]
             if not sid.replace("_", "").replace("-", "").isalnum():
