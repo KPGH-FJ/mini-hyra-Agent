@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hyra"
+version = "0.1.0"
+description = "Clean-room reimplementation of the Hyra research-agent harness (producer-consumer solution search with an experience bank and evaluator co-evolution)"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+dependencies = []
+
+[project.scripts]
+hyra = "hyra.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["hyra*"]
