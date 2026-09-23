@@ -126,6 +126,20 @@ def generate(seed: int = 7):
     retract_slot = rng.choice([s for s in SLOTS if s not in changed])
     rec(rng.randint(68, 74), "self", "retraction", retract_slot, "")
 
+    # user-control event (not a stream record): the evaluator calls
+    # forget(slot) right after ckpt-54 probes. Truth-wise the slot is
+    # deleted entirely from that day on (state + history).
+    FORGET_DAY = 55
+    # must precede any later self-update on the slot, else a correct asset
+    # would legitimately recreate it after forget() while truth says gone.
+    # Fall back to a never-changed slot if every change lands at/after 55.
+    pref = [s for s in changed if change_day[s] < FORGET_DAY]
+    forget_slot = rng.choice(
+        pref if pref else
+        [s for s in SLOTS if s != retract_slot and s not in changed])
+    truth_events.append({"day": FORGET_DAY, "op": "del",
+                         "slot": forget_slot})
+
     records.sort(key=lambda r: r["day"])
 
     # ---- truth at each checkpoint ----
@@ -156,12 +170,16 @@ def generate(seed: int = 7):
     pid = 0
 
     def probe(ckpt, ptype, slot, expect, must_not=None, q=None,
-              value=None):
+              value=None, day=None, person=None):
         nonlocal pid
-        probes.append({"id": f"p{pid:03d}", "ckpt": ckpt, "type": ptype,
-                       "slot": slot, "expect": expect,
-                       "must_not": must_not or [], "q": q or slot,
-                       "value": value})
+        p = {"id": f"p{pid:03d}", "ckpt": ckpt, "type": ptype,
+             "slot": slot, "expect": expect,
+             "must_not": must_not or [], "q": q or slot, "value": value}
+        if day is not None:
+            p["day"] = day
+        if person is not None:
+            p["person"] = person
+        probes.append(p)
         pid += 1
 
     for c in CHECKPOINTS:
@@ -187,6 +205,7 @@ def generate(seed: int = 7):
         # skip a noise value the person independently also stated
         noise = [r for r in records if r["day"] <= c and
                  r["kind"] in ("hearsay", "suggestion") and
+                 r["slot"] != forget_slot and
                  not any(s["source"] == "self" and s["slot"] == r["slot"]
                          and s["value"] == r["value"] for s in records
                          if s["day"] <= c)]
@@ -195,13 +214,39 @@ def generate(seed: int = 7):
                   q=f"“{r['slot']}={r['value']}”这条信息是本人说的吗？"
                     "答 本人 或 非本人")
         # positive provenance controls: things the person DID say
+        # (forget_slot excluded: post-forget "did they say it" is ambiguous)
         said = [r for r in records if r["day"] <= c and
-                r["source"] == "self" and
+                r["source"] == "self" and r["slot"] != forget_slot and
                 r["kind"] in ("statement", "update", "correction")]
         for r in said[-2:]:
             probe(c, "prov", r["slot"], "本人", value=r["value"],
                   q=f"“{r['slot']}={r['value']}”这条信息是本人说的吗？"
                     "答 本人 或 非本人")
+        # subject probes: hearsay is attributable memory about OTHER people
+        # (must be stored without polluting self-state). Collapse by
+        # (person, slot) keeping latest so simultaneous probes never ask
+        # for two different values of the same attributed fact.
+        heard = [r for r in records if r["day"] <= c and
+                 r["kind"] == "hearsay" and r["slot"] != forget_slot]
+        latest_heard = {}
+        for r in heard:
+            latest_heard[(r["source"], r["slot"])] = r
+        for r in list(latest_heard.values())[-2:]:
+            probe(c, "subject", r["slot"], r["value"], person=r["source"],
+                  q=f"传闻中{r['source']}的{r['slot']}是什么？")
+        # as_of probes: reconstruct state at a past day — needs history,
+        # not just latest-wins (bitemporal pressure per lit surveys)
+        for slot in [s for s in changed
+                     if s not in (forget_slot, retract_slot)
+                     and change_day[s] < c][:2]:
+            D = change_day[slot] - 3
+            past_val = state_at(D)[0].get(slot)
+            current_val = cur.get(slot)
+            probe(c, "as_of", slot, past_val if past_val else "未知",
+                  must_not=[current_val]
+                  if current_val is not None and current_val != past_val
+                  else [],
+                  q=f"截至第{D}天，此人{slot}是什么？", day=D)
     # retraction probe: only at checkpoints AFTER the retraction arrived
     retract_day = next((r["day"] for r in records
                         if r["kind"] == "retraction"), 10**9)
@@ -212,6 +257,15 @@ def generate(seed: int = 7):
             probe(c, "retract", retract_slot, ["已删除", "未知", "unknown"],
                   must_not=[rv["value"]] if rv else [],
                   q=f"此人{retract_slot}的当前值？（该记录已被本人撤回）")
+    # cascade probes: after the evaluator's forget() call, every asserted
+    # value of the slot must be gone (state AND history)
+    fs_vals = [e["value"] for e in truth_events
+               if e["slot"] == forget_slot and e["op"] == "set"]
+    for c in CHECKPOINTS:
+        if c > FORGET_DAY:
+            probe(c, "cascade", forget_slot, ["已删除", "未知", "unknown"],
+                  must_not=[v for v in fs_vals if v],
+                  q=f"此人{forget_slot}的当前值？（本人已要求彻底删除该信息）")
     # transfer probe at final checkpoint: bundle of constraints
     cur, _ = state_at(CHECKPOINTS[-1])
     transfer_expect = [cur[s] for s in ("time_budget", "family", "risk")
@@ -230,5 +284,6 @@ def generate(seed: int = 7):
           q="为他制定本周计划需要哪些当前约束？列出相关值，逗号分隔")
 
     meta = {"changed": changed, "retract_slot": retract_slot,
-            "exp_day": exp_day, "n_records": len(records)}
+            "exp_day": exp_day, "n_records": len(records),
+            "forget": {"slot": forget_slot, "day": FORGET_DAY}}
     return records, probes, truth, meta
