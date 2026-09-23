@@ -12,11 +12,21 @@ The solution dir must contain `asset.py` exposing module-level:
 
     ingest(rec: dict) -> None
     answer(probe: dict) -> str
+    forget(scope: dict)       # optional; user-control op — evaluator calls
+                              #   forget({"slot": s}) once at a ckpt boundary;
+                              #   missing it loses cascade-probe points
     stats() -> dict           # optional legacy; {"asset_bytes": int,
                               #            "probe_bytes": int (cumulative),
                               #            "llm_tokens": int}
     state() -> dict           # optional; serializable asset — MEASURED cost
     probe_bytes() -> int      # optional; cumulative consulted bytes
+
+Probe types (v2): state | stale | prov | retract | transfer — plus
+    as_of:   probe["day"]=D → value live at day D (history required)
+    subject: probe["person"]=P → hearsay value attributed to P (self-state
+             must NOT be polluted by it)
+    cascade: fired after the evaluator's forget() call — every asserted
+             value of the forgotten slot must be gone (state AND history)
 
 Cost is MEASURED, not self-reported (v1 fix: s0023 gamed stats()): when the
 asset exposes state()/probe_bytes() the evaluator serializes them itself;
@@ -61,7 +71,7 @@ def score_probe(probe, answer):
     for bad in probe.get("must_not", []):
         if norm(bad) and norm(bad) in a:
             return -0.5
-    if probe["type"] == "retract":
+    if probe["type"] in ("retract", "cascade"):
         # any acceptable "gone" phrasing scores
         opts = expect if isinstance(expect, list) else [expect]
         return 1.0 if any(norm(v) in a for v in opts) else 0.0
@@ -103,13 +113,20 @@ def measure_cost(asset, cum_probe_bytes_reported: int, answered: bool):
             "llm_tokens": llm}, how
 
 
-def drive(asset, records, probes):
-    """Run the lifecycle; return per-probe rows + cost + honesty flag."""
+def drive(asset, records, probes, meta=None):
+    """Run the lifecycle; return per-probe rows + cost + honesty flag.
+
+    meta["forget"] = {"slot", "day"}: user-control event — after the last
+    ckpt < day the evaluator calls asset.forget({"slot": slot}) (if the
+    asset exposes it). Cascade probes afterwards score deletion depth.
+    """
     by_ckpt = {}
     for p in probes:
         by_ckpt.setdefault(p["ckpt"], []).append(p)
+    forget = (meta or {}).get("forget")
+    forget_fired = False
     rows, cum_reported, answered = [], 0, False
-    for ckpt in CHECKPOINTS:
+    for i, ckpt in enumerate(CHECKPOINTS):
         for r in [x for x in records if x["day"] <= ckpt
                   and not x.get("_fed")]:
             asset.ingest(r)
@@ -123,6 +140,15 @@ def drive(asset, records, probes):
                 cum_reported += int(st.get("probe_bytes", 0))
             rows.append({"probe": p, "answer": str(ans),
                          "score": score_probe(p, ans)})
+        next_ckpt = CHECKPOINTS[i + 1] if i + 1 < len(CHECKPOINTS) else 10**9
+        if (forget and not forget_fired
+                and ckpt < forget["day"] <= next_ckpt):
+            if hasattr(asset, "forget"):
+                try:
+                    asset.forget({"slot": forget["slot"]})
+                except Exception:
+                    pass
+            forget_fired = True
     cost, how = measure_cost(asset, cum_reported, answered)
     return rows, cost, how
 
@@ -138,6 +164,27 @@ def load_asset(sol: Path):
 
 
 # ----------------- baselines (same stream, same probes) -----------------
+def _replay(recs, day):
+    """Replay day-ordered records to reconstruct self-state at `day`.
+    LWW + retraction + expiry — the honest floor for as_of probes."""
+    st, exp = {}, {}
+    for r in recs:
+        if r["day"] > day:
+            break
+        if (r["source"] == "self"
+                and r["kind"] in ("statement", "update", "correction")):
+            st[r["slot"]] = r["value"]
+            if r.get("expires_day"):
+                exp[r["slot"]] = r["expires_day"]
+        elif r["kind"] == "retraction":
+            st.pop(r["slot"], None)
+            exp.pop(r["slot"], None)
+    for s, d in list(exp.items()):
+        if day > d:
+            st.pop(s, None)
+    return st
+
+
 class RawBaseline:
     """All records kept; answer = most recent self record for the slot."""
     def __init__(self):
@@ -146,7 +193,20 @@ class RawBaseline:
     def ingest(self, r):
         self.recs.append(r)
 
+    def forget(self, scope):
+        slot = scope.get("slot")
+        self.recs = [r for r in self.recs if r["slot"] != slot]
+
     def answer(self, p):
+        if p["type"] == "as_of":
+            v = _replay(self.recs, p.get("day", 10**9)).get(p["slot"])
+            return v if v is not None else "未知"
+        if p["type"] == "subject":
+            hits = [r for r in self.recs if r["kind"] == "hearsay"
+                    and r["source"] == p.get("person")
+                    and r["slot"] == p["slot"]
+                    and r["day"] <= p.get("ckpt", 10**9)]
+            return hits[-1]["value"] if hits else "未知"
         hits = [r for r in self.recs if r["slot"] == p["slot"]
                 and r["source"] == "self" and r["kind"] != "retraction"]
         if p["type"] == "prov":
@@ -161,7 +221,8 @@ class RawBaseline:
 
 
 class LedgerBaseline:
-    """Last-write-wins per slot from self records; no provenance control."""
+    """Last-write-wins per slot from self records; no provenance control,
+    no history (as_of honestly fails), no hearsay tracking (subject fails)."""
     def __init__(self):
         self.m = {}
 
@@ -172,7 +233,12 @@ class LedgerBaseline:
             elif "expires_day" not in r or True:
                 self.m[r["slot"]] = (r["value"], r.get("expires_day"))
 
+    def forget(self, scope):
+        self.m.pop(scope.get("slot"), None)
+
     def answer(self, p):
+        if p["type"] == "subject":
+            return "未知"
         if p["type"] == "prov":
             v = self.m.get(p["slot"])
             return "本人" if v and v[0] == p.get("value") else "非本人"
@@ -192,11 +258,23 @@ class RAGBaseline:
     def ingest(self, r):
         self.recs.append(r)
 
+    def forget(self, scope):
+        slot = scope.get("slot")
+        self.recs = [r for r in self.recs if r["slot"] != slot]
+
     def answer(self, p):
         hits = [r for r in self.recs if p["slot"] in r["text"]
                 or r["slot"] == p["slot"]]
         if not hits:
             return "未知"
+        if p["type"] == "as_of":
+            v = _replay(hits, p.get("day", 10**9)).get(p["slot"])
+            return v if v is not None else "未知"
+        if p["type"] == "subject":
+            hh = [r for r in hits if r["kind"] == "hearsay"
+                  and r["source"] == p.get("person")
+                  and r["day"] <= p.get("ckpt", 10**9)]
+            return hh[-1]["value"] if hh else "未知"
         if p["type"] == "prov":
             said = any(r["source"] == "self" and r["value"] == p.get("value")
                        for r in hits)
@@ -229,7 +307,7 @@ def main():
 
     recs = copy.deepcopy(records)
     try:
-        rows, cost, how = drive(asset, recs, probes)
+        rows, cost, how = drive(asset, recs, probes, meta)
     except Exception as e:
         print(json.dumps({"score": -1e9,
                           "feedback": f"asset raised: {e!r}"}))
@@ -247,7 +325,7 @@ def main():
                       ("rag", RAGBaseline)]:
         rr = copy.deepcopy(records)
         try:
-            rws, _c, _h = drive(cls(), rr, probes)
+            rws, _c, _h = drive(cls(), rr, probes, meta)
             bl[name] = round(sum(r["score"] for r in rws), 3)
         except Exception as e:
             bl[name] = f"err:{e!r}"

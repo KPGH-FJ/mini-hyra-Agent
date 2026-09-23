@@ -11,6 +11,10 @@ Your solution dir MUST contain `asset.py` exposing module-level:
 ```python
 def ingest(rec: dict) -> None: ...
 def answer(probe: dict) -> str: ...
+def forget(scope: dict) -> None: ...  # optional user-control op; evaluator
+                                     # calls forget({"slot": s}) once at a
+                                     # checkpoint boundary — absence loses
+                                     # cascade-probe points
 def state() -> dict: ...        # recommended: serializable asset — cost is
                                 # MEASURED by serializing this
 def probe_bytes() -> int: ...  # recommended: cumulative bytes consulted
@@ -37,16 +41,24 @@ drives the lifecycle itself. Do NOT write files, network-call, or time-depend.
 
 ## Probes (answered by `answer()`)
 
-Each probe dict: `{q, type, slot, ckpt, value?}` — `ckpt` is the day the
-probe is asked (use for expiry), `value` is the claimed value (prov only).
+Each probe dict: `{q, type, slot, ckpt, value?, day?, person?}` — `ckpt` is
+the day the probe is asked (use for expiry), `value` is the claimed value
+(prov only), `day`/`person` appear on the new v2 types.
 
 - `state`   — current value of a slot; "未知" if unknown/retracted/expired.
 - `stale`   — same but the answer must NOT contain the superseded old value.
 - `prov`    — "本人" or "非本人": was the claimed slot=value actually said by
               the person (not hearsay/suggestion)?
-- `retract` — after deletion, assert nothing: expect "已删除/未知".
+- `retract` — after in-stream deletion, assert nothing: "已删除/未知".
 - `transfer`— expect = list of values; hit as many as possible in one
               comma-separated answer (e.g. a week's-planning constraint bundle).
+- `as_of`   — probe["day"]=D: the value live at day D. Requires history
+              reconstruction, not just latest-wins (bitemporal semantics).
+- `subject` — probe["person"]=P: the hearsay value attributed to person P.
+              Hearsay IS legitimate memory — attributed to its subject,
+              never folded into the person's own state.
+- `cascade` — after the evaluator's forget() call: every asserted value of
+              the forgotten slot must be gone — current state AND history.
 
 Answer with the raw value string — short, no prose. Scoring is substring
 match (normalized), with a hard penalty for surfacing a `must_not` value.

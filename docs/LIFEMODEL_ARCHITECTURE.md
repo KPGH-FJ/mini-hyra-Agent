@@ -1,4 +1,4 @@
-# LifeModel System v0 — 框架与接口（草案，待发起人过目）
+# LifeModel System v0 — 框架与接口（v1.1，P1 调研已回灌）
 
 > 研究对象是一套**可复用的方法系统**：把单个用户授权的记录流灌进去，
 > 系统持续形成并维护一份"对这个人的理解资产"，供不同用途调用。
@@ -53,25 +53,56 @@ class LifeModel:
     def probe_bytes(self) -> int       # 累计检索/传输给回答层的字节
 ```
 
-## 3. 各模块的候选空间（先占位，调研后充实）
+## 3. 各模块的候选空间（调研纪要：docs/literature/m*.md）
 
-- **M1**：透传式 / 归一化+置信度标注 / 冲突登记表（truth discovery 思路）
-- **M2**：s0011 式按槽权威索引（现任冠军）/ 双时态表 / 时态知识图谱(Zep-like)
-  / 摘要树 / 向量+结构混合
-- **M3**：直接覆盖（现状）/ supersede 链 / **TMS 依赖追踪**（撤回自动失效推论）
-  / AGM 修正语义 / 事件溯源+投影重建
-- **M4**：全量回放 / 槽位定向 / RAG top-k / 置信度门槛+拒答补问
-- **M5**：无 / 操作日志+级联失效 / 派生物注册表（每派生内容挂溯源，
-  删除时可清扫）
+- **M1**（m1_ingest.md，PR#3）：归一化事件 schema；truth discovery
+  （TruthFinder/CATD 式信源加权）、实体消歧、subjective logic 处理传闻；
+  11 个 seed 候选。
+- **M2**（m2_representation.md，PR#5）：10 个表征族（bitemporal DB、frames/
+  RDF、Zep/Graphiti、MemGPT/mem0/A-MEM、Generative Agents、RAPTOR/GraphRAG、
+  参数记忆、PROV/NELL、TMS/AGM）；种子表 S1–S8，建议 S1 bitemporal-ledger、
+  S3 episode+fact 双层、S7 event-sourced 先入库做基线。
+- **M3**（m3_update.md，PR#4）：Katsuno–Mendelzon update-vs-revision 区分
+  ≈ 我们的 update/correction；**TMS 依赖追踪是“纠错必须传导”的唯一直接
+  机制** → M2 派生条目应挂 `supports=[rec_id]`；Zep 四时间戳边 = 双时态
+  工业实现；unlearning 基本不迁移；种子 S1–S9 按 ledger→event-sourced→
+  TMS 层→压缩 的顺序登。
+- **M4**（m4_serve.md，PR#6）：三元决策形式化（查哪些/答不答/怎么呈现）；
+  RAG 全谱系、上下文压缩、selective prediction 校准拒答、ALCE/RAGAS 溯源
+  展示；种子 S1–S4 可做基线。
+- **M5**（m5_control.md，PR#2）：真删除=依赖图+级联失效（与 M3/TMS 合流）；
+  unlearning 对显式资产不适用；Solid pods 是“资产归本人”的最近似已有
+  架构（export/forget 应是 Pod 式视图而非厂商施舍）；控制操作应走同一
+  条事件管线；候选 C0–C5（派生注册表、事件溯源控制、TMS 级联、用途标注、
+  待确认纠正队列）。
 
-## 4. 评价方案（沿用并加固 LifeStream）
+### 调研共识 → 接口修订（冻结进契约的增量）
+
+1. **派生条目挂 `supports=[rec_id]`**（M2×M3×M5 三份纪要共同指向）：
+   删除/撤回才能级联。v0 先不强制，P3 M3 轮次会要求。
+2. **hearsay 断言带 subject 维度**（M2）：谁传闻谁 —— LifeStream v2
+   subject 探针已落地此要求。
+3. **as_of 时态查询**（M2/M3/M4 共同建议）：资产必须能回答“第 D 天时
+   是什么” → 等价于要保留（可重建的）历史 → LifeStream v2 as_of 探针。
+4. **控制操作即事件**（M5）：correct/forget 走同一管线进 journal →
+   LifeStream v2 cascade 探针（评测器在 ckpt 边界调 forget()）。
+
+## 4. 评价方案（LifeStream v2 — 已落地）
 
 - 生命周期：ingest 分段 → checkpoint 探针 → 更新事件 → 再探针（5 个 ckpt）
-- 探针类型：state / stale / prov / retract / transfer，77 个
+- 探针类型：state / stale / prov / retract / transfer ＋ **v2 新增**
+  **as_of**（时态回溯，考历史可重建性）、**subject**（传闻归属，
+  考“不污染本人状态”）、**cascade**（forget 后历史与派生须一并消失）
+- 控制事件：评测器在 day-55 边界调 `asset.forget({"slot": s})`；
+  不实现 forget 的资产会丢 cascade 分并被 must_not 反噬
 - 成本：评测器实测（state 序列化字节、probe_bytes、llm_tokens）——
   stats() 仅作声明性参考，不作分数依据（v1 修复点）
-- 基线：raw / ledger / rag + 调研后新增方法族基线
+- 基线：raw / ledger / rag（v2 已各自支持 forget/as_of/subject 的诚实
+  版本——ledger 无历史即诚实丢分，正是调研预测的双时态缺口）
 - 双层循环：评估器可共进化，专门盯着新型作弊面
+- **v2 之后待办**：export-import 探针（导出→新实例重建→再答，验证
+  可迁移性）、answer|clarify|abstain 三值输出（M4 建议）、control-cost
+  度量（用户操作步数入总成本）
 
 ## 5. 迭代协议（研究节奏）
 
@@ -83,16 +114,18 @@ class LifeModel:
 
 ## 6. 阶段路线
 
-- **P0**（本文件）：框架+接口定稿 ← 当前，待过目
-- **P1**：五模块文献调研纪要（并行子会话）→ 候选空间充实 + 新基线
-- **P2**：v0 骨架实现：M2 用 s0011 方案，其余最简实现；基准全绿
-- **P3**：逐模块 Hyra 进化（每次单模块开放，全链路评分）
+- **P0**（本文件）：框架+接口定稿 ✓（cffc106）
+- **P1**：五模块文献调研纪要 ✓（PR#2–#6，docs/literature/）
+- **P2**：v0 骨架实现 ✓（lifemodel/，361e681；LifeStream v2 加固评测器
+  — as_of/subject/cascade 探针）
+- **P3**：逐模块 Hyra 进化（每次单模块开放，全链路评分）← 当前
 - **P4**：真实授权数据验证（需单独授权，brief §83）
 
-## 7. 当前遗留问题（带进 P1 调研）
+## 7. 遗留问题（P1 后更新）
 
-- stats() 作弊洞：state()/probe_bytes 由评测器度量后，接口语义如何
-  约束"诚实记账"仍要保证模块可自由换实现。
-- retraction 的传导深度：v0 只删槽位，TMS 式级联失效是 M3 首个候选。
-- prov/transfer 之外是否需要"时态查询"探针（"day40 时我以为是什么"）——
-  取决于调研发现的能力缺口。
+- ~~stats() 作弊洞~~：已堵（v1 实测成本 + cost_how 标记）。
+- ~~是否需要时态查询探针~~：三份纪要一致说要 → as_of 探针已入 v2。
+- ~~retraction 传导深度~~：cascade 探针考核 forget 彻底性；TMS 式
+  派生级联失效（supports=）留给 P3 M3 轮。
+- 新：三值输出（answer|clarify|abstain）与 export-import 探针列入
+  评测器 v3 待办；派生注册表 v0 未实现，M3/M5 进化时补。
