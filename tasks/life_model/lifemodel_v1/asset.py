@@ -29,5 +29,9 @@ def state():
     return _m.state()
 
 
+def import_state(d):
+    _m.import_state(d)
+
+
 def probe_bytes():
     return _m.probe_bytes()

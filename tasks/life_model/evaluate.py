@@ -21,12 +21,21 @@ The solution dir must contain `asset.py` exposing module-level:
     state() -> dict           # optional; serializable asset — MEASURED cost
     probe_bytes() -> int      # optional; cumulative consulted bytes
 
-Probe types (v2): state | stale | prov | retract | transfer — plus
+Probe types (v3): state | stale | prov | retract | transfer — plus
     as_of:   probe["day"]=D → value live at day D (history required)
     subject: probe["person"]=P → hearsay value attributed to P (self-state
              must NOT be polluted by it)
     cascade: fired after the evaluator's forget() call — every asserted
-             value of the forgotten slot must be gone (state AND history)
+             value of the forgotten slot must be gone (state AND
+             history, including DERIVED facts it supported)
+    derive:  premise superseded (correction) → derived value must be gone
+             (revision semantics; the gone-phrasing branch like cascade)
+    derived records: kind="derived", source="inference", supports=[rec_ids]
+             — live state probes expect them while premises hold
+    export-import: after meta["export_day"] ckpt probes the evaluator does
+             state() -> json -> import_state(); probes flagged
+             post_import score 0 if the round-trip is missing/failed
+             (asset must expose import_state(d) to earn them)
 
 Cost is MEASURED, not self-reported (v1 fix: s0023 gamed stats()): when the
 asset exposes state()/probe_bytes() the evaluator serializes them itself;
@@ -71,7 +80,7 @@ def score_probe(probe, answer):
     for bad in probe.get("must_not", []):
         if norm(bad) and norm(bad) in a:
             return -0.5
-    if probe["type"] in ("retract", "cascade"):
+    if probe["type"] in ("retract", "cascade", "derive"):
         # any acceptable "gone" phrasing scores
         opts = expect if isinstance(expect, list) else [expect]
         return 1.0 if any(norm(v) in a for v in opts) else 0.0
@@ -124,7 +133,9 @@ def drive(asset, records, probes, meta=None):
     for p in probes:
         by_ckpt.setdefault(p["ckpt"], []).append(p)
     forget = (meta or {}).get("forget")
+    export_day = (meta or {}).get("export_day")
     forget_fired = False
+    import_ok = None
     rows, cum_reported, answered = [], 0, False
     for i, ckpt in enumerate(CHECKPOINTS):
         for r in [x for x in records if x["day"] <= ckpt
@@ -132,7 +143,10 @@ def drive(asset, records, probes, meta=None):
             asset.ingest(r)
             r["_fed"] = True
         for p in by_ckpt.get(ckpt, []):
-            ans = asset.answer(p)
+            if p.get("post_import") and import_ok is False:
+                ans = ""   # no working export->import: continuity lost
+            else:
+                ans = asset.answer(p)
             if str(ans).strip() not in ("", "未知"):
                 answered = True
             st = asset.stats() if hasattr(asset, "stats") else {}
@@ -149,6 +163,22 @@ def drive(asset, records, probes, meta=None):
                 except Exception:
                     pass
             forget_fired = True
+        if export_day is not None and ckpt == export_day:
+            # export -> import round-trip: state() snapshot serialized to
+            # JSON and loaded into the same asset — then the remaining
+            # stream keeps feeding it. Assets without import_state (or a
+            # throwing one) forfeit every post_import probe.
+            st_fn = getattr(asset, "state", None)
+            im_fn = getattr(asset, "import_state", None)
+            import_ok = False
+            if callable(st_fn) and callable(im_fn):
+                try:
+                    snap = json.loads(json.dumps(st_fn(),
+                                                 ensure_ascii=False))
+                    im_fn(snap)
+                    import_ok = True
+                except Exception:
+                    import_ok = False
     cost, how = measure_cost(asset, cum_reported, answered)
     return rows, cost, how
 
@@ -197,6 +227,12 @@ class RawBaseline:
         slot = scope.get("slot")
         self.recs = [r for r in self.recs if r["slot"] != slot]
 
+    def state(self):
+        return {"recs": self.recs}
+
+    def import_state(self, d):
+        self.recs = list(d["recs"])
+
     def answer(self, p):
         if p["type"] == "as_of":
             v = _replay(self.recs, p.get("day", 10**9)).get(p["slot"])
@@ -222,7 +258,8 @@ class RawBaseline:
 
 class LedgerBaseline:
     """Last-write-wins per slot from self records; no provenance control,
-    no history (as_of honestly fails), no hearsay tracking (subject fails)."""
+    no history (as_of honestly fails), no hearsay tracking (subject
+    fails), no derived tracking (state/derive probes on them fail)."""
     def __init__(self):
         self.m = {}
 
@@ -235,6 +272,13 @@ class LedgerBaseline:
 
     def forget(self, scope):
         self.m.pop(scope.get("slot"), None)
+
+    def state(self):
+        return {"m": self.m}
+
+    def import_state(self, d):
+        self.m = {k: tuple(v) if isinstance(v, list) else v
+                  for k, v in d["m"].items()}
 
     def answer(self, p):
         if p["type"] == "subject":
@@ -261,6 +305,12 @@ class RAGBaseline:
     def forget(self, scope):
         slot = scope.get("slot")
         self.recs = [r for r in self.recs if r["slot"] != slot]
+
+    def state(self):
+        return {"recs": self.recs}
+
+    def import_state(self, d):
+        self.recs = list(d["recs"])
 
     def answer(self, p):
         hits = [r for r in self.recs if p["slot"] in r["text"]

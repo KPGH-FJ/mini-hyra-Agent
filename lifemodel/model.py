@@ -43,6 +43,9 @@ class LifeModel:
     def state(self) -> dict:
         return self.store.snapshot()
 
+    def import_state(self, d: dict) -> None:
+        self.store.restore(d)
+
     def probe_bytes(self) -> int:
         return m_serve.probe_bytes()
 

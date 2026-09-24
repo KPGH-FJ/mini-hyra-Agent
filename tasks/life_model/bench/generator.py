@@ -14,6 +14,16 @@ Truth: for each checkpoint day, {slot: {"current": v|None, "provenance": src}}
 after applying ops in order (update/correction overwrite; retraction clears;
 expired constraints clear at expires_day; hearsay/suggestion never count as
 the person's own state — provenance probes test that distinction).
+
+v3 (M3 update pressure): the stream also carries DERIVED records —
+kind="derived", source="inference", plus a `supports` list of premise
+record ids. A derived fact lives only while every premise holds: deleting
+or superseding a premise (retraction, evaluator forget(), a correction
+changing the premised value, expiry) kills it — and the kill is
+transitive when derived records support other derived records. Assets
+that store derived facts flat keep them alive past their premise's death
+and lose points; truth-maintenance wiring (supports -> dependents) is
+what the round selects for.
 """
 from __future__ import annotations
 
@@ -42,6 +52,10 @@ VALS = {
 
 OTHER_PEOPLE = ["同事小李", "朋友阿伟", "表姐"]
 
+# derived slots hold facts the system inferred; their zh labels feed _txt
+DSLOT_ZH = {"plan_hint": "计划提示", "routine_fit": "作息适配",
+            "elder_plan": "照护安排"}
+
 
 def _txt(kind, slot, value, src, day):
     who = "我" if src == "self" else ("助手" if src == "assistant" else src)
@@ -49,7 +63,9 @@ def _txt(kind, slot, value, src, day):
           "time_budget": "每周可投入", "family": "家庭情况",
           "diet": "饮食偏好", "exercise": "运动习惯", "learning": "在学",
           "risk": "风险偏好", "contact": "联系渠道", "sleep": "作息",
-          "device": "主要设备"}[slot]
+          "device": "主要设备"}.get(slot) or DSLOT_ZH.get(slot, slot)
+    if kind == "derived":
+        return f"系统推断：{zh}为{value}。（由前提记录推出）"
     if kind == "statement":
         return f"{who}说：{zh}是{value}。"
     if kind == "update":
@@ -72,16 +88,25 @@ def generate(seed: int = 7):
     probes = []
     rid = 0
 
-    def rec(day, source, kind, slot, value, expires=None):
+    first_rec_id, first_val = {}, {}
+
+    def rec(day, source, kind, slot, value, expires=None,
+            supports=None, premises=None):
         nonlocal rid
         r = {"id": f"r{rid:04d}", "day": day, "source": source,
              "kind": kind, "slot": slot, "value": value,
              "text": _txt(kind, slot, value, source, day)}
         if expires:
             r["expires_day"] = expires
+        if supports:
+            r["supports"] = list(supports)
         records.append(r)
         rid += 1
-        if source == "self" and kind in (
+        if kind == "derived":
+            truth_events.append(
+                {"day": day, "op": "set_derived", "slot": slot,
+                 "value": value, "premises": dict(premises or {})})
+        elif source == "self" and kind in (
                 "statement", "update", "correction"):
             truth_events.append(
                 {"day": day, "op": "set", "slot": slot, "value": value,
@@ -94,7 +119,8 @@ def generate(seed: int = 7):
     day = 1
     for slot in SLOTS:
         v = rng.choice(VALS[slot])
-        rec(day, "self", "statement", slot, v)
+        r = rec(day, "self", "statement", slot, v)
+        first_rec_id[slot], first_val[slot] = r["id"], v
         day += rng.randint(1, 3)
 
     # noise: hearsay about others + assistant suggestions (never truth)
@@ -107,12 +133,18 @@ def generate(seed: int = 7):
 
     # mid-stream: genuine changes to ~5 slots, spread over days 20-60
     changed = rng.sample(SLOTS, 5)
-    change_day = {}
+    corr_slot = rng.choice(changed)   # forced correction (M3 premise-kill)
+    change_day, change_rec_id = {}, {}
     for slot in changed:
         d = rng.randint(20, 60)
         change_day[slot] = d
-        rec(d, "self", rng.choice(["update", "correction"]), slot,
-            rng.choice([v for v in VALS[slot]]))
+        kind = "correction" if slot == corr_slot else rng.choice(
+            ["update", "correction"])
+        pool = [v for v in VALS[slot]]
+        if slot == corr_slot:
+            pool = [v for v in pool if v != first_val.get(slot)]
+        change_rec_id[slot] = rec(d, "self", kind, slot,
+                                  rng.choice(pool))["id"]
         # a conflicting hearsay right after the change (must not win)
         rec(d + 1, rng.choice(OTHER_PEOPLE), "hearsay", slot,
             rng.choice(VALS[slot]))
@@ -140,25 +172,78 @@ def generate(seed: int = 7):
     truth_events.append({"day": FORGET_DAY, "op": "del",
                          "slot": forget_slot})
 
+    # ---- M3: derived records with declared supports -----------------
+    # The system-inference family: each derived fact declares premise
+    # record ids; it lives only while every premise holds. Deleting the
+    # forgotten slot must kill d1 (depth-1) AND d2 (premised on d1 —
+    # depth-2 chain). Correcting corr_slot must kill d3 (premise value
+    # superseded — revision semantics, not just deletion).
+    def liveval(slot, day):
+        v, vd = None, -1
+        for e in truth_events:
+            if e["day"] > day or e["slot"] != slot:
+                continue
+            if e["op"] == "del":
+                v, vd = None, e["day"]
+            elif e["day"] >= vd:
+                v, vd = e["value"], e["day"]
+        return v
+
+    d3_val = "陪护优先排程"
+    d3_day = min(18, change_day[corr_slot] - 2)
+    rec(d3_day, "inference", "derived",
+        "elder_plan", d3_val,
+        supports=[first_rec_id[corr_slot]],
+        premises={corr_slot: first_val[corr_slot]})
+    r_d1 = rec(46, "inference", "derived", "plan_hint", "周末上午安排",
+               supports=[change_rec_id.get(
+                   forget_slot, first_rec_id[forget_slot])],
+               premises={forget_slot: liveval(forget_slot, 46)})
+    rec(50, "inference", "derived", "routine_fit", "晚间例行可保留",
+        supports=[r_d1["id"]], premises={"plan_hint": "周末上午安排"})
+
     records.sort(key=lambda r: r["day"])
 
     # ---- truth at each checkpoint ----
     def state_at(day):
-        cur, prov, exp = {}, {}, {}
+        cur, prov, exp, drv = {}, {}, {}, {}
+
+        def prune_derived():
+            """Kill live derived facts whose premises no longer hold —
+            premise slot absent or its live value diverged; transitive via
+            cur (derived values live there while valid)."""
+            moved = True
+            while moved:
+                moved = False
+                for s, d in list(drv.items()):
+                    if any(cur.get(ps) != pv
+                           for ps, pv in d["premises"].items()):
+                        del drv[s]
+                        cur.pop(s, None)
+                        prov.pop(s, None)
+                        moved = True
+
         for e in truth_events:
             if e["day"] > day:
                 continue
             if e["op"] == "del":
                 cur.pop(e["slot"], None)
                 prov.pop(e["slot"], None)
+            elif e["op"] == "set_derived":
+                drv[e["slot"]] = {"premises": e["premises"]}
+                cur[e["slot"]] = e["value"]
+                prov[e["slot"]] = "inference"
             else:
                 cur[e["slot"]] = e["value"]
                 prov[e["slot"]] = "self"
                 if e.get("expires_day"):
                     exp[e["slot"]] = e["expires_day"]
+            prune_derived()
         for s, d in list(exp.items()):
             if day > d and s in cur:
                 cur.pop(s)
+                prov.pop(s, None)
+        prune_derived()   # expiry kills dependents too
         return cur, prov
 
     truth = {}
@@ -170,7 +255,7 @@ def generate(seed: int = 7):
     pid = 0
 
     def probe(ckpt, ptype, slot, expect, must_not=None, q=None,
-              value=None, day=None, person=None):
+              value=None, day=None, person=None, post_import=False):
         nonlocal pid
         p = {"id": f"p{pid:03d}", "ckpt": ckpt, "type": ptype,
              "slot": slot, "expect": expect,
@@ -179,6 +264,8 @@ def generate(seed: int = 7):
             p["day"] = day
         if person is not None:
             p["person"] = person
+        if post_import:
+            p["post_import"] = True
         probes.append(p)
         pid += 1
 
@@ -265,7 +352,69 @@ def generate(seed: int = 7):
         if c > FORGET_DAY:
             probe(c, "cascade", forget_slot, ["已删除", "未知", "unknown"],
                   must_not=[v for v in fs_vals if v],
-                  q=f"此人{forget_slot}的当前值？（本人已要求彻底删除该信息）")
+                  q=f"此人{forget_slot}的当前值？（本人已要求彻底删除该信息）",
+                  post_import=(c == CHECKPOINTS[-1]))
+
+    # ---- M3 probes: derived facts tracked while live, gone when the
+    # premise dies (deletion of a supporting slot -> 'cascade' on the
+    # derived slot; premise superseded by correction -> 'derive').
+    dval = {"plan_hint": "周末上午安排",
+            "routine_fit": "晚间例行可保留",
+            "elder_plan": "陪护优先排程"}
+    death = {"plan_hint": (FORGET_DAY, "cascade"),
+             "routine_fit": (FORGET_DAY, "cascade"),
+             "elder_plan": (change_day[corr_slot], "derive")}
+    asserted_day = {"plan_hint": 46, "routine_fit": 50,
+                    "elder_plan": d3_day}
+    for c in CHECKPOINTS:
+        cur_c, _ = state_at(c)
+        for ds, (d_day, ptype) in death.items():
+            if asserted_day[ds] <= c < d_day and ds in cur_c:
+                probe(c, "state", ds, cur_c[ds],
+                      q=f"此人的{DSLOT_ZH[ds]}是什么？")
+            elif c >= d_day:
+                probe(c, ptype, ds, ["已删除", "未知", "unknown"],
+                      must_not=[dval[ds]],
+                      q=f"此人的{DSLOT_ZH[ds]}是什么？（前提已失效）",
+                      post_import=(c == CHECKPOINTS[-1]))
+
+    # ---- export-import continuity (M5 carry-over): the evaluator
+    # round-trips state() -> import_state() right after ckpt-72 probes;
+    # these ckpt-90 probes are scored only if the move preserved the
+    # asset (state, history, attributed hearsay, provenance, deletions).
+    EXPORT_DAY = 72
+    cur90, _ = state_at(90)
+    ex_slot = next((s for s in changed
+                    if s in cur90 and s != forget_slot), None)
+    if ex_slot:
+        probe(90, "state", ex_slot, cur90[ex_slot],
+              q=f"此人当前的{ex_slot}是什么？", post_import=True)
+    ex_asof = next((s for s in changed
+                    if s not in (forget_slot, retract_slot)
+                    and change_day[s] < 87), None)
+    if ex_asof:
+        D = change_day[ex_asof] - 3
+        pv = state_at(D)[0].get(ex_asof)
+        probe(90, "as_of", ex_asof, pv if pv else "未知", day=D,
+              must_not=[cur90[ex_asof]]
+              if cur90.get(ex_asof) and cur90[ex_asof] != pv else [],
+              q=f"截至第{D}天，此人{ex_asof}是什么？",
+              post_import=True)
+    lh = [r for r in records if r["kind"] == "hearsay"
+          and r["slot"] != forget_slot]
+    if lh:
+        r = lh[-1]
+        probe(90, "subject", r["slot"], r["value"], person=r["source"],
+              q=f"传闻中{r['source']}的{r['slot']}是什么？",
+              post_import=True)
+    said90 = [r for r in records if r["day"] <= 90
+              and r["source"] == "self" and r["slot"] != forget_slot
+              and r["kind"] in ("statement", "update", "correction")]
+    if said90:
+        r = said90[-1]
+        probe(90, "prov", r["slot"], "本人", value=r["value"],
+              q=f"“{r['slot']}={r['value']}”这条信息是本人说的吗？"
+                "答 本人 或 非本人", post_import=True)
     # transfer probe at final checkpoint: bundle of constraints
     cur, _ = state_at(CHECKPOINTS[-1])
     transfer_expect = [cur[s] for s in ("time_budget", "family", "risk")
@@ -285,5 +434,6 @@ def generate(seed: int = 7):
 
     meta = {"changed": changed, "retract_slot": retract_slot,
             "exp_day": exp_day, "n_records": len(records),
+            "corr_slot": corr_slot, "export_day": EXPORT_DAY,
             "forget": {"slot": forget_slot, "day": FORGET_DAY}}
     return records, probes, truth, meta

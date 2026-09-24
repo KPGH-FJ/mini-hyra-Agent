@@ -136,3 +136,8 @@ class TemporalGraph:
 
     def snapshot(self):
         return {"hist": self.hist, "prov": self.prov}
+
+    def restore(self, d):
+        """Reload a snapshot() dict — export/import continuity hook."""
+        self.hist = {k: [list(e) for e in v] for k, v in d["hist"].items()}
+        self.prov = {k: list(v) for k, v in d["prov"].items()}
