@@ -1,8 +1,10 @@
 # P3 round 1 — M2 representation evolution results
 
-**Run:** `hyra run --task tasks/life_model --work run_v2 --solutions 100 --workers 4 --wall-clock 14400`
+**Runs (two windows, same `run_v2` EB):**
+- W1: `hyra run --task tasks/life_model --work run_v2 --solutions 100 --workers 4 --wall-clock 14400` — 2026-09-23 15:38 → 20:12 UTC
+- W2 (resumed, EB preserved): same command — 2026-09-23 20:17 → 2026-09-24 00:50 UTC
+
 **Evaluator:** LifeStream v2 (97 probes; seed 7) — `score = quality − 0.002·KB(asset) − 0.0002·KB(probe) − 0.0002·tokens`
-**Window:** 2026-09-23 15:38 → 20:12 UTC (wall-clock cap hit at ~19:38; ~34 min of retry-drain before exit)
 **LLM:** Atria-Dawn-Preview via api.atria-asi.ai
 
 ## Headline
@@ -81,40 +83,67 @@ the same answer the seed's full-replay produces, at ~3900× lower probe cost.
 This is the literature's predicted shape (event-sourcing correctness without
 event-sourcing query cost) — honest +0.002-per-KB scoring did the rest.
 
-## Search dynamics / error rate (Atria 502 losses)
+## Search dynamics / error rate (Atria 502 losses) — cumulative both windows
 
-**The round was severely degraded by the upstream endpoint.** Of the 100
-solution budget, 25 commits happened; 23 of them are proposal errors, all
+**The round was severely degraded by the upstream endpoint in BOTH windows.**
+Combined: 49 commits in the EB; 47 of them are proposal errors, all
 `llm failed after 8 retries: HTTP Error 502: Bad Gateway`.
 
-| metric | value |
-|---|---|
-| commits in EB | 25 |
-| scored | 2 (seed + s0001) |
-| dead on LLM failure | 23 (all 502 retry-exhaustion) |
-| failed LLM attempts | 183 × HTTP 502, 1 × read timeout, 1 × empty completion (context agent) |
-| successful LLM calls | 16 (28,987 prompt + 32,128 completion tokens) |
-| attempt failure rate | ~92% |
-| truncations | 1 (context agent; retried at 32k max_tokens, returned non-JSON) |
+| metric | W1 | W2 (resumed) | total |
+|---|---|---|---|
+| commits | 25 | 24 | 49 |
+| scored | 2 | **0** | 2 |
+| dead on LLM failure | 23 | 24 | 47 |
+| failed LLM attempts | 183×502, 1 timeout, 1 empty | 191×502, 8 non-JSON/truncated context-agent replies | ~376 failed |
+| successful LLM calls | 16 | ~a few (mostly non-JSON responses) | ~20 |
 
-The 502 wave was near-continuous for the whole 4 h; a small probe curl to the
-same endpoint succeeded mid-wave (17:55), so the outage looks
-windowed/request-size-sensitive rather than a hard down — large
-context-agent / proposal prompts landed in bad windows almost every time.
-Failed proposals are still committed as error entries and consume budget, so
-the wave burned ~23% of the 100-solution budget directly (the rest of the
-budget was starved: wall-clock, not budget, ended the loop).
+The wave ran essentially uninterrupted for the full ~9 h across both windows.
+A small probe curl succeeded mid-wave twice (17:55, 20:17 — ~2s latency), so
+the outage looks windowed/request-size-sensitive rather than a hard down:
+large context-agent / proposal prompts landed in bad windows almost every
+time; the few context-agent calls that did get through in W2 returned
+unparseable output (8× `context agent returned non-JSON`).
 
-Direction histogram of dead proposals shows the context agent converged on
-exploit-after-first-win early (17× exploit, 3× explore, 2× hybrid, 1×
-repair, 1× fresh across all proposals) — i.e. the search had already
-committed to refining the bitemporal winner when it starved.
+Failed proposals are still committed as error entries and consume the
+`--solutions` budget, so the wave burned ~47 of 200 total proposal slots
+directly (both windows ended on wall-clock, not budget).
+
+Direction histogram across all 48 proposals (seed excluded):
+exploit 33, explore 6, hybrid 5, fresh 3, repair 1 — the context agent
+converged on exploit-after-first-win in W1 and stayed there in W2; the
+search had committed to refining the bitemporal winner when it starved.
+
+## Amendment — window 2 outcome (added 2026-09-24)
+
+Resuming the same EB for a second 4h window produced **zero new scored
+solutions**: all 24 W2 commits died on 502 retry-exhaustion. The picture
+does not change:
+
+- **Best score remains s0001 = 95.9952, cost_how = measured** (no new
+  challenger; still above every baseline).
+- **Per-family win rates across ALL scored solutions** — still n=1 evolved:
+  | family | scored instances | best score | verdict |
+  |---|---|---|---|
+  | bitemporal ledger + per-slot history | 1 (s0001) | 95.9952 | winner by default |
+  | event-log replay (seed) | 1 (s0000) | 88.863 | baseline reference |
+  | episode+fact / event-sourced / subject-hearsay / graph | 0 | — | **never instantiated** — 47 proposals died before producing code |
+- **Probe-type breakdown** unchanged: both scored solutions at 1.0 on all
+  new v2 types (as_of / subject / cascade); sole loss remains `transfer`
+  on s0001 (0.0).
+- **Honesty audit** unchanged: 0 suspicious entries across all 49 commits;
+  every error entry is an explicit 502 exhaustion, not a scoring anomaly.
+
+Conclusion: the M2 family race is **still open** — bitemporal-ledger holds
+the only scored evolved sample (1/1 = 100% of the scored evolved set, but
+n=1). Statistical verdict requires a healthy endpoint.
 
 ## Next round (P3 r2) recommendations
 
-1. **Re-run this exact task when Atria is healthy** — with n=1 scored this is
-   a lower bound, not a verdict; `scan_new_commits`-style resumption with the
-   same `--work run_v2` EB will continue the search rather than restart it.
+1. **Re-run this exact task when Atria is healthy** — two full windows now
+   both returned n=1 scored (47 502-corpses between them): this is a lower
+   bound, not a verdict. Resuming again with the same `--work run_v2` EB
+   continues the search rather than restarting it — but only when the
+   endpoint is actually up; another wave just burns wall-clock.
 2. **Target `transfer`** — the only lost probe type. The gap: bundle probes
    expect a set of values spanning slots/days; s0001 only emits one slot's
    live values (+suggestion fallback). A cross-slot live-set or a
