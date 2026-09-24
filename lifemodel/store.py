@@ -30,6 +30,7 @@ from __future__ import annotations
 
 SELF = "self"
 WRITES = {"statement", "update", "correction"}
+AUTH = WRITES | {"retraction"}
 
 
 def _key(source, slot):
@@ -78,13 +79,25 @@ class TemporalGraph:
     def forget_range(self, lo, hi) -> int:
         """Erase edges whose from_day falls in [lo, hi]."""
         n = 0
+        touched = set()
         for k in list(self.hist):
             kept = [e for e in self.hist[k] if not (lo <= e[1] <= hi)]
             n += len(self.hist[k]) - len(kept)
+            if len(kept) != len(self.hist[k]):
+                touched.add(k.split("|", 1)[1])
             if kept:
                 self.hist[k] = kept
             else:
                 del self.hist[k]
+        for slot in touched:
+            dedup = []
+            for e in self.hist.get(_key(SELF, slot), []):
+                if e[2] in WRITES and e[0] not in dedup:
+                    dedup.append(e[0])
+            if dedup:
+                self.prov[slot] = dedup
+            else:
+                self.prov.pop(slot, None)
         return n
 
     # ---- reads (serve.py meters what it touches) ----
@@ -92,18 +105,28 @@ class TemporalGraph:
         return self.hist.get(_key(source, slot), [])
 
     def live_at(self, source, slot, day=10**9):
-        return _edge_at(self.edges_of(source, slot), day)
+        edges = self.edges_of(source, slot)
+        if source == SELF:
+            edges = [e for e in edges if e[2] in AUTH]
+        return _edge_at(edges, day)
 
     def live(self, slot, day=10**9):
         return self.live_at(SELF, slot, day)
 
     def live_bundle(self, day=10**9, slots=None):
+        if slots is not None:
+            out = []
+            for sl in slots:
+                v = self.live_at(SELF, sl, day)
+                if v is not None:
+                    out.append(v)
+            return out
         out = []
         for key, edges in self.hist.items():
-            src, sl = key.split("|", 1)
-            if src != SELF or (slots is not None and sl not in slots):
+            src = key.split("|", 1)[0]
+            if src != SELF:
                 continue
-            v = _edge_at(edges, day)
+            v = _edge_at([e for e in edges if e[2] in AUTH], day)
             if v is not None and v not in out:
                 out.append(v)
         return out
