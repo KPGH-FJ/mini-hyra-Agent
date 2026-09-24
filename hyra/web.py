@@ -106,6 +106,16 @@ def err_kind(err: str | None) -> str:
     return "other"
 
 
+def _research(work: Path) -> dict:
+    """Optional research-state file: <work>/research.json then cwd.
+    Powers the architecture/stage panels; dashboard stays generic without it."""
+    for p in (work / "research.json", Path.cwd() / "research.json"):
+        r = _read_json(p, None)
+        if r:
+            return r
+    return {}
+
+
 def _enrich(idx: list) -> list:
     """In-place: add parsed quality/cost_how onto each index entry."""
     for e in idx:
@@ -216,6 +226,15 @@ padding:3px 11px;font-size:13px;cursor:pointer;color:var(--fg)}
 .bfill{height:100%;background:var(--acc);border-radius:6px}
 .bval{width:48px;color:var(--dim);flex:none}
 .fb{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 10px}
+.strow{display:flex;gap:10px;align-items:baseline;margin:6px 0;font-size:14px}
+.strow .tag{min-width:44px;text-align:center;flex:none}
+.rnd{margin:2px 0 2px 54px;font-size:13px;color:var(--dim)}
+.rnd b{color:var(--fg)}
+.mod{cursor:pointer}
+.mod rect.frame{transition:stroke .15s}
+.mod:hover rect.frame{stroke:var(--acc)}
+.exp table{font-size:13px}
+.exp td{padding:3px 8px;border-bottom:1px solid #21262d}
 #detail{display:none;margin-top:14px}
 @media(max-width:900px){.grid{grid-template-columns:1fr}}
 </style>
@@ -224,6 +243,14 @@ padding:3px 11px;font-size:13px;cursor:pointer;color:var(--fg)}
 <h1><span class="dot" id="runDot"></span> Hyra — Experience Bank
  <span class="small" id="taskName"></span></h1>
 <div class="stats" id="stats"></div>
+<div id="research" style="display:none">
+<div class="grid" style="margin-bottom:14px">
+  <div class="panel"><h2>LifeModel System 架构 <span class="small" style="text-transform:none">— 点击模块看详情</span></h2>
+    <svg id="arch" height="230"></svg>
+    <div class="small" id="modInfo"></div></div>
+  <div class="panel"><h2>研究阶段与实验</h2><div id="stages"></div><div id="experiment"></div></div>
+</div>
+</div>
 <div class="grid">
   <div class="panel"><h2>Score 进化曲线</h2><svg id="curve" height="280"></svg>
     <div class="small" id="legend"></div></div>
@@ -366,9 +393,73 @@ async function pick(sid){
   else document.getElementById('detBody').textContent='(no readable files)';
 }
 
+const MC={done:'#3fb950',v0:'#8b949e',next:'#58a6ff',current:'#d29922',todo:'#6e7681'};
+const SLBL={done:'已落地',v0:'v0 骨架',next:'下一轮',current:'进行中',todo:'未开始'};
+
+function drawResearch(r){
+  document.getElementById('research').style.display='block';
+  const pos={M1:[168,26],M3:[308,26],M2:[448,26],M4:[588,26]},bw=126,bh=100;
+  const byId={};(r.modules||[]).forEach(m=>byId[m.id]=m);
+  let g=`<defs><marker id="ar" markerWidth="7" markerHeight="7" refX="6" refY="3"
+    orient="auto"><path d="M0,0 L6,3 L0,6" fill="none" stroke="#8b949e"/></marker></defs>
+    <rect x="16" y="56" width="104" height="46" rx="8" fill="#21262d" stroke="#30363d"/>
+    <text x="68" y="74" text-anchor="middle" font-size="13" fill="#e6edf3">记录流</text>
+    <text x="68" y="90" text-anchor="middle" font-size="11" fill="#8b949e">records</text>
+    <rect x="762" y="56" width="104" height="46" rx="8" fill="#21262d" stroke="#30363d"/>
+    <text x="814" y="74" text-anchor="middle" font-size="13" fill="#e6edf3">回答/视图</text>
+    <text x="814" y="90" text-anchor="middle" font-size="11" fill="#8b949e">views</text>`;
+  const link=(x1,x2)=>`<line x1="${x1}" y1="79" x2="${x2}" y2="79" stroke="#8b949e" stroke-width="1.4" marker-end="url(#ar)"/>`;
+  g+=link(120,168)+link(168+126,308)+link(308+126,448)+link(448+126,588)+link(588+126,762);
+  ['M1','M3','M2','M4'].forEach(id=>{const m=byId[id];if(!m)return;
+    const[x,y]=pos[id],c=MC[m.status]||'#6e7681';
+    g+=`<g class="mod" data-m="${id}"><rect class="frame" x="${x}" y="${y}"
+      width="${bw}" height="${bh}" rx="9" fill="#161b22" stroke="${c}" stroke-width="1.6"/>
+      <rect x="${x+bw-56}" y="${y+8}" width="48" height="18" rx="9" fill="none" stroke="${c}"/>
+      <text x="${x+bw-32}" y="${y+21}" text-anchor="middle" font-size="10.5" fill="${c}">${SLBL[m.status]||m.status}</text>
+      <text x="${x+10}" y="${y+24}" font-size="14.5" font-weight="600" fill="#e6edf3">${m.id} ${m.name.split(' ')[0]}</text>
+      <text x="${x+10}" y="${y+42}" font-size="11" fill="#8b949e">${esc(m.role||'')}</text>
+      <text x="${x+10}" y="${y+63}" font-size="10.5" font-family="ui-monospace,monospace" fill="#58a6ff">${esc((m.impl||'').slice(0,20))}</text>
+      ${m.score?`<text x="${x+10}" y="${y+86}" font-size="11.5" fill="#3fb950">★ ${m.score}</text>`:
+        `<text x="${x+10}" y="${y+86}" font-size="10.5" fill="#6e7681">${esc((m.next||'').slice(0,19))}</text>`}</g>`;});
+  const m5=byId.M5;
+  if(m5){const c=MC[m5.status]||'#6e7681',x=322,y=170,w=250,h=52;
+    g+=`<line x1="${x+w*0.33}" y1="${y}" x2="392" y2="129" stroke="#8b949e" stroke-dasharray="3 3" marker-end="url(#ar)"/>
+      <line x1="${x+w*0.66}" y1="${y}" x2="500" y2="129" stroke="#8b949e" stroke-dasharray="3 3" marker-end="url(#ar)"/>
+      <g class="mod" data-m="M5"><rect class="frame" x="${x}" y="${y}" width="${w}" height="${h}" rx="9" fill="#161b22" stroke="${c}" stroke-width="1.6"/>
+      <text x="${x+10}" y="${y+20}" font-size="14" font-weight="600" fill="#e6edf3">${m5.id} ${m5.name} <tspan font-size="11" fill="${c}">${SLBL[m5.status]||''}</tspan></text>
+      <text x="${x+10}" y="${y+38}" font-size="11" fill="#8b949e">${esc(m5.role||'')} — ${esc((m5.impl||'').slice(0,24))}</text></g>`;}
+  const el=document.getElementById('arch');el.innerHTML=g;
+  el.querySelectorAll('.mod').forEach(n=>n.onclick=()=>{
+    const m=byId[n.dataset.m];if(!m)return;
+    document.getElementById('modInfo').innerHTML=
+      `<b>${m.id} ${esc(m.name)}</b> · ${esc(m.role||'')}<br>
+       当前实现：<span class="mono">${esc(m.impl||'—')}</span>
+       ${m.score?` · 得分 <b class="best">${m.score}</b>`:''}<br>
+       ${m.note?esc(m.note)+'<br>':''}${m.next?'下一轮目标：'+esc(m.next):''}`});
+  const st=document.getElementById('stages');
+  st.innerHTML=(r.stages||[]).map(s=>{
+    const c=MC[s.status]||'#6e7681';
+    return `<div class="strow"><span class="tag" style="color:${c};border-color:${c}">${s.id}</span>
+      <b>${esc(s.name)}</b><span class="small">${esc(s.desc||'')}</span></div>`+
+      (s.rounds||[]).map(rw=>{const rc=MC[rw.status]||'#6e7681';
+        return `<div class="rnd">└ <b style="color:${rc}">${rw.id}</b> ${esc(rw.module)} — <span style="color:${rc}">${SLBL[rw.status]||rw.status}</span>${rw.result||rw.desc?`：${esc(rw.result||rw.desc)}`:''}</div>`}).join('');
+  }).join('')+`<div class="small" style="margin-top:8px">${esc(r.tagline||'')}</div>`;
+  const ex=r.experiment;
+  document.getElementById('experiment').innerHTML=ex?`<div class="exp">
+    <div class="small" style="margin:10px 0 4px"><b>${esc(ex.bench)}</b> · ${ex.probes} 探针
+      · ${(ex.types||[]).join(' / ')}</div>
+    <div class="small mono" style="margin-bottom:8px">score = ${esc(ex.score)}</div>
+    <table><thead><tr><th>实现</th><th>说明</th><th>score</th><th>quality</th></tr></thead>
+    <tbody>${(ex.table||[]).map(row=>`<tr><td class="mono">${esc(row[0])}</td>
+      <td class="small" style="white-space:normal">${esc(row[1])}</td>
+      <td class="mono" style="color:${row[0].startsWith('lifemodel')?'var(--good)':'var(--fg)'}"><b>${row[2]}</b></td>
+      <td class="small">${row[3]}/97</td></tr>`).join('')}</tbody></table></div>`:'';
+}
+
 async function tick(){
   try{
-    const s=await j('/api/status'),idx=await j('/api/eb');
+    const s=await j('/api/status'),idx=await j('/api/eb'),r=await j('/api/research');
+    if(r&&r.modules)drawResearch(r);
     const dot=document.getElementById('runDot');
     dot.className='dot '+(s.running?'on':s.finished?'done':'');
     document._best=s.best?s.best.id:null;
@@ -429,6 +520,8 @@ class Handler(BaseHTTPRequestHandler):
         elif path == "/api/eb":
             self._json(_enrich(
                 _read_json(self.work / "eb" / "index.json", [])))
+        elif path == "/api/research":
+            self._json(_research(self.work))
         elif path.startswith("/api/solution/"):
             sid = path.rsplit("/", 1)[-1]
             if not sid.replace("_", "").replace("-", "").isalnum():
