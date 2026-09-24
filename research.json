@@ -1,66 +1,142 @@
 {
-  "title": "LifeModel System",
-  "tagline": "个人记忆体：授权记录流 → 一份可演化、可删除、可复用的理解资产",
-  "modules": [
-    {"id": "M1", "name": "摄入 Ingest",
-     "role": "原始记录 → 规范化事件",
-     "impl": "normalize(): authoritative 标记",
-     "status": "v0",
-     "next": "多源冲突 / 实体消歧 / 信任权重"},
-    {"id": "M2", "name": "表征 Store",
-     "role": "事件 → 理解资产本体",
-     "impl": "TemporalGraph 时态图 (v1)",
-     "status": "done", "score": 96.9954,
-     "note": "P3 r1 获胜家族已回灌：按(主体,槽位)时态边，max-from 查值"},
-    {"id": "M3", "name": "更新 Update",
-     "role": "新信息如何传导",
-     "impl": "append-only edges",
-     "status": "next",
-     "next": "supports 派生依赖链 / TMS 级联失效"},
-    {"id": "M4", "name": "使用 Serve",
-     "role": "探针 → 回答/视图",
-     "impl": "edge lookup + 字节计量",
-     "status": "v0",
-     "next": "三值输出 answer|clarify|abstain / 上下文预算"},
-    {"id": "M5", "name": "控制 Control",
-     "role": "correct / forget / export",
-     "impl": "journal + 全顶点级联清除",
-     "status": "v0",
-     "next": "派生条目的级联失效（与 M3 合流）"}
-  ],
-  "stages": [
-    {"id": "P0", "name": "框架+接口定稿", "status": "done",
-     "desc": "五模块分解，接口冻结"},
-    {"id": "P1", "name": "五模块文献调研", "status": "done",
-     "desc": "m1–m5 纪要入库，4 条接口增量冻结"},
-    {"id": "P2", "name": "v0 骨架 + 评测器", "status": "done",
-     "desc": "lifemodel 包；LifeStream v2（as_of/subject/cascade 探针）"},
-    {"id": "P3", "name": "逐模块进化", "status": "current",
-     "desc": "每轮只开一个模块实现空间，全链路总分裁决",
-     "rounds": [
-       {"id": "r1", "module": "M2 表征", "status": "done",
-        "result": "获胜家族 = 按(主体,槽位)时态历史；lifemodel v1 = 96.9954 反超全部基线与进化冠军 s0001"},
-       {"id": "r2", "module": "M3 更新", "status": "next",
-        "desc": "supports=[edge] 依赖链；forget 派生级联失效（评测压力已埋：transfer must_not）"}
-     ]},
-    {"id": "P4", "name": "真实授权数据验证", "status": "todo",
-     "desc": "需单独授权（brief §83）"}
-  ],
-  "experiment": {
-    "bench": "LifeStream v2 · 90 天合成人生流",
-    "probes": 97,
-    "types": ["state", "stale", "prov", "subject", "as_of",
-              "cascade", "retract", "transfer"],
-    "score": "quality − 0.002·KB(asset) − 0.0002·KB(probe) − 0.0002·tokens",
-    "table": [
-      ["lifemodel v1", "TemporalGraph（系统本体）", 96.9954, 97],
-      ["es", "事件溯源聚合流（手写基线）", 96.9956, 97],
-      ["graph", "主体时态断言图（手写基线）", 96.9956, 97],
-      ["s0001", "双时态账本+槽位史（进化冠军）", 95.9952, 96],
-      ["raw", "全存（基线）", 94.31, 94.5],
-      ["seed", "朴素全重放（种子）", 88.863, 97],
-      ["rag", "关键词检索（基线）", 76.89, 77],
-      ["ledger", "LWW 平表（基线）", 73.99, 74]
-    ]
+ "title": "LifeModel System",
+ "tagline": "个人记忆体：授权记录流 → 一份可演化、可删除、可复用的理解资产",
+ "modules": [
+  {
+   "id": "M1",
+   "name": "摄入 Ingest",
+   "role": "原始记录 → 规范化事件",
+   "impl": "normalize(): authoritative 标记",
+   "status": "v0",
+   "next": "多源冲突 / 实体消歧 / 信任权重"
+  },
+  {
+   "id": "M2",
+   "name": "表征 Store",
+   "role": "事件 → 理解资产本体",
+   "impl": "TemporalGraph 时态图 (v1)",
+   "status": "done",
+   "score": 96.9954,
+   "note": "P3 r1 获胜家族已回灌：按(主体,槽位)时态边，max-from 查值"
+  },
+  {
+   "id": "M3",
+   "name": "更新 Update",
+   "role": "新信息如何传导",
+   "impl": "append-only edges",
+   "status": "running",
+   "next": "r2 进行中：derived+supports 探针已上线，进化 TMS 级联失效"
+  },
+  {
+   "id": "M4",
+   "name": "使用 Serve",
+   "role": "探针 → 回答/视图",
+   "impl": "edge lookup + 字节计量",
+   "status": "v0",
+   "next": "三值输出 answer|clarify|abstain / 上下文预算"
+  },
+  {
+   "id": "M5",
+   "name": "控制 Control",
+   "role": "correct / forget / export",
+   "impl": "journal + 全顶点级联清除",
+   "status": "v0",
+   "next": "派生条目的级联失效（与 M3 合流）"
   }
+ ],
+ "stages": [
+  {
+   "id": "P0",
+   "name": "框架+接口定稿",
+   "status": "done",
+   "desc": "五模块分解，接口冻结"
+  },
+  {
+   "id": "P1",
+   "name": "五模块文献调研",
+   "status": "done",
+   "desc": "m1–m5 纪要入库，4 条接口增量冻结"
+  },
+  {
+   "id": "P2",
+   "name": "v0 骨架 + 评测器",
+   "status": "done",
+   "desc": "lifemodel 包；LifeStream v2（as_of/subject/cascade 探针）"
+  },
+  {
+   "id": "P3",
+   "name": "逐模块进化",
+   "status": "current",
+   "desc": "每轮只开一个模块实现空间，全链路总分裁决",
+   "rounds": [
+    {
+     "id": "r1",
+     "module": "M2 表征",
+     "status": "done",
+     "result": "获胜家族 = 按(主体,槽位)时态历史；lifemodel v1 = 96.9954 反超全部基线与进化冠军 s0001"
+    },
+    {
+     "id": "r2",
+     "module": "M3 更新",
+     "status": "running",
+     "desc": "M3 更新机制：LifeStream v3（derived+supports、premise-invalidation、export-import）已上线"
+    }
+   ]
+  },
+  {
+   "id": "P4",
+   "name": "真实授权数据验证",
+   "status": "todo",
+   "desc": "需单独授权（brief §83）"
+  }
+ ],
+ "experiment": {
+  "bench": "LifeStream v3 · 90 天合成人生流 + 派生事实(supports)",
+  "probes": 111,
+  "types": [
+   "state",
+   "stale",
+   "prov",
+   "subject",
+   "as_of",
+   "cascade",
+   "derive",
+   "retract",
+   "transfer",
+   "post_import"
+  ],
+  "score": "quality − 0.002·KB(asset) − 0.0002·KB(probe) − 0.0002·tokens",
+  "table": [
+   [
+    "lifemodel v1",
+    "TemporalGraph（系统本体）",
+    108.995,
+    109
+   ],
+   [
+    "raw",
+    "全存（基线）",
+    106.5,
+    106.5
+   ],
+   [
+    "seed",
+    "朴素全重放（种子）",
+    89.32,
+    101
+   ],
+   [
+    "ledger",
+    "LWW 平表（基线）",
+    83.5,
+    83.5
+   ],
+   [
+    "rag",
+    "关键词检索（基线）",
+    79.0,
+    79.0
+   ]
+  ]
+ }
 }
