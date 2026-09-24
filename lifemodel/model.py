@@ -11,12 +11,12 @@ from . import ingest as m_ingest
 from . import serve as m_serve
 from . import update as m_update
 from .control import Control
-from .store import SlotIndex
+from .store import TemporalGraph
 
 
 class LifeModel:
     def __init__(self):
-        self.store = SlotIndex()          # M2
+        self.store = TemporalGraph()      # M2
         self.control = Control(self.store)  # M5
 
     # ---- evaluator/record pipeline (M1 -> M3) ----

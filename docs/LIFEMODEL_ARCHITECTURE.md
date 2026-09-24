@@ -119,6 +119,11 @@ class LifeModel:
 - **P2**：v0 骨架实现 ✓（lifemodel/，361e681；LifeStream v2 加固评测器
   — as_of/subject/cascade 探针）
 - **P3**：逐模块 Hyra 进化（每次单模块开放，全链路评分）← 当前
+  - **r1 M2 表征 ✓**：获胜家族 = 按（主体,槽位）的时态历史——三份
+    纪要预测的方向被 4 个实现共同验证（质量封顶 97/97）；手写调研
+    基线 es/graph=96.9956 反超进化冠军 s0001=95.9952（唯一败因
+    transfer bug）。**已回灌 lifemodel 包**：store v0→v1
+    `TemporalGraph`（results/life_model_v2/FAMILY_RACE.md）
 - **P4**：真实授权数据验证（需单独授权，brief §83）
 
 ## 7. 遗留问题（P1 后更新）
