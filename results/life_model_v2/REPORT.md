@@ -197,6 +197,31 @@ engineering (transfer bug + 10.4 KB probe vs 5.0 KB), fixable in r2.
    count exhausted proposals against `--solutions` — 96/98 commits were
    8×502/503 corpses, not real samples.
 
+## Closing note — round CLOSED (2026-09-24, per parent)
+
+The M2 round is closed from the research side:
+
+- **Family verdict:** per-(source,slot) temporal history is the winning
+  representation — three independent impls (evolved s0001, hand baselines
+  es & graph) all saturate quality at 97. The family was subsequently
+  **folded back into the lifemodel package itself**: `lifemodel` v1
+  `TemporalGraph` scores **96.9954 / quality 97-97, measured** via a new
+  eval adapter — beating s0001 (95.9952) by ~1.0 (parent's tournament,
+  PR #10). Remaining M2 headroom is ~0.004 of serialization cost —
+  below noise.
+- **Gate lesson, refined:** the 20-min proposal-sized gate correctly
+  identified gaps — but a gap is all a single 200 (small OR
+  proposal-sized) ever is. W3 launched after a verified small 200; W4
+  launched after a verified proposal-sized 200 + real generation; both
+  lost 100% of commits to the wave. Any future gated auto-resume should
+  require **N consecutive proposal-sized successes over ~1 h** before
+  spending a window.
+- **Lab artifact:** the EB holds 98 commits — 2 scored, 96 corpses —
+  accumulated across 4 windows (~16 h wall-clock) on the same `run_v2`
+  EB, which remains resumable if a further window is ever wanted.
+- Next round (M3) needs the `supports=[edge]` derived-registry to exist
+  first — tracked on the parent side, not the lab.
+
 ## Provenance
 
 - Winning dir: `run_v2/eb/solutions/s0001` (direction=explore, parent=s0000,
