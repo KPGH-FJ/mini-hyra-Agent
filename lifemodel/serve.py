@@ -1,10 +1,17 @@
 """M4 Serve: probe -> answer, with honest byte metering.
 
 `_probe_bytes` counts the serialized bytes the answer actually consulted
-(the slot entry, its prov list, or the bundle) — not self-declared
-constants. This is the run-1 honesty fix made structural: cost is a
-function of what the code touched, so an implementation can't fake it
-without also being cheap.
+(the edge list for that (source, slot), the prov list, or the bundle) —
+not self-declared constants. Cost is a function of what the code touched,
+so an implementation can't fake it without also being cheap.
+
+v1 handles all LifeStream v2 probe types against the TemporalGraph store:
+    state/stale           -> self-vertex lookup at ckpt
+    prov                  -> self's asserted values for the slot
+    retract/cascade       -> gone answers ("已删除"/"未知")
+    transfer              -> every live self-claim value (the bundle)
+    as_of                 -> self-vertex lookup at probe["day"]
+    subject               -> OTHER person's vertex at ckpt (hearsay)
 """
 from __future__ import annotations
 
@@ -36,14 +43,20 @@ def answer(store, probe: dict) -> str:
         said = probe.get("value") in vals
         return "本人" if said else "非本人"
     if t == "transfer":
-        slots = probe.get("slots")
-        vals = store.live_bundle(ckpt, slots)
+        vals = store.live_bundle(ckpt, probe.get("slots"))
         _meter(vals)
         return ",".join(vals) if vals else "未知"
-    # state / stale / retract: current value at ckpt
-    e = store.state.get(slot)
-    _meter(e)
-    v = store.live(slot, ckpt)
-    if t == "retract":
-        return "已删除" if v is None else str(v)
-    return str(v) if v is not None else "未知"
+    if t == "subject":
+        person = probe.get("person")
+        edges = store.edges_of(person, slot)
+        _meter(edges)
+        v = store.live_at(person, slot, ckpt)
+        return str(v) if v is not None else "未知"
+    # state / stale / retract / cascade / as_of: self-vertex lookup
+    day = probe.get("day", ckpt) if t == "as_of" else ckpt
+    edges = store.edges_of("self", slot)
+    _meter(edges)
+    v = store.live_at("self", slot, day)
+    if v is None:
+        return "已删除" if t in ("retract", "cascade") else "未知"
+    return str(v)
