@@ -40,7 +40,8 @@ Scoring:
               −0.5 stale-leak via must_not)
     cost    = asset_bytes_kb*0.002 + probe_bytes_kb*0.0002 + llm_tokens*0.0002
     score   = quality − cost          (higher better)
-    also runs the 3 baselines on the same stream for the feedback digest.
+    also runs the 5 baselines on the same stream for the feedback digest
+    (raw/ledger/rag + lit-survey families: event-sourced / claims-graph).
 
 Usage: python3 evaluate.py <solution_dir>   → prints {"score", "feedback"}
 """
@@ -286,6 +287,145 @@ class RAGBaseline:
                 "probe_bytes": 5000, "llm_tokens": 0}
 
 
+class EventSourcedBaseline:
+    """Aggregate-stream event sourcing (lit-survey family): events bucketed
+    per (source, slot) stream; queries replay ONLY that stream — honest
+    event sourcing where aggregates are per-entity. forget() drops every
+    stream of the slot (all subjects) → cascade-clean history erasure."""
+
+    def __init__(self):
+        self.s = {}   # (source, slot) -> [(day, kind, value, expires)]
+        self.pb = 0
+
+    def ingest(self, r):
+        self.s.setdefault((r["source"], r["slot"]), []).append(
+            (r["day"], r["kind"], r["value"], r.get("expires_day")))
+
+    def forget(self, scope):
+        sl = scope.get("slot")
+        self.s = {k: v for k, v in self.s.items() if k[1] != sl}
+
+    def _replay(self, stream, day):
+        st, exp = None, None
+        for d, kind, val, ex in stream:
+            if d > day:
+                break
+            if kind == "retraction":
+                st, exp = None, None
+            else:
+                st, exp = val, ex
+        if exp is not None and day > exp:
+            return None
+        return st
+
+    def _touch(self, evs):
+        self.pb += len(json.dumps(evs, ensure_ascii=False))
+
+    def answer(self, p):
+        t, ckpt, slot = p["type"], p["ckpt"], p["slot"]
+        if t == "subject":
+            evs = self.s.get((p.get("person"), slot), [])
+            self._touch(evs)
+            v = self._replay(evs, ckpt)
+            return v if v is not None else "未知"
+        if t == "transfer":
+            out = []
+            for (src, sl), evs in self.s.items():
+                if src != "self":
+                    continue
+                self._touch(evs)
+                v = self._replay(evs, ckpt)
+                if v is not None and v not in out:
+                    out.append(v)
+            return ",".join(out) if out else "未知"
+        evs = self.s.get(("self", slot), [])
+        self._touch(evs)
+        if t == "prov":
+            said = any(k in ("statement", "update", "correction")
+                       and v == p.get("value")
+                       for _d, k, v, _e in evs)
+            return "本人" if said else "非本人"
+        day = p.get("day", ckpt) if t == "as_of" else ckpt
+        v = self._replay(evs, day)
+        if v is None:
+            return "已删除" if t in ("retract", "cascade") else "未知"
+        return v
+
+    def state(self):
+        return {f"{src}|{sl}": evs for (src, sl), evs in self.s.items()}
+
+    def probe_bytes(self):
+        return self.pb
+
+
+class GraphBaseline:
+    """Subject-indexed temporal claims graph (lit-survey family): vertices =
+    subjects, edges = claims (subject, slot) -> [value, from_day, kind,
+    expires]. Interval lookup by max-from, no replay; retractions are
+    tombstone edges. forget() removes every edge of the slot."""
+
+    def __init__(self):
+        self.g = {}   # (subject, slot) -> [[value, from, kind, expires]]
+        self.pb = 0
+
+    def ingest(self, r):
+        self.g.setdefault((r["source"], r["slot"]), []).append(
+            [r["value"], r["day"], r["kind"], r.get("expires_day")])
+
+    def forget(self, scope):
+        sl = scope.get("slot")
+        self.g = {k: v for k, v in self.g.items() if k[1] != sl}
+
+    def _lookup(self, edges, day):
+        cur = None
+        for e in edges:
+            if e[1] <= day and (cur is None or e[1] >= cur[1]):
+                cur = e
+        if cur is None or cur[2] == "retraction":
+            return None
+        if cur[3] is not None and day > cur[3]:
+            return None
+        return cur[0]
+
+    def _touch(self, edges):
+        self.pb += len(json.dumps(edges, ensure_ascii=False))
+
+    def answer(self, p):
+        t, ckpt, slot = p["type"], p["ckpt"], p["slot"]
+        if t == "subject":
+            edges = self.g.get((p.get("person"), slot), [])
+            self._touch(edges)
+            v = self._lookup(edges, ckpt)
+            return v if v is not None else "未知"
+        if t == "transfer":
+            out = []
+            for (src, sl), edges in self.g.items():
+                if src != "self":
+                    continue
+                self._touch(edges)
+                v = self._lookup(edges, ckpt)
+                if v is not None and v not in out:
+                    out.append(v)
+            return ",".join(out) if out else "未知"
+        edges = self.g.get(("self", slot), [])
+        self._touch(edges)
+        if t == "prov":
+            said = any(e[2] in ("statement", "update", "correction")
+                       and e[0] == p.get("value") for e in edges)
+            return "本人" if said else "非本人"
+        day = p.get("day", ckpt) if t == "as_of" else ckpt
+        v = self._lookup(edges, day)
+        if v is None:
+            return "已删除" if t in ("retract", "cascade") else "未知"
+        return v
+
+    def state(self):
+        return {f"{src}|{sl}": edges for (src, sl), edges in self.g.items()}
+
+    def probe_bytes(self):
+        return self.pb
+
+
 def quality_breakdown(rows):
     agg = {}
     for r in rows:
@@ -322,7 +462,8 @@ def main():
     # baselines for the feedback digest
     bl = {}
     for name, cls in [("raw", RawBaseline), ("ledger", LedgerBaseline),
-                      ("rag", RAGBaseline)]:
+                      ("rag", RAGBaseline), ("es", EventSourcedBaseline),
+                      ("graph", GraphBaseline)]:
         rr = copy.deepcopy(records)
         try:
             rws, _c, _h = drive(cls(), rr, probes, meta)
