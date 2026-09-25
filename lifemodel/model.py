@@ -28,7 +28,7 @@ class LifeModel:
 
     # ---- usage (M4) ----
     def answer(self, probe: dict) -> str:
-        return m_serve.answer(self.store, probe)
+        return m_serve.answer(self.store, probe, self.control.journal)
 
     def query(self, text: str, purposes=None, ckpt=10**9) -> str:
         """Natural-language surface: free text -> probe -> answer."""

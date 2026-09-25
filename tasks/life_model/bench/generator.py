@@ -388,7 +388,8 @@ def generate(seed: int = 7):
 
     def probe(ckpt, ptype, slot, expect, must_not=None, q=None,
               value=None, day=None, person=None, post_import=False,
-              purpose=None, purpose_slots=None, budget=None, slots=None):
+              purpose=None, purpose_slots=None, budget=None, slots=None,
+              op=None):
         nonlocal pid
         p = {"id": f"p{pid:03d}", "ckpt": ckpt, "type": ptype,
              "slot": slot, "expect": expect,
@@ -401,6 +402,8 @@ def generate(seed: int = 7):
             p["purpose"] = purpose
         if purpose_slots is not None:
             p["purpose_slots"] = purpose_slots
+        if op is not None:
+            p["op"] = op
         if budget is not None:
             p["budget"] = budget
         if slots is not None:
@@ -494,6 +497,16 @@ def generate(seed: int = 7):
             probe(c, "stale", fr_slot, rollback_val,
                   must_not=[erased_val],
                   q=f"此人{fr_slot}的最新有效值（不要给已变更前的旧值）")
+
+    # ops-audit probes (M5): the user can ask which control ops ran —
+    # requires an operation journal that survives export/import.
+    probe(90, "ops", forget_slot, forget_slot, op="forget",
+          q="本人曾要求彻底删除过哪一类信息？（回答槽位名）",
+          post_import=True)
+    if correct_val:
+        probe(90, "ops", correct_slot, correct_slot, op="correct",
+              q="本人纠正过哪一类信息？（回答槽位名）",
+              post_import=True)
 
     # retraction probe: only at checkpoints AFTER the retraction arrived
     retract_day = next((r["day"] for r in records

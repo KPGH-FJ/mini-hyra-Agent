@@ -34,9 +34,16 @@ def reset_meter() -> None:
     _probe_bytes = 0
 
 
-def answer(store, probe: dict) -> str:
+def answer(store, probe: dict, journal=()) -> str:
     t, slot = probe["type"], probe["slot"]
     ckpt = probe.get("ckpt", 10**9)
+    if t == "ops":
+        # audit: which control ops ran (the journal is the only
+        # place these are knowable — post-import it must still be there)
+        _meter(list(journal))
+        hits = [e.get("slot") for e in journal
+                if e.get("op") == probe.get("op") and e.get("slot")]
+        return hits[0] if hits else "无"
     if t == "prov":
         vals = store.prov.get(slot, [])
         _meter(vals)

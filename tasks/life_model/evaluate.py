@@ -488,6 +488,7 @@ class TMSBaseline(_Mixin):
         self._wday = {}           # slot -> day of cur's write (OOO-safe)
         self.alias = {}           # alias -> canonical person (M1)
         self.revoked = set()      # purposes whose use is withdrawn (M5)
+        self.ops = []             # control-op journal (audit probes)
 
     def revoke_purpose(self, purpose):
         self.revoked.add(purpose)
@@ -536,6 +537,7 @@ class TMSBaseline(_Mixin):
         self._prune(self.cur, self.drv, self._exp, self._now)
 
     def forget(self, scope):
+        self.ops.append({"op": "forget", "slot": scope.get("slot")})
         if "slot" in scope:
             slot = scope.get("slot")
             for k in [k for k in self.hist
@@ -587,6 +589,7 @@ class TMSBaseline(_Mixin):
         self._prune(self.cur, self.drv, self._exp, self._now)
 
     def correct(self, slot, value):
+        self.ops.append({"op": "correct", "slot": slot})
         self.ingest({"id": None, "day": self._now, "source": "self",
                      "kind": "correction", "slot": slot,
                      "value": value, "text": ""})
@@ -664,6 +667,11 @@ class TMSBaseline(_Mixin):
             self._meter(edges)
             v = self._live_at(self.SELF, slot, p.get("day", ckpt))
             return v if v is not None else "未知"
+        if t == "ops":
+            self._meter(self.ops)
+            hits = [o["slot"] for o in self.ops
+                    if o["op"] == p.get("op") and o.get("slot")]
+            return hits[0] if hits else "无"
         self._meter(self.cur.get(slot))
         if slot in self._exp and ckpt > self._exp[slot]:
             return "已删除" if t in ("retract", "cascade", "derive") \
@@ -675,7 +683,8 @@ class TMSBaseline(_Mixin):
                 "drv": self.drv, "cur": self.cur,
                 "exp": self._exp, "rsv": self._rec_slot_val,
                 "lrid": self._latest_rid, "wday": self._wday,
-                "alias": self.alias, "revoked": sorted(self.revoked)}
+                "alias": self.alias, "revoked": sorted(self.revoked),
+                "ops": self.ops}
 
     def import_state(self, d):
         self.hist = {k: [list(e) for e in v] for k, v in d["hist"].items()}
@@ -689,6 +698,7 @@ class TMSBaseline(_Mixin):
         self._wday = dict(d["wday"])
         self.alias = dict(d["alias"])
         self.revoked = set(d.get("revoked", []))
+        self.ops = [dict(o) for o in d.get("ops", [])]
 
 
 class ESRBaseline(_Mixin):
@@ -699,11 +709,13 @@ class ESRBaseline(_Mixin):
         self._pb = 0
         self.recs = []
         self.revoked = set()
+        self.ops = []
 
     def ingest(self, r):
         self.recs.append(r)
 
     def forget(self, scope):
+        self.ops.append({"op": "forget", "slot": scope.get("slot")})
         if "slot" in scope:
             slot = scope.get("slot")
             self.recs = [r for r in self.recs if r["slot"] != slot]
@@ -713,6 +725,7 @@ class ESRBaseline(_Mixin):
                          if not (lo <= r["day"] <= hi)]
 
     def correct(self, slot, value):
+        self.ops.append({"op": "correct", "slot": slot})
         self.recs.append({"id": None, "day": max(
             [r["day"] for r in self.recs] or [0]),
             "source": "self", "kind": "correction",
@@ -802,17 +815,23 @@ class ESRBaseline(_Mixin):
             return ",".join(str(v) for v in vals if v) or "未知"
         if t == "prov2":
             return lrid.get(slot, "未知")
+        if t == "ops":
+            hits = [o["slot"] for o in self.ops
+                    if o["op"] == p.get("op") and o.get("slot")]
+            return hits[0] if hits else "无"
         return self._answer_state(cur, p)
 
     def revoke_purpose(self, purpose):
         self.revoked.add(purpose)
 
     def state(self):
-        return {"recs": self.recs, "revoked": sorted(self.revoked)}
+        return {"recs": self.recs, "revoked": sorted(self.revoked),
+                "ops": self.ops}
 
     def import_state(self, d):
         self.recs = list(d["recs"])
         self.revoked = set(d.get("revoked", []))
+        self.ops = [dict(o) for o in d.get("ops", [])]
 
 
 def quality_breakdown(rows):
