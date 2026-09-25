@@ -63,6 +63,10 @@ and 7.5/8 as_of. raw even leaks a retracted value (retract −0.5).
 
 - M1 ingest round (lab run_v5) in flight — first evolved-solution
   sample on the cumulative bench.
+- **Cost-weight calibration**: replay-per-probe costs only ~0.55 pt on
+  the current weights — correct-by-construction readers are nearly
+  free. If efficiency should select, the probe-cost coefficient needs
+  ~×10 (which rescales every historical score; a v7 decision).
 - v7 candidates: NL query surface via lifemodel/query.py (untested),
   partial export (export only a purpose's view), conflict probes
   (same-day contradictory sources), audit depth (ops with day/scope).
