@@ -124,3 +124,11 @@ score = quality + cost-curve terms (see evaluate.py weights).
     holds, never a hardcoded death)
 14. `must_not` decoys must exclude values live at read day (a stale
     decoy equal to the live value would punish a correct answer)
+15. scoped export = in-scope content only, dependencies included or
+    dead: `drv_log`/`pending_drv`/`rday`/`journal`/`aliases` are all
+    scope-filtered (out-of-scope derived VALUES must not ride in the
+    doc); a derived whose premise slot is out-of-scope dies on restore
+    (the premise can't justify it inside the scoped doc)
+16. a surviving user write outranks a revived derived — explicit
+    beats inferred on erase-rewrite (hist edge reads before the drv
+    registry)
