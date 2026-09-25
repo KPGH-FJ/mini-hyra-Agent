@@ -336,6 +336,253 @@ class RAGBaseline:
                 "probe_bytes": 5000, "llm_tokens": 0}
 
 
+# ---- M3 family baselines (hand-built for the family race; see
+# docs/literature/m3_update.md) ----
+
+class _Mixin:
+    """Shared read-side semantics + metering for the M3 baselines."""
+    SELF = "self"
+    WRITES = {"statement", "update", "correction"}
+    AUTH = WRITES | {"retraction"}
+
+    def _meter(self, obj):
+        self._pb += len(json.dumps(obj, ensure_ascii=False))
+
+    def probe_bytes(self):
+        return self._pb
+
+    def _premises_of(self, r):
+        """supports=[rec_ids] -> {slot: premised_value}; None on dangling."""
+        out = {}
+        for rid in r.get("supports") or []:
+            if rid not in self._rec_slot_val:
+                return None
+            s, v = self._rec_slot_val[rid]
+            out[s] = v
+        return out
+
+    @staticmethod
+    def _pval(cur, slot):
+        v = cur.get(slot)
+        return v[0] if isinstance(v, tuple) else v
+
+    def _prune(self, cur, drv, exp=None, now=10**9):
+        """Kill drv entries whose premise is absent/diverged/expired."""
+        exp = exp or {}
+        moved = True
+        while moved:
+            moved = False
+            for s, d in list(drv.items()):
+                if any((ps in exp and now > exp[ps])
+                       or self._pval(cur, ps) != pv
+                       for ps, pv in d["premises"].items()):
+                    del drv[s]
+                    cur.pop(s, None)
+                    moved = True
+
+    def _answer_state(self, cur, p):
+        v = cur.get(p["slot"])
+        if v is None:
+            return "已删除" if p["type"] in ("retract", "cascade",
+                                            "derive") else "未知"
+        return v[0] if isinstance(v, tuple) else v
+
+
+class TMSBaseline(_Mixin):
+    """Truth-maintenance: derived entries carry premises resolved from
+    supports ids; every write event eagerly cascade-invalidates dependents
+    (transitive). Reads answer from the maintained live state — the
+    premise index is the asset, replay is only needed for as_of."""
+    def __init__(self):
+        self._pb = 0
+        self.hist = {}            # "source|slot" -> [[value, day, kind, exp]]
+        self.prov = {}
+        self._rec_slot_val = {}   # rec id -> (slot, value)
+        self.cur = {}             # slot -> (value, prov-kind)
+        self.drv = {}             # dslot -> {"premises": {slot: val}}
+        self._exp = {}            # slot -> expires_day (slot-scoped lease)
+        self._now = 0             # latest ingested day (read-day clock)
+
+    def ingest(self, r):
+        self._now = max(self._now, r["day"])
+        if r.get("id"):
+            self._rec_slot_val[r["id"]] = (r["slot"], r["value"])
+        self.hist.setdefault(f'{r["source"]}|{r["slot"]}', []).append(
+            [r["value"], r["day"], r["kind"], r.get("expires_day")])
+        if r["kind"] == "derived":
+            pre = self._premises_of(r)
+            if pre is not None:
+                self.drv[r["slot"]] = {"premises": pre}
+                self.cur[r["slot"]] = (r["value"], "inference")
+        elif r["source"] == self.SELF and r["kind"] in self.WRITES:
+            self.cur[r["slot"]] = (r["value"], "self")
+            vals = self.prov.setdefault(r["slot"], [])
+            if r["value"] not in vals:
+                vals.append(r["value"])
+            if r.get("expires_day"):
+                self._exp[r["slot"]] = r["expires_day"]
+        elif r["kind"] == "retraction" and r["source"] == self.SELF:
+            self.cur.pop(r["slot"], None)
+        # expiry is judged at read day — keep cur but pass exp+now into
+        # the premise sweep so dependents of a lapsed slot die now
+        self._prune(self.cur, self.drv, self._exp, self._now)
+
+    def forget(self, scope):
+        slot = scope.get("slot")
+        for k in [k for k in self.hist if k.split("|", 1)[1] == slot]:
+            del self.hist[k]
+        self.prov.pop(slot, None)
+        self.cur.pop(slot, None)
+        self._exp.pop(slot, None)
+        self._prune(self.cur, self.drv, self._exp, self._now)
+
+    def _live_at(self, source, slot, day):
+        edges = self.hist.get(f"{source}|{slot}", [])
+        cur, lease = None, None
+        for e in edges:
+            if e[1] <= day and (cur is None or e[1] >= cur[1]):
+                cur = e
+            if e[1] <= day and e[3] is not None:
+                lease = e[3]   # slot-scoped lease: last declared <= day
+        if source == self.SELF:
+            edges = [e for e in edges if e[2] in self.AUTH]
+            cur, lease = None, None
+            for e in edges:
+                if e[1] <= day and (cur is None or e[1] >= cur[1]):
+                    cur = e
+                if e[1] <= day and e[3] is not None:
+                    lease = e[3]
+            if lease is not None and day > lease:
+                return None
+        if cur is None or cur[2] == "retraction":
+            return None
+        if cur[3] is not None and day > cur[3]:
+            return None
+        return cur[0]
+
+    def answer(self, p):
+        t, slot = p["type"], p["slot"]
+        ckpt = p.get("ckpt", 10**9)
+        if t == "prov":
+            vals = self.prov.get(slot, [])
+            self._meter(vals)
+            return "本人" if p.get("value") in vals else "非本人"
+        if t == "subject":
+            edges = self.hist.get(f'{p.get("person")}|{slot}', [])
+            self._meter(edges)
+            v = self._live_at(p.get("person"), slot, ckpt)
+            return v if v is not None else "未知"
+        if t == "transfer":
+            vals = [v[0] for s, v in self.cur.items()
+                    if v[1] == "self"
+                    and not (s in self._exp and ckpt > self._exp[s])]
+            self._meter(vals)
+            return ",".join(vals) if vals else "未知"
+        if t == "as_of":
+            edges = self.hist.get(f"self|{slot}", [])
+            self._meter(edges)
+            v = self._live_at(self.SELF, slot, p.get("day", ckpt))
+            return v if v is not None else "未知"
+        self._meter(self.cur.get(slot))
+        if slot in self._exp and ckpt > self._exp[slot]:
+            return "已删除" if t in ("retract", "cascade", "derive") \
+                else "未知"   # slot lease lapsed at read day
+        return self._answer_state(self.cur, p)
+
+    def state(self):
+        return {"hist": self.hist, "prov": self.prov,
+                "drv": self.drv, "cur": self.cur,
+                "exp": self._exp, "rsv": self._rec_slot_val}
+
+    def import_state(self, d):
+        self.hist = {k: [list(e) for e in v] for k, v in d["hist"].items()}
+        self.prov = {k: list(v) for k, v in d["prov"].items()}
+        self.drv = {k: {"premises": dict(v["premises"])}
+                    for k, v in d["drv"].items()}
+        self.cur = {k: tuple(v) for k, v in d["cur"].items()}
+        self._exp = dict(d["exp"])
+        self._rec_slot_val = {k: tuple(v) for k, v in d["rsv"].items()}
+
+
+class ESRBaseline(_Mixin):
+    """Event-sourced re-derivation: raw event log only; every answer
+    replays the whole stream and recomputes live state incl. derived
+    validity. Correct by construction — pays replay bytes per probe."""
+    def __init__(self):
+        self._pb = 0
+        self.recs = []
+
+    def ingest(self, r):
+        self.recs.append(r)
+
+    def forget(self, scope):
+        slot = scope.get("slot")
+        self.recs = [r for r in self.recs if r["slot"] != slot]
+
+    def _replay(self, day):
+        cur, drv, exp = {}, {}, {}
+        for r in self.recs:
+            if r["day"] > day:
+                continue
+            if r["kind"] == "derived":
+                pre = self._premises_of(r)
+                if pre is not None:
+                    drv[r["slot"]] = {"premises": pre}
+                    cur[r["slot"]] = (r["value"], "inference")
+            elif r["source"] == "self" and r["kind"] in self.WRITES:
+                cur[r["slot"]] = (r["value"], "self")
+                if r.get("expires_day"):
+                    exp[r["slot"]] = r["expires_day"]
+            elif r["kind"] == "retraction":
+                cur.pop(r["slot"], None)
+            self._prune(cur, drv)
+        for s, d in list(exp.items()):
+            if day > d:
+                cur.pop(s, None)
+        self._prune(cur, drv)
+        return cur
+
+    def _premises_of(self, r):
+        # returns None when a support is dangling (its record was forgotten
+        # or never arrived): an unsupported derived is dead, not vacuous
+        out = {}
+        by_id = {x["id"]: x for x in self.recs if x.get("id")}
+        for rid in r.get("supports") or []:
+            if rid not in by_id:
+                return None
+            out[by_id[rid]["slot"]] = by_id[rid]["value"]
+        return out
+
+    def answer(self, p):
+        self._meter(self.recs)   # honest: replay consults the whole log
+        t, slot = p["type"], p["slot"]
+        ckpt = p.get("ckpt", 10**9)
+        if t == "prov":
+            vals = [r["value"] for r in self.recs
+                    if r["source"] == "self" and r["slot"] == slot
+                    and r["kind"] in self.WRITES]
+            return "本人" if p.get("value") in vals else "非本人"
+        if t == "subject":
+            hits = [r for r in self.recs if r["kind"] == "hearsay"
+                    and r["source"] == p.get("person")
+                    and r["slot"] == slot and r["day"] <= ckpt]
+            return hits[-1]["value"] if hits else "未知"
+        if t == "as_of":
+            v = self._replay(p.get("day", ckpt)).get(slot)
+            return self._answer_state({slot: v} if v else {}, p)
+        cur = self._replay(ckpt)
+        if t == "transfer":
+            vals = [v[0] for v in cur.values() if v[1] == "self"]
+            return ",".join(vals) if vals else "未知"
+        return self._answer_state(cur, p)
+
+    def state(self):
+        return {"recs": self.recs}
+
+    def import_state(self, d):
+        self.recs = list(d["recs"])
+
+
 def quality_breakdown(rows):
     agg = {}
     for r in rows:
@@ -372,7 +619,8 @@ def main():
     # baselines for the feedback digest
     bl = {}
     for name, cls in [("raw", RawBaseline), ("ledger", LedgerBaseline),
-                      ("rag", RAGBaseline)]:
+                      ("rag", RAGBaseline), ("tms", TMSBaseline),
+                      ("esr", ESRBaseline)]:
         rr = copy.deepcopy(records)
         try:
             rws, _c, _h = drive(cls(), rr, probes, meta)

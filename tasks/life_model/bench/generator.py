@@ -195,9 +195,16 @@ def generate(seed: int = 7):
         "elder_plan", d3_val,
         supports=[first_rec_id[corr_slot]],
         premises={corr_slot: first_val[corr_slot]})
+    # supports must name the record actually carrying the premised value —
+    # the change record only if its day precedes the derivation, else the
+    # initial statement (a wrong id makes honest premise resolution kill
+    # the derived at birth)
+    d1_sup = (change_rec_id[forget_slot]
+              if forget_slot in change_rec_id
+              and change_day[forget_slot] <= 46
+              else first_rec_id[forget_slot])
     r_d1 = rec(46, "inference", "derived", "plan_hint", "周末上午安排",
-               supports=[change_rec_id.get(
-                   forget_slot, first_rec_id[forget_slot])],
+               supports=[d1_sup],
                premises={forget_slot: liveval(forget_slot, 46)})
     rec(50, "inference", "derived", "routine_fit", "晚间例行可保留",
         supports=[r_d1["id"]], premises={"plan_hint": "周末上午安排"})
@@ -205,6 +212,12 @@ def generate(seed: int = 7):
     records.sort(key=lambda r: r["day"])
 
     # ---- truth at each checkpoint ----
+    # truth_events are appended in CONSTRUCTION order, not day order
+    # (e.g. the expiring statement is emitted after the change loop) —
+    # replay must be day-ordered or a stale declaration overwrites a
+    # newer value. Stable sort keeps append order within the same day.
+    truth_events.sort(key=lambda e: e["day"])
+
     def state_at(day):
         cur, prov, exp, drv = {}, {}, {}, {}
 

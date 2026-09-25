@@ -52,11 +52,17 @@ def answer(store, probe: dict) -> str:
         _meter(edges)
         v = store.live_at(person, slot, ckpt)
         return str(v) if v is not None else "未知"
-    # state / stale / retract / cascade / as_of: self-vertex lookup
+    # state / stale / retract / cascade / derive / as_of: self vertex
+    # first, then the live derived registry (M3 fold)
     day = probe.get("day", ckpt) if t == "as_of" else ckpt
     edges = store.edges_of("self", slot)
-    _meter(edges)
     v = store.live_at("self", slot, day)
     if v is None:
-        return "已删除" if t in ("retract", "cascade") else "未知"
+        d = store.drv.get(slot)
+        _meter([edges, d])
+        if d is not None and t != "as_of":
+            return str(d["value"])
+        return "已删除" if t in ("retract", "cascade", "derive") \
+            else "未知"
+    _meter(edges)
     return str(v)

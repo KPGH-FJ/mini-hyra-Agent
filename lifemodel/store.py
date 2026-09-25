@@ -20,9 +20,24 @@ other person's vertex — authority is a READ-side filter, which is why
 subject hearsay can never pollute self state.
 
     prov: slot -> [values self ever asserted]   (prov probes)
+    exp:  slot -> expires_day   slot-scoped lease: once any self write
+          declares expires_day the WHOLE slot dies after that day —
+          later writes without expiry do NOT renew the lease, and the
+          check is applied at READ day, not at ingest.
 
 forget(slot) erases every edge of the slot across ALL sources —
 cascade-clean by construction, no separate history purge.
+
+P3 r2 M3 fold (TMS): `kind="derived"` records additionally register in
+`drv`: slot -> {"premises": {premise_slot: premised_value}, "value": v},
+resolved from their `supports=[record ids]` via `rsv` (id -> (slot,
+value)). A derived entry is live ONLY while every premise holds — every
+mutation (append, forget_slot, forget_range) ends in a `_prune()`
+fixpoint that kills drv entries whose premise slot's live value is
+absent or diverged; premise slots may themselves be derived, so the
+sweep is transitive. Reads fall back to drv after the self vertex, so
+derived values answer as self-state while valid — the TMS lesson from
+the M3 round: premises are load-bearing, not documentation.
 
 All contents stay JSON-serializable: snapshot() emits them verbatim.
 """
@@ -54,18 +69,62 @@ class TemporalGraph:
     def __init__(self):
         self.hist: dict = {}
         self.prov: dict = {}
+        self.rsv: dict = {}   # record id -> (slot, value)
+        self.drv: dict = {}   # derived slot -> {"premises": {}, "value"}
+        self.exp: dict = {}   # slot -> expires_day (slot-scoped lease)
+        self._now: int = 0    # latest observed event day (read-day clock)
 
     # ---- writes ----
     def append(self, ev: dict) -> None:
         """Every normalized event becomes an edge on its source vertex."""
         if ev["slot"] is None:
             return
+        self._now = max(self._now, ev["day"])
+        if ev.get("id"):
+            self.rsv[ev["id"]] = (ev["slot"], ev["value"])
         self.hist.setdefault(_key(ev["source"], ev["slot"]), []).append(
             [ev["value"], ev["day"], ev["kind"], ev.get("expires")])
         if ev["source"] == SELF and ev["kind"] in WRITES:
             vals = self.prov.setdefault(ev["slot"], [])
             if ev["value"] not in vals:
                 vals.append(ev["value"])
+            if ev.get("expires"):
+                self.exp[ev["slot"]] = ev["expires"]
+        if ev["kind"] == "derived":
+            pre = self._premises(ev)
+            if pre is not None:   # dangling supports: dead at birth
+                self.drv[ev["slot"]] = {"premises": pre,
+                                        "value": ev["value"]}
+        self._prune()
+
+    def _premises(self, ev):
+        """supports=[record ids] -> {premise_slot: premised_value}."""
+        out = {}
+        for rid in ev.get("supports") or []:
+            if rid not in self.rsv:
+                return None
+            s, v = self.rsv[rid]
+            out[s] = v
+        return out
+
+    def _live_val(self, slot):
+        """Self-authoritative value, else the live derived value."""
+        v = self.live_at(SELF, slot, self._now)
+        if v is not None:
+            return v
+        d = self.drv.get(slot)
+        return d["value"] if d else None
+
+    def _prune(self):
+        """Fixpoint sweep: kill drv entries with a dead/diverged premise."""
+        moved = True
+        while moved:
+            moved = False
+            for s in list(self.drv):
+                if any(self._live_val(ps) != pv
+                       for ps, pv in self.drv[s]["premises"].items()):
+                    del self.drv[s]
+                    moved = True
 
     def forget_slot(self, slot) -> int:
         """Erase the slot across every vertex (history AND derivations)."""
@@ -74,6 +133,9 @@ class TemporalGraph:
         for k in keys:
             del self.hist[k]
         self.prov.pop(slot, None)
+        self.drv.pop(slot, None)
+        self.exp.pop(slot, None)
+        self._prune()   # dependents of the forgotten slot die too
         return n
 
     def forget_range(self, lo, hi) -> int:
@@ -98,6 +160,10 @@ class TemporalGraph:
                 self.prov[slot] = dedup
             else:
                 self.prov.pop(slot, None)
+        for s in list(self.drv):
+            if not self.edges_of("inference", s):
+                del self.drv[s]
+        self._prune()
         return n
 
     # ---- reads (serve.py meters what it touches) ----
@@ -108,16 +174,22 @@ class TemporalGraph:
         edges = self.edges_of(source, slot)
         if source == SELF:
             edges = [e for e in edges if e[2] in AUTH]
+            if self.exp.get(slot) is not None and day > self.exp[slot]:
+                return None   # slot lease lapsed at read day
         return _edge_at(edges, day)
 
     def live(self, slot, day=10**9):
-        return self.live_at(SELF, slot, day)
+        v = self.live_at(SELF, slot, day)
+        if v is not None:
+            return v
+        d = self.drv.get(slot)
+        return d["value"] if d else None
 
     def live_bundle(self, day=10**9, slots=None):
         if slots is not None:
             out = []
             for sl in slots:
-                v = self.live_at(SELF, sl, day)
+                v = self.live(sl, day)
                 if v is not None:
                     out.append(v)
             return out
@@ -129,15 +201,25 @@ class TemporalGraph:
             v = _edge_at([e for e in edges if e[2] in AUTH], day)
             if v is not None and v not in out:
                 out.append(v)
+        for d in self.drv.values():
+            if d["value"] not in out:
+                out.append(d["value"])
         return out
 
     def asserted(self, slot, value):
         return value in self.prov.get(slot, [])
 
     def snapshot(self):
-        return {"hist": self.hist, "prov": self.prov}
+        return {"hist": self.hist, "prov": self.prov,
+                "rsv": self.rsv, "drv": self.drv, "exp": self.exp}
 
     def restore(self, d):
         """Reload a snapshot() dict — export/import continuity hook."""
         self.hist = {k: [list(e) for e in v] for k, v in d["hist"].items()}
         self.prov = {k: list(v) for k, v in d["prov"].items()}
+        self.rsv = {k: tuple(v) for k, v in d["rsv"].items()}
+        self.drv = {k: {"premises": dict(v["premises"]),
+                        "value": v["value"]}
+                    for k, v in d["drv"].items()}
+        self.exp = dict(d["exp"])
+        self._prune()
