@@ -45,15 +45,29 @@ class LifeModel:
 
     # M5：用户控制 API
     def correct(self, slot, new_value) -> None   # 人工纠错，传导到派生
-    def forget(self, scope) -> None              # 删除：slot 或时间范围
+    def forget(self, scope) -> None   # {"slot":s} 或 {"day_gte":a,"day_lte":b}
     def revoke_purpose(self, purpose) -> None    # 撤回某用途（数据留，视图拒）
     def export(self) -> dict                      # 完整可迁移的资产快照
     # journal：操作日志，是资产的一部分（state()/snapshot 携带、import
-    # 后仍可审计）；ops 探针只读它
+    # 后仍可审计）；ops 探针只读它。条目形状：
+    #   {"op":"forget","slot":s,"scope":{...}} |
+    #   {"op":"correct","slot":s,"value":v} |
+    #   {"op":"revoke_purpose","purpose":p}
 
     # 成本——v1 起由评测器直接度量，不再信 stats() 自报（堵 s0023 漏洞）
-    def state(self) -> dict            # 可序列化内部状态（评测器量字节）
+    def state(self, scope=None) -> dict  # 可序列化内部状态（评测器量字节）
     def probe_bytes(self) -> int       # 累计检索/传输给回答层的字节
+
+# state(scope) 的作用域导出契约（v7.x）：
+#   scope={"slots":[...]}            → 仅这些槽位的数据出行（选择性可携带）
+#   scope={"slots":[...],"purpose":p} → 用途作用域；若 p 已撤回必须返回 {}
+#   （按用途导出是这个用途的一次“使用”——撤回后不从侧门漏出）
+#
+# 探针协议：answer(probe) 的 probe 字段
+#   type/slot/expect/must_not/q/day/person/purpose/purpose_slots/
+#   slots/budget/op/post_import/post_partial/partial
+#   post_import → 在 export→import 后探；post_partial → 答的就是作用域
+#   文档本身；expdeny 探针由评测器直接按“文档是否为空”判分
 ```
 
 ## 3. 各模块的候选空间（调研纪要：docs/literature/m*.md）
