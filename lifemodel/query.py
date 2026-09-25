@@ -13,7 +13,7 @@ import re
 # slot lexicon: zh gloss -> slot id. Kept minimal and honest — this is
 # the registry a deployment would populate, not a benchmark hack.
 SLOT_ZH = {
-    "city": ["城市", "住在", "哪里", "哪儿"],
+    "city": ["城市", "住在", "住哪", "哪里", "哪儿"],
     "job": ["工作", "职业"],
     "goal": ["目标", "打算"],
     "diet": ["饮食", "吃"],
@@ -64,6 +64,11 @@ _CONF_CUES = ("有多确定", "确定吗", "信心", "把握")
 _DRVPROV_CUES = ("凭什么相信", "为什么相信", "前提是什么", "为什么认为")
 _OPS_CUES = (("撤回过", "revoke_purpose"), ("纠正过", "correct"),
              ("删过", "forget"), ("忘记过", "forget"), ("抹掉过", "forget"))
+_XCMP_CUES = ("一样", "相同", "一致")
+_FIRST_CUES = ("最早", "最初", "一开始", "第一次记录")
+_ORDER_CUES = ("变化过程", "变化顺序", "依次是", "演变", "怎么变的")
+_ABSENT_CUES = ("一直没变", "稳定", "保持")
+_WINDOW_CUES = ("之间变", "期间变", "中间那段时间")
 
 
 def _slot_of(text):
@@ -109,6 +114,20 @@ def _probe_for(text, purposes):
     if any(cue in text for cue, _ in _OPS_CUES):
         op = next(op for cue, op in _OPS_CUES if cue in text)
         return {"type": "ops", "slot": "_audit", "op": op}
+
+    # v9 history reasoning: entity-vs-self compare needs both an
+    # entity mention and a sameness cue; run-shape cues route to the
+    # edge-walk handlers before nchange eats "变过"
+    if slot and about and any(c in text for c in _XCMP_CUES):
+        return {"type": "xcmp", "slot": slot, "about": about}
+    if slot and any(c in text for c in _FIRST_CUES):
+        return {"type": "first", "slot": slot}
+    if slot and any(c in text for c in _ORDER_CUES):
+        return {"type": "order", "slot": slot}
+    if slot and any(c in text for c in _ABSENT_CUES):
+        return {"type": "absent", "slot": slot}
+    if slot and any(c in text for c in _WINDOW_CUES):
+        return {"type": "window", "slot": slot}
 
     # as_of: value at an explicit day
     if slot:
