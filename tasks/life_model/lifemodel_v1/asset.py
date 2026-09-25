@@ -25,6 +25,10 @@ def forget(scope):
     _m.forget(scope)
 
 
+def correct(slot, value):
+    _m.correct(slot, value)
+
+
 def state():
     return _m.state()
 

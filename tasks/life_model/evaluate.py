@@ -138,8 +138,10 @@ def drive(asset, records, probes, meta=None):
     for p in probes:
         by_ckpt.setdefault(p["ckpt"], []).append(p)
     forget = (meta or {}).get("forget")
+    correct = (meta or {}).get("correct")
     export_day = (meta or {}).get("export_day")
     forget_fired = False
+    correct_fired = False
     import_ok = None
     rows, cum_reported, answered = [], 0, False
     for i, ckpt in enumerate(CHECKPOINTS):
@@ -168,6 +170,16 @@ def drive(asset, records, probes, meta=None):
                 except Exception:
                     pass
             forget_fired = True
+        if (correct and not correct_fired
+                and ckpt < correct["day"] <= next_ckpt):
+            # user-control write — assets lacking correct() lose the
+            # probes expecting the corrected value, honestly
+            if hasattr(asset, "correct"):
+                try:
+                    asset.correct(correct["slot"], correct["value"])
+                except Exception:
+                    pass
+            correct_fired = True
         if export_day is not None and ckpt == export_day:
             # export -> import round-trip: state() snapshot serialized to
             # JSON and loaded into the same asset — then the remaining
@@ -485,6 +497,11 @@ class TMSBaseline(_Mixin):
         self._latest_rid.pop(slot, None)
         self._prune(self.cur, self.drv, self._exp, self._now)
 
+    def correct(self, slot, value):
+        self.ingest({"id": None, "day": self._now, "source": "self",
+                     "kind": "correction", "slot": slot,
+                     "value": value, "text": ""})
+
     def _live_at(self, source, slot, day):
         edges = self.hist.get(f"{source}|{slot}", [])
         cur, lease = None, None
@@ -585,6 +602,12 @@ class ESRBaseline(_Mixin):
     def forget(self, scope):
         slot = scope.get("slot")
         self.recs = [r for r in self.recs if r["slot"] != slot]
+
+    def correct(self, slot, value):
+        self.recs.append({"id": None, "day": max(
+            [r["day"] for r in self.recs] or [0]),
+            "source": "self", "kind": "correction",
+            "slot": slot, "value": value, "text": ""})
 
     def _replay(self, day):
         cur, drv, exp, lrid = {}, {}, {}, {}

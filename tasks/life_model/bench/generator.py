@@ -229,6 +229,22 @@ def generate(seed: int = 7):
     # newer value. Stable sort keeps append order within the same day.
     truth_events.sort(key=lambda e: e["day"])
 
+    # user-correct event (not a stream record): the evaluator calls
+    # asset.correct(slot, value) between ckpt-72 and ckpt-90 — a
+    # user-control write that must land (and kill dependents premised
+    # on the old value) exactly like a stream correction would.
+    CORRECT_DAY = 78
+    correct_slot = rng.choice([s for s in changed
+                               if s not in (corr_slot, forget_slot,
+                                            retract_slot)])
+    _old = liveval(correct_slot, CORRECT_DAY)
+    _pool = [v for v in VALS[correct_slot] if v != _old]
+    correct_val = rng.choice(_pool) if _pool else None
+    if correct_val is not None:
+        truth_events.append({"day": CORRECT_DAY, "op": "set",
+                             "slot": correct_slot, "value": correct_val})
+        truth_events.sort(key=lambda e: e["day"])
+
     def state_at(day):
         cur, prov, exp, drv = {}, {}, {}, {}
 
@@ -553,4 +569,7 @@ def generate(seed: int = 7):
             "exp_day": exp_day, "n_records": len(records),
             "corr_slot": corr_slot, "export_day": EXPORT_DAY,
             "forget": {"slot": forget_slot, "day": FORGET_DAY}}
+    if correct_val is not None:
+        meta["correct"] = {"slot": correct_slot, "value": correct_val,
+                           "day": CORRECT_DAY}
     return records, probes, truth, meta
