@@ -64,7 +64,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent / "bench"))
 from generator import CHECKPOINTS, generate  # noqa: E402
 
-EVAL_SEED = 7
+EVAL_SEED = int(sys.argv[2]) if len(sys.argv) > 2 else 7
 COST_ASSET = 0.002    # per KB of retained asset
 COST_PROBE = 0.0002   # per KB consulted across all probes
 COST_TOK = 0.0002     # per LLM token (0 for deterministic impls)

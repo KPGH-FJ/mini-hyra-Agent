@@ -434,9 +434,11 @@ def generate(seed: int = 7):
         noise = [r for r in records if alive(r, c) and
                  r["kind"] in ("hearsay", "suggestion") and
                  r["slot"] != forget_slot and
-                 not any(s["source"] == "self" and s["slot"] == r["slot"]
-                         and s["value"] == r["value"] for s in records
-                         if alive(s, c))]
+                 not (c > CORRECT_DAY and r["slot"] == correct_slot
+                      and r["value"] == correct_val)
+                 and not any(s["source"] == "self" and s["slot"] == r["slot"]
+                             and s["value"] == r["value"] for s in records
+                             if alive(s, c))]
         for r in noise[:3]:
             probe(c, "prov", r["slot"], "非本人", value=r["value"],
                   q=f"“{r['slot']}={r['value']}”这条信息是本人说的吗？"
