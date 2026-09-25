@@ -131,6 +131,17 @@ def generate(seed: int = 7):
         rec(rng.randint(2, 20), "assistant", "suggestion", slot,
             rng.choice(VALS[slot]))
 
+    # ambient traffic: ~150 non-authoritative records (device/doc/other
+    # statements + extra hearsay) spread across the whole stream — zero
+    # effect on truth, but replay/retrieval serve machinery pays to wade
+    # through them. This is what makes serve cost a real gradient.
+    for _ in range(75):
+        slot = rng.choice(SLOTS)
+        rec(rng.randint(2, 88), rng.choice(["device", "doc", "other"]),
+            "statement", slot, rng.choice(VALS[slot]))
+        rec(rng.randint(2, 88), rng.choice(OTHER_PEOPLE), "hearsay",
+            slot, rng.choice(VALS[slot]))
+
     # mid-stream: genuine changes to ~5 slots, spread over days 20-60
     changed = rng.sample(SLOTS, 5)
     corr_slot = rng.choice(changed)   # forced correction (M3 premise-kill)
