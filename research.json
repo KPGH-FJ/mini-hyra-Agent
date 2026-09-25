@@ -1,205 +1,213 @@
 {
- "title": "LifeModel System",
- "tagline": "个人记忆体：授权记录流 → 一份可演化、可删除、可复用的理解资产",
- "modules": [
-  {
-   "id": "M1",
-   "name": "摄入 Ingest",
-   "role": "原始记录 → 规范化事件",
-   "impl": "normalize(): authoritative + 别名解析 + day-序",
-   "status": "running",
-   "next": "lab run_v5 进化中（v5 考题：别名消歧+乱序到达）"
-  },
-  {
-   "id": "M2",
-   "name": "表征 Store",
-   "role": "事件 → 理解资产本体",
-   "impl": "TemporalGraph 时态图 (v1)",
-   "status": "done",
-   "score": 96.9954,
-   "note": "P3 r1 获胜家族已回灌：按(主体,槽位)时态边，max-from 查值；5×数据量下探针成本持平（3→5KB）"
-  },
-  {
-   "id": "M3",
-   "name": "更新 Update",
-   "role": "新信息如何传导",
-   "impl": "TMS 前提维护 (v2)：drv/rsv 注册表 + _prune 不动点",
-   "status": "done",
-   "score": 111.99,
-   "note": "P3 r2 获胜：supports→premises 解析，每次写后级联失效；forget/纠错传导"
-  },
-  {
-   "id": "M4",
-   "name": "使用 Serve",
-   "role": "探针 → 回答/视图",
-   "impl": "probe-type router + live_bundle 视图 + rvid 引用",
-   "status": "done",
-   "score": 128.97,
-   "note": "M4 语义沉淀 serve router；NL 查询面验证通过；新增时态聚合/前提引用/认知分级路由"
-  },
-  {
-   "id": "M5",
-   "name": "控制 Control",
-   "role": "correct / forget / export / revoke",
-   "impl": "journal + 级联清除 + revoke_purpose + forget_range 回滚 + 作用域导出 state(scope)",
-   "status": "v2",
-   "score": 159.97,
-   "next": "v7.x 考题已满分（160/160 含部分导出/前提引用/时态聚合/认知分级）；run_v6 进化中"
-  }
- ],
- "stages": [
-  {
-   "id": "P0",
-   "name": "框架+接口定稿",
-   "status": "done",
-   "desc": "五模块分解，接口冻结"
-  },
-  {
-   "id": "P1",
-   "name": "五模块文献调研",
-   "status": "done",
-   "desc": "m1–m5 纪要入库，4 条接口增量冻结"
-  },
-  {
-   "id": "P2",
-   "name": "v0 骨架 + 评测器",
-   "status": "done",
-   "desc": "lifemodel 包；LifeStream v2（as_of/subject/cascade 探针）"
-  },
-  {
-   "id": "P3",
-   "name": "逐模块进化",
-   "status": "current",
-   "desc": "每轮只开一个模块实现空间，全链路总分裁决",
-   "rounds": [
+  "title": "LifeModel System",
+  "tagline": "个人记忆体：授权记录流 → 一份可演化、可删除、可复用的理解资产",
+  "modules": [
     {
-     "id": "r1",
-     "module": "M2 表征",
-     "status": "done",
-     "result": "获胜家族 = 按(主体,槽位)时态历史；lifemodel v1 = 96.9954 反超全部基线与进化冠军 s0001"
+      "id": "M1",
+      "name": "摄入 Ingest",
+      "role": "原始记录 → 规范化事件",
+      "impl": "normalize(): authoritative + 别名解析 + day-序",
+      "status": "running",
+      "next": "lab run_v5 进化中（v5 考题：别名消歧+乱序到达）"
     },
     {
-     "id": "r2",
-     "module": "M3 更新",
-     "status": "done",
-     "result": "获胜 = TMS 前提维护（与事件溯源同质量 112/112，读成本 ~320x 低）；已回灌 lifemodel，22 个 seed 全满分"
+      "id": "M2",
+      "name": "表征 Store",
+      "role": "事件 → 理解资产本体",
+      "impl": "TemporalGraph 时态图 (v1)",
+      "status": "done",
+      "score": 96.9954,
+      "note": "P3 r1 获胜家族已回灌：按(主体,槽位)时态边，max-from 查值；5×数据量下探针成本持平（3→5KB）"
     },
     {
-     "id": "r3",
-     "module": "M4 使用",
-     "status": "done",
-     "result": "v4 考题上线（unans/purpose/budget/prov2+密度x4）；serve router 直接沉淀系统，未开实验室轮"
+      "id": "M3",
+      "name": "更新 Update",
+      "role": "新信息如何传导",
+      "impl": "TMS 前提维护 (v2)：drv/rsv 注册表 + _prune 不动点",
+      "status": "done",
+      "score": 111.99,
+      "note": "P3 r2 获胜：supports→premises 解析，每次写后级联失效；forget/纠错传导"
     },
     {
-     "id": "r4",
-     "module": "M1 摄入",
-     "status": "running",
-     "desc": "v9 考题（22+6 类 ~199 探针，含历史推理+派生复活）；run_v5 W2 s0040=147.90；W3 续跑压 serve 面"
+      "id": "M4",
+      "name": "使用 Serve",
+      "role": "探针 → 回答/视图",
+      "impl": "probe-type router + live_bundle 视图 + rvid 引用",
+      "status": "done",
+      "score": 128.97,
+      "note": "M4 语义沉淀 serve router；NL 查询面验证通过；新增时态聚合/前提引用/认知分级路由"
     },
     {
-     "id": "r5",
-     "module": "M5 控制",
-     "status": "done",
-     "desc": "v7.x 考题：revoked/forget_range 回滚/ops×4/部分导出/drvprov/duration/nchange/conf",
-     "result": "获胜 s0045=140.90 measured：consent-scoped 视图撤回 + journal 嵌入资产 + 前提不动点级联 —— 机制与 lifemodel v1 已折叠实现一致（收敛信号）"
-    },
-    {
-     "id": "r6",
-     "module": "M4 使用面",
-     "status": "running",
-     "desc": "serve 面专攻（partial/duration/nchange/drvprov/isconf/subject/ops/conf）；lab run_v7 新 EB 100解/4w/6h；目标超 s0040 147.90 → 前沿 191"
+      "id": "M5",
+      "name": "控制 Control",
+      "role": "correct / forget / export / revoke",
+      "impl": "journal + 级联清除 + revoke_purpose + forget_range 回滚 + 作用域导出 state(scope)",
+      "status": "v2",
+      "score": 159.97,
+      "next": "v7.x 考题已满分（160/160 含部分导出/前提引用/时态聚合/认知分级）；run_v6 进化中"
     }
-   ]
-  },
-  {
-   "id": "P4",
-   "name": "真实授权数据验证",
-   "status": "todo",
-   "desc": "需单独授权（brief §83）"
-  }
- ],
- "experiment": {
-  "bench": "LifeStream v9 · 90天流 ~205条/seed · 全压强 + 双实体 + 因果操作序 + 冲突侦测 + 历史推理（首值/序/联/absent/窗/跨实体比较）+ 派生复活语义",
-  "probes": 199,
-  "types": [
-   "state",
-   "stale",
-   "prov",
-   "subject",
-   "as_of",
-   "cascade",
-   "derive",
-   "retract",
-   "transfer",
-   "unans",
-   "purpose",
-   "budget",
-   "prov2",
-   "revoked",
-   "ops",
-   "partial",
-   "drvprov",
-   "duration",
-   "nchange",
-   "conf",
-   "isconf",
-   "first",
-   "order",
-   "join",
-   "absent",
-   "window",
-   "xcmp"
   ],
-  "score": "quality − 0.002·KB(asset) − 0.0002·KB(probe) − 0.0002·tokens",
-  "table": [
-   [
-    "lifemodel v1",
-    "TemporalGraph+TMS+serve router+scoped export（系统本体，实体别名读侧聚合+isconf+v9历史推理+派生复活）",
-    195.0,
-    195
-   ],
-   [
-    "tms",
-    "前提维护基线（内置；range-forget 回滚重建+scoped state；实体探测+isconf+v9历史推理 −14 诚实缺口）",
-    181.0,
-    195
-   ],
-   [
-    "esr",
-    "事件溯源重放基线（day排序+scoped state；实体探测+isconf+v9历史推理 −13 诚实缺口）",
-    182.0,
-    195
-   ],
-   [
-    "raw",
-    "全存（基线；乱序+回滚+无作用域导出三重损失）",
-    107.5,
-    195
-   ],
-   [
-    "ledger",
-    "LWW 平表（基线；乱序+回滚重伤）",
-    87.0,
-    195
-   ],
-   [
-    "rag",
-    "关键词检索（基线）",
-    66.0,
-    195
-   ],
-   [
-    "flat",
-    "平表+全量倾倒 serve（M4 缺乏族）",
-    58.5,
-    195
-   ]
+  "stages": [
+    {
+      "id": "P0",
+      "name": "框架+接口定稿",
+      "status": "done",
+      "desc": "五模块分解，接口冻结"
+    },
+    {
+      "id": "P1",
+      "name": "五模块文献调研",
+      "status": "done",
+      "desc": "m1–m5 纪要入库，4 条接口增量冻结"
+    },
+    {
+      "id": "P2",
+      "name": "v0 骨架 + 评测器",
+      "status": "done",
+      "desc": "lifemodel 包；LifeStream v2（as_of/subject/cascade 探针）"
+    },
+    {
+      "id": "P3",
+      "name": "逐模块进化",
+      "status": "current",
+      "desc": "每轮只开一个模块实现空间，全链路总分裁决",
+      "rounds": [
+        {
+          "id": "r1",
+          "module": "M2 表征",
+          "status": "done",
+          "result": "获胜家族 = 按(主体,槽位)时态历史；lifemodel v1 = 96.9954 反超全部基线与进化冠军 s0001"
+        },
+        {
+          "id": "r2",
+          "module": "M3 更新",
+          "status": "done",
+          "result": "获胜 = TMS 前提维护（与事件溯源同质量 112/112，读成本 ~320x 低）；已回灌 lifemodel，22 个 seed 全满分"
+        },
+        {
+          "id": "r3",
+          "module": "M4 使用",
+          "status": "done",
+          "result": "v4 考题上线（unans/purpose/budget/prov2+密度x4）；serve router 直接沉淀系统，未开实验室轮"
+        },
+        {
+          "id": "r4",
+          "module": "M1 摄入",
+          "status": "running",
+          "desc": "v9 考题（22+6 类 ~199 探针，含历史推理+派生复活）；run_v5 W2 s0040=147.90；W3 续跑压 serve 面"
+        },
+        {
+          "id": "r5",
+          "module": "M5 控制",
+          "status": "done",
+          "desc": "v7.x 考题：revoked/forget_range 回滚/ops×4/部分导出/drvprov/duration/nchange/conf",
+          "result": "获胜 s0045=140.90 measured：consent-scoped 视图撤回 + journal 嵌入资产 + 前提不动点级联 —— 机制与 lifemodel v1 已折叠实现一致（收敛信号）"
+        },
+        {
+          "id": "r6",
+          "module": "M4 使用面",
+          "status": "running",
+          "desc": "serve 面专攻（partial/duration/nchange/drvprov/isconf/subject/ops/conf）；lab run_v7 新 EB 100解/4w/6h；目标超 s0040 147.90 → 前沿 191"
+        }
+      ]
+    },
+    {
+      "id": "P4",
+      "name": "真实授权数据验证",
+      "status": "todo",
+      "desc": "需单独授权（brief §83）"
+    }
+  ],
+  "experiment": {
+    "bench": "LifeStream v9 · 90天流 ~205条/seed · 全压强 + 双实体 + 因果操作序 + 冲突侦测 + 历史推理（首值/序/联/absent/窗/跨实体比较）+ 派生复活语义",
+    "probes": 199,
+    "types": [
+      "state",
+      "stale",
+      "prov",
+      "subject",
+      "as_of",
+      "cascade",
+      "derive",
+      "retract",
+      "transfer",
+      "unans",
+      "purpose",
+      "budget",
+      "prov2",
+      "revoked",
+      "ops",
+      "partial",
+      "drvprov",
+      "duration",
+      "nchange",
+      "conf",
+      "isconf",
+      "first",
+      "order",
+      "join",
+      "absent",
+      "window",
+      "xcmp"
+    ],
+    "score": "quality − 0.002·KB(asset) − 0.0002·KB(probe) − 0.0002·tokens",
+    "table": [
+      [
+        "lifemodel v1",
+        "TemporalGraph+TMS+serve router+scoped export（系统本体，实体别名读侧聚合+isconf+v9历史推理+派生复活）",
+        195.0,
+        195
+      ],
+      [
+        "tms",
+        "前提维护基线（内置；range-forget 回滚重建+scoped state；实体探测+isconf+v9历史推理 −14 诚实缺口）",
+        181.0,
+        195
+      ],
+      [
+        "esr",
+        "事件溯源重放基线（day排序+scoped state；实体探测+isconf+v9历史推理 −13 诚实缺口）",
+        182.0,
+        195
+      ],
+      [
+        "raw",
+        "全存（基线；乱序+回滚+无作用域导出三重损失）",
+        107.5,
+        195
+      ],
+      [
+        "ledger",
+        "LWW 平表（基线；乱序+回滚重伤）",
+        87.0,
+        195
+      ],
+      [
+        "rag",
+        "关键词检索（基线）",
+        66.0,
+        195
+      ],
+      [
+        "flat",
+        "平表+全量倾倒 serve（M4 缺乏族）",
+        58.5,
+        195
+      ]
+    ]
+  },
+  "infra": {
+    "llm_transport": "SSE 流式（1969c09）：Atria 网关按在飞时长掐非流式请求 ~5min；token 阶梯 65536→98304（a937dd0）"
+  },
+  "notes": [
+    "v9: 派生复活语义落地（store._drv_log+_rebuild_drv）+出题端期望按 read_day 重算 + must_not 排 live 值——20种子 3941 探针全绿",
+    {
+      "ts": "2026-09-25T20:45Z",
+      "text": "storm模式(566探针)验证效率筛选器：lm 522.08(满分+22KB), tms 515.07, esr -1972(12MB重放), raw -3713(20MB)。规模+风暴下排序不变且成本差被放大——架构声明成立。"
+    },
+    {
+      "ts": "2026-09-25T20:45Z",
+      "text": "harness升级(6eb5177)：SSE断流续传——无[DONE]/finish即截断时以assistant-partial续写拼接(至多4次)，消除~10min流断杀手；真Atria冒烟通过"
+    }
   ]
- },
- "infra": {
-  "llm_transport": "SSE 流式（1969c09）：Atria 网关按在飞时长掐非流式请求 ~5min；token 阶梯 65536→98304（a937dd0）"
- },
- "notes": [
-  "v9: 派生复活语义落地（store._drv_log+_rebuild_drv）+出题端期望按 read_day 重算 + must_not 排 live 值——20种子 3941 探针全绿"
- ]
 }
