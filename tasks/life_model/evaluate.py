@@ -460,9 +460,23 @@ class TMSBaseline(_Mixin):
         self._exp = {}            # slot -> expires_day (slot-scoped lease)
         self._now = 0             # latest ingested day (read-day clock)
         self._latest_rid = {}     # slot -> latest self-write record id
+        self._wday = {}           # slot -> day of cur's write (OOO-safe)
+        self.alias = {}           # alias -> canonical person (M1)
+
+    def _forms(self, person):
+        forms = {person}
+        for a, c in self.alias.items():
+            if c == person:
+                forms.add(a)
+            elif a == person:
+                forms.add(c)
+        return forms
 
     def ingest(self, r):
         self._now = max(self._now, r["day"])
+        if r["kind"] == "alias":
+            self.alias[r["slot"]] = r["value"]
+            return
         if r.get("id"):
             self._rec_slot_val[r["id"]] = (r["slot"], r["value"])
         self.hist.setdefault(f'{r["source"]}|{r["slot"]}', []).append(
@@ -473,16 +487,20 @@ class TMSBaseline(_Mixin):
                 self.drv[r["slot"]] = {"premises": pre}
                 self.cur[r["slot"]] = (r["value"], "inference")
         elif r["source"] == self.SELF and r["kind"] in self.WRITES:
-            self.cur[r["slot"]] = (r["value"], "self")
+            # day is authoritative, not arrival order
+            if r["day"] >= self._wday.get(r["slot"], -1):
+                self._wday[r["slot"]] = r["day"]
+                self.cur[r["slot"]] = (r["value"], "self")
+                if r.get("id"):
+                    self._latest_rid[r["slot"]] = r["id"]
             vals = self.prov.setdefault(r["slot"], [])
             if r["value"] not in vals:
                 vals.append(r["value"])
             if r.get("expires_day"):
                 self._exp[r["slot"]] = r["expires_day"]
-            if r.get("id"):
-                self._latest_rid[r["slot"]] = r["id"]
         elif r["kind"] == "retraction" and r["source"] == self.SELF:
             self.cur.pop(r["slot"], None)
+            self._wday.pop(r["slot"], None)
         # expiry is judged at read day — keep cur but pass exp+now into
         # the premise sweep so dependents of a lapsed slot die now
         self._prune(self.cur, self.drv, self._exp, self._now)
@@ -534,10 +552,17 @@ class TMSBaseline(_Mixin):
             self._meter(vals)
             return "本人" if p.get("value") in vals else "非本人"
         if t == "subject":
-            edges = self.hist.get(f'{p.get("person")}|{slot}', [])
-            self._meter(edges)
-            v = self._live_at(p.get("person"), slot, ckpt)
-            return v if v is not None else "未知"
+            best, bd = None, -1
+            seen = []
+            for f in self._forms(p.get("person")):
+                edges = self.hist.get(f'{f}|{slot}', [])
+                seen += edges
+                for e in edges:
+                    if e[1] <= ckpt and e[2] != "retraction" \
+                            and e[1] > bd:
+                        best, bd = e[0], e[1]
+            self._meter(seen)
+            return best if best is not None else "未知"
         if t == "transfer":
             vals = [v[0] for s, v in self.cur.items()
                     if v[1] == "self"
@@ -575,7 +600,8 @@ class TMSBaseline(_Mixin):
         return {"hist": self.hist, "prov": self.prov,
                 "drv": self.drv, "cur": self.cur,
                 "exp": self._exp, "rsv": self._rec_slot_val,
-                "lrid": self._latest_rid}
+                "lrid": self._latest_rid, "wday": self._wday,
+                "alias": self.alias}
 
     def import_state(self, d):
         self.hist = {k: [list(e) for e in v] for k, v in d["hist"].items()}
@@ -586,6 +612,8 @@ class TMSBaseline(_Mixin):
         self._exp = dict(d["exp"])
         self._rec_slot_val = {k: tuple(v) for k, v in d["rsv"].items()}
         self._latest_rid = dict(d["lrid"])
+        self._wday = dict(d["wday"])
+        self.alias = dict(d["alias"])
 
 
 class ESRBaseline(_Mixin):
@@ -610,9 +638,14 @@ class ESRBaseline(_Mixin):
             "slot": slot, "value": value, "text": ""})
 
     def _replay(self, day):
-        cur, drv, exp, lrid = {}, {}, {}, {}
-        for r in self.recs:
+        cur, drv, exp, lrid, alias = {}, {}, {}, {}, {}
+        # day is authoritative — arrival order may shuffle within a
+        # checkpoint window
+        for r in sorted(self.recs, key=lambda x: x["day"]):
             if r["day"] > day:
+                continue
+            if r["kind"] == "alias":
+                alias[r["slot"]] = r["value"]
                 continue
             if r["kind"] == "derived":
                 pre = self._premises_of(r)
@@ -632,7 +665,7 @@ class ESRBaseline(_Mixin):
             if day > d:
                 cur.pop(s, None)
         self._prune(cur, drv, exp, day)
-        return cur, lrid
+        return cur, lrid, alias
 
     def _premises_of(self, r):
         # returns None when a support is dangling (its record was forgotten
@@ -655,15 +688,24 @@ class ESRBaseline(_Mixin):
                     and r["kind"] in self.WRITES]
             return "本人" if p.get("value") in vals else "非本人"
         if t == "subject":
+            _c, _l, alias = self._replay(ckpt)
+            forms = {p.get("person")}
+            for a, c in alias.items():
+                if c == p.get("person"):
+                    forms.add(a)
+                elif a == p.get("person"):
+                    forms.add(c)
             hits = [r for r in self.recs if r["kind"] == "hearsay"
-                    and r["source"] == p.get("person")
+                    and r["source"] in forms
                     and r["slot"] == slot and r["day"] <= ckpt]
+            hits.sort(key=lambda x: x["day"])
             return hits[-1]["value"] if hits else "未知"
         if t == "as_of":
-            cur_d, _ = self._replay(p.get("day", ckpt))
+            cur_d, _lr, _a = self._replay(p.get("day", ckpt))
             v = cur_d.get(slot)
             return self._answer_state({slot: v} if v else {}, p)
-        cur, lrid = self._replay(ckpt)
+        _c2, lrid, _a2 = self._replay(ckpt)
+        cur = _c2
         if t == "transfer":
             vals = [v[0] for v in cur.values() if v[1] == "self"]
             return ",".join(vals) if vals else "未知"

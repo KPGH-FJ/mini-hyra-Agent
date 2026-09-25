@@ -73,7 +73,19 @@ class TemporalGraph:
         self.drv: dict = {}   # derived slot -> {"premises": {}, "value"}
         self.exp: dict = {}   # slot -> expires_day (slot-scoped lease)
         self.rvid: dict = {}  # slot -> latest self-write record id (prov2)
+        self.aliases: dict = {}  # alias -> canonical person (M1)
+        self._wday: dict = {}   # slot -> day of latest self write (OOO)
         self._now: int = 0    # latest observed event day (read-day clock)
+
+    def forms_of(self, person):
+        """person + known aliases (alias records resolve names at read)."""
+        out = {person}
+        for a, c in self.aliases.items():
+            if c == person:
+                out.add(a)
+            elif a == person:
+                out.add(c)
+        return out
 
     # ---- writes ----
     def append(self, ev: dict) -> None:
@@ -81,6 +93,9 @@ class TemporalGraph:
         if ev["slot"] is None:
             return
         self._now = max(self._now, ev["day"])
+        if ev["kind"] == "alias":
+            self.aliases[ev["slot"]] = ev["value"]
+            return
         if ev.get("id"):
             self.rsv[ev["id"]] = (ev["slot"], ev["value"])
         self.hist.setdefault(_key(ev["source"], ev["slot"]), []).append(
@@ -91,7 +106,10 @@ class TemporalGraph:
                 vals.append(ev["value"])
             if ev.get("expires"):
                 self.exp[ev["slot"]] = ev["expires"]
-            if ev.get("id"):
+            # day is authoritative, not arrival order
+            if (ev.get("id") and
+                    ev["day"] >= self._wday.get(ev["slot"], -1)):
+                self._wday[ev["slot"]] = ev["day"]
                 self.rvid[ev["slot"]] = ev["id"]
         if ev["kind"] == "derived":
             pre = self._premises(ev)
@@ -139,6 +157,7 @@ class TemporalGraph:
         self.drv.pop(slot, None)
         self.exp.pop(slot, None)
         self.rvid.pop(slot, None)
+        self._wday.pop(slot, None)
         self._prune()   # dependents of the forgotten slot die too
         return n
 
@@ -216,7 +235,8 @@ class TemporalGraph:
     def snapshot(self):
         return {"hist": self.hist, "prov": self.prov,
                 "rsv": self.rsv, "drv": self.drv, "exp": self.exp,
-                "rvid": self.rvid}
+                "rvid": self.rvid, "aliases": self.aliases,
+                "wday": self._wday, "now": self._now}
 
     def restore(self, d):
         """Reload a snapshot() dict — export/import continuity hook."""
@@ -228,4 +248,7 @@ class TemporalGraph:
                     for k, v in d["drv"].items()}
         self.exp = dict(d["exp"])
         self.rvid = dict(d["rvid"])
+        self.aliases = dict(d.get("aliases", {}))
+        self._wday = dict(d.get("wday", {}))
+        self._now = int(d.get("now", 0))
         self._prune()

@@ -48,10 +48,17 @@ def answer(store, probe: dict) -> str:
         return ",".join(vals) if vals else "未知"
     if t == "subject":
         person = probe.get("person")
-        edges = store.edges_of(person, slot)
-        _meter(edges)
-        v = store.live_at(person, slot, ckpt)
-        return str(v) if v is not None else "未知"
+        # person merges with known aliases; latest day wins across forms
+        best, bd, seen = None, -1, []
+        for f in store.forms_of(person):
+            edges = store.edges_of(f, slot)
+            seen += edges
+            for e in edges:
+                if (e[1] <= ckpt and e[2] != "retraction"
+                        and e[1] > bd):
+                    best, bd = e[0], e[1]
+        _meter(seen)
+        return str(best) if best is not None else "未知"
     if t == "purpose":
         # task-conditioned view: live values of the purpose's slots only
         vals = store.live_bundle(ckpt, probe.get("purpose_slots"))

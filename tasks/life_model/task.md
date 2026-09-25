@@ -35,9 +35,16 @@ drives the lifecycle itself. Do NOT write files, network-call, or time-depend.
 
 ~90 days of records: `{id, day, source, kind, slot, value, text, expires_day?}`
 
-- source ∈ `self | other | assistant | device | doc | inference`
+- source ∈ `self | other | assistant | device | doc | inference | system`
 - kind ∈ `statement | update | correction | retraction | suggestion |
-  hearsay | derived`
+  hearsay | derived | alias`
+- v5 (M1 pressure): records may arrive OUT OF ORDER within a checkpoint
+  window — `day` is authoritative, not arrival order. A day-5 record fed
+  after a day-20 record is still a day-5 fact.
+- `alias` records (source `system`, slot=alias, value=canonical name)
+  declare that two person names refer to the same individual (e.g.
+  小李 = 同事小李). Hearsay may arrive under either form; subject probes
+  may ask by either.
 - Only `self` + {statement, update, correction} set true state. `hearsay` is
   about OTHER people; `suggestion` is assistant-made — never state.
 - `derived` (source `inference`) IS part of the person's model state — but
@@ -75,7 +82,9 @@ the scored part of your answer, `slots` lists the slots to pack,
               reconstruction, not just latest-wins (bitemporal semantics).
 - `subject` — probe["person"]=P: the hearsay value attributed to person P.
               Hearsay IS legitimate memory — attributed to its subject,
-              never folded into the person's own state.
+              never folded into the person's own state. P may be asked by
+              canonical name or alias; the latest-day hearsay across all
+              of P's name forms is the expected value.
 - `cascade` — after the evaluator's forget() call: every asserted value of
               the forgotten slot must be gone — current state AND history,
               INCLUDING derived facts it supported (chains included).

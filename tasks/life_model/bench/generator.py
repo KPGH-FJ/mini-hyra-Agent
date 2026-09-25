@@ -52,6 +52,10 @@ VALS = {
 
 OTHER_PEOPLE = ["同事小李", "朋友阿伟", "表姐"]
 
+# canonical person -> short alias (M1 entity-resolution pressure);
+# the registry itself arrives in-stream as kind="alias" records
+ALIASES = {"同事小李": "小李", "朋友阿伟": "阿伟"}
+
 # derived slots hold facts the system inferred; their zh labels feed _txt
 DSLOT_ZH = {"plan_hint": "计划提示", "routine_fit": "作息适配",
             "elder_plan": "照护安排"}
@@ -78,6 +82,8 @@ def _txt(kind, slot, value, src, day):
         return f"助手建议：不妨试试{value}。（仅为建议，本人未表态）"
     if kind == "hearsay":
         return f"听说{who}的{zh}是{value}。"
+    if kind == "alias":
+        return f"{slot} 是 {value} 的简称。"
     return f"{zh}：{value}"
 
 
@@ -89,6 +95,22 @@ def generate(seed: int = 7):
     rid = 0
 
     first_rec_id, first_val = {}, {}
+
+    def _person():
+        p = rng.choice(OTHER_PEOPLE)
+        if p in ALIASES and rng.random() < 0.4:
+            return ALIASES[p]
+        return p
+
+    def _forms(person):
+        """canonical + alias forms of a person name."""
+        forms = {person}
+        for canon, alias in ALIASES.items():
+            if person == canon:
+                forms.add(alias)
+            elif person == alias:
+                forms.add(canon)
+        return forms
 
     def rec(day, source, kind, slot, value, expires=None,
             supports=None, premises=None):
@@ -126,7 +148,7 @@ def generate(seed: int = 7):
     # noise: hearsay about others + assistant suggestions (never truth)
     for _ in range(10):
         slot = rng.choice(SLOTS)
-        rec(rng.randint(2, 20), rng.choice(OTHER_PEOPLE), "hearsay",
+        rec(rng.randint(2, 20), _person(), "hearsay",
             slot, rng.choice(VALS[slot]))
         rec(rng.randint(2, 20), "assistant", "suggestion", slot,
             rng.choice(VALS[slot]))
@@ -139,7 +161,7 @@ def generate(seed: int = 7):
         slot = rng.choice(SLOTS)
         rec(rng.randint(2, 88), rng.choice(["device", "doc", "other"]),
             "statement", slot, rng.choice(VALS[slot]))
-        rec(rng.randint(2, 88), rng.choice(OTHER_PEOPLE), "hearsay",
+        rec(rng.randint(2, 88), _person(), "hearsay",
             slot, rng.choice(VALS[slot]))
 
     # mid-stream: genuine changes to ~5 slots, spread over days 20-60
@@ -157,7 +179,7 @@ def generate(seed: int = 7):
         change_rec_id[slot] = rec(d, "self", kind, slot,
                                   rng.choice(pool))["id"]
         # a conflicting hearsay right after the change (must not win)
-        rec(d + 1, rng.choice(OTHER_PEOPLE), "hearsay", slot,
+        rec(d + 1, _person(), "hearsay", slot,
             rng.choice(VALS[slot]))
 
     # expiring constraint: family constraint valid days ~30-50 then lapses
@@ -220,7 +242,29 @@ def generate(seed: int = 7):
     rec(50, "inference", "derived", "routine_fit", "晚间例行可保留",
         supports=[r_d1["id"]], premises={"plan_hint": "周末上午安排"})
 
+    # ---- M1 pressure ---------------------------------------------------
+    # alias registry: person names arrive in short forms too. Delivered
+    # as stream records (kind="alias", slot=alias, value=canonical) —
+    # impls that merge person vertices answer subject probes correctly.
+    for canon, alias in ALIASES.items():
+        rec(rng.randint(3, 8), "system", "alias", alias, canon)
+
     records.sort(key=lambda r: r["day"])
+
+    # out-of-order delivery: day is authoritative, not arrival order.
+    # Shuffle a third of the self-write records a few positions later
+    # inside their checkpoint window. Derived records and every record
+    # named in a supports list keep feed order (premise availability
+    # stays pinned to the current semantics).
+    protected = {rid for r in records for rid in r.get("supports", [])}
+    pool = [i for i, r in enumerate(records)
+            if r["kind"] not in ("derived", "alias")
+            and r["id"] not in protected
+            and r["source"] == "self"]
+    for i in rng.sample(pool, max(1, len(pool) // 3)):
+        r = records.pop(i)
+        j = min(len(records), i + rng.randint(1, 8))
+        records.insert(j, r)
 
     # ---- truth at each checkpoint ----
     # truth_events are appended in CONSTRUCTION order, not day order
@@ -366,10 +410,17 @@ def generate(seed: int = 7):
                  r["kind"] == "hearsay" and r["slot"] != forget_slot]
         latest_heard = {}
         for r in heard:
-            latest_heard[(r["source"], r["slot"])] = r
-        for r in list(latest_heard.values())[-2:]:
-            probe(c, "subject", r["slot"], r["value"], person=r["source"],
-                  q=f"传闻中{r['source']}的{r['slot']}是什么？")
+            # group alias forms onto the canonical person
+            canon = next((c for c, a in ALIASES.items()
+                          if r["source"] == a), r["source"])
+            key = (canon, r["slot"])
+            if (key not in latest_heard
+                    or r["day"] >= latest_heard[key]["day"]):
+                latest_heard[key] = r
+        for key, r in list(latest_heard.items())[-2:]:
+            canon = key[0]
+            probe(c, "subject", r["slot"], r["value"], person=canon,
+                  q=f"传闻中{canon}的{r['slot']}是什么？")
         # as_of probes: reconstruct state at a past day — needs history,
         # not just latest-wins (bitemporal pressure per lit surveys)
         for slot in [s for s in changed

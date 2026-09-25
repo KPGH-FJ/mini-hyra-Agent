@@ -9,9 +9,10 @@ v0 policy (intentionally minimal — the evolution point):
 """
 from __future__ import annotations
 
-SOURCES = {"self", "other", "assistant", "device", "doc", "inference"}
+SOURCES = {"self", "other", "assistant", "device", "doc", "inference",
+           "system"}
 KINDS = {"statement", "update", "correction", "retraction",
-         "suggestion", "hearsay", "derived"}
+         "suggestion", "hearsay", "derived", "alias"}
 WRITES = {"statement", "update", "correction"}
 
 
