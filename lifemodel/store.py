@@ -276,6 +276,12 @@ class TemporalGraph:
                         if k in live_ids}
             for reg in ("prov", "drv", "exp", "rvid", "wday"):
                 d[reg] = {k: v for k, v in d[reg].items() if k in keep}
+            # owner-level registries must not leak out-of-scope data:
+            # journal entries carry corrected values, aliases map
+            # person identities — the scoped doc gets neither verbatim
+            d["journal"] = [j for j in self.journal
+                            if j.get("slot") in keep]
+            d["aliases"] = {}
         return d
 
     def restore(self, d):

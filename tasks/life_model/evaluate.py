@@ -804,6 +804,10 @@ class TMSBaseline(_Mixin):
                         if k in live_ids}
             for reg in ("prov", "drv", "cur", "exp", "lrid", "wday"):
                 d[reg] = {k: v for k, v in d[reg].items() if k in keep}
+            # owner-level registries don't leak out of scope: ops carry
+            # corrected values, alias maps person identities
+            d["ops"] = [o for o in self.ops if o.get("slot") in keep]
+            d["alias"] = {}
         return d
 
     def import_state(self, d):
@@ -1027,12 +1031,14 @@ class ESRBaseline(_Mixin):
             return {}
         recs = self.recs
         slots = (scope or {}).get("slots")
+        ops = self.ops
         if slots:
             keep = set(slots)
             recs = [r for r in recs if r.get("slot") in keep
                     or r.get("kind") == "alias"]
+            ops = [o for o in self.ops if o.get("slot") in keep]
         return {"recs": recs, "revoked": sorted(self.revoked),
-                "ops": self.ops}
+                "ops": ops}
 
     def import_state(self, d):
         self.recs = list(d["recs"])
