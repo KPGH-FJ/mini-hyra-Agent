@@ -180,4 +180,4 @@ Also in play:
 
 Baselines to beat (same stream+probes, run by the evaluator): raw records,
 last-write-wins ledger, keyword RAG, TMS baseline, event-sourced replay —
-plus the incumbent `lifemodel v1` (~136 on v6c) and the seed.
+plus the incumbent `lifemodel v1` (~140 on v7) and the seed.
