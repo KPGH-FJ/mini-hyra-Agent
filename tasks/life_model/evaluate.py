@@ -143,11 +143,14 @@ def drive(asset, records, probes, meta=None):
     revoke = (meta or {}).get("revoke")
     fr = (meta or {}).get("forget_range")
     export_day = (meta or {}).get("export_day")
+    exp2 = (meta or {}).get("export_partial")
     forget_fired = False
     correct_fired = False
     revoke_fired = False
     fr_fired = False
+    exp2_fired = False
     import_ok = None
+    scoped_doc = None
     rows, cum_reported, answered = [], 0, False
     for i, ckpt in enumerate(CHECKPOINTS):
         for r in [x for x in records if x["day"] <= ckpt
@@ -157,6 +160,10 @@ def drive(asset, records, probes, meta=None):
         for p in by_ckpt.get(ckpt, []):
             if p.get("post_import") and import_ok is False:
                 ans = ""   # no working export->import: continuity lost
+            elif p.get("post_partial"):
+                # purpose-scoped export content check — the scoped
+                # document is the evidence, not a served answer
+                ans = scoped_doc if scoped_doc is not None else ""
             else:
                 ans = asset.answer(p)
             if str(ans).strip() not in ("", "未知"):
@@ -206,6 +213,17 @@ def drive(asset, records, probes, meta=None):
                 except Exception:
                     pass
             fr_fired = True
+        if (exp2 and not exp2_fired
+                and ckpt < exp2["day"] <= next_ckpt):
+            # purpose-scoped export — selective portability; impls
+            # without state(scope) forfeit the partial probes honestly
+            try:
+                scoped_doc = json.dumps(
+                    asset.state(scope={"slots": exp2["slots"]}),
+                    ensure_ascii=False)
+            except Exception:
+                scoped_doc = None
+            exp2_fired = True
         if export_day is not None and ckpt == export_day:
             # export -> import round-trip: state() snapshot serialized to
             # JSON and loaded into the same asset — then the remaining
@@ -682,13 +700,25 @@ class TMSBaseline(_Mixin):
                 else "未知"   # slot lease lapsed at read day
         return self._answer_state(self.cur, p)
 
-    def state(self):
-        return {"hist": self.hist, "prov": self.prov,
-                "drv": self.drv, "cur": self.cur,
-                "exp": self._exp, "rsv": self._rec_slot_val,
-                "lrid": self._latest_rid, "wday": self._wday,
-                "alias": self.alias, "revoked": sorted(self.revoked),
-                "ops": self.ops}
+    def state(self, scope=None):
+        d = {"hist": self.hist, "prov": self.prov,
+             "drv": self.drv, "cur": self.cur,
+             "exp": self._exp, "rsv": self._rec_slot_val,
+             "lrid": self._latest_rid, "wday": self._wday,
+             "alias": self.alias, "revoked": sorted(self.revoked),
+             "ops": self.ops}
+        slots = (scope or {}).get("slots")
+        if slots:
+            keep = set(slots)
+            d["hist"] = {k: v for k, v in self.hist.items()
+                         if k.rsplit("|", 1)[-1] in keep}
+            live_ids = {e[4] for v in d["hist"].values() for e in v
+                        if len(e) > 4 and e[4]}
+            d["rsv"] = {k: v for k, v in self._rec_slot_val.items()
+                        if k in live_ids}
+            for reg in ("prov", "drv", "cur", "exp", "lrid", "wday"):
+                d[reg] = {k: v for k, v in d[reg].items() if k in keep}
+        return d
 
     def import_state(self, d):
         self.hist = {k: [list(e) for e in v] for k, v in d["hist"].items()}
@@ -831,8 +861,14 @@ class ESRBaseline(_Mixin):
         self.revoked.add(purpose)
         self.ops.append({"op": "revoke_purpose", "purpose": purpose})
 
-    def state(self):
-        return {"recs": self.recs, "revoked": sorted(self.revoked),
+    def state(self, scope=None):
+        recs = self.recs
+        slots = (scope or {}).get("slots")
+        if slots:
+            keep = set(slots)
+            recs = [r for r in recs if r.get("slot") in keep
+                    or r.get("kind") == "alias"]
+        return {"recs": recs, "revoked": sorted(self.revoked),
                 "ops": self.ops}
 
     def import_state(self, d):

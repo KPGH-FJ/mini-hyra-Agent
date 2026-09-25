@@ -33,8 +33,8 @@ def revoke_purpose(purpose):
     _m.revoke_purpose(purpose)
 
 
-def state():
-    return _m.state()
+def state(scope=None):
+    return _m.state(scope)
 
 
 def import_state(d):

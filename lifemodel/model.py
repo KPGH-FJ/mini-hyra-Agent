@@ -48,8 +48,8 @@ class LifeModel:
         return self.control.export(self.store.snapshot())
 
     # ---- honest cost surface (measured, not declared) ----
-    def state(self) -> dict:
-        return self.store.snapshot()
+    def state(self, scope=None) -> dict:
+        return self.store.snapshot(scope)
 
     def import_state(self, d: dict) -> None:
         self.store.restore(d)

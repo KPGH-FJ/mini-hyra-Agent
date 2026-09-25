@@ -250,13 +250,29 @@ class TemporalGraph:
     def asserted(self, slot, value):
         return value in self.prov.get(slot, [])
 
-    def snapshot(self):
-        return {"hist": self.hist, "prov": self.prov,
-                "journal": self.journal,
-                "rsv": self.rsv, "drv": self.drv, "exp": self.exp,
-                "rvid": self.rvid, "aliases": self.aliases,
-                "wday": self._wday, "now": self._now,
-                "revoked": sorted(self.revoked)}
+    def snapshot(self, scope=None):
+        """scope={"slots": [...]} produces a purpose-scoped export —
+        only the requested slots' edges/state travel (selective
+        portability); journal/aliases/revoked are owner metadata and
+        always ride along."""
+        d = {"hist": self.hist, "prov": self.prov,
+             "journal": self.journal,
+             "rsv": self.rsv, "drv": self.drv, "exp": self.exp,
+             "rvid": self.rvid, "aliases": self.aliases,
+             "wday": self._wday, "now": self._now,
+             "revoked": sorted(self.revoked)}
+        slots = (scope or {}).get("slots")
+        if slots:
+            keep = set(slots)
+            d["hist"] = {k: v for k, v in self.hist.items()
+                         if k.rsplit("|", 1)[-1] in keep}
+            live_ids = {e[4] for v in d["hist"].values() for e in v
+                        if len(e) > 4 and e[4]}
+            d["rsv"] = {k: v for k, v in self.rsv.items()
+                        if k in live_ids}
+            for reg in ("prov", "drv", "exp", "rvid", "wday"):
+                d[reg] = {k: v for k, v in d[reg].items() if k in keep}
+        return d
 
     def restore(self, d):
         """Reload a snapshot() dict — export/import continuity hook."""

@@ -395,11 +395,12 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
 
     # ---- probes ----
     pid = 0
+    meta_pending = []
 
     def probe(ckpt, ptype, slot, expect, must_not=None, q=None,
               value=None, day=None, person=None, post_import=False,
               purpose=None, purpose_slots=None, budget=None, slots=None,
-              op=None):
+              op=None, partial=False):
         nonlocal pid
         p = {"id": f"p{pid:03d}", "ckpt": ckpt, "type": ptype,
              "slot": slot, "expect": expect,
@@ -420,6 +421,8 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
             p["slots"] = slots
         if post_import:
             p["post_import"] = True
+        if partial:
+            p["post_partial"] = True
         probes.append(p)
         pid += 1
 
@@ -692,6 +695,27 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
                   post_import=(c == CHECKPOINTS[-1] and pname ==
                                "生成个人简介"))
 
+    # partial export (v7, M5 selective portability): the evaluator fires
+    # state(scope={"slots": pslots}) crossing day 80 and scores the scoped
+    # document — purpose slots' live values must be in it, every other
+    # live value must be absent.
+    pe_purpose = next((p for p in PURPOSES if p != rvk_purpose), None)
+    if pe_purpose:
+        pslots = PURPOSES[pe_purpose]
+        meta_part = {"purpose": pe_purpose, "slots": pslots, "day": 80}
+        meta_pending.append(("export_partial", meta_part))
+        in_live = [s for s in pslots if s in cur90]
+        out_live = [s for s in cur90 if s not in pslots
+                    and s != forget_slot][:2]
+        for s in in_live[:3]:
+            probe(90, "partial", s, cur90[s],
+                  q=f"按用途{pe_purpose}导出：{s}应在导出文档中",
+                  partial=True)
+        for s in out_live:
+            probe(90, "partial", s, "", must_not=[cur90[s]],
+                  q=f"按用途{pe_purpose}导出：{s}不得泄露",
+                  partial=True)
+
     # budget: pack the listed slots' live values under a byte budget —
     # ordering becomes the decision (Lost-in-the-Middle pressure).
     # First `budget` bytes of the answer are what's scored.
@@ -757,6 +781,8 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
         meta["correct"] = {"slot": correct_slot, "value": correct_val,
                            "day": CORRECT_DAY}
     meta["revoke"] = {"purpose": rvk_purpose, "day": 84}
+    for k_, v_ in meta_pending:
+        meta[k_] = v_
     if fr_slot:
         meta["forget_range"] = {"day": FORGET2_DAY,
                                 "lo": SKIP[0], "hi": SKIP[1]}
