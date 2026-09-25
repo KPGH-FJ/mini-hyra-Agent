@@ -53,6 +53,14 @@ def answer(store, probe: dict, journal=()) -> str:
                     if e.get("op") == probe.get("op")
                     and (e.get("slot") or e.get("purpose"))]
         return hits[0] if hits else "无"
+    if t == "drvprov":
+        # premise citation: the premise registry must be inspectable
+        e = store.drv.get(slot)
+        if not e:
+            return "无"
+        vals = [f"{ps}:{pv}" for ps, pv in e["premises"].items()]
+        _meter(vals)
+        return ",".join(vals)
     if t == "prov":
         vals = store.prov.get(slot, [])
         _meter(vals)

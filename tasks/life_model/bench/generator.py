@@ -251,6 +251,12 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
                premises={forget_slot: liveval(forget_slot, 46)})
     rec(50, "inference", "derived", "routine_fit", "晚间例行可保留",
         supports=[r_d1["id"]], premises={"plan_hint": "周末上午安排"})
+    # a derived whose premise never dies — gives the drvprov probes a
+    # living citation target (all the other derived are designed to
+    # die young on premise invalidation)
+    r_anchor = rec(5, "self", "statement", "creed", "每天记录")
+    rec(60, "inference", "derived", "habit_fit", "记录习惯可持续",
+        supports=[r_anchor["id"]], premises={"creed": "每天记录"})
 
     # ---- M1 pressure ---------------------------------------------------
     # alias registry: person names arrive in short forms too. Delivered
@@ -539,6 +545,19 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
               op="forget_range",
               q="本人曾要求删除哪个时间段的信息？（回答天数范围）",
               post_import=True)
+
+    # drvprov: citation of a living derived fact's premises — the TMS
+    # premise registry must be inspectable, not just load-bearing.
+    # (the purpose-built derived all die young by design; habit_fit's
+    # premise survives, so it is the living-citation target — and the
+    # dead-derived probe checks post-death honesty)
+    probe(72, "drvprov", "habit_fit", ["creed:每天记录"],
+          q="派生'记录习惯可持续'依赖哪个前提？（槽位:值）")
+    probe(90, "drvprov", "habit_fit", ["creed:每天记录"],
+          q="派生'记录习惯可持续'依赖哪个前提？（槽位:值）",
+          post_import=True)
+    probe(90, "drvprov", "routine_fit", "无",
+          q="派生'晚间例行可保留'现在依赖哪个前提？")
 
     # retraction probe: only at checkpoints AFTER the retraction arrived
     retract_day = next((r["day"] for r in records

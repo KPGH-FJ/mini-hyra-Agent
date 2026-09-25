@@ -692,6 +692,13 @@ class TMSBaseline(_Mixin):
             self._meter(edges)
             v = self._live_at(self.SELF, slot, p.get("day", ckpt))
             return v if v is not None else "未知"
+        if t == "drvprov":
+            e = self.drv.get(slot)
+            if not e:
+                return "无"
+            vals = [f"{ps}:{pv}" for ps, pv in e["premises"].items()]
+            self._meter(vals)
+            return ",".join(vals)
         if t == "ops":
             self._meter(self.ops)
             if p.get("op") == "forget_range":
@@ -806,7 +813,7 @@ class ESRBaseline(_Mixin):
             if day > d:
                 cur.pop(s, None)
         self._prune(cur, drv, exp, day)
-        return cur, lrid, alias
+        return cur, lrid, alias, drv
 
     def _premises_of(self, r):
         # returns None when a support is dangling (its record was forgotten
@@ -829,7 +836,7 @@ class ESRBaseline(_Mixin):
                     and r["kind"] in self.WRITES]
             return "本人" if p.get("value") in vals else "非本人"
         if t == "subject":
-            _c, _l, alias = self._replay(ckpt)
+            _c, _l, alias, _drv = self._replay(ckpt)
             forms = {p.get("person")}
             for a, c in alias.items():
                 if c == p.get("person"):
@@ -842,10 +849,10 @@ class ESRBaseline(_Mixin):
             hits.sort(key=lambda x: x["day"])
             return hits[-1]["value"] if hits else "未知"
         if t == "as_of":
-            cur_d, _lr, _a = self._replay(p.get("day", ckpt))
+            cur_d, _lr, _a, _d = self._replay(p.get("day", ckpt))
             v = cur_d.get(slot)
             return self._answer_state({slot: v} if v else {}, p)
-        _c2, lrid, _a2 = self._replay(ckpt)
+        _c2, lrid, _a2, _d2 = self._replay(ckpt)
         cur = _c2
         if t == "transfer":
             vals = [v[0] for v in cur.values() if v[1] == "self"]
@@ -862,6 +869,14 @@ class ESRBaseline(_Mixin):
             return ",".join(str(v) for v in vals if v) or "未知"
         if t == "prov2":
             return lrid.get(slot, "未知")
+        if t == "drvprov":
+            _cc, _ll, _aa, drv = self._replay(ckpt)
+            e = drv.get(slot)
+            if not e:
+                return "无"
+            vals = [f"{ps}:{pv}" for ps, pv in e["premises"].items()]
+            self._meter(vals)
+            return ",".join(vals)
         if t == "ops":
             if p.get("op") == "forget_range":
                 hits = [f"{o['scope']['day_gte']}-{o['scope']['day_lte']}"
