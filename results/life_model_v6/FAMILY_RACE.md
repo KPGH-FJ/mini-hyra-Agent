@@ -141,11 +141,11 @@ right next pressure, not weight hacking.
 - RESOLVED: NL query surface (lifemodel/query.py) verified end-to-end
   on seed 7 — state/as_of/subject(alias)/prov2/purpose/abstain all
   route and answer correctly through the typed-probe contract.
-- Multi-entity isolation: ingesting another person's records into the
-  same model pollutes the self-vertex (observed via a test-script bug
-  reusing one asset across seeds — wrong-slot answers surfaced). A real
-  lifemodel either scopes self-vertexes per subject or isolates assets
-  per person. Not yet probed — bench is single-subject by design.
+- RESOLVED: multi-entity (v8) — `claimer|about|slot` vertexes; claims
+  about a second entity never touch self-domain registries. Probes:
+  state+about / subject+about / conf+about / isolation must_not.
+  Scoped export stays self-domain; forget ops don't reach entity
+  vertexes. Frontiers pass; raw honest-loses ~65.
 - RESOLVED: control-cost — already implicit: journal entries live in
   asset_bytes (state size grows per op) and ops-probe answers are
   probe_bytes-metered. A journal-bloat impl pays twice. No extra

@@ -112,8 +112,8 @@
   }
  ],
  "experiment": {
-  "bench": "LifeStream v7.x · 90天流 ~202条/seed（density/storm 旋钮）· 累积：M3派生失效+前提引用 + M4服务+时态聚合+认知分级 + M1摄入(别名+乱序) + M5控制(撤回+回滚+审计+作用域导出)",
-  "probes": 160,
+  "bench": "LifeStream v8 · 90天流 ~205条/seed · 累积全部压强 + 多实体隔离(about顶点)",
+  "probes": 165,
   "types": [
    "state",
    "stale",
@@ -141,20 +141,20 @@
    [
     "lifemodel v1",
     "TemporalGraph+TMS+serve router+scoped export（系统本体）",
-    159.97,
-    160
+    164.97,
+    165
    ],
    [
     "tms",
     "前提维护基线（内置；range-forget 回滚重建+scoped state）",
-    159.97,
-    160
+    164.97,
+    165
    ],
    [
     "esr",
     "事件溯源重放基线（day排序+scoped state）",
-    159.97,
-    160
+    164.97,
+    165
    ],
    [
     "raw",
