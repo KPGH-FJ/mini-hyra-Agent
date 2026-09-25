@@ -116,12 +116,29 @@ the scored part of your answer, `slots` lists the slots to pack,
 - `prov2`  — evidence citation: answer with the record id (e.g. "r0023")
               carrying the slot's current self-assertion.
 - `ops`    — audit trail: which control op ran. probe["op"] names the op
-              ("forget"/"correct"); answer with the slot it targeted.
-              Requires an operation journal that survives export/import.
-              Answer "无" when the op never ran.
+              ("forget"/"correct"/"forget_range"/"revoke_purpose");
+              answer with the slot it targeted. Requires an operation
+              journal that survives export/import. Answer "无" when the
+              op never ran.
+
+Multi-entity (v8+): records and probes may carry `about=E` — the claim
+is about person E (a family member etc.), asserted BY `source` (which
+may be "self" or another person). Entity vertices are scoped per
+(claimer, about, slot): `state+about` asks for E's asserted value
+(never fold it into self state — and E's claims never enter self
+answers); `subject+about` asks what a person said about E.
+`forget({"about": E})` erases every vertex about E across all claimers;
+`state+about` probes then expect "未知". Self-domain registries
+(derived premises, consent) engage only when `about` is absent.
+`nchange`+about counts E's transitions; `conf`+about grades 高 (self
+said it) / 低 (hearsay only) / 无.
+Same-day ties: day is authoritative; arrival order breaks ties between
+same-day writes (the later record wins).
 
 Answer with the raw value string — short, no prose. Scoring is substring
 match (normalized), with a hard penalty for surfacing a `must_not` value.
+Authoritative spec: `docs/PROBE_SEMANTICS.md`; executable gate:
+`tests/test_lifemodel_contract.py <asset_dir>` (18 clauses).
 
 ## Cost accounting
 
