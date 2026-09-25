@@ -136,23 +136,32 @@ reward hacking — implement real metering instead.
 
 ## What to explore (the research space)
 
-This round is scoped to **M4 serve semantics** — how a probe becomes an
-answer: view routing, budgeted packing, abstention, evidence citation.
-The asset/update machinery is pinned by v3 semantics (temporal history,
-attribution, supports); what varies is the SERVE machinery.
+This round is scoped to **M1 ingest semantics** — how a raw record
+becomes normalized knowledge before it can change anything: source
+authority, entity resolution, ordering, dedup/conflict handling.
+Store/update/serve machinery is pinned by the frozen semantics
+(temporal history, supports, premise fixpoint, measured cost); what
+varies is the INGEST machinery.
 
-Candidate families (from the literature survey, docs/literature/m4_serve.md):
-- **probe-type router + materialized views** (CRAG winners / Adaptive-RAG):
-  type -> dedicated view/index; write-time maintained per-slot views read
-  O(1), complex views computed on demand.
-- **abstention gate** (selective prediction, SQuAD 2.0): absent/conflicted/
-  expired evidence -> "未知"; a leak costs -0.5 so the gate pays.
-- **budgeted context packing** (Lost-in-the-Middle, LLMLingua): ordering
-  under a byte cap — most relevant first, query-conditioned compression.
-- **retrieval hybrids** (BM25+dense+RRF, recency*authority*relevance):
-  for when slot routing isn't enough.
-- **answer-with-citation** (ALCE/AIS): views carry evidence_ids so every
-  claim can name its supporting record.
+Candidate families (from the literature survey, docs/literature/m1_ingest.md):
+- **source-authority filtering** (provenance/truth discovery, TruthFinder):
+  source-priority tiers decide what may write state vs what stays
+  attributed context — hearsay never self-writes, suggestions never act.
+- **entity resolution** (record linkage / entity merge): `alias` records
+  map name forms onto canonical persons; hearsay under either form lands
+  on the same subject.
+- **day-ordered application** (bitemporal/event-time semantics): `day`
+  is authoritative, not arrival order — a late day-5 record still lands
+  as a day-5 fact; arrival-order LWW loses.
+- **dedup & conflict normalization** (record dedup, conflict resolution):
+  repeated claims collapse; conflicting claims keep provenance for
+  later arbitration.
+- **trust-weighted ingestion** (subjective logic / CATD): confidence
+  per source updates with observed accuracy; ingest attaches uncertainty.
+
+Still on the table (cumulative pressure from earlier rounds): M4 serve
+semantics stays live — purpose views, budgeted packing, prov2 citation,
+unans abstention. Everything the bench probes is scored.
 
 Also in play:
 - purpose views: same asset, multiple use-cases — the view is
@@ -163,4 +172,4 @@ Also in play:
 
 Baselines to beat (same stream+probes, run by the evaluator): raw records,
 last-write-wins ledger, keyword RAG, TMS baseline, event-sourced replay —
-plus the incumbent `lifemodel v1` (~112 on v3) and the seed.
+plus the incumbent `lifemodel v1` (~133 on v6) and the seed.
