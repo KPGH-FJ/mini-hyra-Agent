@@ -42,7 +42,7 @@ class LLMLengthError(LLMError):
 
 class OpenAICompatLLM:
     def __init__(self, model: str | None = None, base_url: str | None = None,
-                 api_key: str | None = None, max_tokens: int = 16384,
+                 api_key: str | None = None, max_tokens: int = 65536,
                  temperature: float = 0.7, retries: int = 8):
         self.model = model or os.environ.get("OPENAI_MODEL", "gpt-4o")
         self.base_url = (base_url or os.environ.get("OPENAI_BASE_URL")
@@ -82,7 +82,10 @@ class OpenAICompatLLM:
                 # reasoning models can burn the whole budget on reasoning;
                 # raise the cap and retry without counting it as a failure
                 last = e
-                max_tokens = min(max_tokens * 2, 131072)
+                # stay under 131072 — Atria 400s at the hard cap, and
+                # streams get cut ~10min in-flight anyway; 98k is the
+                # practical ceiling where a completion can still land
+                max_tokens = min(max_tokens * 2, 98304)
                 log.warning("truncated; retrying max_tokens=%d", max_tokens)
                 await asyncio.sleep(0.5)
             except Exception as e:
