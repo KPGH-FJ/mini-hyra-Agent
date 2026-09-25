@@ -1,0 +1,11 @@
+{
+  "id": "s0000",
+  "score": 55.8307,
+  "direction": "seed",
+  "parents": [],
+  "eval_version": 0,
+  "created": 1790305993.6095846,
+  "feedback": "quality=99.00 cost={'asset_bytes': 43706, 'probe_bytes': 220589610, 'llm_tokens': 0} cost_how=reported breakdown={'state': 0.852, 'stale': 0.92, 'prov': 0.962, 'subject': 0.727, 'unans': 1.0, 'as_of': 0.875, 'derive': 0.75, 'purpose': 0.0, 'cascade': 0.5, 'budget': 0.0, 'prov2': 0.0, 'retract': 1.0, 'transfer': 1.0} baselines={'raw': 104.5, 'ledger': 89.5, 'rag': 48.5, 'flat': 49.0, 'tms': 129.0, 'esr': 129.0} meta={'changed': ['city', 'learning', 'device', 'sleep', 'family'], 'retract_slot': 'exercise', 'exp_day': 50, 'n_records': 201, 'corr_slot': 'city', 'export_day': 72, 'forget': {'slot': 'family', 'day': 55}, 'correct': {'slot': 'device', 'value': '\u5e73\u677f', 'day': 78}}",
+  "error": null,
+  "path": "run_v5/eb/solutions/s0000"
+}
