@@ -60,3 +60,31 @@ The 20-min prober (single ~15KB call, spaced) **succeeded 6 times** during the w
 - Results contents verbatim from `run_v5/eb/solutions/s0000/` (only scored solution): asset.py, meta.json, run.log (empty), solve.sh.
 - Gate machinery ran before launch (4-consecutive-OK prescription): passed 1/4 probes before the v5 pivot — parent's direct verification served as launch signal instead. Recurring self-pkill footgun (pattern matching own cmdline) fixed by PID kills; 0 commits lost.
 - EB + dashboard remain live in run_v5 on :8000 (resumable on demand).
+
+---
+
+## Amendment — W2 (streamed, 1969c09): Atria unblocked, first real evolution
+
+Relaunched at 10:42 UTC on the SAME EB after parent's `stream:true`+SSE fix (`hyra/llm.py`, commit 1969c09). Prior serialized test (workers=1, ~40min, 0 scored — single calls still died past the ~5min in-flight kill) was consistent with the duration hypothesis; streaming bypasses it. **Zero 502s in the first 2.5h of W2** — the fix unblocked the endpoint.
+
+### 5-scored milestone (13:18 UTC)
+
+| sol | score | quality | probe_bytes | family (inferred) | losses |
+|---|---|---|---|---|---|
+| s0040 | **147.9013** | 148.0 | 232.6KB | event-sourced journal | duration/drvprov/isconf/partial/transfer=0; conf .43; subject .5; ops .6 |
+| s0037 | 145.9165 | 146.0 | 207.8KB | event-sourced journal | same + nchange 0 |
+| s0039 | 145.3928 | 146.0 | 2.86MB | event-sourced journal (fat serve) | same + nchange 0 |
+| s0041 | 122.9301 | 123.0 | 41.8KB | event-sourced journal (partial) | broad partial: derive .75, purpose .88, prov2 .6, ops .2, budget .5 |
+| s0000 | 55.8307 (v5) / −2.6019 (v8g) | 95.5 | 501.8MB | naive replay seed | everything |
+
+All 5 scored at cost_how=measured; all direction=exploit, parents=[s0000]. Family race at milestone: **event-sourced journal 4/4 scored — the only family instantiated**. Best (s0040, 147.90) vs v8g frontier: lifemodel v1 191 (+43.1 headroom), tms 178, esr 179.
+
+### New failure signature
+
+502s are gone; the residual killers are transport-level: `empty completion (finish_reason=None, data_events≈10.3k)` — the endpoint still cuts streams at roughly the same ~10min wall-clock leash, it just takes longer — plus `truncated; retrying max_tokens=32768/65536` (healthy output-length auto-bump) and rare non-JSON context replies. Net throughput ~1 scored / 40min under 4 workers. Corrections to prior hypothesis: the burst-vs-spaced asymmetry was real but NOT a rate limit — spaced calls survived because short calls finish under the in-flight duration cap; concurrency is confirmed fine once calls stream.
+
+### Provenance
+
+- W2 scored on bench HEAD a68e809+ (v8g semantics incl. control-op ordering, alias edges, derived-state probes, forget_range/exp rebuild); solutions dirs `run_v5/eb/solutions/s0037–s0041` verbatim on disk.
+- Scored-HEAD note: s0000's −2.6019 was measured post-pull on v8g; s0037+ were scored live by the harness on the same HEAD.
+- Dashboard serving run_v5 on :8000; EB live, run continues to ~16:42 UTC window end.
