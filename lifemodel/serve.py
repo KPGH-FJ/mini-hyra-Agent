@@ -52,6 +52,21 @@ def answer(store, probe: dict) -> str:
         _meter(edges)
         v = store.live_at(person, slot, ckpt)
         return str(v) if v is not None else "未知"
+    if t == "purpose":
+        # task-conditioned view: live values of the purpose's slots only
+        vals = store.live_bundle(ckpt, probe.get("purpose_slots"))
+        _meter(vals)
+        return ",".join(str(v) for v in vals) if vals else "未知"
+    if t == "budget":
+        # budgeted packing: values of the listed slots, in slot order —
+        # the scorer reads only the first `budget` bytes
+        vals = store.live_bundle(ckpt, probe.get("slots"))
+        _meter(vals)
+        return ",".join(str(v) for v in vals) if vals else "未知"
+    if t == "prov2":
+        rid = store.rvid.get(slot)
+        _meter(rid)
+        return str(rid) if rid else "未知"
     # state / stale / retract / cascade / derive / as_of: self vertex
     # first, then the live derived registry (M3 fold)
     day = probe.get("day", ckpt) if t == "as_of" else ckpt

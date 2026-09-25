@@ -84,6 +84,11 @@ def score_probe(probe, answer):
         # any acceptable "gone" phrasing scores
         opts = expect if isinstance(expect, list) else [expect]
         return 1.0 if any(norm(v) in a for v in opts) else 0.0
+    if probe["type"] == "budget":
+        # only the first `budget` bytes of the answer count — ordering
+        # under budget is the decision being scored
+        a = norm(str(answer).encode()[:probe.get("budget", 10**9)]
+                 .decode(errors="ignore"))
     if isinstance(expect, list):
         if not expect:
             return 0.0
@@ -336,6 +341,46 @@ class RAGBaseline:
                 "probe_bytes": 5000, "llm_tokens": 0}
 
 
+class FlatServeBaseline:
+    """M4 deficient family: flat LWW store + naive whole-dump serve.
+    No probe-type routing: purpose/budget leak everything, no
+    provenance/history/derivations/rids (as_of, subject, prov2,
+    cascade beyond the forgotten slot honestly fail)."""
+    def __init__(self):
+        self.m = {}
+        self.b = 0
+
+    def ingest(self, r):
+        if r["source"] == "self" and r["kind"] != "retraction":
+            self.m[r["slot"]] = r["value"]
+        elif r["source"] == "self" and r["kind"] == "retraction":
+            self.m.pop(r["slot"], None)
+
+    def forget(self, scope):
+        self.m.pop(scope.get("slot"), None)
+
+    def state(self):
+        return {"m": self.m}
+
+    def import_state(self, d):
+        self.m = dict(d["m"])
+
+    def probe_bytes(self):
+        return self.b
+
+    def answer(self, p):
+        # serves the whole flat map for anything that isn't a state probe —
+        # the "everything is one context" serve strategy
+        self.b += len(json.dumps(self.m, ensure_ascii=False))
+        if p["type"] == "prov2":
+            return "未知"
+        if p["type"] in ("state", "stale", "as_of", "unans"):
+            return self.m.get(p["slot"], "未知")
+        if p["type"] == "subject":
+            return "未知"
+        return ",".join(str(v) for v in self.m.values()) or "未知"
+
+
 # ---- M3 family baselines (hand-built for the family race; see
 # docs/literature/m3_update.md) ----
 
@@ -402,6 +447,7 @@ class TMSBaseline(_Mixin):
         self.drv = {}             # dslot -> {"premises": {slot: val}}
         self._exp = {}            # slot -> expires_day (slot-scoped lease)
         self._now = 0             # latest ingested day (read-day clock)
+        self._latest_rid = {}     # slot -> latest self-write record id
 
     def ingest(self, r):
         self._now = max(self._now, r["day"])
@@ -421,6 +467,8 @@ class TMSBaseline(_Mixin):
                 vals.append(r["value"])
             if r.get("expires_day"):
                 self._exp[r["slot"]] = r["expires_day"]
+            if r.get("id"):
+                self._latest_rid[r["slot"]] = r["id"]
         elif r["kind"] == "retraction" and r["source"] == self.SELF:
             self.cur.pop(r["slot"], None)
         # expiry is judged at read day — keep cur but pass exp+now into
@@ -434,6 +482,7 @@ class TMSBaseline(_Mixin):
         self.prov.pop(slot, None)
         self.cur.pop(slot, None)
         self._exp.pop(slot, None)
+        self._latest_rid.pop(slot, None)
         self._prune(self.cur, self.drv, self._exp, self._now)
 
     def _live_at(self, source, slot, day):
@@ -478,6 +527,22 @@ class TMSBaseline(_Mixin):
                     and not (s in self._exp and ckpt > self._exp[s])]
             self._meter(vals)
             return ",".join(vals) if vals else "未知"
+        if t == "purpose":
+            vals = [self._pval(self.cur, s)
+                    for s in p.get("purpose_slots", [])
+                    if s in self.cur
+                    and not (s in self._exp and ckpt > self._exp[s])]
+            self._meter(vals)
+            return ",".join(str(v) for v in vals if v) or "未知"
+        if t == "budget":
+            vals = [self._pval(self.cur, s) for s in p.get("slots", [])
+                    if s in self.cur
+                    and not (s in self._exp and ckpt > self._exp[s])]
+            self._meter(vals)
+            return ",".join(str(v) for v in vals if v) or "未知"
+        if t == "prov2":
+            self._meter(self.cur.get(slot))
+            return self._latest_rid.get(slot, "未知")
         if t == "as_of":
             edges = self.hist.get(f"self|{slot}", [])
             self._meter(edges)
@@ -492,7 +557,8 @@ class TMSBaseline(_Mixin):
     def state(self):
         return {"hist": self.hist, "prov": self.prov,
                 "drv": self.drv, "cur": self.cur,
-                "exp": self._exp, "rsv": self._rec_slot_val}
+                "exp": self._exp, "rsv": self._rec_slot_val,
+                "lrid": self._latest_rid}
 
     def import_state(self, d):
         self.hist = {k: [list(e) for e in v] for k, v in d["hist"].items()}
@@ -502,6 +568,7 @@ class TMSBaseline(_Mixin):
         self.cur = {k: tuple(v) for k, v in d["cur"].items()}
         self._exp = dict(d["exp"])
         self._rec_slot_val = {k: tuple(v) for k, v in d["rsv"].items()}
+        self._latest_rid = dict(d["lrid"])
 
 
 class ESRBaseline(_Mixin):
@@ -520,7 +587,7 @@ class ESRBaseline(_Mixin):
         self.recs = [r for r in self.recs if r["slot"] != slot]
 
     def _replay(self, day):
-        cur, drv, exp = {}, {}, {}
+        cur, drv, exp, lrid = {}, {}, {}, {}
         for r in self.recs:
             if r["day"] > day:
                 continue
@@ -533,14 +600,16 @@ class ESRBaseline(_Mixin):
                 cur[r["slot"]] = (r["value"], "self")
                 if r.get("expires_day"):
                     exp[r["slot"]] = r["expires_day"]
+                if r.get("id"):
+                    lrid[r["slot"]] = r["id"]
             elif r["kind"] == "retraction":
                 cur.pop(r["slot"], None)
-            self._prune(cur, drv)
+            self._prune(cur, drv, exp, r["day"])
         for s, d in list(exp.items()):
             if day > d:
                 cur.pop(s, None)
-        self._prune(cur, drv)
-        return cur
+        self._prune(cur, drv, exp, day)
+        return cur, lrid
 
     def _premises_of(self, r):
         # returns None when a support is dangling (its record was forgotten
@@ -568,12 +637,23 @@ class ESRBaseline(_Mixin):
                     and r["slot"] == slot and r["day"] <= ckpt]
             return hits[-1]["value"] if hits else "未知"
         if t == "as_of":
-            v = self._replay(p.get("day", ckpt)).get(slot)
+            cur_d, _ = self._replay(p.get("day", ckpt))
+            v = cur_d.get(slot)
             return self._answer_state({slot: v} if v else {}, p)
-        cur = self._replay(ckpt)
+        cur, lrid = self._replay(ckpt)
         if t == "transfer":
             vals = [v[0] for v in cur.values() if v[1] == "self"]
             return ",".join(vals) if vals else "未知"
+        if t == "purpose":
+            vals = [self._pval(cur, s) for s in p.get("purpose_slots", [])
+                    if s in cur]
+            return ",".join(str(v) for v in vals if v) or "未知"
+        if t == "budget":
+            vals = [self._pval(cur, s) for s in p.get("slots", [])
+                    if s in cur]
+            return ",".join(str(v) for v in vals if v) or "未知"
+        if t == "prov2":
+            return lrid.get(slot, "未知")
         return self._answer_state(cur, p)
 
     def state(self):
@@ -619,8 +699,8 @@ def main():
     # baselines for the feedback digest
     bl = {}
     for name, cls in [("raw", RawBaseline), ("ledger", LedgerBaseline),
-                      ("rag", RAGBaseline), ("tms", TMSBaseline),
-                      ("esr", ESRBaseline)]:
+                      ("rag", RAGBaseline), ("flat", FlatServeBaseline),
+                      ("tms", TMSBaseline), ("esr", ESRBaseline)]:
         rr = copy.deepcopy(records)
         try:
             rws, _c, _h = drive(cls(), rr, probes, meta)

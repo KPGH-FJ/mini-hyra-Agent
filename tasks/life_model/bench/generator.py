@@ -268,7 +268,8 @@ def generate(seed: int = 7):
     pid = 0
 
     def probe(ckpt, ptype, slot, expect, must_not=None, q=None,
-              value=None, day=None, person=None, post_import=False):
+              value=None, day=None, person=None, post_import=False,
+              purpose=None, purpose_slots=None, budget=None, slots=None):
         nonlocal pid
         p = {"id": f"p{pid:03d}", "ckpt": ckpt, "type": ptype,
              "slot": slot, "expect": expect,
@@ -277,6 +278,14 @@ def generate(seed: int = 7):
             p["day"] = day
         if person is not None:
             p["person"] = person
+        if purpose is not None:
+            p["purpose"] = purpose
+        if purpose_slots is not None:
+            p["purpose_slots"] = purpose_slots
+        if budget is not None:
+            p["budget"] = budget
+        if slots is not None:
+            p["slots"] = slots
         if post_import:
             p["post_import"] = True
         probes.append(p)
@@ -428,13 +437,97 @@ def generate(seed: int = 7):
         probe(90, "prov", r["slot"], "本人", value=r["value"],
               q=f"“{r['slot']}={r['value']}”这条信息是本人说的吗？"
                 "答 本人 或 非本人", post_import=True)
+    # ---- M4 probes (serve pressure) ---------------------------------
+    rv2 = next((e for e in truth_events if e["slot"] == retract_slot
+                and e["op"] == "set"), None)
+    # unans: evidence-absent questions — never-asserted slots baited by
+    # hearsay/suggestion values (LoCoMo-style adversarial: surface-
+    # answerable, actually unanswerable). The abstention gate lives or
+    # dies here: leaking the bait = -0.5.
+    bait_slot = "hobby"
+    bait_val = rng.choice(["摄影", "木工", "烘焙"])
+    bait_rec = rec(rng.randint(8, 12), rng.choice(OTHER_PEOPLE),
+                   "hearsay", bait_slot, bait_val)
+    bait2 = rec(rng.randint(38, 44), "assistant", "suggestion",
+                bait_slot, rng.choice(["滑雪", "潜水", "围棋"]))
+    for c in CHECKPOINTS:
+        if c > bait_rec["day"]:
+            probe(c, "unans", bait_slot, "未知",
+                  must_not=[bait_rec["value"], bait2["value"]],
+                  q=f"此人{bait_slot}是什么？")
+
+    # purpose: task-conditioned view — serve ONLY the live values of the
+    # purpose's slots; anything else is a leak. purpose_slots are given
+    # in the probe (the use-case definition is part of the query).
+    PURPOSES = {
+        "制定照护方案": ["family", "elder_plan", "sleep"],
+        "制定本周计划": ["time_budget", "risk", "plan_hint",
+                       "routine_fit"],
+        "生成个人简介": ["city", "job", "goal", "diet", "contact",
+                       "device"],
+    }
+    for c in CHECKPOINTS[2:]:           # 54, 72, 90
+        cur_c, _ = state_at(c)
+        for pname, pslots in PURPOSES.items():
+            exp_vals = [cur_c[s] for s in pslots if s in cur_c]
+            if not exp_vals:
+                continue
+            others = {s for ps in PURPOSES.values() for s in ps
+                      if s not in pslots}
+            leak = [cur_c[s] for s in others
+                    if s in cur_c and cur_c[s] not in exp_vals]
+            probe(c, "purpose", "_view", exp_vals, must_not=leak,
+                  q=f"为{pname}提供相关值（只列该用途相关槽位的当前值，"
+                    "逗号分隔）",
+                  purpose=pname, purpose_slots=pslots,
+                  post_import=(c == CHECKPOINTS[-1] and pname ==
+                               "生成个人简介"))
+
+    # budget: pack the listed slots' live values under a byte budget —
+    # ordering becomes the decision (Lost-in-the-Middle pressure).
+    # First `budget` bytes of the answer are what's scored.
+    bslots = ["time_budget", "risk", "contact"]
+    for c in (72, 90):
+        cur_c, _ = state_at(c)
+        exp_vals = [cur_c[s] for s in bslots if s in cur_c]
+        if len(exp_vals) < 2:
+            continue
+        exp_bytes = sum(len(str(v).encode()) for v in exp_vals)
+        stale_vals = [e["value"] for e in truth_events
+                      if e["slot"] in bslots and e["op"] == "set"
+                      and e["day"] <= c
+                      and cur_c.get(e["slot"]) != e["value"]]
+        probe(c, "budget", "_pack", exp_vals, must_not=stale_vals,
+              q="列出以下槽位的当前值（逗号分隔）："
+                + ",".join(bslots),
+              budget=exp_bytes + 6, slots=bslots,
+              post_import=(c == 90))
+
+    # prov2: evidence citation — the answer must name the record id that
+    # carries the current assertion (ALCE-style attribution).
+    def latest_rid(slot, day):
+        rid_ = None
+        for r in records:
+            if (r["source"] == "self" and r["slot"] == slot
+                    and r["kind"] in ("statement", "update", "correction")
+                    and r["day"] <= day):
+                rid_ = r["id"]
+        return rid_
+
+    for c in CHECKPOINTS[3:]:           # 72, 90
+        for s in [s for s in changed
+                  if s not in (forget_slot, retract_slot)][:2]:
+            rid_ = latest_rid(s, c)
+            if rid_:
+                probe(c, "prov2", s, rid_,
+                      q=f"你对{s}的判断依据是哪条记录？（给出记录ID）",
+                      post_import=(c == 90))
+
     # transfer probe at final checkpoint: bundle of constraints
     cur, _ = state_at(CHECKPOINTS[-1])
     transfer_expect = [cur[s] for s in ("time_budget", "family", "risk")
                        if s in cur]
     stale_decoys = []
-    rv2 = next((e for e in truth_events if e["slot"] == retract_slot
-                and e["op"] == "set"), None)
     if rv2:
         stale_decoys.append(rv2["value"])
     exp_rec = next((e for e in truth_events if e["slot"] == "family"

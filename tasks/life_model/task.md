@@ -56,10 +56,13 @@ drives the lifecycle itself. Do NOT write files, network-call, or time-depend.
 ## Probes (answered by `answer()`)
 
 Each probe dict: `{q, type, slot, ckpt, value?, day?, person?,
-post_import?}` — `ckpt` is the day the probe is asked (use for expiry),
-`value` is the claimed value (prov only), `day`/`person` are the v2
-temporal/attribution fields, `post_import` marks continuity probes
-answered after the export->import round-trip.
+post_import?, budget?, slots?, purpose?, purpose_slots?}` — `ckpt` is
+the day the probe is asked (use for expiry), `value` is the claimed
+value (prov only), `day`/`person` are the v2 temporal/attribution
+fields, `post_import` marks continuity probes answered after the
+export->import round-trip. v4 serve fields: `budget` is a byte cap on
+the scored part of your answer, `slots` lists the slots to pack,
+`purpose`/`purpose_slots` name a use-case view and its slot set.
 
 - `state`   — current value of a slot; "未知" if unknown/retracted/expired.
 - `stale`   — same but the answer must NOT contain the superseded old value.
@@ -82,6 +85,18 @@ answered after the export->import round-trip.
               evaluator re-loaded your asset via state()->import_state().
               They just verify continuity (state/history/subject/prov/deleted
               facts all survive the move).
+- `unans`  — unanswerable (evidence-absent): the slot was never asserted
+              by self — baited by hearsay/suggestion values which are
+              must_not. Correct answer: "未知" (NOT "已删除" — nothing
+              was deleted; distinguish missing evidence from deletion).
+- `purpose`— task-conditioned view: serve ONLY live values of
+              probe["purpose_slots"], comma-separated; any other slot's
+              value is a leak (must_not).
+- `budget` — pack probe["slots"]' live values comma-separated; ONLY the
+              first probe["budget"] BYTES of your answer are scored —
+              what you put first is the decision.
+- `prov2`  — evidence citation: answer with the record id (e.g. "r0023")
+              carrying the slot's current self-assertion.
 
 Answer with the raw value string — short, no prose. Scoring is substring
 match (normalized), with a hard penalty for surfacing a `must_not` value.
@@ -103,31 +118,31 @@ reward hacking — implement real metering instead.
 
 ## What to explore (the research space)
 
-This round is scoped to **M3 update semantics** — how new records revise
-existing state and how invalidation propagates. Representation is pinned
-by the probe semantics (temporal history + attribution still needed);
-what varies is the UPDATE machinery.
+This round is scoped to **M4 serve semantics** — how a probe becomes an
+answer: view routing, budgeted packing, abstention, evidence citation.
+The asset/update machinery is pinned by v3 semantics (temporal history,
+attribution, supports); what varies is the SERVE machinery.
 
-Candidate families (from the literature survey, docs/literature/m3_*.md):
-- **TMS / truth-maintenance**: every derived entry carries supports
-  (premise rec ids); premise death -> cascade-invalidate dependents,
-  transitively. The classical answer to "forgetting must propagate".
-- **AGM / Katsuno-Mendelzon operators**: separate revision (belief was
-  wrong — history rewritten) from update (world changed — history kept).
-- **event-sourced re-derivation**: keep the raw event log; recompute
-  derived views after every invalidating event (probe_bytes pays).
-- **materialized-view invalidation**: derived entries are cached views
-  with dependency indexes — invalidate on writes, like a DBMS view.
-- **bitemporal rules**: correction = retroactive truth fix vs update =
-  new fact; which semantics is right for premise-matching?
+Candidate families (from the literature survey, docs/literature/m4_serve.md):
+- **probe-type router + materialized views** (CRAG winners / Adaptive-RAG):
+  type -> dedicated view/index; write-time maintained per-slot views read
+  O(1), complex views computed on demand.
+- **abstention gate** (selective prediction, SQuAD 2.0): absent/conflicted/
+  expired evidence -> "未知"; a leak costs -0.5 so the gate pays.
+- **budgeted context packing** (Lost-in-the-Middle, LLMLingua): ordering
+  under a byte cap — most relevant first, query-conditioned compression.
+- **retrieval hybrids** (BM25+dense+RRF, recency*authority*relevance):
+  for when slot routing isn't enough.
+- **answer-with-citation** (ALCE/AIS): views carry evidence_ids so every
+  claim can name its supporting record.
 
 Also in play:
-- supports representation: rec ids vs (slot, premised value) pairs
-- when to evaluate derivation validity: at write (eager invalidation),
-  at read (lazy check), or on a propagation pass
-- export-import: state() must round-trip through plain JSON
-- control ops: forget() now has to kill dependent derivations too
+- purpose views: same asset, multiple use-cases — the view is
+  probe-conditioned, never whole-asset dumps
+- clarify as an output value: product-side `answer|clarify|abstain`
+  exists; on this bench "clarify" maps to "未知" (no dialog channel)
+- llm_tokens: an LLM reader is legal but pays per token
 
 Baselines to beat (same stream+probes, run by the evaluator): raw records,
-last-write-wins ledger, keyword RAG — plus the incumbent reference impl
-`lifemodel v1` (~109 on v3) and the seed (~89).
+last-write-wins ledger, keyword RAG, TMS baseline, event-sourced replay —
+plus the incumbent `lifemodel v1` (~112 on v3) and the seed.

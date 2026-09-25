@@ -72,6 +72,7 @@ class TemporalGraph:
         self.rsv: dict = {}   # record id -> (slot, value)
         self.drv: dict = {}   # derived slot -> {"premises": {}, "value"}
         self.exp: dict = {}   # slot -> expires_day (slot-scoped lease)
+        self.rvid: dict = {}  # slot -> latest self-write record id (prov2)
         self._now: int = 0    # latest observed event day (read-day clock)
 
     # ---- writes ----
@@ -90,6 +91,8 @@ class TemporalGraph:
                 vals.append(ev["value"])
             if ev.get("expires"):
                 self.exp[ev["slot"]] = ev["expires"]
+            if ev.get("id"):
+                self.rvid[ev["slot"]] = ev["id"]
         if ev["kind"] == "derived":
             pre = self._premises(ev)
             if pre is not None:   # dangling supports: dead at birth
@@ -135,6 +138,7 @@ class TemporalGraph:
         self.prov.pop(slot, None)
         self.drv.pop(slot, None)
         self.exp.pop(slot, None)
+        self.rvid.pop(slot, None)
         self._prune()   # dependents of the forgotten slot die too
         return n
 
@@ -211,7 +215,8 @@ class TemporalGraph:
 
     def snapshot(self):
         return {"hist": self.hist, "prov": self.prov,
-                "rsv": self.rsv, "drv": self.drv, "exp": self.exp}
+                "rsv": self.rsv, "drv": self.drv, "exp": self.exp,
+                "rvid": self.rvid}
 
     def restore(self, d):
         """Reload a snapshot() dict — export/import continuity hook."""
@@ -222,4 +227,5 @@ class TemporalGraph:
                         "value": v["value"]}
                     for k, v in d["drv"].items()}
         self.exp = dict(d["exp"])
+        self.rvid = dict(d["rvid"])
         self._prune()
