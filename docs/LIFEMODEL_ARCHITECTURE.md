@@ -1,4 +1,4 @@
-# LifeModel System v0 — 框架与接口（v1.2，P3 r1–r5 已回灌）
+# LifeModel System v0 — 框架与接口（v1.5，P3 r1–r6 已回灌）
 
 > 研究对象是一套**可复用的方法系统**：把单个用户授权的记录流灌进去，
 > 系统持续形成并维护一份"对这个人的理解资产"，供不同用途调用。
@@ -109,13 +109,18 @@ class LifeModel:
 4. **控制操作即事件**（M5）：correct/forget 走同一管线进 journal →
    LifeStream v2 cascade 探针（评测器在 ckpt 边界调 forget()）。
 
-## 4. 评价方案（LifeStream v7 — 已落地）
+## 4. 评价方案（LifeStream v9 — 已落地）
 
 - 生命周期：ingest 分段 → checkpoint 探针 → 控制事件 → 再探针（5 ckpt）
-- 探针类型（20 种，累积压强）：state/stale/prov/retract/transfer ＋
+- 探针类型（28 种，累积压强）：state/stale/prov/retract/transfer ＋
   as_of/subject/cascade（v2）＋ derive/post_import（v3）＋
   unans/purpose/budget/prov2（v4）＋ revoked（v6）＋ ops×4（v6c–v7）＋
-  partial（v7）＋ drvprov/duration/nchange/conf（v7.x）
+  partial（v7）＋ drvprov/duration/nchange/conf（v7.x）＋
+  isconf/expdeny（v8x）＋ first/order/join/absent/window/xcmp（v9
+  历史推理：当前 run 的首值/序/跨槽联/absent 稳定/窗内变迁/跨实体比较）
+- 派生复活（v9 契约 13）：擦除重写记录日志，派生态须由存活派生事件
+  按（日，到达序）重建 —— 被剪死的派生在其杀手被抹掉后复活
+  （store._drv_log + _rebuild_drv）
 - 摄入压强（v5）：alias 别名消歧 + 乱序到达（day 权威，非到达序）
 - 控制事件（评测器驱动）：forget(slot)@55 / forget_range@62 回滚 /
   correct@78 / revoke_purpose@84 / state→import_state 往返@72 /
@@ -149,10 +154,14 @@ class LifeModel:
     （results/life_model_v3/FAMILY_RACE.md）
   - **r3 M4 使用 ✓**：serve 语义经 v4 考题验证后直接沉淀系统
     （probe-type router + live_bundle + rvid 引用），未开实验室轮
-  - **r4 M1 摄入**：v5 考题上线（别名+乱序）；lab run_v5 进化中
-  - **r5 M5 控制**：v7 考题上线（revoked/forget_range 回滚/ops 审计×4/
-    部分导出/drvprov/duration/nchange/conf）；系统已 ~160 满分
-    (160/160)；lab run_v6 进化中；家族淘汰赛见 results/life_model_v6/
+  - **r4 M1 摄入**：v5→v9 考题上线（别名+乱序+实体+isconf+历史推理）；
+    run_v5 W2 最优 s0040=147.90（journal 家族，落后前沿 ~47）；W3 续跑中
+  - **r5 M5 控制 ✓**：v7 考题上线；s0045=140.90 获胜（consent-scoped
+    视图撤回+journal 嵌入资产——机制与已折叠 v1 收敛一致），已合并 #16
+  - **r6 M4 使用面**：serve 面专攻（partial/duration/drvprov/isconf/
+    subject/ops/conf 各家缺口）；lab run_v7 进化中
+  - **v9 语义**：195/195 满分前沿；60 种子 11726 探针全绿；契约套件
+    lm 29/29（results/life_model_v9/FAMILY_RACE.md）
 - **P4**：真实授权数据验证（需单独授权，brief §83）
 
 ## 7. 遗留问题（r5 后更新）
@@ -162,8 +171,11 @@ class LifeModel:
 - ~~export-import 探针~~：v3 已落地（post_import 旗标）。
 - ~~三值输出~~：unans 探针落地了 abstain 侧；clarify 无对话通道
   仍映射为“未知”。
-- ~~NL 查询表面~~：query.py 端到端验证通过（state/as_of/subject别名/
-  prov2/purpose/拒答全对）。
+- ~~NL 查询表面~~：query.py 端到端验证通过，含 v9 路由（xcmp/first/
+  order/absent/window + 住哪 词表）。
+- ~~派生复活~~：v9 落地（擦除重写日志→按存活派生事件重建 drv）。
+- ~~出题端读日期望~~：derive/cascade 期望跟 state_at(ckpt,read_day)，
+  must_not 排 live 值——期望随语义演进，不写死。
 - ~~同日冲突源歧义~~：同日同（人，槽）冲突传闻不探针——“最新”
   在日内无定义；subject 键折叠已规范。
 - ~~成本权重校准~~：伸缩实验（density ×1→×5, 201→881 条）量化——
