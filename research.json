@@ -23,16 +23,17 @@
    "id": "M3",
    "name": "更新 Update",
    "role": "新信息如何传导",
-   "impl": "append-only edges",
-   "status": "running",
-   "next": "r2 进行中：derived+supports 探针已上线，进化 TMS 级联失效"
+   "impl": "TMS 前提维护 (v2)：drv/rsv 注册表 + _prune 不动点",
+   "status": "done",
+   "score": 111.99,
+   "note": "P3 r2 获胜：supports→premises 解析，每次写后级联失效；forget/纠错传导"
   },
   {
    "id": "M4",
    "name": "使用 Serve",
    "role": "探针 → 回答/视图",
    "impl": "edge lookup + 字节计量",
-   "status": "v0",
+   "status": "next",
    "next": "三值输出 answer|clarify|abstain / 上下文预算"
   },
   {
@@ -41,7 +42,7 @@
    "role": "correct / forget / export",
    "impl": "journal + 全顶点级联清除",
    "status": "v0",
-   "next": "派生条目的级联失效（与 M3 合流）"
+   "next": "级联失效已实现；剩余：纠正传导 UI/导出携带派生"
   }
  ],
  "stages": [
@@ -78,8 +79,14 @@
     {
      "id": "r2",
      "module": "M3 更新",
-     "status": "running",
-     "desc": "M3 更新机制：LifeStream v3（derived+supports、premise-invalidation、export-import）已上线"
+     "status": "done",
+     "result": "获胜 = TMS 前提维护（与事件溯源同质量 112/112，读成本 ~320x 低）；已回灌 lifemodel，22 个 seed 全满分"
+    },
+    {
+     "id": "r3",
+     "module": "M4 使用",
+     "status": "next",
+     "desc": "上下文预算/拒答校准/多用途视图"
     }
    ]
   },
@@ -91,8 +98,8 @@
   }
  ],
  "experiment": {
-  "bench": "LifeStream v3 · 90 天合成人生流 + 派生事实(supports)",
-  "probes": 111,
+  "bench": "LifeStream v3 · 90 天合成人生流 + 派生事实(supports) + 导出导入",
+  "probes": 112,
   "types": [
    "state",
    "stale",
@@ -109,9 +116,21 @@
   "table": [
    [
     "lifemodel v1",
-    "TemporalGraph（系统本体）",
-    108.995,
-    109
+    "TemporalGraph+TMS（系统本体）",
+    111.99,
+    112
+   ],
+   [
+    "tms",
+    "前提维护基线（评测器内置）",
+    111.99,
+    112
+   ],
+   [
+    "esr",
+    "事件溯源重放基线（评测器内置）",
+    111.86,
+    112
    ],
    [
     "raw",
