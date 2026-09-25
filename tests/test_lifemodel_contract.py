@@ -305,6 +305,20 @@ def _(a):
     assert a.answer(P("state", "habit", ckpt=10)) == "未知"
 
 
+@case("derived revival: a surviving user write outranks a revived derived")
+def _(a):
+    a.ingest(R(1, "self", "statement", "creed", "每天记录", id="r1"))
+    a.ingest(R(2, "inference", "derived", "habit", "可持续",
+             supports=["r1"]))
+    # explicit beats inferred — the correction lands on the same slot
+    a.ingest(R(3, "self", "correction", "habit", "不稳定"))
+    a.ingest(R(5, "self", "update", "creed", "偶尔记录"))
+    a.forget({"day_gte": 5, "day_lte": 5})
+    # the derived revives in the registry but the user's surviving
+    # edge still wins the read
+    assert a.answer(P("state", "habit", ckpt=10)) == "不稳定"
+
+
 @case("first/order: run after last retraction, day order")
 def _(a):
     a.ingest(R(1, "self", "statement", "city", "北京"))
