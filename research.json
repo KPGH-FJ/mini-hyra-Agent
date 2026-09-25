@@ -208,6 +208,10 @@
     {
       "ts": "2026-09-25T20:45Z",
       "text": "harness升级(6eb5177)：SSE断流续传——无[DONE]/finish即截断时以assistant-partial续写拼接(至多4次)，消除~10min流断杀手；真Atria冒烟通过"
+    },
+    {
+      "ts": "2026-09-25T21:15Z",
+      "text": "v9覆盖扩至100种子(~19.5k探针全绿)+density×5复测183/193全绿+契约30条+语义17条；scoped导出泄漏修复(drv_log/pending_drv/rday域外值不再随文档泄漏)"
     }
   ]
 }
