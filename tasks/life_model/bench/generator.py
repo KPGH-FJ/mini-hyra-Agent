@@ -467,6 +467,15 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
             else:
                 probe(c, "state", slot, "未知",
                       q=f"此人当前的{slot}是什么？")
+        # derived-value serving: while a derived fact's premises hold,
+        # its VALUE is a first-class answer — only the premise-citation
+        # probes exercised it before. Dead deriveds are covered by
+        # cascade/drvprov instead, so only probe the living.
+        for ds in ("plan_hint", "routine_fit", "habit_fit",
+                   "elder_plan"):
+            if ds in cur:
+                probe(c, "state", ds, cur[ds],
+                      q=f"此人当前的{ds}是什么？")
         # stale probe: first old value must NOT surface
         # (find earliest 'set' for the slot before a later change)
         for slot in changed:
