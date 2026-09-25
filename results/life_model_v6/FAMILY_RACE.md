@@ -4,20 +4,20 @@ Question: after M1 (ingest: alias + out-of-order) and M5 (control:
 revoke / range-forget / ops-audit) pressures joined the bench, which
 implementation families still answer the whole lifecycle?
 
-## Frontier (seed 7, 135 probes)
+## Frontier (seed 7, 136 probes)
 
 | impl | score | quality | probe cost | what it survives |
 |---|---|---|---|---|
-| lifemodel v1 | 134.97 | 135/135 | 6 KB | everything — 100% quality on every probed seed (3/7/11/42 → 128.97–134.97) |
-| tms baseline | 134.97 | 135/135 | 3 KB | everything |
-| esr baseline | 134.42 | 135/135 | 2.7 MB | everything, pays replay-per-probe (~0.55 pt) |
+| lifemodel v1 | 135.97 | 136/136 | 6 KB | everything — 100% quality on every probed seed (3/7/11/42) |
+| tms baseline | 135.97 | 136/136 | 3 KB | everything |
+| esr baseline | 135.42 | 136/136 | 2.7 MB | everything, pays replay-per-probe (~0.55 pt) |
 | raw | 98.58 | 99.5 | 4.4 MB | loses ~36 to OOO + rollback + audit + serve |
 | ledger (LWW) | 84.49 | 84.5 | 59 KB | same losses, worse: arrival-order truth |
 | rag | 52.81 | 53.0 | 675 KB | keyword retrieval, no semantics |
 | flat | 43.99 | 44.0 | 26 KB | whole-dump serve, no views/metering |
 
 raw/ledger loss anatomy (seed 7): both lose the entire serve surface
-(purpose 0/8, budget 0/2, prov2 0/4, ops 0/2, revoked 0/1, transfer
+(purpose 0/8, budget 0/2, prov2 0/4, ops 0/3, revoked 0/1, transfer
 0/1 ≈ 18 pts) plus ~12 to OOO/rollback state-stale misses; ledger
 additionally loses every subject probe (0/11 — no hearsay vertices)
 and 7.5/8 as_of. raw even leaks a retracted value (retract −0.5).
@@ -33,7 +33,7 @@ and 7.5/8 as_of. raw even leaks a retracted value (retract −0.5).
 | alias + out-of-order (v5) | subject/state/prov2 | arrival-order impls (ledger/raw) | ~5–15 |
 | purpose revocation (v6) | revoked | no consent registry | ~1 + leaks |
 | range-forget rollback (v6b) | state+stale ×2ckpt, prov2 | cur-only materializers without history rebuild | ~5 |
-| ops audit (v6c) | ops ×2 | no op journal | ~2 |
+| ops audit (v6c) | ops ×3 (forget/correct/revoke_purpose) | no op journal | ~3 |
 
 ## Semantics pinned this wave
 
