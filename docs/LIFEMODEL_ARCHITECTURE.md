@@ -45,7 +45,9 @@ class LifeModel:
 
     # M5：用户控制 API
     def correct(self, slot, new_value) -> None   # 人工纠错，传导到派生
-    def forget(self, scope) -> None   # {"slot":s} 或 {"day_gte":a,"day_lte":b}
+    def forget(self, scope) -> None   # {"slot":s} | {"day_gte":a,"day_lte":b}
+                                  # | {"about":entity} — 实体级遗忘：抹掉
+                                  #   所有 *|entity|* 顶点（任意声称者）
     def revoke_purpose(self, purpose) -> None    # 撤回某用途（数据留，视图拒）
     def export(self) -> dict                      # 完整可迁移的资产快照
     # journal：操作日志，是资产的一部分（state()/snapshot 携带、import
@@ -65,9 +67,12 @@ class LifeModel:
 #
 # 探针协议：answer(probe) 的 probe 字段
 #   type/slot/expect/must_not/q/day/person/purpose/purpose_slots/
-#   slots/budget/op/post_import/post_partial/partial
+#   slots/budget/op/post_import/post_partial/partial/about
 #   post_import → 在 export→import 后探；post_partial → 答的就是作用域
 #   文档本身；expdeny 探针由评测器直接按“文档是否为空”判分
+#   about=v8 多实体 — claims 落 claimer|about|slot 顶点（about=None=
+#   本人域）；self-domain 注册表只对 not-about 生效；作用域导出仅
+#   2 段键（本人域），alias/实体数据不出域
 ```
 
 ## 3. 各模块的候选空间（调研纪要：docs/literature/m*.md）

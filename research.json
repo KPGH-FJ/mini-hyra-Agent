@@ -112,8 +112,8 @@
   }
  ],
  "experiment": {
-  "bench": "LifeStream v8b · 90天流 ~205条/seed · 全压强 + 多实体隔离 + 实体级遗忘",
-  "probes": 167,
+  "bench": "LifeStream v8c · 90天流 ~205条/seed · 全压强 + 多实体 + 实体遗忘 + 实体双时态",
+  "probes": 172,
   "types": [
    "state",
    "stale",
@@ -141,26 +141,26 @@
    [
     "lifemodel v1",
     "TemporalGraph+TMS+serve router+scoped export（系统本体）",
-    166.97,
-    167
+    171.97,
+    172
    ],
    [
     "tms",
     "前提维护基线（内置；range-forget 回滚重建+scoped state）",
-    166.97,
-    167
+    171.97,
+    172
    ],
    [
     "esr",
     "事件溯源重放基线（day排序+scoped state）",
-    166.97,
-    167
+    171.97,
+    172
    ],
    [
     "raw",
     "全存（基线；乱序+回滚+无作用域导出三重损失）",
-    101.5,
-    101.5
+    103.5,
+    172
    ],
    [
     "ledger",
