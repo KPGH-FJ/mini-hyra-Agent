@@ -115,6 +115,10 @@ the scored part of your answer, `slots` lists the slots to pack,
               what you put first is the decision.
 - `prov2`  — evidence citation: answer with the record id (e.g. "r0023")
               carrying the slot's current self-assertion.
+- `ops`    — audit trail: which control op ran. probe["op"] names the op
+              ("forget"/"correct"); answer with the slot it targeted.
+              Requires an operation journal that survives export/import.
+              Answer "无" when the op never ran.
 
 Answer with the raw value string — short, no prose. Scoring is substring
 match (normalized), with a hard penalty for surfacing a `must_not` value.
