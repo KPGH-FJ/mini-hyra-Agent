@@ -429,13 +429,15 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
     def probe(ckpt, ptype, slot, expect, must_not=None, q=None,
               value=None, day=None, person=None, post_import=False,
               purpose=None, purpose_slots=None, budget=None, slots=None,
-              op=None, partial=False, about=None):
+              op=None, partial=False, about=None, slot2=None):
         nonlocal pid
         p = {"id": f"p{pid:03d}", "ckpt": ckpt, "type": ptype,
              "slot": slot, "expect": expect,
              "must_not": must_not or [], "q": q or slot, "value": value}
         if day is not None:
             p["day"] = day
+        if slot2 is not None:
+            p["slot2"] = slot2
         if person is not None:
             p["person"] = person
         if about is not None:
@@ -881,6 +883,35 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
             prev = e["value"]
         probe(90, "window", s, str(n),
               q=f"第30到60天之间，此人{s}变过几次？（回答数字）")
+    # before: cross-slot pairwise ordering — 'did A's current value
+    # start before B's?' compares the two slots' last transition days
+    # (the day the live value began). Margin >=2 clears near-ties.
+    def _last_trans_day(s):
+        run = _slot_run(s)
+        prev, d = None, None
+        for e in run:
+            if prev is not None and e["value"] != prev:
+                d = e["day"]
+            prev = e["value"]
+        if d is None and run:
+            # single write, still the live value's start
+            d = run[0]["day"]
+        return d
+    _b = 0
+    for i, s1 in enumerate(agg_slots):
+        if _b >= 2:
+            break
+        for s2 in agg_slots:
+            if _b >= 2 or s2 == s1:
+                continue
+            d1, d2 = _last_trans_day(s1), _last_trans_day(s2)
+            if d1 is None or d2 is None or abs(d1 - d2) < 2:
+                continue
+            probe(90, "before", s1, "是" if d1 < d2 else "否",
+                  q=f"此人{s1}变成现在值的那天，是在{s2}变成现在值的那天之前吗？（是/否）",
+                  slot2=s2)
+            _b += 1
+            break
     # ---- M4 probes (serve pressure) ---------------------------------
     rv2 = next((e for e in truth_events if e["slot"] == retract_slot
                 and e["op"] == "set"), None)

@@ -168,6 +168,29 @@ def answer(store, probe: dict, journal=()) -> str:
         v = store.live_at("self", slot, d if d is not None else ckpt)
         _meter([v])
         return str(v) if v is not None else "未知"
+    if t == "before":
+        # cross-slot ordering: the day each slot's live value began —
+        # last transition day of each slot's surviving run
+        def _ltd(s):
+            edges = [e for e in store.hist.get(f"self|{s}", [])
+                     if e[1] <= ckpt]
+            edges.sort(key=lambda e: e[1])
+            last_ret = max((i for i, e in enumerate(edges)
+                            if e[2] == "retraction"), default=-1)
+            run = edges[last_ret + 1:]
+            if not run:
+                return None
+            prev, d = None, run[0][1]
+            for e in run:
+                if prev is not None and e[0] != prev:
+                    d = e[1]
+                prev = e[0]
+            return d
+        d1, d2 = _ltd(slot), _ltd(probe.get("slot2"))
+        _meter([d1, d2])
+        if d1 is None or d2 is None:
+            return "未知"
+        return "是" if d1 < d2 else "否"
     if t == "xcmp":
         # cross-vertex comparison: her live value vs own live value
         her = store.live_at_about("self", about, slot, ckpt)

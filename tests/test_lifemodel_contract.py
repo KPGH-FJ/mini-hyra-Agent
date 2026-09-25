@@ -365,6 +365,16 @@ def _(a):
     assert a.answer(P("xcmp", "sleep", about="妈妈", ckpt=10)) == "否"
 
 
+@case("before: cross-slot ordering of live-value start days")
+def _(a):
+    a.ingest(R(1, "self", "statement", "city", "北京"))
+    a.ingest(R(5, "self", "statement", "diet", "素食"))
+    a.ingest(R(10, "self", "update", "city", "上海"))
+    # city's live value began day 10, diet's day 5 → city before diet? 否
+    assert a.answer(P("before", "city", slot2="diet", ckpt=20)) == "否"
+    assert a.answer(P("before", "diet", slot2="city", ckpt=20)) == "是"
+
+
 def main():
     names = sys.argv[1:] or list(IMPLS)
     results = {}

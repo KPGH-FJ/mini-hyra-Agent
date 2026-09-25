@@ -53,7 +53,7 @@ encodes the same invariants as executable checks.
 | 80 | scoped export | `state(scope={"slots":[...]})` — self-domain only |
 | 84 | `revoke_purpose(p)` | data stays; view refuses; scoped export for p must refuse |
 
-## Probe types (28 + entity variants)
+## Probe types (29 + entity variants)
 
 - `state` current live value · `stale` superseded value must not appear
 - `as_of` value at `day` (history, not replay-of-latest)
@@ -78,6 +78,9 @@ encodes the same invariants as executable checks.
   retraction run, not the all-time first)
 - `order` surviving write-run values of the slot, "→"-joined in day
   order (consecutive dups collapse)
+- `before` cross-slot ordering — the day each slot's live value began
+  (last transition day of the surviving run), compared pairwise;
+  emission requires a ≥2-day margin to clear near-ties
 - `join` cross-slot: the day `slot` changed to its live value (probe
   carries `day`), what was slot2's value then
 - `absent` stability: no surviving write on the slot with day > 40
