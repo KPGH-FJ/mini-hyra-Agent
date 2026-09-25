@@ -212,6 +212,38 @@ def _(a):
     assert a.answer(P("state", "diet", ckpt=10)) == "素食"
 
 
+@case("entity alias: name forms resolve at read (alias records)")
+def _(a):
+    a.ingest(R(1, "self", "statement", "diet", "清淡", about="妈妈"))
+    a.ingest(R(2, "system", "alias", "我妈", "妈妈"))
+    a.ingest(R(3, "表姐", "hearsay", "diet", "低碳水", about="我妈"))
+    # either form asks: self claim wins, hearsay attributing by alias
+    assert a.answer(P("state", "diet", about="妈妈", ckpt=10)) == "清淡"
+    assert a.answer(P("state", "diet", about="我妈", ckpt=10)) == "清淡"
+    assert a.answer(P("subject", "diet", person="表姐",
+                      about="我妈", ckpt=10)) == "低碳水"
+    assert a.answer(P("conf", "diet", about="我妈", ckpt=10)) == "高"
+
+
+@case("erase is not brick: post-forget claims about entity live again")
+def _(a):
+    a.ingest(R(1, "self", "statement", "diet", "清淡", about="妈妈"))
+    a.forget({"about": "妈妈"})
+    assert a.answer(P("state", "diet", about="妈妈", ckpt=10)) == "未知"
+    a.ingest(R(3, "self", "statement", "diet", "重口", about="妈妈"))
+    assert a.answer(P("state", "diet", about="妈妈", ckpt=10)) == "重口"
+
+
+@case("forget_range: erased write's lease must not kill survivors")
+def _(a):
+    a.ingest(R(1, "self", "statement", "family", "无照护负担"))
+    a.ingest(R(2, "self", "statement", "family", "需照顾老人",
+               expires_day=10))
+    a.forget({"day_gte": 2, "day_lte": 2})
+    # the erased write carried the lease — the survivor has none
+    assert a.answer(P("state", "family", ckpt=20)) == "无照护负担"
+
+
 # ---------- export / scoped export ----------
 
 @case("export round-trip preserves behavior incl journal")
