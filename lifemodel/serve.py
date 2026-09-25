@@ -118,6 +118,22 @@ def answer(store, probe: dict, journal=()) -> str:
         _meter(store.edges_about("self", about, slot))
         return "高" if store.live_at_about("self", about, slot, ckpt) \
             is not None else "无"
+    if t == "isconf":
+        # conflict detection: a non-self claimer asserted a different
+        # value on the slot by read day (retractions excluded).
+        # claimers are `claimer|slot` vertices — any non-self claimer
+        # counts, whichever source kind carried the claim
+        live = store.live_at("self", slot, ckpt)
+        claims = []
+        for k in store.hist:
+            if k.count("|") == 1 and k.split("|", 1)[1] == slot \
+                    and k.split("|", 1)[0] != "self":
+                claims += store.hist[k]
+        _meter([live, claims])
+        confl = [e for e in claims
+                 if e[1] <= ckpt and e[2] != "retraction"
+                 and e[0] != live]
+        return "是" if confl else "否"
     if t == "prov":
         vals = store.prov.get(slot, [])
         _meter(vals)

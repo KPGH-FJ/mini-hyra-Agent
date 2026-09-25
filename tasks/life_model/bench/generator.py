@@ -758,6 +758,36 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
         probe(90, "prov", r["slot"], "本人", value=r["value"],
               q=f"“{r['slot']}={r['value']}”这条信息是本人说的吗？"
                 "答 本人 或 非本人", post_import=True)
+    # isconf: conflict detection — does the model NOTICE a non-self claim
+    # disagreeing with the live self value? Upstream of conf grading:
+    # you can't grade certainty you haven't noticed is contested. A
+    # conflict exists iff a non-self claimer asserted a different value
+    # on the slot by read day (retractions excluded); agreeing claims →
+    # 否. Scored per slot, self-domain only.
+    _ic_yes = _ic_no = 0
+    for s in sorted(cur90):
+        if s in ctl_touched or s in ("mood", "creed"):
+            continue
+        lv = cur90[s]
+        others = [r for r in records if alive(r, 90)
+                  and r["slot"] == s and r["source"] != "self"
+                  and r["kind"] in ("hearsay", "statement", "suggestion")
+                  and not r.get("about")]
+        if any(r["value"] != lv for r in others) and _ic_yes < 2:
+            probe(90, "isconf", s, "是",
+                  q=f"关于{s}的说法有冲突吗？（是/否）")
+            _ic_yes += 1
+        elif (_ic_no < 1 and others
+              and all(r["value"] == lv for r in others)):
+            probe(90, "isconf", s, "否",
+                  q=f"关于{s}的说法有冲突吗？（是/否）")
+            _ic_no += 1
+        if _ic_yes >= 2 and _ic_no >= 1:
+            break
+    # the no-conflict control: creed is self-only by construction —
+    # ambient traffic draws from SLOTS so no non-self claim exists → 否
+    probe(90, "isconf", "creed", "否",
+          q="关于creed的说法有冲突吗？（是/否）")
     # ---- M4 probes (serve pressure) ---------------------------------
     rv2 = next((e for e in truth_events if e["slot"] == retract_slot
                 and e["op"] == "set"), None)

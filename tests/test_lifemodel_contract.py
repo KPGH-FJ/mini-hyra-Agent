@@ -234,6 +234,16 @@ def _(a):
     assert a.answer(P("state", "diet", about="妈妈", ckpt=10)) == "重口"
 
 
+@case("isconf: disagreeing claim flags 是, agreeing claims flag 否")
+def _(a):
+    a.ingest(R(1, "self", "statement", "city", "北京"))
+    a.ingest(R(2, "表姐", "hearsay", "city", "上海"))
+    a.ingest(R(3, "self", "statement", "diet", "素食"))
+    a.ingest(R(4, "表姐", "hearsay", "diet", "素食"))
+    assert a.answer(P("isconf", "city", ckpt=10)) == "是"
+    assert a.answer(P("isconf", "diet", ckpt=10)) == "否"
+
+
 @case("forget_range: erased write's lease must not kill survivors")
 def _(a):
     a.ingest(R(1, "self", "statement", "family", "无照护负担"))

@@ -69,6 +69,10 @@ encodes the same invariants as executable checks.
 - `duration` days since current run began (ckpt-day endpoint)
 - `nchange` count of value transitions (retraction resets)
 - `conf` self-claim→高, hearsay-only→低, nothing→无
+- `isconf` conflict detection: a non-self claimer asserted a different
+  value on the slot by read day → 是; only self claims (or none) → 否.
+  Self-domain only; retractions excluded. Upstream of `conf` grading —
+  you can't grade certainty you haven't noticed is contested
 - `ops` journal audit · `expdeny` revoked-purpose export refusal
 - entity variants: `state`/`subject`/`conf` + `about` field;
   erased-after-@74 probes expect 未知
