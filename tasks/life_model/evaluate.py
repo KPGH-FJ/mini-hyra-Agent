@@ -171,8 +171,12 @@ def drive(asset, records, probes, meta=None):
             st = asset.stats() if hasattr(asset, "stats") else {}
             if not hasattr(asset, "probe_bytes"):
                 cum_reported += int(st.get("probe_bytes", 0))
-            rows.append({"probe": p, "answer": str(ans),
-                         "score": score_probe(p, ans)})
+            sc = score_probe(p, ans)
+            if p.get("post_partial") and scoped_doc is None:
+                # no scoped document exists — leak-checks can't pass
+                # vacuously on an empty answer either
+                sc = 0.0
+            rows.append({"probe": p, "answer": str(ans), "score": sc})
         next_ckpt = CHECKPOINTS[i + 1] if i + 1 < len(CHECKPOINTS) else 10**9
         if (forget and not forget_fired
                 and ckpt < forget["day"] <= next_ckpt):
