@@ -61,6 +61,41 @@ def answer(store, probe: dict, journal=()) -> str:
         vals = [f"{ps}:{pv}" for ps, pv in e["premises"].items()]
         _meter(vals)
         return ",".join(vals)
+    if t == "duration":
+        # streak of the live value — walk the self-vertex edges back
+        edges = sorted(store.hist.get(f"self|{slot}", []),
+                       key=lambda e: e[1])
+        _meter(edges)
+        live_val, start = None, None
+        for e in reversed(edges):
+            if e[1] > ckpt:
+                continue
+            if e[2] == "retraction":
+                break
+            if live_val is None:
+                live_val, start = e[0], e[1]
+            elif e[0] == live_val:
+                start = e[1]
+            else:
+                break
+        if live_val is None:
+            return "无"
+        return f"{ckpt - start}天"
+    if t == "nchange":
+        edges = sorted(store.hist.get(f"self|{slot}", []),
+                       key=lambda e: e[1])
+        _meter(edges)
+        n, prev = 0, None
+        for e in edges:
+            if e[1] > ckpt:
+                break
+            if e[2] == "retraction":
+                prev = None
+                continue
+            if prev is not None and e[0] != prev:
+                n += 1
+            prev = e[0]
+        return str(n)
     if t == "prov":
         vals = store.prov.get(slot, [])
         _meter(vals)

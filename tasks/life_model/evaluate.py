@@ -699,6 +699,40 @@ class TMSBaseline(_Mixin):
             vals = [f"{ps}:{pv}" for ps, pv in e["premises"].items()]
             self._meter(vals)
             return ",".join(vals)
+        if t == "duration":
+            edges = sorted(self.hist.get(f"self|{slot}", []),
+                           key=lambda e: e[1])
+            self._meter(edges)
+            live_val, start = None, None
+            for e in reversed(edges):
+                if e[1] > ckpt:
+                    continue
+                if e[2] == "retraction":
+                    break
+                if live_val is None:
+                    live_val, start = e[0], e[1]
+                elif e[0] == live_val:
+                    start = e[1]
+                else:
+                    break
+            if live_val is None:
+                return "无"
+            return f"{ckpt - start}天"
+        if t == "nchange":
+            edges = sorted(self.hist.get(f"self|{slot}", []),
+                           key=lambda e: e[1])
+            self._meter(edges)
+            n, prev = 0, None
+            for e in edges:
+                if e[1] > ckpt:
+                    break
+                if e[2] == "retraction":
+                    prev = None
+                    continue
+                if prev is not None and e[0] != prev:
+                    n += 1
+                prev = e[0]
+            return str(n)
         if t == "ops":
             self._meter(self.ops)
             if p.get("op") == "forget_range":
@@ -877,6 +911,48 @@ class ESRBaseline(_Mixin):
             vals = [f"{ps}:{pv}" for ps, pv in e["premises"].items()]
             self._meter(vals)
             return ",".join(vals)
+        if t == "duration":
+            evs = sorted([r for r in self.recs
+                          if r.get("source") == "self"
+                          and r.get("slot") == slot
+                          and r.get("kind") in
+                          self.WRITES | {"retraction"}],
+                         key=lambda r: r["day"])
+            self._meter(evs)
+            live_val, start = None, None
+            for e in reversed(evs):
+                if e["day"] > ckpt:
+                    continue
+                if e["kind"] == "retraction":
+                    break
+                if live_val is None:
+                    live_val, start = e["value"], e["day"]
+                elif e["value"] == live_val:
+                    start = e["day"]
+                else:
+                    break
+            if live_val is None:
+                return "无"
+            return f"{ckpt - start}天"
+        if t == "nchange":
+            evs = sorted([r for r in self.recs
+                          if r.get("source") == "self"
+                          and r.get("slot") == slot
+                          and r.get("kind") in
+                          self.WRITES | {"retraction"}],
+                         key=lambda r: r["day"])
+            self._meter(evs)
+            n, prev = 0, None
+            for e in evs:
+                if e["day"] > ckpt:
+                    break
+                if e["kind"] == "retraction":
+                    prev = None
+                    continue
+                if prev is not None and e["value"] != prev:
+                    n += 1
+                prev = e["value"]
+            return str(n)
         if t == "ops":
             if p.get("op") == "forget_range":
                 hits = [f"{o['scope']['day_gte']}-{o['scope']['day_lte']}"

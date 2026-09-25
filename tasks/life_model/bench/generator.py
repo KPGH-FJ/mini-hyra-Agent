@@ -559,6 +559,48 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
     probe(90, "drvprov", "routine_fit", "无",
           q="派生'晚间例行可保留'现在依赖哪个前提？")
 
+    # temporal-aggregate probes: serve must walk edges, not just read
+    # the latest one. duration = days since the live value's streak
+    # started; nchange = count of value transitions on the self vertex.
+    ctl_touched = {x for x in (forget_slot, fr_slot, correct_slot,
+                             retract_slot, 'family', 'creed')
+                   if x is not None}
+    agg_slots = [s for s in changed if s not in ctl_touched]
+    for s in agg_slots[:3]:
+        for c in CHECKPOINTS:
+            evs = sorted([e for e in truth_events
+                          if e["slot"] == s and e["day"] <= c
+                          and e["op"] != "set_derived"],
+                         key=lambda e: e["day"])
+            live_val, start = None, None
+            for e in reversed(evs):
+                if e["op"] == "del":
+                    break
+                if live_val is None:
+                    live_val, start = e["value"], e["day"]
+                elif e["value"] == live_val:
+                    start = e["day"]
+                else:
+                    break
+            if live_val is not None and c > start:
+                probe(c, "duration", s, f"{c - start}天",
+                      q=f"{s}这个值维持了多久？")
+    for s in agg_slots[:4]:
+        evs = sorted([e for e in truth_events
+                      if e["slot"] == s and e["op"] != "set_derived"],
+                     key=lambda e1: e1["day"])
+        n, prev = 0, None
+        for e in evs:
+            if e["op"] == "del":
+                prev = None
+                continue
+            if prev is not None and e["value"] != prev:
+                n += 1
+            prev = e["value"]
+        probe(90, "nchange", s, str(n),
+              q=f"{s}一共变更过几次？（回答数字）",
+              post_import=True)
+
     # retraction probe: only at checkpoints AFTER the retraction arrived
     retract_day = next((r["day"] for r in records
                         if r["kind"] == "retraction"), 10**9)
