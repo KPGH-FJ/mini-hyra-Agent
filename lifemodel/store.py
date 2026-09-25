@@ -167,6 +167,14 @@ class TemporalGraph:
         self._prune()   # dependents of the forgotten slot die too
         return n
 
+    def forget_about(self, about) -> int:
+        """Forget a person: erase every vertex about them (all claimers)."""
+        keys = [k for k in self.hist
+                if k.count("|") == 2 and k.split("|")[1] == about]
+        for k in keys:
+            del self.hist[k]
+        return len(keys)
+
     def forget_range(self, lo, hi) -> int:
         """Erase edges whose from_day falls in [lo, hi]."""
         n = 0

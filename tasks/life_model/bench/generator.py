@@ -833,8 +833,9 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
                      or ["存疑"])
     rec(rng.randint(20, 30), espeaker, "hearsay", eslot, ehv,
         about=ENTITY)
-    # estate: self-claimed state about her — latest write wins
-    probe(90, "state", eslot, ev2, about=ENTITY,
+    # estate: self-claimed state about her — latest write wins;
+    # post_import: entity vertexes must survive export round-trip
+    probe(72, "state", eslot, ev2, about=ENTITY, post_import=True,
           q=f"{ENTITY}的{eslot}现在怎么样？")
     # isolation: her value must never surface as MY value
     if eslot in cur90 and cur90[eslot] != ev2:
@@ -843,12 +844,22 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
     elif eslot not in cur90:
         probe(90, "state", eslot, "未知", must_not=[ev2, ev1],
               q=f"本人的{eslot}是什么？（无本人记录，勿混入{ENTITY}的）")
-    # esubj: what did X claim about her
-    probe(90, "subject", eslot, ehv, person=espeaker, about=ENTITY,
+    # esubj: what did X claim about her (pre-forget)
+    probe(72, "subject", eslot, ehv, person=espeaker, about=ENTITY,
           q=f"{espeaker}说过{ENTITY}的{eslot}是什么？")
-    # econf: self-claimed knowledge about her is high-grade
-    probe(90, "conf", eslot, "高", about=ENTITY,
+    # econf: self-claimed knowledge about her is high-grade (pre-forget)
+    probe(72, "conf", eslot, "高", about=ENTITY,
           q=f"你对{ENTITY}的{eslot}有多确定？（高/低/无）")
+    # entity-level forget @74 ("忘掉我妈"): every claim about her —
+    # self's and hearsay alike — is erased; isolation runs the other
+    # way too (forgetting her must not touch self's own slot value)
+    forget_entity = {"about": ENTITY, "day": 74}
+    probe(90, "state", eslot, "未知", about=ENTITY,
+          must_not=[ev1, ev2],
+          q=f"{ENTITY}的{eslot}现在怎么样？（关于她的记录已删除）")
+    probe(90, "subject", eslot, "未知", person=espeaker, about=ENTITY,
+          must_not=[ehv],
+          q=f"{espeaker}说过{ENTITY}的{eslot}是什么？（她已被遗忘）")
 
     # budget: pack the listed slots' live values under a byte budget —
     # ordering becomes the decision (Lost-in-the-Middle pressure).
@@ -918,6 +929,7 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
                       "slots": PURPOSES.get(rvk_purpose, [])}
     for k_, v_ in meta_pending:
         meta[k_] = v_
+    meta["forget_entity"] = forget_entity
     if fr_slot:
         meta["forget_range"] = {"day": FORGET2_DAY,
                                 "lo": SKIP[0], "hi": SKIP[1]}

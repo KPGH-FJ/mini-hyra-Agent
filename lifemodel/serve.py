@@ -164,7 +164,9 @@ def answer(store, probe: dict, journal=()) -> str:
     edges = store.edges_of(_v("self", about), slot)
     v = store.live_at(_v("self", about), slot, day)
     if v is None:
-        d = store.drv.get(slot)
+        # the derived registry is self-domain only — an about-probe
+        # that finds no vertex edge is honestly unknown
+        d = None if about else store.drv.get(slot)
         _meter([edges, d])
         if d is not None and t != "as_of":
             return str(d["value"])

@@ -41,6 +41,8 @@ class Control:
     def forget(self, scope: dict) -> None:
         if "slot" in scope:
             n = self.store.forget_slot(scope["slot"])
+        elif "about" in scope:
+            n = self.store.forget_about(scope["about"])
         else:
             n = self.store.forget_range(scope.get("day_gte", 0),
                                         scope.get("day_lte", 10**9))

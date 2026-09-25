@@ -142,12 +142,14 @@ def drive(asset, records, probes, meta=None):
     correct = (meta or {}).get("correct")
     revoke = (meta or {}).get("revoke")
     fr = (meta or {}).get("forget_range")
+    fent = (meta or {}).get("forget_entity")
     export_day = (meta or {}).get("export_day")
     exp2 = (meta or {}).get("export_partial")
     forget_fired = False
     correct_fired = False
     revoke_fired = False
     fr_fired = False
+    fent_fired = False
     exp2_fired = False
     import_ok = None
     scoped_doc = None
@@ -222,6 +224,16 @@ def drive(asset, records, probes, meta=None):
                 except Exception:
                     pass
             fr_fired = True
+        if (fent and not fent_fired
+                and ckpt < fent["day"] <= next_ckpt):
+            # entity-level forget — "forget mom": every claim about
+            # her (any claimer) is erased; self-domain untouched
+            if hasattr(asset, "forget"):
+                try:
+                    asset.forget({"about": fent["about"]})
+                except Exception:
+                    pass
+            fent_fired = True
         if (revoke and revoke_fired and scoped_doc_rvk is None):
             # revoked-purpose export attempt — consent must close the
             # side door: state(scope={purpose}) for a revoked purpose
@@ -308,7 +320,11 @@ class RawBaseline:
 
     def forget(self, scope):
         slot = scope.get("slot")
-        self.recs = [r for r in self.recs if r["slot"] != slot]
+        if scope.get("about"):
+            self.recs = [r for r in self.recs
+                         if r.get("about") != scope["about"]]
+        else:
+            self.recs = [r for r in self.recs if r["slot"] != slot]
 
     def state(self):
         return {"recs": self.recs}
@@ -387,7 +403,11 @@ class RAGBaseline:
 
     def forget(self, scope):
         slot = scope.get("slot")
-        self.recs = [r for r in self.recs if r["slot"] != slot]
+        if scope.get("about"):
+            self.recs = [r for r in self.recs
+                         if r.get("about") != scope["about"]]
+        else:
+            self.recs = [r for r in self.recs if r["slot"] != slot]
 
     def state(self):
         return {"recs": self.recs}
@@ -585,7 +605,12 @@ class TMSBaseline(_Mixin):
     def forget(self, scope):
         self.ops.append({"op": "forget", "slot": scope.get("slot"),
                          "scope": dict(scope)})
-        if "slot" in scope:
+        if "about" in scope:
+            for k in [k for k in self.hist
+                      if k.count("|") == 2
+                      and k.split("|")[1] == scope["about"]]:
+                del self.hist[k]
+        elif "slot" in scope:
             slot = scope.get("slot")
             for k in [k for k in self.hist
                       if k.split("|", 1)[1] == slot]:
@@ -855,7 +880,10 @@ class ESRBaseline(_Mixin):
     def forget(self, scope):
         self.ops.append({"op": "forget", "slot": scope.get("slot"),
                          "scope": dict(scope)})
-        if "slot" in scope:
+        if "about" in scope:
+            self.recs = [r for r in self.recs
+                         if r.get("about") != scope["about"]]
+        elif "slot" in scope:
             slot = scope.get("slot")
             self.recs = [r for r in self.recs if r["slot"] != slot]
         else:
