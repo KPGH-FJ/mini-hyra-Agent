@@ -41,7 +41,7 @@ Two companion truth-side fixes (evaluator-as-system-under-test):
 
 - 20-seed sweep: **3941/3941 probes clean** (was 8 fails before the
   three fixes).
-- Contract suite 29 clauses: lm **29/29**; esr passes revival clauses
+- Contract suite 30 clauses: lm **30/30**; esr passes revival clauses
   for free (replay semantics), tms fails them (registry without
   rebuild) — matches the bench gap honestly.
 
