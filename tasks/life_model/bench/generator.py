@@ -139,14 +139,16 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
         if kind == "derived":
             truth_events.append(
                 {"day": day, "op": "set_derived", "slot": slot,
-                 "value": value, "premises": dict(premises or {})})
+                 "value": value, "premises": dict(premises or {}),
+                 "id": r["id"]})
         elif (source == "self" and kind in (
                 "statement", "update", "correction") and about is None):
             truth_events.append(
                 {"day": day, "op": "set", "slot": slot, "value": value,
-                 "expires_day": expires})
+                 "expires_day": expires, "id": r["id"]})
         elif kind == "retraction" and about is None:
-            truth_events.append({"day": day, "op": "del", "slot": slot})
+            truth_events.append({"day": day, "op": "del", "slot": slot,
+                                 "id": r["id"]})
         return r
 
     # phase 1: establish all slots (self), plus noise
@@ -224,14 +226,17 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
     # depth-2 chain). Correcting corr_slot must kill d3 (premise value
     # superseded — revision semantics, not just deletion).
     def liveval(slot, day):
-        v, vd = None, -1
+        v, vd, ve = None, -1, None
         for e in truth_events:
             if e["day"] > day or e["slot"] != slot:
                 continue
             if e["op"] == "del":
-                v, vd = None, e["day"]
+                v, vd, ve = None, e["day"], None
             elif e["day"] >= vd:
-                v, vd = e["value"], e["day"]
+                v, vd, ve = (e["value"], e["day"],
+                             e.get("expires_day"))
+        if ve is not None and day > ve:
+            return None
         return v
 
     d3_val = "陪护优先排程"
@@ -285,11 +290,16 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
         records.insert(j, r)
 
     # ---- truth at each checkpoint ----
-    # truth_events are appended in CONSTRUCTION order, not day order
-    # (e.g. the expiring statement is emitted after the change loop) —
-    # replay must be day-ordered or a stale declaration overwrites a
-    # newer value. Stable sort keeps append order within the same day.
-    truth_events.sort(key=lambda e: e["day"])
+    # truth_events are appended in CONSTRUCTION order — replay must be
+    # day-ordered or a stale declaration overwrites a newer value.
+    # Same-day ties resolve by ARRIVAL order (the order the asset feeds
+    # — the shuffled records list), not construction order: the model
+    # sees exactly this order, so truth must agree or expectations
+    # diverge. Non-record events (op 'del's) carry no id — they order
+    # stably by append position.
+    _arr = {r["id"]: i for i, r in enumerate(records)}
+    truth_events.sort(key=lambda e: (e["day"],
+                                     _arr.get(e.get("id"), -1)))
 
     # user-correct event (not a stream record): the evaluator calls
     # asset.correct(slot, value) between ckpt-72 and ckpt-90 — a
@@ -326,16 +336,21 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
             continue                # never erase the day-55 del edge
 
         def liveval_ex(slot, day, lo_, hi_):
-            v, vd = None, -1
+            v, vd, ve = None, -1, None
             for e in truth_events:
                 if e["day"] > day or e["slot"] != slot:
                     continue
                 if lo_ <= e["day"] <= hi_:
                     continue
                 if e["op"] == "del":
-                    v, vd = None, e["day"]
+                    v, vd, ve = None, e["day"], None
                 elif e["day"] >= vd:
-                    v, vd = e["value"], e["day"]
+                    v, vd, ve = (e["value"], e["day"],
+                                 e.get("expires_day"))
+            if ve is not None and day > ve:
+                # the rolled-back edge itself expired by read day —
+                # _edge_at semantics return gone, not an earlier edge
+                return None
             return v
 
         ev_ = liveval(s, hi)         # what the change wrote
@@ -352,7 +367,13 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
         return not (c > FORGET2_DAY and SKIP
                     and SKIP[0] <= r["day"] <= SKIP[1])
 
-    def state_at(day):
+    def state_at(day, read_day=None):
+        """truth replay at `day`; `read_day` is when the question is
+        asked — the range-forget window applies iff the READ is after
+        the erase, not iff the replayed day is (asking at day 90 'what
+        was live at 54' sees post-erasure history)."""
+        if read_day is None:
+            read_day = day
         cur, prov, exp, drv = {}, {}, {}, {}
 
         def prune_derived():
@@ -373,7 +394,7 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
         for e in truth_events:
             if e["day"] > day:
                 continue
-            if (day > FORGET2_DAY and SKIP
+            if (read_day > FORGET2_DAY and SKIP
                     and SKIP[0] <= e["day"] <= SKIP[1]):
                 continue            # range-forgotten writes never wrote
             if e["op"] == "del":
@@ -520,7 +541,7 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
                       if s not in (forget_slot, retract_slot)
                       and change_day[s] < c][:2]):
             D = change_day[slot] - 3
-            past_val = state_at(D)[0].get(slot)
+            past_val = state_at(D, read_day=c)[0].get(slot)
             current_val = cur.get(slot)
             probe(c, "as_of", slot, past_val if past_val else "未知",
                   must_not=[current_val]
@@ -558,11 +579,14 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
     # (the purpose-built derived all die young by design; habit_fit's
     # premise survives, so it is the living-citation target — and the
     # dead-derived probe checks post-death honesty)
-    probe(72, "drvprov", "habit_fit", ["creed:每天记录"],
-          q="派生'记录习惯可持续'依赖哪个前提？（槽位:值）")
-    probe(90, "drvprov", "habit_fit", ["creed:每天记录"],
-          q="派生'记录习惯可持续'依赖哪个前提？（槽位:值）",
-          post_import=True)
+    if not (SKIP and SKIP[0] <= 60 <= SKIP[1]):
+        # SKIP erases the day-60 derived record itself — the citation
+        # target is dead, the probes would test a vacuous "alive"
+        probe(72, "drvprov", "habit_fit", ["creed:每天记录"],
+              q="派生'记录习惯可持续'依赖哪个前提？（槽位:值）")
+        probe(90, "drvprov", "habit_fit", ["creed:每天记录"],
+              q="派生'记录习惯可持续'依赖哪个前提？（槽位:值）",
+              post_import=True)
     probe(90, "drvprov", "routine_fit", "无",
           q="派生'晚间例行可保留'现在依赖哪个前提？")
 
@@ -577,7 +601,10 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
         for c in CHECKPOINTS:
             evs = sorted([e for e in truth_events
                           if e["slot"] == s and e["day"] <= c
-                          and e["op"] != "set_derived"],
+                          and e["op"] != "set_derived"
+                          and not (c > FORGET2_DAY and SKIP
+                                   and SKIP[0] <= e["day"]
+                                   <= SKIP[1])],
                          key=lambda e: e["day"])
             live_val, start = None, None
             for e in reversed(evs):
@@ -594,8 +621,10 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
                       q=f"{s}这个值维持了多久？")
     for s in agg_slots[:4]:
         evs = sorted([e for e in truth_events
-                      if e["slot"] == s and e["op"] != "set_derived"],
-                     key=lambda e1: e1["day"])
+                      if e["slot"] == s and e["op"] != "set_derived"
+                      and not (SKIP and SKIP[0] <= e["day"] <= SKIP[1])],
+                     key=lambda e1: e1["day"])   # nchange probes at 90,
+                                                # always post-forget
         n, prev = 0, None
         for e in evs:
             if e["op"] == "del":
@@ -668,7 +697,7 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
                     and change_day[s] < 87), None)
     if ex_asof:
         D = change_day[ex_asof] - 3
-        pv = state_at(D)[0].get(ex_asof)
+        pv = state_at(D, read_day=c)[0].get(ex_asof)
         probe(90, "as_of", ex_asof, pv if pv else "未知", day=D,
               must_not=[cur90[ex_asof]]
               if cur90.get(ex_asof) and cur90[ex_asof] != pv else [],
@@ -847,8 +876,10 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
     # post_import: entity vertexes must survive export round-trip
     probe(72, "state", eslot, ev2, about=ENTITY, post_import=True,
           q=f"{ENTITY}的{eslot}现在怎么样？")
-    # isolation: her value must never surface as MY value
-    if eslot in cur90 and cur90[eslot] != ev2:
+    # isolation: her value must never surface as MY value — skipped
+    # when self's value coincides with either of her claims (the
+    # probe's expect would sit inside its own must_not)
+    if eslot in cur90 and cur90[eslot] not in (ev1, ev2):
         probe(90, "state", eslot, cur90[eslot], must_not=[ev2, ev1],
               q=f"本人的{eslot}现在是什么？（勿混入{ENTITY}的）")
     elif eslot not in cur90:
@@ -884,7 +915,8 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
                           if e != ENTITY])
     ev3 = rng.choice([v for v in VALS.get(eslot, ["规律"])
                       if v not in (ev1, ev2)] or ["规律"])
-    rec(_eday(40, 50), "self", "statement", eslot, ev3, about=ENTITY2)
+    r_e2 = rec(_eday(40, 50), "self", "statement", eslot, ev3,
+               about=ENTITY2)
     espeaker2 = _person()
     ehv2 = rng.choice([v for v in VALS.get(eslot, ["存疑"])
                        if v not in (ev2, ev3)] or ["存疑"])
@@ -901,6 +933,43 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
     # exists, it's just not self-authoritative)
     probe(72, "conf", eslot, "低", person=espeaker2, about=ENTITY2,
           q=f"你对{espeaker2}说的{ENTITY2}的{eslot}有多确定？")
+    # prov2+about: cite the record carrying the entity's self-claim
+    probe(72, "prov2", eslot, r_e2["id"], about=ENTITY2,
+          q=f"哪条记录载有{ENTITY2}的{eslot}？")
+
+    # entity alias resolution: the about-entity's informal name form
+    # arrives as an alias record, then a THIRD person reports hearsay
+    # ABOUT her under that form — subject/conf reads must aggregate
+    # the name forms onto the canonical entity vertex
+    EA_ALIAS = {"妈妈": "我妈", "爸爸": "我爸", "姐姐": "我姐",
+                "哥哥": "我哥"}[ENTITY]
+    rec(4, "system", "alias", EA_ALIAS, ENTITY)
+    _taken = _forms(espeaker) | _forms(espeaker2)
+    espeaker3 = _person()
+    while espeaker3 in _taken:
+        espeaker3 = _person()
+    ehv3 = rng.choice([v for v in VALS.get(eslot, ["存疑"])
+                       if v != ehv] or ["存疑"])
+    rec(_eday(44, 54), espeaker3, "hearsay", eslot, ehv3, about=EA_ALIAS)
+    probe(72, "subject", eslot, ehv3, person=espeaker3, about=ENTITY,
+          must_not=[ehv] if ehv3 != ehv else [],
+          q=f"{espeaker3}说过{ENTITY}的{eslot}是什么？")
+    probe(72, "conf", eslot, "低", person=espeaker3, about=ENTITY,
+          q=f"你对{espeaker3}说的{ENTITY}的{eslot}有多确定？")
+
+    # erase is not brick: a fresh self claim about the forgotten entity
+    # AFTER her forget must be live — the vertex isn't blocked (on a
+    # slot the erase probes don't touch)
+    eslot2 = "diet" if eslot != "diet" else "city"
+    ev4 = rng.choice([v for v in VALS.get(eslot2, ["清淡"])])
+    rec(rng.randint(75, 78), "self", "statement", eslot2, ev4,
+        about=ENTITY)
+    probe(90, "state", eslot2, ev4, about=ENTITY,
+          q=f"{ENTITY}的{eslot2}现在怎么样？")
+
+    # ops audit covers the entity forget (scope.about target)
+    probe(90, "ops", "about", ENTITY, op="forget",
+          q="本人曾要求删除关于谁的信息？（回答名字）")
 
     # same-day-tie self conflict: two writes same slot same day —
     # latest arrival wins (day is authoritative, order breaks ties)
@@ -963,9 +1032,14 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
                     and e.get("expires_day")), None)
     if exp_rec:
         stale_decoys.append(exp_rec["value"])
-    probe(CHECKPOINTS[-1], "transfer", "_bundle", transfer_expect,
-          must_not=stale_decoys,
-          q="为他制定本周计划需要哪些当前约束？列出相关值，逗号分隔")
+    if transfer_expect:
+        # an empty bundle scores 0 unconditionally — the probe would be
+        # unanswerable noise, not gradient
+        probe(CHECKPOINTS[-1], "transfer", "_bundle", transfer_expect,
+              must_not=stale_decoys,
+              slots=[s for s in ("time_budget", "family", "risk")
+                     if s in cur],
+              q="为他制定本周计划需要哪些当前约束？列出相关值，逗号分隔")
 
     meta = {"changed": changed, "retract_slot": retract_slot,
             "exp_day": exp_day, "n_records": len(records),

@@ -185,55 +185,95 @@ def drive(asset, records, probes, meta=None):
                 sc = -0.5 if scoped_doc_rvk else 1.0
             rows.append({"probe": p, "answer": str(ans), "score": sc})
         next_ckpt = CHECKPOINTS[i + 1] if i + 1 < len(CHECKPOINTS) else 10**9
+
+        def _feed_upto(op_day):
+            # control ops act on everything authored up to their own
+            # day, not only up to the checkpoint boundary — a window
+            # forget (e.g. days 59-60 fired at day 62) must see the
+            # in-window records that arrive at the next checkpoint
+            for r in [x for x in records if x["day"] <= op_day
+                      and not x.get("_fed")]:
+                asset.ingest(r)
+                r["_fed"] = True
+
+        # Control ops pending in this window fire in OP-DAY order, each
+        # preceded by feeding the records authored up to its own day —
+        # causality: an op never sees records authored after its day,
+        # and a later-day record never arrives before an earlier-day op.
+        _pend = []
         if (forget and not forget_fired
                 and ckpt < forget["day"] <= next_ckpt):
-            if hasattr(asset, "forget"):
-                try:
-                    asset.forget({"slot": forget["slot"]})
-                except Exception:
-                    pass
-            forget_fired = True
+            _pend.append((forget["day"], "forget"))
         if (correct and not correct_fired
                 and ckpt < correct["day"] <= next_ckpt):
-            # user-control write — assets lacking correct() lose the
-            # probes expecting the corrected value, honestly
-            if hasattr(asset, "correct"):
-                try:
-                    asset.correct(correct["slot"], correct["value"])
-                except Exception:
-                    pass
-            correct_fired = True
-        if (revoke and not revoke_fired
-                and ckpt < revoke["day"] <= next_ckpt):
-            # consent withdrawal — assets lacking revoke_purpose keep
-            # serving the view and eat the must_not leak, honestly
-            if hasattr(asset, "revoke_purpose"):
-                try:
-                    asset.revoke_purpose(revoke["purpose"])
-                except Exception:
-                    pass
-            revoke_fired = True
+            _pend.append((correct["day"], "correct"))
         if (fr and not fr_fired
                 and ckpt < fr["day"] <= next_ckpt):
-            # range forget — erasing write edges rolls values back;
-            # impls without history-aware deletes keep stale values
-            if hasattr(asset, "forget"):
-                try:
-                    asset.forget({"day_gte": fr["lo"],
-                                  "day_lte": fr["hi"]})
-                except Exception:
-                    pass
-            fr_fired = True
+            _pend.append((fr["day"], "fr"))
         if (fent and not fent_fired
                 and ckpt < fent["day"] <= next_ckpt):
-            # entity-level forget — "forget mom": every claim about
-            # her (any claimer) is erased; self-domain untouched
-            if hasattr(asset, "forget"):
+            _pend.append((fent["day"], "fent"))
+        if (exp2 and not exp2_fired
+                and ckpt < exp2["day"] <= next_ckpt):
+            _pend.append((exp2["day"], "exp2"))
+        if (revoke and not revoke_fired
+                and ckpt < revoke["day"] <= next_ckpt):
+            _pend.append((revoke["day"], "revoke"))
+        for _od, _which in sorted(_pend):
+            _feed_upto(_od)
+            if _which == "forget":
+                if hasattr(asset, "forget"):
+                    try:
+                        asset.forget({"slot": forget["slot"]})
+                    except Exception:
+                        pass
+                forget_fired = True
+            elif _which == "correct":
+                # user-control write — assets lacking correct() lose
+                # the probes expecting the corrected value, honestly
+                if hasattr(asset, "correct"):
+                    try:
+                        asset.correct(correct["slot"], correct["value"])
+                    except Exception:
+                        pass
+                correct_fired = True
+            elif _which == "fr":
+                # range forget — erasing write edges rolls values
+                # back; impls without history-aware deletes stay stale
+                if hasattr(asset, "forget"):
+                    try:
+                        asset.forget({"day_gte": fr["lo"],
+                                      "day_lte": fr["hi"]})
+                    except Exception:
+                        pass
+                fr_fired = True
+            elif _which == "fent":
+                # entity-level forget — "forget mom": every claim
+                # about her (any claimer) is erased
+                if hasattr(asset, "forget"):
+                    try:
+                        asset.forget({"about": fent["about"]})
+                    except Exception:
+                        pass
+                fent_fired = True
+            elif _which == "exp2":
+                # purpose-scoped export — selective portability
                 try:
-                    asset.forget({"about": fent["about"]})
+                    scoped_doc = json.dumps(
+                        asset.state(scope={"slots": exp2["slots"]}),
+                        ensure_ascii=False)
                 except Exception:
-                    pass
-            fent_fired = True
+                    scoped_doc = None
+                exp2_fired = True
+            elif _which == "revoke":
+                # consent withdrawal — assets lacking revoke_purpose
+                # keep serving the view and eat the leak, honestly
+                if hasattr(asset, "revoke_purpose"):
+                    try:
+                        asset.revoke_purpose(revoke["purpose"])
+                    except Exception:
+                        pass
+                revoke_fired = True
         if (revoke and revoke_fired and scoped_doc_rvk is None):
             # revoked-purpose export attempt — consent must close the
             # side door: state(scope={purpose}) for a revoked purpose
@@ -247,17 +287,6 @@ def drive(asset, records, probes, meta=None):
                                                 ensure_ascii=False)
             except Exception:
                 scoped_doc_rvk = None
-        if (exp2 and not exp2_fired
-                and ckpt < exp2["day"] <= next_ckpt):
-            # purpose-scoped export — selective portability; impls
-            # without state(scope) forfeit the partial probes honestly
-            try:
-                scoped_doc = json.dumps(
-                    asset.state(scope={"slots": exp2["slots"]}),
-                    ensure_ascii=False)
-            except Exception:
-                scoped_doc = None
-            exp2_fired = True
         if export_day is not None and ckpt == export_day:
             # export -> import round-trip: state() snapshot serialized to
             # JSON and loaded into the same asset — then the remaining

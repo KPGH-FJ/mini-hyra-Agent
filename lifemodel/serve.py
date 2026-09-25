@@ -34,9 +34,9 @@ def reset_meter() -> None:
     _probe_bytes = 0
 
 
-def _v(claimer, about=None):
-    """claimer|about vertex name — about=None is the self entity."""
-    return f"{claimer}|{about}" if about else claimer
+def _meter(obj) -> None:
+    global _probe_bytes
+    _probe_bytes += len(json.dumps(obj, ensure_ascii=False))
 
 
 def answer(store, probe: dict, journal=()) -> str:
@@ -54,11 +54,13 @@ def answer(store, probe: dict, journal=()) -> str:
                     and isinstance(e.get("scope"), dict)
                     and e["scope"].get("day_gte") is not None]
         else:
-            hits = [(e.get("slot") or e.get("purpose"))
+            hits = [(e.get("slot") or e.get("purpose")
+                     or (e.get("scope") or {}).get("about"))
                     for e in journal
                     if e.get("op") == probe.get("op")
-                    and (e.get("slot") or e.get("purpose"))]
-        return hits[0] if hits else "无"
+                    and (e.get("slot") or e.get("purpose")
+                         or (e.get("scope") or {}).get("about"))]
+        return ",".join(hits) if hits else "无"
     if t == "drvprov":
         # premise citation: the premise registry must be inspectable
         e = store.drv.get(slot)
@@ -69,7 +71,7 @@ def answer(store, probe: dict, journal=()) -> str:
         return ",".join(vals)
     if t == "duration":
         # streak of the live value — walk the self-vertex edges back
-        edges = sorted(store.hist.get(f"{_v('self', about)}|{slot}", []),
+        edges = sorted(store.edges_about("self", about, slot),
                        key=lambda e: e[1])
         _meter(edges)
         live_val, start = None, None
@@ -88,7 +90,7 @@ def answer(store, probe: dict, journal=()) -> str:
             return "无"
         return f"{ckpt - start}天"
     if t == "nchange":
-        edges = sorted(store.hist.get(f"{_v('self', about)}|{slot}", []),
+        edges = sorted(store.edges_about("self", about, slot),
                        key=lambda e: e[1])
         _meter(edges)
         n, prev = 0, None
@@ -108,13 +110,13 @@ def answer(store, probe: dict, journal=()) -> str:
         if person:
             seen = []
             for f in store.forms_of(person):
-                seen += store.edges_of(_v(f, about), slot)
+                seen += store.edges_about(f, about, slot)
             _meter(seen)
             live = [e for e in seen
                     if e[1] <= ckpt and e[2] != "retraction"]
             return "低" if live else "无"
-        _meter(store.edges_of(_v("self", about), slot))
-        return "高" if store.live_at(_v("self", about), slot, ckpt) \
+        _meter(store.edges_about("self", about, slot))
+        return "高" if store.live_at_about("self", about, slot, ckpt) \
             is not None else "无"
     if t == "prov":
         vals = store.prov.get(slot, [])
@@ -130,7 +132,7 @@ def answer(store, probe: dict, journal=()) -> str:
         # person merges with known aliases; latest day wins across forms
         best, bd, seen = None, -1, []
         for f in store.forms_of(person):
-            edges = store.edges_of(_v(f, about), slot)
+            edges = store.edges_about(f, about, slot)
             seen += edges
             for e in edges:
                 if (e[1] <= ckpt and e[2] != "retraction"
@@ -155,14 +157,14 @@ def answer(store, probe: dict, journal=()) -> str:
         _meter(vals)
         return ",".join(str(v) for v in vals) if vals else "未知"
     if t == "prov2":
-        rid = store.rvid.get(slot)
+        rid = store.rvid_of(about, slot)
         _meter(rid)
         return str(rid) if rid else "未知"
     # state / stale / retract / cascade / derive / as_of: self vertex
     # first, then the live derived registry (M3 fold)
     day = probe.get("day", ckpt) if t == "as_of" else ckpt
-    edges = store.edges_of(_v("self", about), slot)
-    v = store.live_at(_v("self", about), slot, day)
+    edges = store.edges_about("self", about, slot)
+    v = store.live_at_about("self", about, slot, day)
     if v is None:
         # the derived registry is self-domain only — an about-probe
         # that finds no vertex edge is honestly unknown

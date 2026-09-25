@@ -105,18 +105,22 @@ class TemporalGraph:
         self.hist.setdefault(_key(who, ev["slot"]), []).append(
             [ev["value"], ev["day"], ev["kind"], ev.get("expires"),
              ev.get("id")])
-        if (ev["source"] == SELF and ev["kind"] in WRITES
-                and not ev.get("about")):
-            vals = self.prov.setdefault(ev["slot"], [])
-            if ev["value"] not in vals:
-                vals.append(ev["value"])
-            if ev.get("expires"):
-                self.exp[ev["slot"]] = ev["expires"]
+        if ev["source"] == SELF and ev["kind"] in WRITES:
+            # rvid (prov2 citation) tracks self writes on any vertex —
+            # keyed by slot for self claims, about|slot for entity claims
+            rkey = (ev["slot"] if not ev.get("about")
+                    else f'{ev["about"]}|{ev["slot"]}')
             # day is authoritative, not arrival order
             if (ev.get("id") and
-                    ev["day"] >= self._wday.get(ev["slot"], -1)):
-                self._wday[ev["slot"]] = ev["day"]
-                self.rvid[ev["slot"]] = ev["id"]
+                    ev["day"] >= self._wday.get(rkey, -1)):
+                self._wday[rkey] = ev["day"]
+                self.rvid[rkey] = ev["id"]
+            if not ev.get("about"):
+                vals = self.prov.setdefault(ev["slot"], [])
+                if ev["value"] not in vals:
+                    vals.append(ev["value"])
+                if ev.get("expires"):
+                    self.exp[ev["slot"]] = ev["expires"]
         if ev["kind"] == "derived":
             pre = self._premises(ev)
             if pre is not None:   # dangling supports: dead at birth
@@ -168,17 +172,23 @@ class TemporalGraph:
         return n
 
     def forget_about(self, about) -> int:
-        """Forget a person: erase every vertex about them (all claimers)."""
+        """Forget a person: erase every vertex about them (all claimers,
+        all name forms of the entity)."""
         keys = [k for k in self.hist
-                if k.count("|") == 2 and k.split("|")[1] == about]
+                if k.count("|") == 2
+                and k.split("|")[1] in self.forms_of(about)]
         for k in keys:
             del self.hist[k]
+            akey = k.split("|", 1)[1]
+            self._wday.pop(akey, None)
+            self.rvid.pop(akey, None)
         return len(keys)
 
     def forget_range(self, lo, hi) -> int:
         """Erase edges whose from_day falls in [lo, hi]."""
         n = 0
         touched = set()
+        atouched = set()   # about|slot keys whose self-writes were erased
         for k in list(self.hist):
             kept = [e for e in self.hist[k] if not (lo <= e[1] <= hi)]
             n += len(self.hist[k]) - len(kept)
@@ -187,6 +197,9 @@ class TemporalGraph:
                     # self-domain registries only — about-other vertexes
                     # (claimer|about|slot) have no slot registries
                     touched.add(k.split("|", 1)[1])
+                elif (k.count("|") == 2
+                        and k.split("|", 1)[0] == SELF):
+                    atouched.add(k.split("|", 1)[1])
                 for e in self.hist[k]:
                     if lo <= e[1] <= hi and e[4]:
                         self.rsv.pop(e[4], None)
@@ -204,9 +217,12 @@ class TemporalGraph:
             else:
                 self.prov.pop(slot, None)
             # roll materialized latest-write markers back to the
-            # surviving max-day write
+            # surviving max-day write — and rebuild the slot's lease:
+            # an expiry carried by an erased edge must not linger
+            # and kill the surviving earlier edge
             self._wday.pop(slot, None)
             self.rvid.pop(slot, None)
+            self.exp.pop(slot, None)
             for e in sorted(self.hist.get(_key(SELF, slot), []),
                             key=lambda x: x[1]):
                 if e[2] in WRITES:
@@ -215,6 +231,15 @@ class TemporalGraph:
                         self.rvid[slot] = e[4]
                     if e[3] is not None:
                         self.exp[slot] = e[3]
+        for akey in atouched:
+            self._wday.pop(akey, None)
+            self.rvid.pop(akey, None)
+            for e in sorted(self.hist.get(_key(SELF, akey), []),
+                            key=lambda x: x[1]):
+                if e[2] in WRITES:
+                    self._wday[akey] = e[1]
+                    if e[4]:
+                        self.rvid[akey] = e[4]
         for s in list(self.drv):
             if not self.edges_of("inference", s):
                 del self.drv[s]
@@ -224,6 +249,36 @@ class TemporalGraph:
     # ---- reads (serve.py meters what it touches) ----
     def edges_of(self, source, slot):
         return self.hist.get(_key(source, slot), [])
+
+    def edges_about(self, claimer, about, slot):
+        """edges across the about-entity's name forms (alias records
+        canonicalize about-names at read, same as person forms);
+        about=None is the self entity."""
+        if about is None:
+            return list(self.edges_of(claimer, slot))
+        out = []
+        for af in self.forms_of(about):
+            out += self.edges_of(f"{claimer}|{af}", slot)
+        return out
+
+    def live_at_about(self, claimer, about, slot, day=10**9):
+        if about is None:
+            return self.live_at(claimer, slot, day)
+        edges = self.edges_about(claimer, about, slot)
+        if claimer == SELF:
+            edges = [e for e in edges if e[2] in AUTH]
+        return _edge_at(edges, day)
+
+    def rvid_of(self, about, slot):
+        """latest self-write record id for the vertex — about=None is
+        the self entity; entity claims keyed by every name form."""
+        if about is None:
+            return self.rvid.get(slot)
+        for af in self.forms_of(about):
+            hit = self.rvid.get(f"{af}|{slot}")
+            if hit is not None:
+                return hit
+        return None
 
     def live_at(self, source, slot, day=10**9):
         edges = self.edges_of(source, slot)
