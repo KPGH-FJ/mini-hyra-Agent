@@ -140,32 +140,36 @@ reward hacking — implement real metering instead.
 
 ## What to explore (the research space)
 
-This round is scoped to **M1 ingest semantics** — how a raw record
-becomes normalized knowledge before it can change anything: source
-authority, entity resolution, ordering, dedup/conflict handling.
-Store/update/serve machinery is pinned by the frozen semantics
-(temporal history, supports, premise fixpoint, measured cost); what
-varies is the INGEST machinery.
+This round is scoped to **M5 control semantics** — how the owner
+steers the asset: consent, erasure, correction, auditability.
+Store/update/serve/ingest machinery is pinned by the frozen semantics
+(temporal history, supports, premise fixpoint, measured cost, alias
+resolution, day-authoritative ordering); what varies is the CONTROL
+machinery.
 
-Candidate families (from the literature survey, docs/literature/m1_ingest.md):
-- **source-authority filtering** (provenance/truth discovery, TruthFinder):
-  source-priority tiers decide what may write state vs what stays
-  attributed context — hearsay never self-writes, suggestions never act.
-- **entity resolution** (record linkage / entity merge): `alias` records
-  map name forms onto canonical persons; hearsay under either form lands
-  on the same subject.
-- **day-ordered application** (bitemporal/event-time semantics): `day`
-  is authoritative, not arrival order — a late day-5 record still lands
-  as a day-5 fact; arrival-order LWW loses.
-- **dedup & conflict normalization** (record dedup, conflict resolution):
-  repeated claims collapse; conflicting claims keep provenance for
-  later arbitration.
-- **trust-weighted ingestion** (subjective logic / CATD): confidence
-  per source updates with observed accuracy; ingest attaches uncertainty.
+Candidate families (from the literature survey, docs/literature/m5_control.md):
+- **consent-scoped views** (purpose revocation): data stays in the
+  asset, but a withdrawn purpose's view must refuse — revocable
+  consent, not deletion (`meta["revoke"]`; `revoke_purpose` on the
+  asset interface).
+- **range-scoped erasure with rollback** (`forget({day_gte, day_lte})`):
+  erase the window's write edges, then rebuild materialized state from
+  surviving edges — the value rolls back to its previous live value,
+  not a tombstone (`meta["forget_range"]`).
+- **operation journal** (auditability): every control op — slot
+  forget, range forget, correct, revoke_purpose — is journaled; the
+  journal is part of the asset and survives export/import (post-import
+  `ops` probes ask "what did you forget / correct / revoke?").
+- **export continuity**: state()/import_state() round-trips the full
+  asset — journals, consent registry, attributed hearsay, alias map.
+- **user-driven correction**: `correct(slot, value)` asserts a new
+  live value at read time (`meta["correct"]`); provenance must still
+  answer, and dependent derived facts must die with the old premise.
 
-Still on the table (cumulative pressure from earlier rounds): M4 serve
-semantics stays live — purpose views, budgeted packing, prov2 citation,
-unans abstention. Everything the bench probes is scored.
+Still on the table (cumulative pressure from earlier rounds): M1
+ingest (alias + out-of-order), M4 serve (purpose views, budgeted
+packing, prov2 citation, unans abstention), M3 premise maintenance.
+Everything the bench probes is scored.
 
 Also in play:
 - purpose views: same asset, multiple use-cases — the view is
@@ -176,4 +180,4 @@ Also in play:
 
 Baselines to beat (same stream+probes, run by the evaluator): raw records,
 last-write-wins ledger, keyword RAG, TMS baseline, event-sourced replay —
-plus the incumbent `lifemodel v1` (~133 on v6) and the seed.
+plus the incumbent `lifemodel v1` (~136 on v6c) and the seed.
