@@ -35,7 +35,7 @@
    "impl": "probe-type router + live_bundle 视图 + rvid 引用",
    "status": "done",
    "score": 128.97,
-   "note": "M4 语义经 v4 考题验证后直接沉淀系统（serve router）；NL 查询面 query.py 端到端验证通过"
+   "note": "M4 语义沉淀 serve router；NL 查询面验证通过；新增时态聚合/前提引用/认知分级路由"
   },
   {
    "id": "M5",
@@ -43,8 +43,8 @@
    "role": "correct / forget / export / revoke",
    "impl": "journal + 级联清除 + revoke_purpose + forget_range 回滚 + 作用域导出 state(scope)",
    "status": "v2",
-   "score": 139.97,
-   "next": "v7 考题已满分（140/140 含部分导出+区间审计）；进化轮待 run_v5 收官后启动"
+   "score": 159.97,
+   "next": "v7.x 考题已满分（160/160 含部分导出/前提引用/时态聚合/认知分级）；run_v6 进化中"
   }
  ],
  "stages": [
@@ -100,7 +100,7 @@
      "id": "r5",
      "module": "M5 控制",
      "status": "running",
-     "desc": "v7 考题上线：revoked + forget_range 回滚 + ops 审计×4 + 作用域导出；系统已 139.97 满分(140/140)，进化轮待启动"
+     "desc": "v7.x 考题：revoked/forget_range 回滚/ops×4/部分导出/drvprov/duration/nchange/conf；系统 ~160 满分(160/160)；run_v6 进化中"
     }
    ]
   },
@@ -112,8 +112,8 @@
   }
  ],
  "experiment": {
-  "bench": "LifeStream v7 · 90天流 ~201条/seed（density/storm 规模旋钮可达 881条/502探针）· 累积：M3派生失效 + M4服务压力 + M1摄入(别名+乱序) + M5控制(撤回+回滚+审计+作用域导出)",
-  "probes": 140,
+  "bench": "LifeStream v7.x · 90天流 ~202条/seed（density/storm 旋钮）· 累积：M3派生失效+前提引用 + M4服务+时态聚合+认知分级 + M1摄入(别名+乱序) + M5控制(撤回+回滚+审计+作用域导出)",
+  "probes": 160,
   "types": [
    "state",
    "stale",
@@ -130,27 +130,31 @@
    "prov2",
    "revoked",
    "ops",
-   "partial"
+   "partial",
+   "drvprov",
+   "duration",
+   "nchange",
+   "conf"
   ],
   "score": "quality − 0.002·KB(asset) − 0.0002·KB(probe) − 0.0002·tokens",
   "table": [
    [
     "lifemodel v1",
     "TemporalGraph+TMS+serve router+scoped export（系统本体）",
-    139.97,
-    140
+    159.97,
+    160
    ],
    [
     "tms",
     "前提维护基线（内置；range-forget 回滚重建+scoped state）",
-    139.97,
-    140
+    159.97,
+    160
    ],
    [
     "esr",
     "事件溯源重放基线（day排序+scoped state）",
-    139.97,
-    140
+    159.97,
+    160
    ],
    [
     "raw",

@@ -93,10 +93,10 @@ class LifeModel:
 ## 4. 评价方案（LifeStream v7 — 已落地）
 
 - 生命周期：ingest 分段 → checkpoint 探针 → 控制事件 → 再探针（5 ckpt）
-- 探针类型（16 种，累积压强）：state/stale/prov/retract/transfer ＋
+- 探针类型（20 种，累积压强）：state/stale/prov/retract/transfer ＋
   as_of/subject/cascade（v2）＋ derive/post_import（v3）＋
   unans/purpose/budget/prov2（v4）＋ revoked（v6）＋ ops×4（v6c–v7）＋
-  partial（v7，作用域导出文档审）
+  partial（v7）＋ drvprov/duration/nchange/conf（v7.x）
 - 摄入压强（v5）：alias 别名消歧 + 乱序到达（day 权威，非到达序）
 - 控制事件（评测器驱动）：forget(slot)@55 / forget_range@62 回滚 /
   correct@78 / revoke_purpose@84 / state→import_state 往返@72 /
@@ -132,8 +132,8 @@ class LifeModel:
     （probe-type router + live_bundle + rvid 引用），未开实验室轮
   - **r4 M1 摄入**：v5 考题上线（别名+乱序）；lab run_v5 进化中
   - **r5 M5 控制**：v7 考题上线（revoked/forget_range 回滚/ops 审计×4/
-    部分导出）；系统已 139.97 满分(140/140)；lab run_v6 进化中；
-    家族淘汰赛见 results/life_model_v6/
+    部分导出/drvprov/duration/nchange/conf）；系统已 ~160 满分
+    (160/160)；lab run_v6 进化中；家族淘汰赛见 results/life_model_v6/
 - **P4**：真实授权数据验证（需单独授权，brief §83）
 
 ## 7. 遗留问题（r5 后更新）
@@ -156,6 +156,8 @@ class LifeModel:
   文档，partial 探针审内容（在域值必出现、域外值泄即扣分）。
 - ~~审计深度~~：ops 全四类可答——forget(slot)/correct/
   revoke_purpose/forget_range（答出被抹 day 窗口）。
+- ~~解释/聚合/认知分级~~：drvprov 前提引用（派生凭什么活）、
+  duration/nchange 时态聚合（沿边回扫）、conf 源分级（自知vs传闻）。
 - 规模旋钮：`generate(seed, density=N)` 调记录体积；
   `EVAL_DENSITY`/`EVAL_STORM` 环境变量贯通评分器。
 - 余留：control-cost——用户操作本身已入资产字节（journal 长在

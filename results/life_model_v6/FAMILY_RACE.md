@@ -97,8 +97,27 @@ right next pressure, not weight hacking.
   serve/tms/esr match range entries on `scope.day_gte` and answer the
   erased window (`52-53`). All four control ops now auditable:
   forget(slot) / correct / revoke_purpose / forget_range.
-- Frontier after v7: lifemodel/tms/esr = 139.97 (140/140 quality on
-  seed 7); raw 101.5 / ledger 86.5 / rag 55 / flat 44.
+
+## v7.x — explanation, aggregation, and epistemic depth
+
+- `drvprov` (premise citation): the premise registry must be
+  inspectable — 'why do you believe X' answers the premise as
+  `slot:value`. Purpose-built derived facts all die young by design,
+  so `habit_fit` (premised on a never-changing anchor `creed@5`) is
+  the living-citation target; post-death honesty checked on
+  `routine_fit` (must answer 无). raw family honest-loses (no
+  derivation tracking).
+- `duration` + `nchange` (temporal aggregation): serve walks
+  self-vertex edges — duration = maximal suffix-run of equal live
+  value (retraction breaks the streak), nchange = value-transition
+  count (reasserts don't count, del resets). nchange is post_import —
+  history edges must survive export.
+- `conf` (epistemic grading): self-authoritative live value grades
+  高, hearsay-attributed vertex grades 低 — the M1 survey's
+  subjective-logic finding landed: source grade is part of ingest.
+- Frontier after v7.x: lifemodel/tms/esr = ~160.0 (160/160 quality on
+  seed 7); raw ~100 / ledger ~86 / rag ~55 / flat ~44 (raw now loses
+  partial_in + drvprov + temporal aggregation + conf honestly).
 
 ## Open frontier
 
