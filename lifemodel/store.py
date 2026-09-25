@@ -100,7 +100,8 @@ class TemporalGraph:
         if ev.get("id"):
             self.rsv[ev["id"]] = (ev["slot"], ev["value"])
         self.hist.setdefault(_key(ev["source"], ev["slot"]), []).append(
-            [ev["value"], ev["day"], ev["kind"], ev.get("expires")])
+            [ev["value"], ev["day"], ev["kind"], ev.get("expires"),
+             ev.get("id")])
         if ev["source"] == SELF and ev["kind"] in WRITES:
             vals = self.prov.setdefault(ev["slot"], [])
             if ev["value"] not in vals:
@@ -171,6 +172,9 @@ class TemporalGraph:
             n += len(self.hist[k]) - len(kept)
             if len(kept) != len(self.hist[k]):
                 touched.add(k.split("|", 1)[1])
+                for e in self.hist[k]:
+                    if lo <= e[1] <= hi and e[4]:
+                        self.rsv.pop(e[4], None)
             if kept:
                 self.hist[k] = kept
             else:
@@ -184,6 +188,18 @@ class TemporalGraph:
                 self.prov[slot] = dedup
             else:
                 self.prov.pop(slot, None)
+            # roll materialized latest-write markers back to the
+            # surviving max-day write
+            self._wday.pop(slot, None)
+            self.rvid.pop(slot, None)
+            for e in sorted(self.hist.get(_key(SELF, slot), []),
+                            key=lambda x: x[1]):
+                if e[2] in WRITES:
+                    self._wday[slot] = e[1]
+                    if e[4]:
+                        self.rvid[slot] = e[4]
+                    if e[3] is not None:
+                        self.exp[slot] = e[3]
         for s in list(self.drv):
             if not self.edges_of("inference", s):
                 del self.drv[s]

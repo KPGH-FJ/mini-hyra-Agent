@@ -140,10 +140,12 @@ def drive(asset, records, probes, meta=None):
     forget = (meta or {}).get("forget")
     correct = (meta or {}).get("correct")
     revoke = (meta or {}).get("revoke")
+    fr = (meta or {}).get("forget_range")
     export_day = (meta or {}).get("export_day")
     forget_fired = False
     correct_fired = False
     revoke_fired = False
+    fr_fired = False
     import_ok = None
     rows, cum_reported, answered = [], 0, False
     for i, ckpt in enumerate(CHECKPOINTS):
@@ -192,6 +194,17 @@ def drive(asset, records, probes, meta=None):
                 except Exception:
                     pass
             revoke_fired = True
+        if (fr and not fr_fired
+                and ckpt < fr["day"] <= next_ckpt):
+            # range forget — erasing write edges rolls values back;
+            # impls without history-aware deletes keep stale values
+            if hasattr(asset, "forget"):
+                try:
+                    asset.forget({"day_gte": fr["lo"],
+                                  "day_lte": fr["hi"]})
+                except Exception:
+                    pass
+            fr_fired = True
         if export_day is not None and ckpt == export_day:
             # export -> import round-trip: state() snapshot serialized to
             # JSON and loaded into the same asset — then the remaining
@@ -496,7 +509,8 @@ class TMSBaseline(_Mixin):
         if r.get("id"):
             self._rec_slot_val[r["id"]] = (r["slot"], r["value"])
         self.hist.setdefault(f'{r["source"]}|{r["slot"]}', []).append(
-            [r["value"], r["day"], r["kind"], r.get("expires_day")])
+            [r["value"], r["day"], r["kind"], r.get("expires_day"),
+             r.get("id")])
         if r["kind"] == "derived":
             pre = self._premises_of(r)
             if pre is not None:
@@ -522,13 +536,54 @@ class TMSBaseline(_Mixin):
         self._prune(self.cur, self.drv, self._exp, self._now)
 
     def forget(self, scope):
-        slot = scope.get("slot")
-        for k in [k for k in self.hist if k.split("|", 1)[1] == slot]:
-            del self.hist[k]
-        self.prov.pop(slot, None)
-        self.cur.pop(slot, None)
-        self._exp.pop(slot, None)
-        self._latest_rid.pop(slot, None)
+        if "slot" in scope:
+            slot = scope.get("slot")
+            for k in [k for k in self.hist
+                      if k.split("|", 1)[1] == slot]:
+                del self.hist[k]
+            self.prov.pop(slot, None)
+            self.cur.pop(slot, None)
+            self._exp.pop(slot, None)
+            self._latest_rid.pop(slot, None)
+            self._wday.pop(slot, None)
+        else:
+            # range forget: erase edges by from_day, then roll materialized
+            # state back by rebuilding from surviving edges (rollback, not
+            # tombstone)
+            lo = scope.get("day_gte", 0)
+            hi = scope.get("day_lte", 10**9)
+            touched, dead_ids = set(), set()
+            for k, es in list(self.hist.items()):
+                kept = [e for e in es if not (lo <= e[1] <= hi)]
+                if len(kept) != len(es):
+                    touched.add(k.split("|", 1)[1])
+                    dead_ids.update(e[4] for e in es
+                                    if lo <= e[1] <= hi and e[4])
+                if kept:
+                    self.hist[k] = kept
+                else:
+                    del self.hist[k]
+            for rid in dead_ids:
+                self._rec_slot_val.pop(rid, None)
+            for s in touched:
+                for reg in (self.cur, self.prov, self._exp,
+                            self._latest_rid, self._wday):
+                    reg.pop(s, None)
+                for e in sorted(self.hist.get(f"{self.SELF}|{s}", []),
+                                key=lambda x: x[1]):
+                    if e[2] in self.WRITES:
+                        self._wday[s] = e[1]
+                        self.cur[s] = (e[0], "self")
+                        if e[4]:
+                            self._latest_rid[s] = e[4]
+                        if e[3] is not None:
+                            self._exp[s] = e[3]
+                        pv = self.prov.setdefault(s, [])
+                        if e[0] not in pv:
+                            pv.append(e[0])
+                    elif e[2] == "retraction":
+                        self.cur.pop(s, None)
+                        self._wday.pop(s, None)
         self._prune(self.cur, self.drv, self._exp, self._now)
 
     def correct(self, slot, value):
@@ -649,8 +704,13 @@ class ESRBaseline(_Mixin):
         self.recs.append(r)
 
     def forget(self, scope):
-        slot = scope.get("slot")
-        self.recs = [r for r in self.recs if r["slot"] != slot]
+        if "slot" in scope:
+            slot = scope.get("slot")
+            self.recs = [r for r in self.recs if r["slot"] != slot]
+        else:
+            lo, hi = scope.get("day_gte", 0), scope.get("day_lte", 10**9)
+            self.recs = [r for r in self.recs
+                         if not (lo <= r["day"] <= hi)]
 
     def correct(self, slot, value):
         self.recs.append({"id": None, "day": max(

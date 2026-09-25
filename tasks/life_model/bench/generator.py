@@ -289,6 +289,51 @@ def generate(seed: int = 7):
                              "slot": correct_slot, "value": correct_val})
         truth_events.sort(key=lambda e: e["day"])
 
+    # user-control event 3: range forget — the evaluator calls
+    # forget({"day_gte":lo,"day_lte":hi}) between ckpt 54 and 72.
+    # Erasing a write record rolls the slot back to its previous live
+    # value — real deletion is history-aware rollback, not a tombstone.
+    # The window is [change_day, change_day+1] of a changed slot so the
+    # change record itself is erased; it never covers the day-55 del.
+    FORGET2_DAY = 62
+    SKIP = None                      # (lo, hi) erased day window
+    fr_slot = erased_val = rollback_val = None
+    fr_cands = [s for s in changed
+                if s not in (corr_slot, forget_slot, retract_slot,
+                             correct_slot) and change_day[s] <= 60]
+    rng.shuffle(fr_cands)
+    for s in fr_cands:
+        lo, hi = change_day[s], change_day[s] + 1
+        if lo <= FORGET_DAY <= hi:
+            continue                # never erase the day-55 del edge
+
+        def liveval_ex(slot, day, lo_, hi_):
+            v, vd = None, -1
+            for e in truth_events:
+                if e["day"] > day or e["slot"] != slot:
+                    continue
+                if lo_ <= e["day"] <= hi_:
+                    continue
+                if e["op"] == "del":
+                    v, vd = None, e["day"]
+                elif e["day"] >= vd:
+                    v, vd = e["value"], e["day"]
+            return v
+
+        ev_ = liveval(s, hi)         # what the change wrote
+        rv_ = liveval_ex(s, 90, lo, hi)  # truth after rollback
+        if ev_ != rv_ and rv_ is not None:
+            fr_slot, erased_val, rollback_val = s, ev_, rv_
+            SKIP = (lo, hi)
+            break
+
+    def alive(r, c):
+        """Is this record still knowable at read day c?"""
+        if r["day"] > c:
+            return False
+        return not (c > FORGET2_DAY and SKIP
+                    and SKIP[0] <= r["day"] <= SKIP[1])
+
     def state_at(day):
         cur, prov, exp, drv = {}, {}, {}, {}
 
@@ -310,6 +355,9 @@ def generate(seed: int = 7):
         for e in truth_events:
             if e["day"] > day:
                 continue
+            if (day > FORGET2_DAY and SKIP
+                    and SKIP[0] <= e["day"] <= SKIP[1]):
+                continue            # range-forgotten writes never wrote
             if e["op"] == "del":
                 cur.pop(e["slot"], None)
                 prov.pop(e["slot"], None)
@@ -383,19 +431,19 @@ def generate(seed: int = 7):
                       q=f"此人{slot}的最新有效值（不要给已变更前的旧值）")
         # provenance probes on noise records seen before ckpt
         # skip a noise value the person independently also stated
-        noise = [r for r in records if r["day"] <= c and
+        noise = [r for r in records if alive(r, c) and
                  r["kind"] in ("hearsay", "suggestion") and
                  r["slot"] != forget_slot and
                  not any(s["source"] == "self" and s["slot"] == r["slot"]
                          and s["value"] == r["value"] for s in records
-                         if s["day"] <= c)]
+                         if alive(s, c))]
         for r in noise[:3]:
             probe(c, "prov", r["slot"], "非本人", value=r["value"],
                   q=f"“{r['slot']}={r['value']}”这条信息是本人说的吗？"
                     "答 本人 或 非本人")
         # positive provenance controls: things the person DID say
         # (forget_slot excluded: post-forget "did they say it" is ambiguous)
-        said = [r for r in records if r["day"] <= c and
+        said = [r for r in records if alive(r, c) and
                 r["source"] == "self" and r["slot"] != forget_slot and
                 r["kind"] in ("statement", "update", "correction")]
         for r in said[-2:]:
@@ -406,7 +454,7 @@ def generate(seed: int = 7):
         # (must be stored without polluting self-state). Collapse by
         # (person, slot) keeping latest so simultaneous probes never ask
         # for two different values of the same attributed fact.
-        heard = [r for r in records if r["day"] <= c and
+        heard = [r for r in records if alive(r, c) and
                  r["kind"] == "hearsay" and r["slot"] != forget_slot]
         latest_heard = {}
         for r in heard:
@@ -434,6 +482,17 @@ def generate(seed: int = 7):
                   if current_val is not None and current_val != past_val
                   else [],
                   q=f"截至第{D}天，此人{slot}是什么？", day=D)
+    # range-forget probes: after FORGET2_DAY the erased change must roll
+    # back — the slot answers its previous live value and the erased
+    # value is stale bait.
+    if fr_slot:
+        for c in (72, 90):
+            probe(c, "state", fr_slot, rollback_val,
+                  q=f"此人{fr_slot}现在是什么？")
+            probe(c, "stale", fr_slot, rollback_val,
+                  must_not=[erased_val],
+                  q=f"此人{fr_slot}的最新有效值（不要给已变更前的旧值）")
+
     # retraction probe: only at checkpoints AFTER the retraction arrived
     retract_day = next((r["day"] for r in records
                         if r["kind"] == "retraction"), 10**9)
@@ -597,12 +656,13 @@ def generate(seed: int = 7):
     # prov2: evidence citation — the answer must name the record id that
     # carries the current assertion (ALCE-style attribution).
     def latest_rid(slot, day):
-        rid_ = None
+        rid_, md = None, -1
         for r in records:
             if (r["source"] == "self" and r["slot"] == slot
                     and r["kind"] in ("statement", "update", "correction")
-                    and r["day"] <= day):
-                rid_ = r["id"]
+                    and r["day"] <= day and r["day"] > md
+                    and alive(r, day)):
+                rid_, md = r["id"], r["day"]
         return rid_
 
     for c in CHECKPOINTS[3:]:           # 72, 90
@@ -637,4 +697,7 @@ def generate(seed: int = 7):
         meta["correct"] = {"slot": correct_slot, "value": correct_val,
                            "day": CORRECT_DAY}
     meta["revoke"] = {"purpose": rvk_purpose, "day": 84}
+    if fr_slot:
+        meta["forget_range"] = {"day": FORGET2_DAY,
+                                "lo": SKIP[0], "hi": SKIP[1]}
     return records, probes, truth, meta
