@@ -6,15 +6,15 @@ implementation families still answer the whole lifecycle?
 
 ## Frontier (seed 7, 135 probes)
 
-| impl | score | quality | what it survives |
-|---|---|---|---|
-| lifemodel v1 | 134.97 | 135/135 | everything — 100% quality on every probed seed (3/7/11/42 → 128.97–134.97) |
-| tms baseline | 135.0 | 135/135 | everything (pricier reads) |
-| esr baseline | 135.0 | 135/135 | everything (replays the log per probe) |
-| raw | 99.5 | — | loses ~35 to OOO + rollback + audit |
-| ledger (LWW) | 84.5 | — | same losses, worse: arrival-order truth |
-| rag | 53.0 | — | keyword retrieval, no semantics |
-| flat | 44.0 | — | whole-dump serve, no views/metering |
+| impl | score | quality | probe cost | what it survives |
+|---|---|---|---|---|
+| lifemodel v1 | 134.97 | 135/135 | 6 KB | everything — 100% quality on every probed seed (3/7/11/42 → 128.97–134.97) |
+| tms baseline | 134.97 | 135/135 | 3 KB | everything |
+| esr baseline | 134.42 | 135/135 | 2.7 MB | everything, pays replay-per-probe (~0.55 pt) |
+| raw | 98.58 | 99.5 | 4.4 MB | loses ~36 to OOO + rollback + audit + serve |
+| ledger (LWW) | 84.49 | 84.5 | 59 KB | same losses, worse: arrival-order truth |
+| rag | 52.81 | 53.0 | 675 KB | keyword retrieval, no semantics |
+| flat | 43.99 | 44.0 | 26 KB | whole-dump serve, no views/metering |
 
 raw/ledger loss anatomy (seed 7): both lose the entire serve surface
 (purpose 0/8, budget 0/2, prov2 0/4, ops 0/2, revoked 0/1, transfer
