@@ -132,3 +132,8 @@ score = quality + cost-curve terms (see evaluate.py weights).
 16. a surviving user write outranks a revived derived — explicit
     beats inferred on erase-rewrite (hist edge reads before the drv
     registry)
+17. `forget({"about": X})` erases entity claims but keeps name
+    forms — entity aliases are resolution metadata, not claims
+    about the entity; post-forget mentions under ANY name form
+    still canonicalize to X's (now empty) vertex rather than
+    fragmenting into fresh canonicals
