@@ -894,6 +894,21 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
     probe(90, "subject", eslot, ehv2, person=espeaker2, about=ENTITY2,
           must_not=[ehv] if ehv2 != ehv else [],
           q=f"{espeaker2}说过{ENTITY2}的{eslot}是什么？")
+    # nchange+about: her two claims = exactly one transition
+    probe(72, "nchange", eslot, "1", about=ENTITY,
+          q=f"{ENTITY}的{eslot}变过几次？")
+    # conf hearsay-only about an entity grades low (not 无 — a claim
+    # exists, it's just not self-authoritative)
+    probe(72, "conf", eslot, "低", person=espeaker2, about=ENTITY2,
+          q=f"你对{espeaker2}说的{ENTITY2}的{eslot}有多确定？")
+
+    # same-day-tie self conflict: two writes same slot same day —
+    # latest arrival wins (day is authoritative, order breaks ties)
+    _sd = _eday(24, 30)
+    rec(_sd, "self", "statement", "mood", "开心")
+    rec(_sd, "self", "update", "mood", "低落")
+    probe(36, "state", "mood", "低落", must_not=["开心"],
+          q="本人的心情现在是什么？")
 
     # budget: pack the listed slots' live values under a byte budget —
     # ordering becomes the decision (Lost-in-the-Middle pressure).
