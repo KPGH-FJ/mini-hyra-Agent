@@ -40,6 +40,18 @@ class LLMLengthError(LLMError):
     """Completion hit the token cap (finish_reason='length')."""
 
 
+class StreamCutError(LLMError):
+    """SSE stream ended without [DONE]/finish_reason mid-generation —
+    the gateway kills long-lived streams (~10min in-flight). Carries
+    the partial text so the caller can resume from the cut point."""
+
+    def __init__(self, partial: str, n_events: int = 0):
+        super().__init__(
+            f"stream cut mid-flight ({len(partial)} chars, "
+            f"{n_events} events)")
+        self.partial = partial
+
+
 class OpenAICompatLLM:
     def __init__(self, model: str | None = None, base_url: str | None = None,
                  api_key: str | None = None, max_tokens: int = 65536,
@@ -59,11 +71,15 @@ class OpenAICompatLLM:
         delay = 1.0
         last: Exception | None = None
         max_tokens = self.max_tokens
-        for attempt in range(self.retries):
+        messages = [{"role": "system", "content": system},
+                    {"role": "user", "content": prompt}]
+        acc = ""            # assembled text across stream continuations
+        conts = 0           # stream-cut continuations used this call
+        attempt = 0
+        while attempt < self.retries:
             body = json.dumps({
                 "model": self.model,
-                "messages": [{"role": "system", "content": system},
-                             {"role": "user", "content": prompt}],
+                "messages": messages,
                 "temperature": self.temperature,
                 "max_tokens": max_tokens,
                 # stream: gateways 502 non-streamed calls that run past
@@ -77,11 +93,39 @@ class OpenAICompatLLM:
                 self.usage["prompt_tokens"] += usage.get("prompt_tokens", 0)
                 self.usage["completion_tokens"] += usage.get(
                     "completion_tokens", 0)
-                return data
+                return acc + data
+            except StreamCutError as e:
+                # transport killed the stream but delivered a partial —
+                # resume from the cut point instead of burning the work
+                last = e
+                acc += e.partial
+                conts += 1
+                if conts > 4:
+                    raise LLMError(
+                        "stream cut 5x mid-generation; refusing to "
+                        "stitch further") from e
+                tail = e.partial[-800:] if e.partial else "(empty)"
+                messages = messages + [
+                    {"role": "assistant", "content": e.partial},
+                    {"role": "user", "content": (
+                        "Your previous answer was cut off mid-flight. "
+                        "It ended with:\n```\n" + tail +
+                        "\n```\nContinue outputting EXACTLY from where "
+                        "it stopped — no preamble, no restart, no "
+                        "repetition. If the tail ends mid-file, finish "
+                        "that file's content first (do NOT reopen its "
+                        "<<<FILE>>> block), then emit any remaining "
+                        "files. Keep the same <<<FILE: path>>> ... "
+                        "<<<END>>> protocol.")}]
+                log.warning("stream cut mid-flight; resuming "
+                            "(cont #%d, %d chars so far)", conts,
+                            len(acc))
+                continue
             except LLMLengthError as e:
                 # reasoning models can burn the whole budget on reasoning;
                 # raise the cap and retry without counting it as a failure
                 last = e
+                attempt += 1
                 # stay under 131072 — Atria 400s at the hard cap, and
                 # streams get cut ~10min in-flight anyway; 98k is the
                 # practical ceiling where a completion can still land
@@ -90,8 +134,9 @@ class OpenAICompatLLM:
                 await asyncio.sleep(0.5)
             except Exception as e:
                 last = e
+                attempt += 1
                 log.warning("llm call failed (attempt %d/%d): %s",
-                            attempt + 1, self.retries, e)
+                            attempt, self.retries, e)
                 await asyncio.sleep(delay + random.uniform(0, delay * 0.5))
                 delay = min(delay * 2, 60)
         raise LLMError(f"llm failed after {self.retries} retries: {last}")
@@ -106,30 +151,43 @@ class OpenAICompatLLM:
         finish: str | None = None
         usage: dict = {}
         n_data = 0
-        with urllib.request.urlopen(req, timeout=600) as r:
-            for raw in r:
-                line = raw.decode("utf-8", "replace").strip()
-                if not line or not line.startswith("data:"):
-                    continue  # SSE comments / keep-alives / blanks
-                data = line[5:].strip()
-                if data == "[DONE]":
-                    break
-                n_data += 1
-                try:
-                    ev = json.loads(data)
-                except json.JSONDecodeError:
-                    continue
-                if isinstance(ev.get("usage"), dict):
-                    usage = ev["usage"]
-                for ch in ev.get("choices") or []:
-                    delta = ch.get("delta") or {}
-                    if delta.get("content"):
-                        chunks.append(delta["content"])
-                    if ch.get("finish_reason"):
-                        finish = ch["finish_reason"]
+        done = False
+        try:
+            with urllib.request.urlopen(req, timeout=600) as r:
+                for raw in r:
+                    line = raw.decode("utf-8", "replace").strip()
+                    if not line or not line.startswith("data:"):
+                        continue  # SSE comments / keep-alives / blanks
+                    data = line[5:].strip()
+                    if data == "[DONE]":
+                        done = True
+                        break
+                    n_data += 1
+                    try:
+                        ev = json.loads(data)
+                    except json.JSONDecodeError:
+                        continue
+                    if isinstance(ev.get("usage"), dict):
+                        usage = ev["usage"]
+                    for ch in ev.get("choices") or []:
+                        delta = ch.get("delta") or {}
+                        if delta.get("content"):
+                            chunks.append(delta["content"])
+                        if ch.get("finish_reason"):
+                            finish = ch["finish_reason"]
+        except Exception:
+            # connection dropped mid-iteration: still a stream cut if
+            # partial content landed — keep it for the resume path
+            if chunks:
+                raise StreamCutError("".join(chunks), n_data)
+            raise
         content = "".join(chunks)
         if finish == "length":
             raise LLMLengthError("completion truncated at token cap")
+        if finish is None and not done and (content or n_data):
+            # stream ended without [DONE] and without a finish_reason —
+            # the gateway cut it; hand the partial up for continuation
+            raise StreamCutError(content, n_data)
         if not content:
             raise LLMError(
                 f"empty completion (finish_reason={finish}, "
