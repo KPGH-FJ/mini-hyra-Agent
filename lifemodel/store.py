@@ -255,6 +255,10 @@ class TemporalGraph:
         only the requested slots' edges/state travel (selective
         portability); journal/aliases/revoked are owner metadata and
         always ride along."""
+        if (scope or {}).get("purpose") in self.revoked:
+            # a purpose-scoped export is a USE — withdrawal refuses it,
+            # or the data leaves through the side door the view closed
+            return {}
         d = {"hist": self.hist, "prov": self.prov,
              "journal": self.journal,
              "rsv": self.rsv, "drv": self.drv, "exp": self.exp,

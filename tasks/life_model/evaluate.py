@@ -151,6 +151,7 @@ def drive(asset, records, probes, meta=None):
     exp2_fired = False
     import_ok = None
     scoped_doc = None
+    scoped_doc_rvk = None
     rows, cum_reported, answered = [], 0, False
     for i, ckpt in enumerate(CHECKPOINTS):
         for r in [x for x in records if x["day"] <= ckpt
@@ -176,6 +177,10 @@ def drive(asset, records, probes, meta=None):
                 # no scoped document exists — leak-checks can't pass
                 # vacuously on an empty answer either
                 sc = 0.0
+            if p["type"] == "expdeny":
+                # revoked-purpose export must refuse — any document
+                # produced is a consent-channel leak
+                sc = -0.5 if scoped_doc_rvk else 1.0
             rows.append({"probe": p, "answer": str(ans), "score": sc})
         next_ckpt = CHECKPOINTS[i + 1] if i + 1 < len(CHECKPOINTS) else 10**9
         if (forget and not forget_fired
@@ -217,6 +222,19 @@ def drive(asset, records, probes, meta=None):
                 except Exception:
                     pass
             fr_fired = True
+        if (revoke and revoke_fired and scoped_doc_rvk is None):
+            # revoked-purpose export attempt — consent must close the
+            # side door: state(scope={purpose}) for a revoked purpose
+            # should refuse (empty), anything else leaks
+            try:
+                _rvkdoc = asset.state(
+                    scope={"slots": revoke.get("slots", []),
+                           "purpose": revoke["purpose"]})
+                if _rvkdoc:
+                    scoped_doc_rvk = json.dumps(_rvkdoc,
+                                                ensure_ascii=False)
+            except Exception:
+                scoped_doc_rvk = None
         if (exp2 and not exp2_fired
                 and ckpt < exp2["day"] <= next_ckpt):
             # purpose-scoped export — selective portability; impls
@@ -767,6 +785,8 @@ class TMSBaseline(_Mixin):
         return self._answer_state(self.cur, p)
 
     def state(self, scope=None):
+        if (scope or {}).get("purpose") in self.revoked:
+            return {}
         d = {"hist": self.hist, "prov": self.prov,
              "drv": self.drv, "cur": self.cur,
              "exp": self._exp, "rsv": self._rec_slot_val,
@@ -1003,6 +1023,8 @@ class ESRBaseline(_Mixin):
         self.ops.append({"op": "revoke_purpose", "purpose": purpose})
 
     def state(self, scope=None):
+        if (scope or {}).get("purpose") in self.revoked:
+            return {}
         recs = self.recs
         slots = (scope or {}).get("slots")
         if slots:
