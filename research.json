@@ -32,9 +32,10 @@
    "id": "M4",
    "name": "使用 Serve",
    "role": "探针 → 回答/视图",
-   "impl": "edge lookup + 字节计量",
-   "status": "next",
-   "next": "三值输出 answer|clarify|abstain / 上下文预算"
+   "impl": "probe-type router + live_bundle 视图 + rvid 引用",
+   "status": "current",
+   "score": 127.97,
+   "next": "P3 r3 进化中：预算打包排序 / 拒答校准 / 用途视图"
   },
   {
    "id": "M5",
@@ -85,8 +86,8 @@
     {
      "id": "r3",
      "module": "M4 使用",
-     "status": "next",
-     "desc": "上下文预算/拒答校准/多用途视图"
+     "status": "running",
+     "desc": "LifeStream v4 已上线：unans(拒答)/purpose(用途视图)/budget(字节预算)/prov2(引用) + 密度×4;lab run_v4 已启动"
     }
    ]
   },
@@ -98,8 +99,8 @@
   }
  ],
  "experiment": {
-  "bench": "LifeStream v3 · 90 天合成人生流 + 派生事实(supports) + 导出导入",
-  "probes": 112,
+  "bench": "LifeStream v4 · 90 天流 199 条/seed(密度×4) + M3 派生失效 + M4 服务压力",
+  "probes": 128,
   "types": [
    "state",
    "stale",
@@ -110,51 +111,55 @@
    "derive",
    "retract",
    "transfer",
+   "unans",
+   "purpose",
+   "budget",
+   "prov2",
    "post_import"
   ],
   "score": "quality − 0.002·KB(asset) − 0.0002·KB(probe) − 0.0002·tokens",
   "table": [
    [
     "lifemodel v1",
-    "TemporalGraph+TMS（系统本体）",
-    111.99,
-    112
+    "TemporalGraph+TMS+serve router（系统本体）",
+    127.97,
+    128
    ],
    [
     "tms",
     "前提维护基线（评测器内置）",
-    111.99,
-    112
+    128.0,
+    128
    ],
    [
     "esr",
     "事件溯源重放基线（评测器内置）",
-    111.86,
-    112
+    128.0,
+    128
    ],
    [
     "raw",
     "全存（基线）",
-    106.5,
-    106.5
-   ],
-   [
-    "seed",
-    "朴素全重放（种子）",
-    89.32,
-    101
+    109.0,
+    109
    ],
    [
     "ledger",
     "LWW 平表（基线）",
-    83.5,
-    83.5
+    99.5,
+    99.5
    ],
    [
     "rag",
     "关键词检索（基线）",
-    79.0,
-    79.0
+    53.5,
+    53.5
+   ],
+   [
+    "flat",
+    "平表+全量倾倒 serve（M4 缺乏族）",
+    58.5,
+    58.5
    ]
   ]
  }
