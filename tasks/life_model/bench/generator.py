@@ -824,14 +824,23 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
     ev1 = rng.choice(VALS.get(eslot, ["良好"]))
     ev2 = rng.choice([v for v in VALS.get(eslot, ["稳定"]) if v != ev1]
                      or ["稳定"])
-    rec(rng.randint(6, 12), "self", "statement", eslot, ev1,
+
+    def _eday(lo_, hi_):
+        # an entity record landing inside the range-forget window would
+        # be legitimately erased — keep emissions outside SKIP so the
+        # probes' expectations stay honest
+        cands = [d for d in range(lo_, hi_ + 1)
+                 if not (SKIP and SKIP[0] <= d <= SKIP[1])]
+        return rng.choice(cands)
+
+    rec(_eday(6, 12), "self", "statement", eslot, ev1,
         about=ENTITY)
-    rec(rng.randint(58, 68), "self", "update", eslot, ev2,
+    rec(_eday(58, 68), "self", "update", eslot, ev2,
         about=ENTITY)
     espeaker = _person()
     ehv = rng.choice([v for v in VALS.get(eslot, ["存疑"]) if v != ev2]
                      or ["存疑"])
-    rec(rng.randint(20, 30), espeaker, "hearsay", eslot, ehv,
+    rec(_eday(20, 30), espeaker, "hearsay", eslot, ehv,
         about=ENTITY)
     # estate: self-claimed state about her — latest write wins;
     # post_import: entity vertexes must survive export round-trip
