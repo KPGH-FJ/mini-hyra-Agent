@@ -36,6 +36,12 @@ _PERSON_RE = re.compile(r"([\u4e00-\u9fff]{1,4}?)(?:说|提到|声称|讲)")
 
 _RID_CUES = ("哪条记录", "依据", "证据", "记录ID", "记录id")
 _PURPOSE_CUES = ("制定", "生成")
+_DURATION_CUES = ("多久", "持续了", "维持", "连续")
+_NCHANGE_CUES = ("几次", "变过几次", "改过", "变过")
+_CONF_CUES = ("有多确定", "确定吗", "信心", "把握")
+_DRVPROV_CUES = ("凭什么相信", "为什么相信", "前提是什么", "为什么认为")
+_OPS_CUES = (("撤回过", "revoke_purpose"), ("纠正过", "correct"),
+             ("删过", "forget"), ("忘记过", "forget"), ("抹掉过", "forget"))
 
 
 def _slot_of(text):
@@ -64,6 +70,22 @@ def _probe_for(text, purposes):
     if m and slot:
         return {"type": "subject", "slot": slot, "person": m.group(1)}
 
+    # temporal aggregation / epistemic grading / premise citation
+    if slot and any(c in text for c in _DURATION_CUES):
+        return {"type": "duration", "slot": slot}
+    if slot and any(c in text for c in _NCHANGE_CUES):
+        return {"type": "nchange", "slot": slot}
+    if slot and any(c in text for c in _CONF_CUES):
+        return {"type": "conf", "slot": slot,
+                "person": m.group(1) if m else None}
+    if slot and any(c in text for c in _DRVPROV_CUES):
+        return {"type": "drvprov", "slot": slot}
+
+    # owner-control audit: "你删过/纠正过/撤回过什么"
+    if any(cue in text for cue, _ in _OPS_CUES):
+        op = next(op for cue, op in _OPS_CUES if cue in text)
+        return {"type": "ops", "slot": "_audit", "op": op}
+
     # as_of: value at an explicit day
     if slot:
         d = _DAY_RE.search(text)
@@ -87,5 +109,9 @@ def query(model, text, purposes=None, ckpt=10**9):
     p = _probe_for(text, purposes or {})
     if p is None:
         return "未知"
+    # open horizon means "now": the latest day the model has observed,
+    # so duration/as_of answer relative to ingest, not an infinite day
+    if ckpt >= 10**9:
+        ckpt = getattr(getattr(model, "store", model), "_now", ckpt)
     p["ckpt"] = ckpt
     return model.answer(p)

@@ -115,9 +115,15 @@ right next pressure, not weight hacking.
 - `conf` (epistemic grading): self-authoritative live value grades
   高, hearsay-attributed vertex grades 低 — the M1 survey's
   subjective-logic finding landed: source grade is part of ingest.
-- Frontier after v7.x: lifemodel/tms/esr = ~160.0 (160/160 quality on
-  seed 7); raw ~100 / ledger ~86 / rag ~55 / flat ~44 (raw now loses
-  partial_in + drvprov + temporal aggregation + conf honestly).
+- `expdeny` (consent side door): a purpose-scoped export is a USE of
+  that purpose — after withdrawal it must refuse, or the view's
+  denial is bypassed through the export channel. `snapshot(scope)`
+  refuses when `scope.purpose` is revoked; the evaluator attempts the
+  revoked export and scores −0.5 on any document produced.
+- Frontier after v7.x: lifemodel/tms/esr = ~161.0 (161/161 quality on
+  seed 7; clean 161/157/164 across seeds 7/11/42); raw ~100 /
+  ledger ~86 / rag ~55 / flat ~44 (raw now loses partial_in +
+  drvprov + temporal aggregation + conf honestly).
 
 ## Open frontier
 
@@ -135,5 +141,10 @@ right next pressure, not weight hacking.
 - RESOLVED: NL query surface (lifemodel/query.py) verified end-to-end
   on seed 7 — state/as_of/subject(alias)/prov2/purpose/abstain all
   route and answer correctly through the typed-probe contract.
+- Multi-entity isolation: ingesting another person's records into the
+  same model pollutes the self-vertex (observed via a test-script bug
+  reusing one asset across seeds — wrong-slot answers surfaced). A real
+  lifemodel either scopes self-vertexes per subject or isolates assets
+  per person. Not yet probed — bench is single-subject by design.
 - Remaining v7 candidate: control-cost (charge user ops into cost —
   currently free; would penalize journal bloat implementations).
