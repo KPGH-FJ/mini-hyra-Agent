@@ -66,6 +66,10 @@ class OpenAICompatLLM:
                              {"role": "user", "content": prompt}],
                 "temperature": self.temperature,
                 "max_tokens": max_tokens,
+                # stream: gateways 502 non-streamed calls that run past
+                # ~5min in-flight; SSE chunks keep the connection live
+                "stream": True,
+                "stream_options": {"include_usage": True},
             }).encode()
             try:
                 data, usage = await asyncio.to_thread(self._post, body)
@@ -93,18 +97,41 @@ class OpenAICompatLLM:
         req = urllib.request.Request(
             f"{self.base_url}/chat/completions", data=body,
             headers={"Content-Type": "application/json",
+                     "Accept": "text/event-stream",
                      "Authorization": f"Bearer {self.api_key}"})
+        chunks: list[str] = []
+        finish: str | None = None
+        usage: dict = {}
+        n_data = 0
         with urllib.request.urlopen(req, timeout=600) as r:
-            payload = json.loads(r.read())
-        choice = payload["choices"][0]
-        content = choice["message"].get("content")
-        if choice.get("finish_reason") == "length" or not content:
-            if choice.get("finish_reason") == "length":
-                raise LLMLengthError("completion truncated at token cap")
+            for raw in r:
+                line = raw.decode("utf-8", "replace").strip()
+                if not line or not line.startswith("data:"):
+                    continue  # SSE comments / keep-alives / blanks
+                data = line[5:].strip()
+                if data == "[DONE]":
+                    break
+                n_data += 1
+                try:
+                    ev = json.loads(data)
+                except json.JSONDecodeError:
+                    continue
+                if isinstance(ev.get("usage"), dict):
+                    usage = ev["usage"]
+                for ch in ev.get("choices") or []:
+                    delta = ch.get("delta") or {}
+                    if delta.get("content"):
+                        chunks.append(delta["content"])
+                    if ch.get("finish_reason"):
+                        finish = ch["finish_reason"]
+        content = "".join(chunks)
+        if finish == "length":
+            raise LLMLengthError("completion truncated at token cap")
+        if not content:
             raise LLMError(
-                f"empty completion (finish_reason="
-                f"{choice.get('finish_reason')})")
-        return content, payload.get("usage", {})
+                f"empty completion (finish_reason={finish}, "
+                f"data_events={n_data})")
+        return content, usage
 
 
 FILE_RE = re.compile(r"<<<FILE:\s*(.+?)>>>\n(.*?)<<<END>>>", re.S)
