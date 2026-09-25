@@ -1,0 +1,189 @@
+{
+ "ok": false,
+ "n": 36,
+ "fail": 2,
+ "checks": {
+  "state_supersede": {
+   "ok": true,
+   "got": "上海",
+   "want": "上海"
+  },
+  "state_early": {
+   "ok": false,
+   "got": "上海",
+   "want": "北京"
+  },
+  "as_of": {
+   "ok": true,
+   "got": "北京",
+   "want": "北京"
+  },
+  "stale": {
+   "ok": true,
+   "got": "上海",
+   "want": "上海"
+  },
+  "prov_yes": {
+   "ok": true,
+   "got": "本人",
+   "want": "本人"
+  },
+  "prov_no": {
+   "ok": true,
+   "got": "非本人",
+   "want": "非本人"
+  },
+  "subj_alias": {
+   "ok": true,
+   "got": "下周离职",
+   "want": "下周离职"
+  },
+  "subj_canon": {
+   "ok": true,
+   "got": "下周离职",
+   "want": "下周离职"
+  },
+  "derived_live": {
+   "ok": true,
+   "got": "北区",
+   "want": "北区"
+  },
+  "derived_chain": {
+   "ok": true,
+   "got": "华东",
+   "want": "华东"
+  },
+  "about_state": {
+   "ok": true,
+   "got": "巴黎",
+   "want": "巴黎"
+  },
+  "about_noleak": {
+   "ok": true,
+   "got": "未知",
+   "want": "未知"
+  },
+  "unans": {
+   "ok": true,
+   "got": "未知",
+   "want": "未知"
+  },
+  "nchange": {
+   "ok": false,
+   "got": "2",
+   "want": "3"
+  },
+  "conf_gao": {
+   "ok": true,
+   "got": "高",
+   "want": "高"
+  },
+  "conf_wu": {
+   "ok": true,
+   "got": "无",
+   "want": "无"
+  },
+  "visa_live": {
+   "ok": true,
+   "got": "有效",
+   "want": "有效"
+  },
+  "visa_expired": {
+   "ok": true,
+   "got": "未知",
+   "want": "未知"
+  },
+  "retract": {
+   "ok": true,
+   "got": "已删除",
+   "want": "已删除"
+  },
+  "retract_state": {
+   "ok": true,
+   "got": "未知",
+   "want": "未知"
+  },
+  "transfer": {
+   "ok": true,
+   "got": "周一A；周二B,周一A,周二B",
+   "want": "周一A；周二B,周一A,周二B"
+  },
+  "prov2": {
+   "ok": true,
+   "got": "r2",
+   "want": "r2"
+  },
+  "correct_state": {
+   "ok": true,
+   "got": "杭州",
+   "want": "杭州"
+  },
+  "derive_dead": {
+   "ok": true,
+   "got": "未知",
+   "want": "未知"
+  },
+  "derive_chain_dead": {
+   "ok": true,
+   "got": "未知",
+   "want": "未知"
+  },
+  "ops_correct": {
+   "ok": true,
+   "got": "city",
+   "want": "city"
+  },
+  "revoked": {
+   "ok": true,
+   "got": "已撤回",
+   "want": "已撤回"
+  },
+  "budget": {
+   "ok": true,
+   "got": "有效",
+   "want": "有效"
+  },
+  "cascade": {
+   "ok": true,
+   "got": "未知",
+   "want": "未知"
+  },
+  "cascade_prov": {
+   "ok": true,
+   "got": "非本人",
+   "want": "非本人"
+  },
+  "import_state": {
+   "ok": true,
+   "got": "巴黎",
+   "want": "巴黎"
+  },
+  "import_journal": {
+   "ok": true,
+   "got": "city",
+   "want": "city"
+  },
+  "import_revoked": {
+   "ok": true,
+   "got": "已撤回",
+   "want": "已撤回"
+  },
+  "import_subject": {
+   "ok": true,
+   "got": "下周离职",
+   "want": "下周离职"
+  },
+  "cost_real": {
+   "ok": true,
+   "got": true,
+   "want": true
+  },
+  "range_rollback": {
+   "ok": true,
+   "got": "未知",
+   "want": "未知"
+  }
+ },
+ "asset": "asset.py",
+ "entry": "solve.sh"
+}
