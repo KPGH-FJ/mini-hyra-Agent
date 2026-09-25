@@ -557,7 +557,8 @@ class TMSBaseline(_Mixin):
         self._prune(self.cur, self.drv, self._exp, self._now)
 
     def forget(self, scope):
-        self.ops.append({"op": "forget", "slot": scope.get("slot")})
+        self.ops.append({"op": "forget", "slot": scope.get("slot"),
+                         "scope": dict(scope)})
         if "slot" in scope:
             slot = scope.get("slot")
             for k in [k for k in self.hist
@@ -689,10 +690,17 @@ class TMSBaseline(_Mixin):
             return v if v is not None else "未知"
         if t == "ops":
             self._meter(self.ops)
-            hits = [(o.get("slot") or o.get("purpose"))
-                    for o in self.ops
-                    if o["op"] == p.get("op")
-                    and (o.get("slot") or o.get("purpose"))]
+            if p.get("op") == "forget_range":
+                hits = [f"{o['scope']['day_gte']}-{o['scope']['day_lte']}"
+                        for o in self.ops
+                        if o["op"] == "forget"
+                        and isinstance(o.get("scope"), dict)
+                        and o["scope"].get("day_gte") is not None]
+            else:
+                hits = [(o.get("slot") or o.get("purpose"))
+                        for o in self.ops
+                        if o["op"] == p.get("op")
+                        and (o.get("slot") or o.get("purpose"))]
             return hits[0] if hits else "无"
         self._meter(self.cur.get(slot))
         if slot in self._exp and ckpt > self._exp[slot]:
@@ -749,7 +757,8 @@ class ESRBaseline(_Mixin):
         self.recs.append(r)
 
     def forget(self, scope):
-        self.ops.append({"op": "forget", "slot": scope.get("slot")})
+        self.ops.append({"op": "forget", "slot": scope.get("slot"),
+                         "scope": dict(scope)})
         if "slot" in scope:
             slot = scope.get("slot")
             self.recs = [r for r in self.recs if r["slot"] != slot]
@@ -850,10 +859,17 @@ class ESRBaseline(_Mixin):
         if t == "prov2":
             return lrid.get(slot, "未知")
         if t == "ops":
-            hits = [(o.get("slot") or o.get("purpose"))
-                    for o in self.ops
-                    if o["op"] == p.get("op")
-                    and (o.get("slot") or o.get("purpose"))]
+            if p.get("op") == "forget_range":
+                hits = [f"{o['scope']['day_gte']}-{o['scope']['day_lte']}"
+                        for o in self.ops
+                        if o["op"] == "forget"
+                        and isinstance(o.get("scope"), dict)
+                        and o["scope"].get("day_gte") is not None]
+            else:
+                hits = [(o.get("slot") or o.get("purpose"))
+                        for o in self.ops
+                        if o["op"] == p.get("op")
+                        and (o.get("slot") or o.get("purpose"))]
             return hits[0] if hits else "无"
         return self._answer_state(cur, p)
 

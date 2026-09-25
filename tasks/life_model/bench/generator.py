@@ -534,6 +534,11 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
         probe(90, "ops", correct_slot, correct_slot, op="correct",
               q="本人纠正过哪一类信息？（回答槽位名）",
               post_import=True)
+    if fr_slot and SKIP:
+        probe(90, "ops", "range", f"{SKIP[0]}-{SKIP[1]}",
+              op="forget_range",
+              q="本人曾要求删除哪个时间段的信息？（回答天数范围）",
+              post_import=True)
 
     # retraction probe: only at checkpoints AFTER the retraction arrived
     retract_day = next((r["day"] for r in records
