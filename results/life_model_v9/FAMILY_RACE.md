@@ -60,3 +60,23 @@ Two companion truth-side fixes (evaluator-as-system-under-test):
 Best evolved (v8g): s0040 = 147.90 — still ~47 under the frontier;
 the gap lives in serve surface + v9 history handlers the labs are
 now chasing (run_v5 W3, run_v7 M4 serve round in flight).
+
+## Residual gap breakdown (seed 7, per probe type)
+
+esr 182 / tms 181 — losses concentrate in the v9 history family,
+which is exactly where their record models have no semantics:
+
+| type | tms | esr | why |
+|---|---|---|---|
+| first | 1.0/2 | 1.0/2 | earliest-of-run reads need run detection |
+| order | 0/1 | 0/1 | transition lists need compressed history |
+| absent | 0/2 | 0/2 | "never said X" needs absence proofs |
+| window | 0/2 | 0/2 | interval transition counts |
+| xcmp | 0/1 | 0/1 | cross-entity same-slot compare |
+| isconf | 0/3 | 0/3 | conflict detection needs claim-vs-claim |
+| subject/conf/prov2/ops | ~4 small | ~3 small | alias/ops-journal edges |
+
+lm covers all of these from the same `hist` edges — the handlers
+are thin lenses over one structure; the baselines lose because the
+structure itself lacks the history surface, not because of scoring
+quirks.
