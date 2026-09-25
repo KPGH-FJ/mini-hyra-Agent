@@ -733,6 +733,19 @@ class TMSBaseline(_Mixin):
                     n += 1
                 prev = e[0]
             return str(n)
+        if t == "conf":
+            person = p.get("person")
+            if person:
+                seen = []
+                for f in self._forms(person):
+                    seen += self.hist.get(f"{f}|{slot}", [])
+                self._meter(seen)
+                live = [e for e in seen
+                        if e[1] <= ckpt and e[2] != "retraction"]
+                return "低" if live else "无"
+            self._meter(self.hist.get(f"self|{slot}", []))
+            return "高" if self._live_at(self.SELF, slot, ckpt) \
+                is not None else "无"
         if t == "ops":
             self._meter(self.ops)
             if p.get("op") == "forget_range":
@@ -953,6 +966,23 @@ class ESRBaseline(_Mixin):
                     n += 1
                 prev = e["value"]
             return str(n)
+        if t == "conf":
+            person = p.get("person")
+            if person:
+                _c, _l, alias, _dd = self._replay(ckpt)
+                canon = lambda x: next((c for a, c in alias.items()
+                                        if a == x), x)
+                seen = [r for r in self.recs
+                        if r.get("slot") == slot
+                        and r.get("kind") == "hearsay"
+                        and canon(r["source"]) == canon(person)
+                        and r["day"] <= ckpt]
+                self._meter(seen)
+                return "低" if seen else "无"
+            _cc, _ll, _aa, _ddd = self._replay(ckpt)
+            self._meter(self.recs)
+            return "高" if _cc.get(slot, (None, None))[1] == "self" \
+                else "无"
         if t == "ops":
             if p.get("op") == "forget_range":
                 hits = [f"{o['scope']['day_gte']}-{o['scope']['day_lte']}"

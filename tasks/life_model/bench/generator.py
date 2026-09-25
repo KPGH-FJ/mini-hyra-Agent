@@ -687,6 +687,19 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
                            for x in lh)]
     if lh_cands:
         r = max(lh_cands, key=lambda x: (x["day"], records.index(x)))
+
+    # conf: epistemic grading — 'I know' (self-authoritative) vs 'I
+    # heard' (hearsay). A lifemodel must retain the source's grade,
+    # not just the value.
+    for s in [x for x in cur90
+              if x in changed and x not in ctl_touched][:2]:
+        probe(90, "conf", s, "高",
+              q=f"你对{s}有多确定？（高/低/无）")
+    for r in lh_cands[:2]:
+        canon = next((c for c, a in ALIASES.items()
+                      if r["source"] == a), r["source"])
+        probe(90, "conf", r["slot"], "低", person=canon,
+              q=f"你对{r['source']}的{r['slot']}有多确定？（高/低/无）")
         probe(90, "subject", r["slot"], r["value"], person=r["source"],
               q=f"传闻中{r['source']}的{r['slot']}是什么？",
               post_import=True)

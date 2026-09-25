@@ -96,6 +96,20 @@ def answer(store, probe: dict, journal=()) -> str:
                 n += 1
             prev = e[0]
         return str(n)
+    if t == "conf":
+        # epistemic grade: self-authoritative knowledge vs hearsay
+        person = probe.get("person")
+        if person:
+            seen = []
+            for f in store.forms_of(person):
+                seen += store.edges_of(f, slot)
+            _meter(seen)
+            live = [e for e in seen
+                    if e[1] <= ckpt and e[2] != "retraction"]
+            return "低" if live else "无"
+        _meter(store.edges_of("self", slot))
+        return "高" if store.live_at("self", slot, ckpt) is not None \
+            else "无"
     if t == "prov":
         vals = store.prov.get(slot, [])
         _meter(vals)
