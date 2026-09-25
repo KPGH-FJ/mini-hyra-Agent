@@ -91,6 +91,9 @@ right next pressure, not weight hacking.
   pts even at 5× volume — efficiency selects only when probe COUNT
   grows, so multiply probes (more checkpoints per slot, per-slot
   purpose queries) rather than the coefficient.
-- v7 candidates: NL query surface via lifemodel/query.py (untested),
-  partial export (export only a purpose's view), conflict probes
-  (same-day contradictory sources), audit depth (ops with day/scope).
+- v7 candidates: partial export (export only a purpose's view),
+  conflict probes (same-day contradictory sources), audit depth
+  (ops with day/scope), probe-storm (see scale-stress finding).
+- RESOLVED: NL query surface (lifemodel/query.py) verified end-to-end
+  on seed 7 — state/as_of/subject(alias)/prov2/purpose/abstain all
+  route and answer correctly through the typed-probe contract.
