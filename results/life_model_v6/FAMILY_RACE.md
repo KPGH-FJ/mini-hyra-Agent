@@ -8,7 +8,7 @@ implementation families still answer the whole lifecycle?
 
 | impl | score | quality | what it survives |
 |---|---|---|---|
-| lifemodel v1 | 134.97 | 135/135 | everything |
+| lifemodel v1 | 134.97 | 135/135 | everything — 100% quality on every probed seed (3/7/11/42 → 128.97–134.97) |
 | tms baseline | 135.0 | 135/135 | everything (pricier reads) |
 | esr baseline | 135.0 | 135/135 | everything (replays the log per probe) |
 | raw | 99.5 | — | loses ~35 to OOO + rollback + audit |
