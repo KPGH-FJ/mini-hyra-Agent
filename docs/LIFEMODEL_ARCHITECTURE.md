@@ -126,8 +126,8 @@ class LifeModel:
   - **r3 M4 使用 ✓**：serve 语义经 v4 考题验证后直接沉淀系统
     （probe-type router + live_bundle + rvid 引用），未开实验室轮
   - **r4 M1 摄入**：v5 考题上线（别名+乱序）；lab run_v5 进化中
-  - **r5 M5 控制**：v6 考题上线（revoked/forget_range 回滚/ops 审计）；
-    系统已 134.97/135 满分，家族淘汰赛见 results/life_model_v6/
+  - **r5 M5 控制**：v6c 考题上线（revoked/forget_range 回滚/ops 审计×3）；
+    系统已 135.97 满分(136/136)，家族淘汰赛见 results/life_model_v6/
 - **P4**：真实授权数据验证（需单独授权，brief §83）
 
 ## 7. 遗留问题（r5 后更新）
@@ -137,6 +137,15 @@ class LifeModel:
 - ~~export-import 探针~~：v3 已落地（post_import 旗标）。
 - ~~三值输出~~：unans 探针落地了 abstain 侧；clarify 无对话通道
   仍映射为“未知”。
-- 新 v7 候选：NL 查询表面（query.py 未考）、部分导出（只导出某
-  用途视图）、同日冲突源、审计深度（ops 带 day/scope）、
-  control-cost（用户操作步数入总成本）。
+- ~~NL 查询表面~~：query.py 端到端验证通过（state/as_of/subject别名/
+  prov2/purpose/拒答全对）。
+- ~~同日冲突源歧义~~：同日同（人，槽）冲突传闻不探针——“最新”
+  在日内无定义；subject 键折叠已规范。
+- ~~成本权重校准~~：伸缩实验（density ×1→×5, 201→881 条）量化——
+  顶点查找类探针成本持平(3-5KB)，重放类线性(2.6→11.8MB)但仅失
+  ~2.6pt；正确做法是探针风暴（数量增长）而非调系数。
+- 规模旋钮：`generate(seed, density=N)` 调记录体积；
+  `EVAL_DENSITY` 环境变量贯通评分器。
+- 新 v7 候选：部分导出（只导出某用途视图）、审计深度（ops 带
+  day/scope）、control-cost（用户操作步数入总成本）、探针风暴
+  （per-slot×per-ckpt 覆盖，让效率成为选择轴）。
