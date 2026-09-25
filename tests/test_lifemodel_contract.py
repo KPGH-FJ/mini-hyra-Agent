@@ -18,7 +18,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "tasks" / "life_model"))
 
+_argv, sys.argv = sys.argv, [sys.argv[0]]  # evaluate.py reads argv[2] as seed
 import evaluate as ev  # noqa: E402
+sys.argv = _argv
 from lifemodel.model import LifeModel  # noqa: E402
 
 IMPLS = {
@@ -175,6 +177,18 @@ def _(a):
     a.ingest(R(1, "表姐", "hearsay", "diet", "低碳水", about="妈妈"))
     assert a.answer(P("subject", "diet", person="表姐",
                       about="妈妈", ckpt=10)) == "低碳水"
+
+
+@case("entity: as_of+about reads entity history, not self")
+def _(a):
+    a.ingest(R(1, "self", "statement", "diet", "素食"))
+    a.ingest(R(2, "self", "statement", "diet", "清淡", about="妈妈"))
+    a.ingest(R(3, "self", "update", "diet", "无偏好", about="妈妈"))
+    assert a.answer(P("as_of", "diet", about="妈妈", day=2,
+                      ckpt=10)) == "清淡"
+    # never leaks the self vertex's value for an entity read
+    assert a.answer(P("as_of", "diet", about="爸爸", day=5,
+                      ckpt=10)) == "未知"
 
 
 @case("entity: conf grades self-claim about entity high")

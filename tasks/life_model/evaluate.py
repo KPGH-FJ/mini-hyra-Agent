@@ -737,7 +737,7 @@ class TMSBaseline(_Mixin):
         if t == "prov2":
             self._meter(self.cur.get(slot))
             return self._latest_rid.get(slot, "未知")
-        if t == "as_of":
+        if t == "as_of" and not about:
             edges = self.hist.get(f"self|{slot}", [])
             self._meter(edges)
             v = self._live_at(self.SELF, slot, p.get("day", ckpt))
@@ -978,7 +978,7 @@ class ESRBaseline(_Mixin):
                     and r.get("about") == p.get("about")]
             hits.sort(key=lambda x: x["day"])
             return hits[-1]["value"] if hits else "未知"
-        if t == "as_of":
+        if t == "as_of" and not p.get("about"):
             cur_d, _lr, _a, _d = self._replay(p.get("day", ckpt))
             v = cur_d.get(slot)
             return self._answer_state({slot: v} if v else {}, p)

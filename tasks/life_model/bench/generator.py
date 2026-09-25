@@ -835,7 +835,8 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
 
     rec(_eday(6, 12), "self", "statement", eslot, ev1,
         about=ENTITY)
-    rec(_eday(58, 68), "self", "update", eslot, ev2,
+    _ud = _eday(58, 68)
+    rec(_ud, "self", "update", eslot, ev2,
         about=ENTITY)
     espeaker = _person()
     ehv = rng.choice([v for v in VALS.get(eslot, ["存疑"]) if v != ev2]
@@ -859,6 +860,12 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
     # econf: self-claimed knowledge about her is high-grade (pre-forget)
     probe(72, "conf", eslot, "高", about=ENTITY,
           q=f"你对{ENTITY}的{eslot}有多确定？（高/低/无）")
+    # bitemporal entity read: her value at day 36 is the first claim
+    probe(36, "as_of", eslot, ev1, about=ENTITY,
+          q=f"{ENTITY}的{eslot}第36天是什么？")
+    # duration+about: how long has her current claim been standing
+    probe(72, "duration", eslot, f"{72 - _ud}天", about=ENTITY,
+          q=f"{ENTITY}的{eslot}维持多久了？")
     # entity-level forget @74 ("忘掉我妈"): every claim about her —
     # self's and hearsay alike — is erased; isolation runs the other
     # way too (forgetting her must not touch self's own slot value)
