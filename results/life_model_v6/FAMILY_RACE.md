@@ -146,5 +146,7 @@ right next pressure, not weight hacking.
   reusing one asset across seeds — wrong-slot answers surfaced). A real
   lifemodel either scopes self-vertexes per subject or isolates assets
   per person. Not yet probed — bench is single-subject by design.
-- Remaining v7 candidate: control-cost (charge user ops into cost —
-  currently free; would penalize journal bloat implementations).
+- RESOLVED: control-cost — already implicit: journal entries live in
+  asset_bytes (state size grows per op) and ops-probe answers are
+  probe_bytes-metered. A journal-bloat impl pays twice. No extra
+  charge needed; v7.x scope complete.
