@@ -16,6 +16,12 @@ implementation families still answer the whole lifecycle?
 | rag | 53.0 | — | keyword retrieval, no semantics |
 | flat | 44.0 | — | whole-dump serve, no views/metering |
 
+raw/ledger loss anatomy (seed 7): both lose the entire serve surface
+(purpose 0/8, budget 0/2, prov2 0/4, ops 0/2, revoked 0/1, transfer
+0/1 ≈ 18 pts) plus ~12 to OOO/rollback state-stale misses; ledger
+additionally loses every subject probe (0/11 — no hearsay vertices)
+and 7.5/8 as_of. raw even leaks a retracted value (retract −0.5).
+
 ## What each pressure knocks out
 
 | pressure (version) | probes | deficient family | honest loss |
