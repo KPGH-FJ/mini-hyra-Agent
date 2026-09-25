@@ -59,7 +59,12 @@ def answer(store, probe: dict) -> str:
                     best, bd = e[0], e[1]
         _meter(seen)
         return str(best) if best is not None else "未知"
-    if t == "purpose":
+    if t in ("purpose", "revoked"):
+        # purpose withdrawal: the use is revoked, not the data — refuse
+        # the view even though the slots stay live elsewhere
+        _meter(sorted(store.revoked))
+        if probe.get("purpose") in store.revoked:
+            return "已撤回"
         # task-conditioned view: live values of the purpose's slots only
         vals = store.live_bundle(ckpt, probe.get("purpose_slots"))
         _meter(vals)

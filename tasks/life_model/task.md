@@ -31,6 +31,11 @@ def stats() -> dict: ...   # legacy fallback; DO NOT hardcode small numbers —
 `solve.sh` may be a no-op (`exit 0`) — the evaluator imports `asset.py` and
 drives the lifecycle itself. Do NOT write files, network-call, or time-depend.
 
+User-control ops the evaluator may call mid-stream (all optional —
+missing ones lose the affected probes honestly): `forget(scope)` at
+day ~55, `correct(slot, value)` at day ~78, `revoke_purpose(purpose)`
+at day ~84, and `state()`/`import_state(d)` export-import at day ~72.
+
 ## The stream
 
 ~90 days of records: `{id, day, source, kind, slot, value, text, expires_day?}`
@@ -101,6 +106,10 @@ the scored part of your answer, `slots` lists the slots to pack,
 - `purpose`— task-conditioned view: serve ONLY live values of
               probe["purpose_slots"], comma-separated; any other slot's
               value is a leak (must_not).
+- `revoked`— after the evaluator's `revoke_purpose(purpose)` call: the
+              view must REFUSE — answer "已撤回"; serving the purpose's
+              own live values is a leak (must_not). The data stays
+              intact — only that use is withdrawn.
 - `budget` — pack probe["slots"]' live values comma-separated; ONLY the
               first probe["budget"] BYTES of your answer are scored —
               what you put first is the decision.

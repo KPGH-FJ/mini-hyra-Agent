@@ -139,9 +139,11 @@ def drive(asset, records, probes, meta=None):
         by_ckpt.setdefault(p["ckpt"], []).append(p)
     forget = (meta or {}).get("forget")
     correct = (meta or {}).get("correct")
+    revoke = (meta or {}).get("revoke")
     export_day = (meta or {}).get("export_day")
     forget_fired = False
     correct_fired = False
+    revoke_fired = False
     import_ok = None
     rows, cum_reported, answered = [], 0, False
     for i, ckpt in enumerate(CHECKPOINTS):
@@ -180,6 +182,16 @@ def drive(asset, records, probes, meta=None):
                 except Exception:
                     pass
             correct_fired = True
+        if (revoke and not revoke_fired
+                and ckpt < revoke["day"] <= next_ckpt):
+            # consent withdrawal — assets lacking revoke_purpose keep
+            # serving the view and eat the must_not leak, honestly
+            if hasattr(asset, "revoke_purpose"):
+                try:
+                    asset.revoke_purpose(revoke["purpose"])
+                except Exception:
+                    pass
+            revoke_fired = True
         if export_day is not None and ckpt == export_day:
             # export -> import round-trip: state() snapshot serialized to
             # JSON and loaded into the same asset — then the remaining
@@ -462,6 +474,10 @@ class TMSBaseline(_Mixin):
         self._latest_rid = {}     # slot -> latest self-write record id
         self._wday = {}           # slot -> day of cur's write (OOO-safe)
         self.alias = {}           # alias -> canonical person (M1)
+        self.revoked = set()      # purposes whose use is withdrawn (M5)
+
+    def revoke_purpose(self, purpose):
+        self.revoked.add(purpose)
 
     def _forms(self, person):
         forms = {person}
@@ -569,7 +585,10 @@ class TMSBaseline(_Mixin):
                     and not (s in self._exp and ckpt > self._exp[s])]
             self._meter(vals)
             return ",".join(vals) if vals else "未知"
-        if t == "purpose":
+        if t in ("purpose", "revoked"):
+            self._meter(sorted(self.revoked))
+            if p.get("purpose") in self.revoked:
+                return "已撤回"
             vals = [self._pval(self.cur, s)
                     for s in p.get("purpose_slots", [])
                     if s in self.cur
@@ -601,7 +620,7 @@ class TMSBaseline(_Mixin):
                 "drv": self.drv, "cur": self.cur,
                 "exp": self._exp, "rsv": self._rec_slot_val,
                 "lrid": self._latest_rid, "wday": self._wday,
-                "alias": self.alias}
+                "alias": self.alias, "revoked": sorted(self.revoked)}
 
     def import_state(self, d):
         self.hist = {k: [list(e) for e in v] for k, v in d["hist"].items()}
@@ -614,6 +633,7 @@ class TMSBaseline(_Mixin):
         self._latest_rid = dict(d["lrid"])
         self._wday = dict(d["wday"])
         self.alias = dict(d["alias"])
+        self.revoked = set(d.get("revoked", []))
 
 
 class ESRBaseline(_Mixin):
@@ -623,6 +643,7 @@ class ESRBaseline(_Mixin):
     def __init__(self):
         self._pb = 0
         self.recs = []
+        self.revoked = set()
 
     def ingest(self, r):
         self.recs.append(r)
@@ -709,7 +730,9 @@ class ESRBaseline(_Mixin):
         if t == "transfer":
             vals = [v[0] for v in cur.values() if v[1] == "self"]
             return ",".join(vals) if vals else "未知"
-        if t == "purpose":
+        if t in ("purpose", "revoked"):
+            if p.get("purpose") in self.revoked:
+                return "已撤回"
             vals = [self._pval(cur, s) for s in p.get("purpose_slots", [])
                     if s in cur]
             return ",".join(str(v) for v in vals if v) or "未知"
@@ -721,11 +744,15 @@ class ESRBaseline(_Mixin):
             return lrid.get(slot, "未知")
         return self._answer_state(cur, p)
 
+    def revoke_purpose(self, purpose):
+        self.revoked.add(purpose)
+
     def state(self):
-        return {"recs": self.recs}
+        return {"recs": self.recs, "revoked": sorted(self.revoked)}
 
     def import_state(self, d):
         self.recs = list(d["recs"])
+        self.revoked = set(d.get("revoked", []))
 
 
 def quality_breakdown(rows):

@@ -74,6 +74,7 @@ class TemporalGraph:
         self.exp: dict = {}   # slot -> expires_day (slot-scoped lease)
         self.rvid: dict = {}  # slot -> latest self-write record id (prov2)
         self.aliases: dict = {}  # alias -> canonical person (M1)
+        self.revoked: set = set()  # purposes whose use is withdrawn (M5)
         self._wday: dict = {}   # slot -> day of latest self write (OOO)
         self._now: int = 0    # latest observed event day (read-day clock)
 
@@ -236,7 +237,8 @@ class TemporalGraph:
         return {"hist": self.hist, "prov": self.prov,
                 "rsv": self.rsv, "drv": self.drv, "exp": self.exp,
                 "rvid": self.rvid, "aliases": self.aliases,
-                "wday": self._wday, "now": self._now}
+                "wday": self._wday, "now": self._now,
+                "revoked": sorted(self.revoked)}
 
     def restore(self, d):
         """Reload a snapshot() dict — export/import continuity hook."""
@@ -249,6 +251,7 @@ class TemporalGraph:
         self.exp = dict(d["exp"])
         self.rvid = dict(d["rvid"])
         self.aliases = dict(d.get("aliases", {}))
+        self.revoked = set(d.get("revoked", []))
         self._wday = dict(d.get("wday", {}))
         self._now = int(d.get("now", 0))
         self._prune()

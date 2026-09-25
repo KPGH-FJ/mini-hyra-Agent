@@ -41,6 +41,9 @@ class LifeModel:
     def forget(self, scope: dict) -> None:
         self.control.forget(scope)
 
+    def revoke_purpose(self, purpose: str) -> None:
+        self.control.revoke_purpose(purpose)
+
     def export(self) -> dict:
         return self.control.export(self.store.snapshot())
 

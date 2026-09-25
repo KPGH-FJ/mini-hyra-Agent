@@ -41,6 +41,11 @@ class Control:
                                         scope.get("day_lte", 10**9))
         self.journal.append({"op": "forget", "scope": scope, "removed": n})
 
+    def revoke_purpose(self, purpose: str) -> None:
+        """Withdraw consent for one use — the data stays, the view refuses."""
+        self.store.revoked.add(purpose)
+        self.journal.append({"op": "revoke_purpose", "purpose": purpose})
+
     def export(self, snapshot: dict) -> dict:
         self.journal.append({"op": "export"})
         return {"asset": snapshot, "journal": self.journal}
