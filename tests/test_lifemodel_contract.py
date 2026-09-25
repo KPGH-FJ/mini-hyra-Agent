@@ -281,6 +281,76 @@ def _(a):
     assert "妈妈" not in str(doc) and "小丽" not in str(doc)
 
 
+# ---------- v9 derived revival + history reasoning ----------
+
+@case("derived revival: erasing the killer write revives the derived")
+def _(a):
+    a.ingest(R(1, "self", "statement", "creed", "每天记录", id="r1"))
+    a.ingest(R(2, "inference", "derived", "habit", "可持续",
+             supports=["r1"]))
+    a.ingest(R(5, "self", "update", "creed", "偶尔记录"))
+    assert a.answer(P("state", "habit", ckpt=6)) == "未知"
+    a.forget({"day_gte": 5, "day_lte": 5})
+    # the erasure rewrote the log — premise holds again, derived lives
+    assert a.answer(P("state", "habit", ckpt=10)) == "可持续"
+    assert a.answer(P("state", "creed", ckpt=10)) == "每天记录"
+
+
+@case("derived revival: erasing the derived's own edge buries it")
+def _(a):
+    a.ingest(R(1, "self", "statement", "creed", "每天记录", id="r1"))
+    a.ingest(R(2, "inference", "derived", "habit", "可持续",
+             supports=["r1"], id="r2"))
+    a.forget({"day_gte": 2, "day_lte": 2})
+    assert a.answer(P("state", "habit", ckpt=10)) == "未知"
+
+
+@case("first/order: run after last retraction, day order")
+def _(a):
+    a.ingest(R(1, "self", "statement", "city", "北京"))
+    a.ingest(R(10, "self", "update", "city", "上海"))
+    a.ingest(R(20, "self", "retraction", "city", "上海"))
+    a.ingest(R(30, "self", "statement", "city", "广州"))
+    a.ingest(R(35, "self", "update", "city", "深圳"))
+    assert a.answer(P("first", "city", ckpt=40)) == "广州"
+    assert a.answer(P("order", "city", ckpt=40)) == "广州→深圳"
+
+
+@case("absent: stable iff no surviving write with day > 40")
+def _(a):
+    a.ingest(R(30, "self", "statement", "gym", "月卡"))
+    a.ingest(R(50, "self", "statement", "city", "北京"))
+    assert a.answer(P("absent", "gym", ckpt=60)) == "是"
+    assert a.answer(P("absent", "city", ckpt=60)) == "否"
+
+
+@case("window: transitions of live value inside [30,60]")
+def _(a):
+    a.ingest(R(10, "self", "statement", "city", "北京"))
+    a.ingest(R(40, "self", "update", "city", "上海"))
+    a.ingest(R(50, "self", "update", "city", "广州"))
+    a.ingest(R(70, "self", "update", "city", "深圳"))
+    assert a.answer(P("window", "city", ckpt=80)) == "2"
+
+
+@case("join: slot2's live value at the probe's day")
+def _(a):
+    a.ingest(R(10, "self", "statement", "diet", "素食"))
+    a.ingest(R(30, "self", "update", "diet", "清淡"))
+    assert a.answer(P("join", "diet", day=20, ckpt=40)) == "素食"
+    assert a.answer(P("join", "diet", day=35, ckpt=40)) == "清淡"
+
+
+@case("xcmp: entity live value vs own, 未知 when no entity claim")
+def _(a):
+    a.ingest(R(1, "self", "statement", "diet", "素食"))
+    a.ingest(R(2, "self", "statement", "diet", "素食", about="妈妈"))
+    a.ingest(R(3, "self", "statement", "sleep", "规律"))
+    a.ingest(R(4, "self", "statement", "sleep", "熬夜", about="妈妈"))
+    assert a.answer(P("xcmp", "diet", about="妈妈", ckpt=10)) == "是"
+    assert a.answer(P("xcmp", "sleep", about="妈妈", ckpt=10)) == "否"
+
+
 def main():
     names = sys.argv[1:] or list(IMPLS)
     results = {}
