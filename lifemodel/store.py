@@ -71,12 +71,23 @@ class TemporalGraph:
         self.prov: dict = {}
         self.rsv: dict = {}   # record id -> (slot, value)
         self.drv: dict = {}   # derived slot -> {"premises": {}, "value"}
+        self._pending_drv: list = []  # derived records awaiting premise
+        # resolution — a premise record that arrives later in feed order
+        # but earlier in DAY defers registration (truth replays day-
+        # sorted), it doesn't kill the derived at birth
+        self._drv_log: list = []   # every derived event ever appended
+        # ({slot,value,supports,day,seq}) — the log the drv registry is
+        # derived from; an erasure rewrites the underlying log, so drv
+        # state must be REBUILT, not merely re-pruned: a derived pruned
+        # by a killer that was itself erased comes back alive
         self.exp: dict = {}   # slot -> expires_day (slot-scoped lease)
         self.rvid: dict = {}  # slot -> latest self-write record id (prov2)
         self.aliases: dict = {}  # alias -> canonical person (M1)
         self.revoked: set = set()  # purposes whose use is withdrawn (M5)
         self.journal: list = []    # control-op log, survives export (M5)
         self._wday: dict = {}   # slot -> day of latest self write (OOO)
+        self._rday: dict = {}   # record id -> authored day (premise
+        # day-order checks for deferred derived resolution)
         self._now: int = 0    # latest observed event day (read-day clock)
 
     def forms_of(self, person):
@@ -100,6 +111,7 @@ class TemporalGraph:
             return
         if ev.get("id"):
             self.rsv[ev["id"]] = (ev["slot"], ev["value"])
+            self._rday[ev["id"]] = ev["day"]
         who = (f'{ev["source"]}|{ev["about"]}' if ev.get("about")
                else ev["source"])   # claimer|about|slot vertex
         self.hist.setdefault(_key(who, ev["slot"]), []).append(
@@ -122,20 +134,43 @@ class TemporalGraph:
                 if ev.get("expires"):
                     self.exp[ev["slot"]] = ev["expires"]
         if ev["kind"] == "derived":
+            self._drv_log.append(
+                {"slot": ev["slot"], "value": ev["value"],
+                 "supports": list(ev.get("supports") or []),
+                 "day": ev["day"], "id": ev.get("id"),
+                 "src": ev.get("source", "inference"),
+                 "seq": len(self._drv_log)})
             pre = self._premises(ev)
             if pre is not None:   # dangling supports: dead at birth
                 self.drv[ev["slot"]] = {"premises": pre,
                                         "value": ev["value"]}
+            else:
+                self._pending_drv.append(ev)
         self._prune()
 
     def _premises(self, ev):
-        """supports=[record ids] -> {premise_slot: premised_value}."""
+        """supports=[record ids] -> {premise_slot: premised_value}.
+        Returns None while any support rid is unresolved OR resolves to
+        a record authored after the derived's own day — truth replays
+        events day-sorted, so a premise that postdates the derived
+        means it was dead at birth in day order too (never registers)."""
         out = {}
         for rid in ev.get("supports") or []:
             if rid not in self.rsv:
                 return None
             s, v = self.rsv[rid]
             out[s] = v
+        return out
+
+    def _premise_days(self, ev):
+        """premise record days (parallel to _premises) for the
+        day-order gate; None if any support is still unresolved."""
+        out = {}
+        for rid in ev.get("supports") or []:
+            if rid not in self.rsv:
+                return None
+            s, _v = self.rsv[rid]
+            out[s] = self._rday.get(rid, 0)
         return out
 
     def _live_val(self, slot):
@@ -146,8 +181,56 @@ class TemporalGraph:
         d = self.drv.get(slot)
         return d["value"] if d else None
 
+    def _reg_drv(self, dev):
+        """Register one derived event if resolvable + day-gated;
+        returns 'live' | 'pending' | 'dead'."""
+        pre = {}
+        pdays = {}
+        for rid in dev["supports"]:
+            if rid not in self.rsv:
+                return "pending"
+            s, v = self.rsv[rid]
+            pre[s] = v
+            pdays[s] = self._rday.get(rid, 0)
+        if not all(d <= dev["day"] for d in pdays.values()):
+            return "dead"   # a premise postdates it → dead at birth in
+            # day order too (never registers)
+        self.drv[dev["slot"]] = {"premises": pre, "value": dev["value"]}
+        return "live"
+
+    def _rebuild_drv(self):
+        """Recompute drv state from the derived-event log after an
+        erasure rewrote the underlying record log. Surviving derived
+        events replay in (day, arrival) order against the post-erasure
+        rsv/live state — a premise killed by an edge that was itself
+        erased revives the derived, matching the evaluator's rewritten-
+        log semantics."""
+        self.drv = {}
+        self._pending_drv = []
+        for dev in sorted(self._drv_log,
+                          key=lambda d: (d["day"], d["seq"])):
+            # the event itself must have survived the erasure — its own
+            # edge still on the src|slot vertex
+            if not any(e[1] == dev["day"]
+                       and (dev["id"] is None or e[4] == dev["id"])
+                       for e in self.hist.get(
+                           f"{dev['src']}|{dev['slot']}", [])):
+                continue
+            st = self._reg_drv(dev)
+            if st == "pending":
+                self._pending_drv.append(dev)
+        self._prune()
+
     def _prune(self):
-        """Fixpoint sweep: kill drv entries with a dead/diverged premise."""
+        """Fixpoint sweep: resolve pending derived, then kill drv
+        entries with a dead/diverged premise."""
+        kept = []
+        for dev in self._pending_drv:
+            st = self._reg_drv(dev)
+            if st == "pending":
+                kept.append(dev)        # premise record not arrived yet
+            # 'dead' drops for good; 'live' registered via _reg_drv
+        self._pending_drv = kept
         moved = True
         while moved:
             moved = False
@@ -168,7 +251,8 @@ class TemporalGraph:
         self.exp.pop(slot, None)
         self.rvid.pop(slot, None)
         self._wday.pop(slot, None)
-        self._prune()   # dependents of the forgotten slot die too
+        self._drv_log = [d for d in self._drv_log if d["slot"] != slot]
+        self._rebuild_drv()   # dependents of the forgotten slot die too
         return n
 
     def forget_about(self, about) -> int:
@@ -240,10 +324,10 @@ class TemporalGraph:
                     self._wday[akey] = e[1]
                     if e[4]:
                         self.rvid[akey] = e[4]
-        for s in list(self.drv):
-            if not self.edges_of("inference", s):
-                del self.drv[s]
-        self._prune()
+        self._drv_log = [d for d in self._drv_log
+                         if not (lo <= d["day"] <= hi)]
+        self._rebuild_drv()   # rewritten log revives what the erased
+        # killer had pruned, and buries what lost its own edge
         return n
 
     # ---- reads (serve.py meters what it touches) ----
@@ -334,6 +418,9 @@ class TemporalGraph:
              "rsv": self.rsv, "drv": self.drv, "exp": self.exp,
              "rvid": self.rvid, "aliases": self.aliases,
              "wday": self._wday, "now": self._now,
+             "rday": self._rday,
+             "pending_drv": self._pending_drv,
+             "drv_log": self._drv_log,
              "revoked": sorted(self.revoked)}
         slots = (scope or {}).get("slots")
         if slots:
@@ -370,4 +457,7 @@ class TemporalGraph:
         self.journal = [dict(e) for e in d.get("journal", [])]
         self._wday = dict(d.get("wday", {}))
         self._now = int(d.get("now", 0))
+        self._rday = dict(d.get("rday", {}))
+        self._pending_drv = [dict(e) for e in d.get("pending_drv", [])]
+        self._drv_log = [dict(e) for e in d.get("drv_log", [])]
         self._prune()

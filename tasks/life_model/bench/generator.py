@@ -685,10 +685,18 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
                 probe(c, "state", ds, cur_c[ds],
                       q=f"此人的{DSLOT_ZH[ds]}是什么？")
             elif c >= d_day:
-                probe(c, ptype, ds, ["已删除", "未知", "unknown"],
-                      must_not=[dval[ds]],
-                      q=f"此人的{DSLOT_ZH[ds]}是什么？（前提已失效）",
-                      post_import=(c == CHECKPOINTS[-1]))
+                # the erasure may have rewritten the log so the
+                # derived REVIVES — expect whatever truth holds at this
+                # ckpt's read day, not a hardcoded death
+                if ds in cur_c:
+                    probe(c, ptype, ds, cur_c[ds],
+                          q=f"此人的{DSLOT_ZH[ds]}是什么？",
+                          post_import=(c == CHECKPOINTS[-1]))
+                else:
+                    probe(c, ptype, ds, ["已删除", "未知", "unknown"],
+                          must_not=[dval[ds]],
+                          q=f"此人的{DSLOT_ZH[ds]}是什么？（前提已失效）",
+                          post_import=(c == CHECKPOINTS[-1]))
 
     # ---- export-import continuity (M5 carry-over): the evaluator
     # round-trips state() -> import_state() right after ckpt-72 probes;
@@ -788,6 +796,91 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
     # ambient traffic draws from SLOTS so no non-self claim exists → 否
     probe(90, "isconf", "creed", "否",
           q="关于creed的说法有冲突吗？（是/否）")
+
+    # ---- v9: history-reasoning probes (M4 deep-serve pressure) ------
+    # Everything below replays the slot's event log — not the live
+    # value. SKIP-filtered consistently with nchange (probes at 90 are
+    # always post-forget_range). These are the next tier after
+    # duration/nchange: sequence, joins, windows, absence, cross-vertex.
+    def _slot_run(slot, upto=90):
+        """surviving write events on `slot` ≤ upto, SKIP-filtered; the
+        current run = events after the last 'del'."""
+        evs = [e for e in truth_events if e["slot"] == slot
+               and e["day"] <= upto and e["op"] != "set_derived"
+               and not (SKIP and SKIP[0] <= e["day"] <= SKIP[1])]
+        evs.sort(key=lambda e: (e["day"], e.get("id", "")))
+        last_del = max((i for i, e in enumerate(evs)
+                        if e["op"] == "del"), default=-1)
+        return evs[last_del + 1:]
+
+    h_cand = [s for s in cur90 if s not in ctl_touched
+              and s not in ("mood", "creed")]
+    _runs = {s: _slot_run(s) for s in h_cand}
+    # first: earliest write of the CURRENT run — a retracted+re-asserted
+    # slot's "first" is the re-assertion, matching duration semantics.
+    for s in [s for s in h_cand if len(_runs[s]) >= 2][:2]:
+        probe(90, "first", s, _runs[s][0]["value"],
+              q=f"此人{s}最早（当前这段）声称的值是什么？")
+    # order: distinct value sequence across the whole surviving log —
+    # the model must walk edges in day order and dedupe.
+    for s in [s for s in h_cand
+              if len({e['value'] for e in _runs[s]}) >= 2][:2]:
+        vals = []
+        for e in _runs[s]:
+            if not vals or vals[-1] != e["value"]:
+                vals.append(e["value"])
+        probe(90, "order", s, "→".join(vals),
+              q=f"此人{s}的值按时间先后经历了哪些？（用→连接）")
+    # join: cross-slot correlation — 'the day X changed to its live
+    # value, what was Y?' truth replays state at the transition day.
+    for s in agg_slots[:2]:
+        run = _slot_run(s)
+        trans = [e["day"] for e in run
+                 if e["day"] <= 87 and e["value"] == cur90.get(s)
+                 and (SKIP is None
+                      or not (SKIP[0] <= e["day"] <= SKIP[1]))]
+        if not trans:
+            continue
+        d = trans[-1]
+        s2 = next((x for x in agg_slots if x != s
+                   and state_at(d, read_day=90)[0].get(x)), None)
+        if s2:
+            probe(90, "join", s2,
+                  state_at(d, read_day=90)[0][s2],
+                  q=f"{s}变成现在这个值的那天（第{d}天），此人{s2}是什么？",
+                  day=d)
+    # absent: stability judgment — 'no changes since day 40?' both
+    # sides. Threshold sits mid-stream: self-writes stop being authored
+    # ~day 55 (later activity is control ops + entity claims), so day 40
+    # keeps both answers reachable.
+    _abs_yes = _abs_no = 0
+    for s in h_cand:
+        if _abs_yes >= 1 and _abs_no >= 1:
+            break
+        run_all = [e for e in truth_events if e["slot"] == s
+                   and e["day"] <= 90 and e["op"] != "set_derived"
+                   and not (SKIP and SKIP[0] <= e["day"] <= SKIP[1])]
+        late = any(e["day"] > 40 for e in run_all)
+        if not late and _abs_yes < 1:
+            probe(90, "absent", s, "是",
+                  q=f"自第40天起，此人{s}没再变过，对吗？（是/否）")
+            _abs_yes += 1
+        elif late and _abs_no < 1:
+            probe(90, "absent", s, "否",
+                  q=f"自第40天起，此人{s}没再变过，对吗？（是/否）")
+            _abs_no += 1
+    # window: transitions inside [30,60] — interval reasoning, not a
+    # whole-history count.
+    for s in agg_slots[:2]:
+        evs = _slot_run(s)
+        prev, n = None, 0
+        for e in evs:
+            if 30 <= e["day"] <= 60:
+                if prev is not None and e["value"] != prev:
+                    n += 1
+            prev = e["value"]
+        probe(90, "window", s, str(n),
+              q=f"第30到60天之间，此人{s}变过几次？（回答数字）")
     # ---- M4 probes (serve pressure) ---------------------------------
     rv2 = next((e for e in truth_events if e["slot"] == retract_slot
                 and e["op"] == "set"), None)
@@ -1005,6 +1098,13 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
         about=ENTITY)
     probe(90, "state", eslot2, ev4, about=ENTITY,
           q=f"{ENTITY}的{eslot2}现在怎么样？")
+    # xcmp: cross-vertex comparison — her live value vs the user's own
+    # live value on the same slot. Tests the model can hold two
+    # vertices and compare, not merge.
+    if cur90.get(eslot2):
+        probe(90, "xcmp", eslot2, "是" if ev4 == cur90[eslot2] else "否",
+              about=ENTITY,
+              q=f"{ENTITY}的{eslot2}和你自己的{eslot2}一样吗？（是/否）")
 
     # ops audit covers the entity forget (scope.about target)
     probe(90, "ops", "about", ENTITY, op="forget",
@@ -1075,7 +1175,8 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
         # an empty bundle scores 0 unconditionally — the probe would be
         # unanswerable noise, not gradient
         probe(CHECKPOINTS[-1], "transfer", "_bundle", transfer_expect,
-              must_not=stale_decoys,
+              must_not=[d for d in stale_decoys
+                        if d and d not in transfer_expect],
               slots=[s for s in ("time_budget", "family", "risk")
                      if s in cur],
               q="为他制定本周计划需要哪些当前约束？列出相关值，逗号分隔")

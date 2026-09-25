@@ -53,7 +53,7 @@ encodes the same invariants as executable checks.
 | 80 | scoped export | `state(scope={"slots":[...]})` — self-domain only |
 | 84 | `revoke_purpose(p)` | data stays; view refuses; scoped export for p must refuse |
 
-## Probe types (21 + entity variants)
+## Probe types (28 + entity variants)
 
 - `state` current live value · `stale` superseded value must not appear
 - `as_of` value at `day` (history, not replay-of-latest)
@@ -74,6 +74,18 @@ encodes the same invariants as executable checks.
   Self-domain only; retractions excluded. Upstream of `conf` grading —
   you can't grade certainty you haven't noticed is contested
 - `ops` journal audit · `expdeny` revoked-purpose export refusal
+- `first` earliest write value of the slot's CURRENT run (post-last-
+  retraction run, not the all-time first)
+- `order` surviving write-run values of the slot, "→"-joined in day
+  order (consecutive dups collapse)
+- `join` cross-slot: the day `slot` changed to its live value (probe
+  carries `day`), what was slot2's value then
+- `absent` stability: no surviving write on the slot with day > 40
+  → 是; any → 否 (threshold 40 — self-writes stop ~day 55)
+- `window` transitions of the slot's live value inside [30,60];
+  prev carried from before the window
+- `xcmp` entity-vs-self same-slot compare: `about`'s live value ==
+  own live value → 是 else 否 (entity None → 未知 on the entity side)
 - entity variants: `state`/`subject`/`conf` + `about` field;
   erased-after-@74 probes expect 未知
 
@@ -104,3 +116,11 @@ score = quality + cost-curve terms (see evaluate.py weights).
 11. `forget(about)`: all-claimer entity erasure
 12. aliases drop from scoped exports (they leak corrected values and
     person identities)
+13. an erasure REWRITES the record log — derived state is derived from
+    the log, so it is rebuilt from surviving derived events in
+    (day,arrival) order: a derived pruned by a killer that was itself
+    erased comes back alive (truth expectations are read-day relative
+    — `derive`/`cascade` expects whatever state_at(ckpt, read_day)
+    holds, never a hardcoded death)
+14. `must_not` decoys must exclude values live at read day (a stale
+    decoy equal to the live value would punish a correct answer)

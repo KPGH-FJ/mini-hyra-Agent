@@ -134,6 +134,48 @@ def answer(store, probe: dict, journal=()) -> str:
                  if e[1] <= ckpt and e[2] != "retraction"
                  and e[0] != live]
         return "是" if confl else "否"
+    if t in ("first", "order", "absent", "window"):
+        # v9 history reasoning: walk the self vertex's edge log, not the
+        # live value. run = edges after the last retraction, day-sorted
+        # (stable sort keeps feed order inside a day).
+        edges = [e for e in store.hist.get(f"self|{slot}", [])
+                 if e[1] <= ckpt]
+        _meter(edges)
+        edges.sort(key=lambda e: e[1])
+        last_ret = max((i for i, e in enumerate(edges)
+                        if e[2] == "retraction"), default=-1)
+        run = edges[last_ret + 1:]
+        if t == "first":
+            return str(run[0][0]) if run else "未知"
+        if t == "order":
+            vals = []
+            for e in run:
+                if not vals or vals[-1] != e[0]:
+                    vals.append(str(e[0]))
+            return "→".join(vals) if vals else "未知"
+        if t == "absent":
+            return "否" if any(e[1] > 40 for e in edges) else "是"
+        prev, n = None, 0
+        for e in run:
+            if 30 <= e[1] <= 60:
+                if prev is not None and e[0] != prev:
+                    n += 1
+            prev = e[0]
+        return str(n)
+    if t == "join":
+        # cross-slot correlation: slot's value at the probe's day
+        d = probe.get("day")
+        v = store.live_at("self", slot, d if d is not None else ckpt)
+        _meter([v])
+        return str(v) if v is not None else "未知"
+    if t == "xcmp":
+        # cross-vertex comparison: her live value vs own live value
+        her = store.live_at_about("self", about, slot, ckpt)
+        own = store.live_at("self", slot, ckpt)
+        _meter([her, own])
+        if her is None:
+            return "未知"
+        return "是" if her == own else "否"
     if t == "prov":
         vals = store.prov.get(slot, [])
         _meter(vals)
