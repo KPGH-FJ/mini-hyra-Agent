@@ -1102,8 +1102,7 @@ class ESRBaseline(_Mixin):
         if slots:
             keep = set(slots)
             recs = [r for r in recs if r.get("slot") in keep
-                    and not r.get("about")
-                    or r.get("kind") == "alias"]
+                    and not r.get("about")]
             ops = [o for o in self.ops if o.get("slot") in keep]
         return {"recs": recs, "revoked": sorted(self.revoked),
                 "ops": ops}
