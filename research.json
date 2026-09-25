@@ -6,9 +6,9 @@
    "id": "M1",
    "name": "摄入 Ingest",
    "role": "原始记录 → 规范化事件",
-   "impl": "normalize(): authoritative 标记",
-   "status": "v0",
-   "next": "多源冲突 / 实体消歧 / 信任权重"
+   "impl": "normalize(): authoritative + 别名解析 + day-序",
+   "status": "running",
+   "next": "lab run_v5 进化中（v5 考题：别名消歧+乱序到达）"
   },
   {
    "id": "M2",
@@ -33,17 +33,18 @@
    "name": "使用 Serve",
    "role": "探针 → 回答/视图",
    "impl": "probe-type router + live_bundle 视图 + rvid 引用",
-   "status": "current",
-   "score": 127.97,
-   "next": "P3 r3 进化中：预算打包排序 / 拒答校准 / 用途视图"
+   "status": "done",
+   "score": 128.97,
+   "note": "M4 语义经 v4 考题验证后直接沉淀系统（serve router）；省下的实验室额度转向 M1/M5"
   },
   {
    "id": "M5",
    "name": "控制 Control",
-   "role": "correct / forget / export",
-   "impl": "journal + 全顶点级联清除",
-   "status": "v0",
-   "next": "级联失效已实现；剩余：纠正传导 UI/导出携带派生"
+   "role": "correct / forget / export / revoke",
+   "impl": "journal + 级联清除 + revoke_purpose + forget_range 回滚",
+   "status": "v1",
+   "score": 132.97,
+   "next": "v6 考题已满分；剩余：部分导出/审计视图"
   }
  ],
  "stages": [
@@ -86,8 +87,20 @@
     {
      "id": "r3",
      "module": "M4 使用",
+     "status": "done",
+     "result": "v4 考题上线（unans/purpose/budget/prov2+密度x4）；serve router 直接沉淀系统，未开实验室轮"
+    },
+    {
+     "id": "r4",
+     "module": "M1 摄入",
      "status": "running",
-     "desc": "LifeStream v4 已上线：unans(拒答)/purpose(用途视图)/budget(字节预算)/prov2(引用) + 密度×4;lab run_v4 已启动"
+     "desc": "v5 考题（别名消歧+乱序到达）；lab run_v5 100解/4w/6h 进行中"
+    },
+    {
+     "id": "r5",
+     "module": "M5 控制",
+     "status": "running",
+     "desc": "v6 考题上线：revoked(目的撤回) + forget_range 回滚；系统已 132.97 满分，进化轮待启动"
     }
    ]
   },
@@ -99,8 +112,8 @@
   }
  ],
  "experiment": {
-  "bench": "LifeStream v5 · 90天流 201条/seed + M3派生失效 + M4服务压力 + M1摄入压力（别名消歧+乱序到达）",
-  "probes": 129,
+  "bench": "LifeStream v6b · 90天流 ~201条/seed · 累积：M3派生失效 + M4服务压力 + M1摄入(别名+乱序) + M5控制(目的撤回+区间删除回滚)",
+  "probes": 133,
   "types": [
    "state",
    "stale",
@@ -115,51 +128,51 @@
    "purpose",
    "budget",
    "prov2",
-   "post_import"
+   "revoked"
   ],
   "score": "quality − 0.002·KB(asset) − 0.0002·KB(probe) − 0.0002·tokens",
   "table": [
    [
     "lifemodel v1",
     "TemporalGraph+TMS+serve router（系统本体）",
-    128.97,
-    129
+    132.97,
+    133
    ],
    [
     "tms",
-    "前提维护基线（评测器内置，day-aware 修复后）",
-    129.0,
-    129
+    "前提维护基线（内置；range-forget 回滚重建）",
+    133.0,
+    133
    ],
    [
     "esr",
-    "事件溯源重放基线（day排序后）",
-    129.0,
-    129
+    "事件溯源重放基线（day排序）",
+    133.0,
+    133
    ],
    [
     "raw",
-    "全存（基线；乱序诚实掉分）",
-    104.5,
-    104.5
+    "全存（基线；乱序+回滚双重损失）",
+    99.5,
+    99.5
    ],
    [
     "ledger",
-    "LWW 平表（基线；乱序重伤）",
-    89.5,
-    89.5
+    "LWW 平表（基线；乱序+回滚重伤）",
+    84.5,
+    84.5
    ],
    [
     "rag",
     "关键词检索（基线）",
-    48.5,
-    48.5
+    53.0,
+    53.0
    ],
    [
     "flat",
     "平表+全量倾倒 serve（M4 缺乏族）",
-    49.0,
-    49.0
+    44.0,
+    44.0
    ]
   ]
  }
