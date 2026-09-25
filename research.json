@@ -112,8 +112,8 @@
   }
  ],
  "experiment": {
-  "bench": "LifeStream v8e · 90天流 ~205条/seed · 全压强 + 双实体同槽隔离 + 同日冲突 + 实体别名/再断言/因果操作序",
-  "probes": 179,
+  "bench": "LifeStream v8g · 90天流 ~205条/seed · 全压强 + 双实体同槽隔离 + 同日冲突 + 实体别名/再断言/因果操作序 + 冲突侦测",
+  "probes": 185,
   "types": [
    "state",
    "stale",
@@ -134,39 +134,40 @@
    "drvprov",
    "duration",
    "nchange",
-   "conf"
+   "conf",
+   "isconf"
   ],
   "score": "quality − 0.002·KB(asset) − 0.0002·KB(probe) − 0.0002·tokens",
   "table": [
    [
     "lifemodel v1",
-    "TemporalGraph+TMS+serve router+scoped export（系统本体，实体别名读侧聚合）",
-    179.0,
-    179
+    "TemporalGraph+TMS+serve router+scoped export（系统本体，实体别名读侧聚合+isconf）",
+    185.0,
+    185
    ],
    [
     "tms",
-    "前提维护基线（内置；range-forget 回滚重建+scoped state；实体探测 −4 诚实缺口）",
-    175.0,
-    179
+    "前提维护基线（内置；range-forget 回滚重建+scoped state；实体探测+isconf −7 诚实缺口）",
+    178.0,
+    185
    ],
    [
     "esr",
-    "事件溯源重放基线（day排序+scoped state；实体探测 −3 诚实缺口）",
-    176.0,
-    179
+    "事件溯源重放基线（day排序+scoped state；实体探测+isconf −6 诚实缺口）",
+    179.0,
+    185
    ],
    [
     "raw",
     "全存（基线；乱序+回滚+无作用域导出三重损失）",
-    106.5,
-    177
+    108.0,
+    185
    ],
    [
     "ledger",
     "LWW 平表（基线；乱序+回滚重伤）",
-    86.5,
-    86.5
+    88.0,
+    88.5
    ],
    [
     "rag",
