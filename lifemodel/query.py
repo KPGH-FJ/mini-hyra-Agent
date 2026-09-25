@@ -34,6 +34,28 @@ SLOT_ZH = {
 _DAY_RE = re.compile(r"第\s*(\d+)\s*天|day\s*(\d+)", re.I)
 _PERSON_RE = re.compile(r"([\u4e00-\u9fff]{1,4}?)(?:说|提到|声称|讲)")
 
+# entity registry: surface forms -> canonical entity id. A deployment
+# populates this from the owner's address book; "X说" takes the
+# claimer role, "X的slot"/plain mentions take the about role.
+_ENTITY_ALIASES = {
+    "妈妈": ("妈妈", "我妈", "母亲"), "爸爸": ("爸爸", "我爸", "父亲"),
+    "姐姐": ("姐姐", "我姐"), "妹妹": ("妹妹", "我妹"),
+    "哥哥": ("哥哥", "我哥"), "弟弟": ("弟弟", "我弟"),
+    "爷爷": ("爷爷", "我爷"), "奶奶": ("奶奶", "我奶"),
+    "爱人": ("爱人",), "室友": ("室友",), "孩子": ("孩子",),
+    "朋友": ("朋友",), "同事": ("同事",), "老板": ("老板",),
+    "老师": ("老师",),
+}
+
+
+def _about_of(text, speaker=None):
+    for ent, forms in _ENTITY_ALIASES.items():
+        if ent == speaker:
+            continue
+        if any(f in text for f in forms):
+            return ent
+    return None
+
 _RID_CUES = ("哪条记录", "依据", "证据", "记录ID", "记录id")
 _PURPOSE_CUES = ("制定", "生成")
 _DURATION_CUES = ("多久", "持续了", "维持", "连续")
@@ -54,6 +76,8 @@ def _slot_of(text):
 def _probe_for(text, purposes):
     """Free text -> probe dict (or None when unrouteable)."""
     slot = _slot_of(text)
+    m = _PERSON_RE.search(text)
+    about = _about_of(text, m.group(1) if m else None)
 
     # purpose view: a registered purpose name appearing in the text
     for pname, pslots in purposes.items():
@@ -65,19 +89,19 @@ def _probe_for(text, purposes):
     if slot and any(c in text for c in _RID_CUES):
         return {"type": "prov2", "slot": slot}
 
-    # subject attribution: "X说..." asks what X claimed
-    m = _PERSON_RE.search(text)
+    # subject attribution: "X说..." asks what X claimed (about whom)
     if m and slot:
-        return {"type": "subject", "slot": slot, "person": m.group(1)}
+        return {"type": "subject", "slot": slot, "person": m.group(1),
+                "about": about}
 
     # temporal aggregation / epistemic grading / premise citation
     if slot and any(c in text for c in _DURATION_CUES):
-        return {"type": "duration", "slot": slot}
+        return {"type": "duration", "slot": slot, "about": about}
     if slot and any(c in text for c in _NCHANGE_CUES):
-        return {"type": "nchange", "slot": slot}
+        return {"type": "nchange", "slot": slot, "about": about}
     if slot and any(c in text for c in _CONF_CUES):
         return {"type": "conf", "slot": slot,
-                "person": m.group(1) if m else None}
+                "person": m.group(1) if m else None, "about": about}
     if slot and any(c in text for c in _DRVPROV_CUES):
         return {"type": "drvprov", "slot": slot}
 
@@ -91,12 +115,14 @@ def _probe_for(text, purposes):
         d = _DAY_RE.search(text)
         if d:
             day = int(d.group(1) or d.group(2))
-            return {"type": "as_of", "slot": slot, "day": day}
+            return {"type": "as_of", "slot": slot, "day": day,
+                    "about": about}
 
     # everything else with a slot is a state probe — the serve layer
-    # already handles retracted/expired/derived/never-seen uniformly
+    # already handles retracted/expired/derived/never-seen uniformly;
+    # about routes to the entity vertex ("妈妈的睡眠" vs 本人)
     if slot:
-        return {"type": "state", "slot": slot}
+        return {"type": "state", "slot": slot, "about": about}
     return None
 
 

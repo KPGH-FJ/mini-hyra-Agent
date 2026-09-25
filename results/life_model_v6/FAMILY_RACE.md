@@ -146,6 +146,14 @@ right next pressure, not weight hacking.
   state+about / subject+about / conf+about / isolation must_not.
   Scoped export stays self-domain; forget ops don't reach entity
   vertexes. Frontiers pass; raw honest-loses ~65.
+- RESOLVED: entity-level forget (v8b) — `forget({"about":X})` erases
+  every `*|X|*` vertex (all claimers): "forget mom" removes her
+  hearsay too, while self's own slot values survive. Estate/esubj
+  probes moved pre-forget (ckpt 72, post_import) + erased probes at
+  90. Leak caught+fixed: state+about on a derived slot returned the
+  self-domain derived value after entity erasure — drv registry now
+  self-domain only. NL surface routes "妈妈的X"/"我妈的X" →
+  about=X, "X说过" → subject(person=X, about=Y).
 - RESOLVED: control-cost — already implicit: journal entries live in
   asset_bytes (state size grows per op) and ops-probe answers are
   probe_bytes-metered. A journal-bloat impl pays twice. No extra
