@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 
 from . import ingest as m_ingest
+from . import query as m_query
 from . import serve as m_serve
 from . import update as m_update
 from .control import Control
@@ -28,6 +29,10 @@ class LifeModel:
     # ---- usage (M4) ----
     def answer(self, probe: dict) -> str:
         return m_serve.answer(self.store, probe)
+
+    def query(self, text: str, purposes=None, ckpt=10**9) -> str:
+        """Natural-language surface: free text -> probe -> answer."""
+        return m_query.query(self, text, purposes, ckpt)
 
     # ---- user control (M5) ----
     def correct(self, slot, value) -> None:
