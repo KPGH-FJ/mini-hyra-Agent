@@ -440,6 +440,15 @@ class TemporalGraph:
             d["journal"] = [j for j in self.journal
                             if j.get("slot") in keep]
             d["aliases"] = {}
+            # the derived-event log and the pending queue carry
+            # out-of-scope derived VALUES verbatim — scope them too,
+            # and only keep day-marks for the rids that survive
+            d["drv_log"] = [e for e in d["drv_log"]
+                            if e["slot"] in keep]
+            d["pending_drv"] = [e for e in d["pending_drv"]
+                                if e["slot"] in keep]
+            d["rday"] = {k: v for k, v in d["rday"].items()
+                         if k in live_ids}
         return d
 
     def restore(self, d):
