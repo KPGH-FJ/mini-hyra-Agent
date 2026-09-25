@@ -78,8 +78,9 @@ flat under volume — the architectural claim holds; (b) **the cost
 weight is calibrated too weakly to select for efficiency** — replay
 readers pay linear probe cost (2.6→11.8 MB) yet lose only ~0.1-2.6
 pts of ~138. The natural fix is not a bigger coefficient but more
-probes: a real user asks thousands of questions, and at ~1400 probes
-the same mechanism would cost ~26 pts. A probe-storm variant is the
+probes: a real user asks thousands of questions, and esr's replay
+cost scales linearly with probe count (~19.7 KB/probe measured on
+the storm variant — see below). A probe-storm variant is the
 right next pressure, not weight hacking.
 
 ## v7 additions (selective portability + full audit coverage)
@@ -104,12 +105,11 @@ right next pressure, not weight hacking.
 - M1 ingest round (lab run_v5) in flight — first evolved-solution
   sample on the cumulative bench. Note: it scores on v5-bench
   semantics; the winner will be re-scored on v7 when it lands.
-- **Probe-storm variant** (supersedes the cost-weight question): the
-  scale-stress table above shows linear-cost readers lose only ~2.6
-  pts even at 5× volume — efficiency selects only when probe COUNT
-  grows, so multiply probes (more checkpoints per slot, per-slot
-  purpose queries) rather than the coefficient. `storm=True` knob
-  landed: 136→502 probes on seed 7.
+- RESOLVED — probe-storm verified (seed 7, `storm=True`, 506 probes):
+  all impls 506/506 quality; tms probe cost 15 KB vs esr 9.97 MB —
+  the efficiency gradient is now real (~2 pt ranking spread at 506
+  probes, growing linearly with probe count). `EVAL_STORM=1` flips
+  any eval into storm mode.
 - RESOLVED: conflict probes — same-day contradictory sources are
   already un-probed by the canonicality fix (no canonical "latest"
   within a day), so designed pressure there was vacuous, not a bug.
