@@ -87,11 +87,17 @@ def _txt(kind, slot, value, src, day):
     return f"{zh}：{value}"
 
 
-def generate(seed: int = 7, density: int = 1):
+def generate(seed: int = 7, density: int = 1, storm: bool = False):
     """density scales record VOLUME (ambient/noise loops) inside the
     same 90-day semantics — a scale-stress knob: impls that pay per
     record per probe (replay readers) degrade linearly, vertex-lookup
-    impls stay flat."""
+    impls stay flat.
+
+    storm=True multiplies probe COUNT (every unambiguous subject key,
+    every changed slot x every post-change ckpt, all self-said prov,
+    more as_of/purpose coverage) — the efficiency-selection knob: a
+    real user asks thousands of questions, so serve cost becomes a
+    real gradient without touching the cost coefficients."""
     rng = random.Random(seed)
     records = []
     truth_events = []          # ordered (day, op, slot, value, source)
@@ -446,7 +452,7 @@ def generate(seed: int = 7, density: int = 1):
                  and not any(s["source"] == "self" and s["slot"] == r["slot"]
                              and s["value"] == r["value"] for s in records
                              if alive(s, c))]
-        for r in noise[:3]:
+        for r in (noise if storm else noise[:3]):
             probe(c, "prov", r["slot"], "非本人", value=r["value"],
                   q=f"“{r['slot']}={r['value']}”这条信息是本人说的吗？"
                     "答 本人 或 非本人")
@@ -455,7 +461,7 @@ def generate(seed: int = 7, density: int = 1):
         said = [r for r in records if alive(r, c) and
                 r["source"] == "self" and r["slot"] != forget_slot and
                 r["kind"] in ("statement", "update", "correction")]
-        for r in said[-2:]:
+        for r in (said if storm else said[-2:]):
             probe(c, "prov", r["slot"], "本人", value=r["value"],
                   q=f"“{r['slot']}={r['value']}”这条信息是本人说的吗？"
                     "答 本人 或 非本人")
@@ -484,15 +490,19 @@ def generate(seed: int = 7, density: int = 1):
             if any(x is not r and x["day"] == r["day"]
                     and (_canon_of(x), x["slot"]) == key for x in heard):
                 del latest_heard[key]
-        for key, r in list(latest_heard.items())[-2:]:
+        subj_keys = list(latest_heard.items())
+        for key, r in (subj_keys if storm else subj_keys[-2:]):
             canon = key[0]
             probe(c, "subject", r["slot"], r["value"], person=canon,
                   q=f"传闻中{canon}的{r['slot']}是什么？")
         # as_of probes: reconstruct state at a past day — needs history,
         # not just latest-wins (bitemporal pressure per lit surveys)
-        for slot in [s for s in changed
-                     if s not in (forget_slot, retract_slot)
-                     and change_day[s] < c][:2]:
+        for slot in ([s for s in changed
+                      if s not in (forget_slot, retract_slot)
+                      and change_day[s] < c]
+                     if storm else [s for s in changed
+                      if s not in (forget_slot, retract_slot)
+                      and change_day[s] < c][:2]):
             D = change_day[slot] - 3
             past_val = state_at(D)[0].get(slot)
             current_val = cur.get(slot)
@@ -715,8 +725,9 @@ def generate(seed: int = 7, density: int = 1):
         return rid_
 
     for c in CHECKPOINTS[3:]:           # 72, 90
-        for s in [s for s in changed
-                  if s not in (forget_slot, retract_slot)][:2]:
+        p2_slots = [s for s in changed
+                    if s not in (forget_slot, retract_slot)]
+        for s in (p2_slots if storm else p2_slots[:2]):
             rid_ = latest_rid(s, c)
             if rid_:
                 probe(c, "prov2", s, rid_,

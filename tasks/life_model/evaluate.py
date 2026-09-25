@@ -851,7 +851,8 @@ def quality_breakdown(rows):
 def main():
     sol = Path(sys.argv[1])
     records, probes, truth, meta = generate(
-        EVAL_SEED, density=int(os.environ.get("EVAL_DENSITY", "1")))
+        EVAL_SEED, density=int(os.environ.get("EVAL_DENSITY", "1")),
+        storm=os.environ.get("EVAL_STORM", "0") == "1")
     # fresh copies per driver so _fed flags don't leak
     import copy
 
