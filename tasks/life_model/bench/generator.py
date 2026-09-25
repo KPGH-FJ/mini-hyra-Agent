@@ -877,6 +877,24 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
           must_not=[ehv],
           q=f"{espeaker}说过{ENTITY}的{eslot}是什么？（她已被遗忘）")
 
+    # second entity, SAME slot — the isolation endgame: her value lives
+    # through the other entity's forget, and neither value may surface
+    # on the other's vertex
+    ENTITY2 = rng.choice([e for e in ("妈妈", "爸爸", "姐姐", "哥哥")
+                          if e != ENTITY])
+    ev3 = rng.choice([v for v in VALS.get(eslot, ["规律"])
+                      if v not in (ev1, ev2)] or ["规律"])
+    rec(_eday(40, 50), "self", "statement", eslot, ev3, about=ENTITY2)
+    espeaker2 = _person()
+    ehv2 = rng.choice([v for v in VALS.get(eslot, ["存疑"])
+                       if v not in (ev2, ev3)] or ["存疑"])
+    rec(_eday(42, 52), espeaker2, "hearsay", eslot, ehv2, about=ENTITY2)
+    probe(90, "state", eslot, ev3, about=ENTITY2, must_not=[ev2],
+          q=f"{ENTITY2}的{eslot}现在怎么样？")
+    probe(90, "subject", eslot, ehv2, person=espeaker2, about=ENTITY2,
+          must_not=[ehv] if ehv2 != ehv else [],
+          q=f"{espeaker2}说过{ENTITY2}的{eslot}是什么？")
+
     # budget: pack the listed slots' live values under a byte budget —
     # ordering becomes the decision (Lost-in-the-Middle pressure).
     # First `budget` bytes of the answer are what's scored.
