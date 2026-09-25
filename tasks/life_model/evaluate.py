@@ -492,6 +492,7 @@ class TMSBaseline(_Mixin):
 
     def revoke_purpose(self, purpose):
         self.revoked.add(purpose)
+        self.ops.append({"op": "revoke_purpose", "purpose": purpose})
 
     def _forms(self, person):
         forms = {person}
@@ -669,8 +670,10 @@ class TMSBaseline(_Mixin):
             return v if v is not None else "未知"
         if t == "ops":
             self._meter(self.ops)
-            hits = [o["slot"] for o in self.ops
-                    if o["op"] == p.get("op") and o.get("slot")]
+            hits = [(o.get("slot") or o.get("purpose"))
+                    for o in self.ops
+                    if o["op"] == p.get("op")
+                    and (o.get("slot") or o.get("purpose"))]
             return hits[0] if hits else "无"
         self._meter(self.cur.get(slot))
         if slot in self._exp and ckpt > self._exp[slot]:
@@ -816,13 +819,16 @@ class ESRBaseline(_Mixin):
         if t == "prov2":
             return lrid.get(slot, "未知")
         if t == "ops":
-            hits = [o["slot"] for o in self.ops
-                    if o["op"] == p.get("op") and o.get("slot")]
+            hits = [(o.get("slot") or o.get("purpose"))
+                    for o in self.ops
+                    if o["op"] == p.get("op")
+                    and (o.get("slot") or o.get("purpose"))]
             return hits[0] if hits else "无"
         return self._answer_state(cur, p)
 
     def revoke_purpose(self, purpose):
         self.revoked.add(purpose)
+        self.ops.append({"op": "revoke_purpose", "purpose": purpose})
 
     def state(self):
         return {"recs": self.recs, "revoked": sorted(self.revoked),

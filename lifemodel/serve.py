@@ -41,8 +41,10 @@ def answer(store, probe: dict, journal=()) -> str:
         # audit: which control ops ran (the journal is the only
         # place these are knowable — post-import it must still be there)
         _meter(list(journal))
-        hits = [e.get("slot") for e in journal
-                if e.get("op") == probe.get("op") and e.get("slot")]
+        hits = [(e.get("slot") or e.get("purpose"))
+                for e in journal
+                if e.get("op") == probe.get("op")
+                and (e.get("slot") or e.get("purpose"))]
         return hits[0] if hits else "无"
     if t == "prov":
         vals = store.prov.get(slot, [])

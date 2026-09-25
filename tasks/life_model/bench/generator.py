@@ -575,13 +575,13 @@ def generate(seed: int = 7):
               q=f"截至第{D}天，此人{ex_asof}是什么？",
               post_import=True)
     lh = [r for r in records if r["kind"] == "hearsay"
-          and r["slot"] != forget_slot]
+          and r["slot"] != forget_slot and alive(r, 90)]
     if lh:
         r = lh[-1]
         probe(90, "subject", r["slot"], r["value"], person=r["source"],
               q=f"传闻中{r['source']}的{r['slot']}是什么？",
               post_import=True)
-    said90 = [r for r in records if r["day"] <= 90
+    said90 = [r for r in records if alive(r, 90)
               and r["source"] == "self" and r["slot"] != forget_slot
               and r["kind"] in ("statement", "update", "correction")]
     if said90:
@@ -623,6 +623,10 @@ def generate(seed: int = 7):
     # data stays, the view must refuse (M5 consent-withdrawal pressure).
     REVOKE_DAY = 84
     rvk_purpose = rng.choice(list(PURPOSES))
+    # ops probe for the withdrawal (journal must carry it past import)
+    probe(90, "ops", rvk_purpose, rvk_purpose, op="revoke_purpose",
+          q="本人撤回过哪一个用途？（回答用途名）",
+          post_import=True)
     for c in CHECKPOINTS[2:]:           # 54, 72, 90
         cur_c, _ = state_at(c)
         for pname, pslots in PURPOSES.items():
