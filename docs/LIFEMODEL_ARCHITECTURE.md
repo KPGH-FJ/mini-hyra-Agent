@@ -90,15 +90,20 @@ class LifeModel:
 4. **控制操作即事件**（M5）：correct/forget 走同一管线进 journal →
    LifeStream v2 cascade 探针（评测器在 ckpt 边界调 forget()）。
 
-## 4. 评价方案（LifeStream v6c — 已落地）
+## 4. 评价方案（LifeStream v7 — 已落地）
 
 - 生命周期：ingest 分段 → checkpoint 探针 → 控制事件 → 再探针（5 ckpt）
-- 探针类型（15 种，累积压强）：state/stale/prov/retract/transfer ＋
+- 探针类型（16 种，累积压强）：state/stale/prov/retract/transfer ＋
   as_of/subject/cascade（v2）＋ derive/post_import（v3）＋
-  unans/purpose/budget/prov2（v4）＋ revoked（v6）＋ ops（v6c）
+  unans/purpose/budget/prov2（v4）＋ revoked（v6）＋ ops×4（v6c–v7）＋
+  partial（v7，作用域导出文档审）
 - 摄入压强（v5）：alias 别名消歧 + 乱序到达（day 权威，非到达序）
 - 控制事件（评测器驱动）：forget(slot)@55 / forget_range@62 回滚 /
-  correct@78 / revoke_purpose@84 / state→import_state 往返@72
+  correct@78 / revoke_purpose@84 / state→import_state 往返@72 /
+  state(scope) 部分导出@80
+- 规模旋钮：generate(seed, density=N) 记录体积 ×N（201→881）；
+  storm=True 探针风暴（140→506，让效率成为选择轴）；EVAL_DENSITY/
+  EVAL_STORM 贯通评分器
 - 成本：评测器实测（state 序列化、probe_bytes、llm_tokens），
   stats() 自报仅 fallback 并标 cost_how
 - 基线：raw / ledger / rag / flat / tms / esr（六族同流同题）
@@ -126,8 +131,9 @@ class LifeModel:
   - **r3 M4 使用 ✓**：serve 语义经 v4 考题验证后直接沉淀系统
     （probe-type router + live_bundle + rvid 引用），未开实验室轮
   - **r4 M1 摄入**：v5 考题上线（别名+乱序）；lab run_v5 进化中
-  - **r5 M5 控制**：v6c 考题上线（revoked/forget_range 回滚/ops 审计×3）；
-    系统已 135.97 满分(136/136)，家族淘汰赛见 results/life_model_v6/
+  - **r5 M5 控制**：v7 考题上线（revoked/forget_range 回滚/ops 审计×4/
+    部分导出）；系统已 139.97 满分(140/140)；lab run_v6 进化中；
+    家族淘汰赛见 results/life_model_v6/
 - **P4**：真实授权数据验证（需单独授权，brief §83）
 
 ## 7. 遗留问题（r5 后更新）
@@ -144,8 +150,13 @@ class LifeModel:
 - ~~成本权重校准~~：伸缩实验（density ×1→×5, 201→881 条）量化——
   顶点查找类探针成本持平(3-5KB)，重放类线性(2.6→11.8MB)但仅失
   ~2.6pt；正确做法是探针风暴（数量增长）而非调系数。
+- ~~探针风暴~~：storm=True 已落地并验证（506 探针：tms 15KB vs
+  esr ~9.97MB/probe 集——效率梯度成立，EVAL_STORM=1 贯通）。
+- ~~部分导出~~：已落地——state(scope={'slots':[...]}) 产出作用域
+  文档，partial 探针审内容（在域值必出现、域外值泄即扣分）。
+- ~~审计深度~~：ops 全四类可答——forget(slot)/correct/
+  revoke_purpose/forget_range（答出被抹 day 窗口）。
 - 规模旋钮：`generate(seed, density=N)` 调记录体积；
-  `EVAL_DENSITY` 环境变量贯通评分器。
-- 新 v7 候选：部分导出（只导出某用途视图）、审计深度（ops 带
-  day/scope）、control-cost（用户操作步数入总成本）、探针风暴
-  （per-slot×per-ckpt 覆盖，让效率成为选择轴）。
+  `EVAL_DENSITY`/`EVAL_STORM` 环境变量贯通评分器。
+- 余留：control-cost——用户操作本身已入资产字节（journal 长在
+  state() 里即被实测），暂不再另设计费，留作观察项。
