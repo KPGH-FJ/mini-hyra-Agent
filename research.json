@@ -94,13 +94,20 @@
      "id": "r4",
      "module": "M1 摄入",
      "status": "running",
-     "desc": "v5 考题（别名消歧+乱序到达）；lab run_v5 100解/4w/6h 进行中"
+     "desc": "v5/v8g 考题（别名消歧+乱序到达+isconf 等 22 类 185 探针）；run_v5 W2 完成 s0040=147.90（journal 家族，落后前沿 43）；W3 续跑压 serve 面"
     },
     {
      "id": "r5",
      "module": "M5 控制",
+     "status": "done",
+     "desc": "v7.x 考题：revoked/forget_range 回滚/ops×4/部分导出/drvprov/duration/nchange/conf",
+     "result": "获胜 s0045=140.90 measured：consent-scoped 视图撤回 + journal 嵌入资产 + 前提不动点级联 —— 机制与 lifemodel v1 已折叠实现一致（收敛信号）"
+    },
+    {
+     "id": "r6",
+     "module": "M4 使用面",
      "status": "running",
-     "desc": "v7.x 考题：revoked/forget_range 回滚/ops×4/部分导出/drvprov/duration/nchange/conf；系统 ~160 满分(160/160)；run_v6 进化中"
+     "desc": "serve 面专攻（partial/duration/nchange/drvprov/isconf/subject/ops/conf）；lab run_v7 新 EB 100解/4w/6h；目标超 s0040 147.90 → 前沿 191"
     }
    ]
   },
@@ -182,5 +189,8 @@
     44.0
    ]
   ]
+ },
+ "infra": {
+  "llm_transport": "SSE 流式（1969c09）：Atria 网关按在飞时长掐非流式请求 ~5min；token 阶梯 65536→98304（a937dd0）"
  }
 }
