@@ -82,18 +82,39 @@ probes: a real user asks thousands of questions, and at ~1400 probes
 the same mechanism would cost ~26 pts. A probe-storm variant is the
 right next pressure, not weight hacking.
 
+## v7 additions (selective portability + full audit coverage)
+
+- `export_partial` pressure: meta fires `asset.state(scope={"slots":[
+  purpose slots]})` crossing day 80; `partial` probes score the scoped
+  DOCUMENT — purpose slots' live values must appear (partial_in), every
+  other live value is a leak (partial_out, −0.5). Implementations
+  lacking scoped export fail partial_in honestly; raw family drops them
+  (~1 pt per seed). Folded: `store.snapshot(scope)` filters
+  hist/rsv/prov/drv/cur/exp/lrid/wday by slot while journal/aliases/
+  revoked ride along (owner metadata follows every scope).
+- `forget_range` ops audit: journal entries carry the scope dict;
+  serve/tms/esr match range entries on `scope.day_gte` and answer the
+  erased window (`52-53`). All four control ops now auditable:
+  forget(slot) / correct / revoke_purpose / forget_range.
+- Frontier after v7: lifemodel/tms/esr = 139.97 (140/140 quality on
+  seed 7); raw 101.5 / ledger 86.5 / rag 55 / flat 44.
+
 ## Open frontier
 
 - M1 ingest round (lab run_v5) in flight — first evolved-solution
-  sample on the cumulative bench.
+  sample on the cumulative bench. Note: it scores on v5-bench
+  semantics; the winner will be re-scored on v7 when it lands.
 - **Probe-storm variant** (supersedes the cost-weight question): the
   scale-stress table above shows linear-cost readers lose only ~2.6
   pts even at 5× volume — efficiency selects only when probe COUNT
   grows, so multiply probes (more checkpoints per slot, per-slot
-  purpose queries) rather than the coefficient.
-- v7 candidates: partial export (export only a purpose's view),
-  conflict probes (same-day contradictory sources), audit depth
-  (ops with day/scope), probe-storm (see scale-stress finding).
+  purpose queries) rather than the coefficient. `storm=True` knob
+  landed: 136→502 probes on seed 7.
+- RESOLVED: conflict probes — same-day contradictory sources are
+  already un-probed by the canonicality fix (no canonical "latest"
+  within a day), so designed pressure there was vacuous, not a bug.
 - RESOLVED: NL query surface (lifemodel/query.py) verified end-to-end
   on seed 7 — state/as_of/subject(alias)/prov2/purpose/abstain all
   route and answer correctly through the typed-probe contract.
+- Remaining v7 candidate: control-cost (charge user ops into cost —
+  currently free; would penalize journal bloat implementations).
