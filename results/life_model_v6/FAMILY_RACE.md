@@ -59,14 +59,38 @@ and 7.5/8 as_of. raw even leaks a retracted value (retract −0.5).
 - latest_rid iterated arrival order — under v5's OOO it could name a
   stale record. Now max-day + alive().
 
+## Scale-stress experiment (density axis, v6c semantics)
+
+`generate(seed, density=N)` multiplies record volume (~201→881 at
+×5) inside the same 90-day semantics. Result (seed 7):
+
+| density | n_records | impl | quality | probe_bytes | score |
+|---|---|---|---|---|---|
+| ×1 | 201 | tms | 136 | 3 KB | 135.97 |
+| ×1 | 201 | esr | 136 | 2.6 MB | 135.42 |
+| ×3 | 541 | tms | 137 | 3 KB | 136.92 |
+| ×3 | 541 | esr | 138 | 7.4 MB | 136.38 |
+| ×5 | 881 | tms | 137 | 5 KB | 136.88 |
+| ×5 | 881 | esr | 138 | 11.8 MB | 135.41 |
+
+Two findings: (a) vertex-lookup impls (tms/lifemodel) keep probe cost
+flat under volume — the architectural claim holds; (b) **the cost
+weight is calibrated too weakly to select for efficiency** — replay
+readers pay linear probe cost (2.6→11.8 MB) yet lose only ~0.1-2.6
+pts of ~138. The natural fix is not a bigger coefficient but more
+probes: a real user asks thousands of questions, and at ~1400 probes
+the same mechanism would cost ~26 pts. A probe-storm variant is the
+right next pressure, not weight hacking.
+
 ## Open frontier
 
 - M1 ingest round (lab run_v5) in flight — first evolved-solution
   sample on the cumulative bench.
-- **Cost-weight calibration**: replay-per-probe costs only ~0.55 pt on
-  the current weights — correct-by-construction readers are nearly
-  free. If efficiency should select, the probe-cost coefficient needs
-  ~×10 (which rescales every historical score; a v7 decision).
+- **Probe-storm variant** (supersedes the cost-weight question): the
+  scale-stress table above shows linear-cost readers lose only ~2.6
+  pts even at 5× volume — efficiency selects only when probe COUNT
+  grows, so multiply probes (more checkpoints per slot, per-slot
+  purpose queries) rather than the coefficient.
 - v7 candidates: NL query surface via lifemodel/query.py (untested),
   partial export (export only a purpose's view), conflict probes
   (same-day contradictory sources), audit depth (ops with day/scope).

@@ -57,6 +57,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import sys
 import unicodedata
 from pathlib import Path
@@ -849,7 +850,8 @@ def quality_breakdown(rows):
 
 def main():
     sol = Path(sys.argv[1])
-    records, probes, truth, meta = generate(EVAL_SEED)
+    records, probes, truth, meta = generate(
+        EVAL_SEED, density=int(os.environ.get("EVAL_DENSITY", "1")))
     # fresh copies per driver so _fed flags don't leak
     import copy
 

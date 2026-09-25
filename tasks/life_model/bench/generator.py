@@ -87,7 +87,11 @@ def _txt(kind, slot, value, src, day):
     return f"{zh}：{value}"
 
 
-def generate(seed: int = 7):
+def generate(seed: int = 7, density: int = 1):
+    """density scales record VOLUME (ambient/noise loops) inside the
+    same 90-day semantics — a scale-stress knob: impls that pay per
+    record per probe (replay readers) degrade linearly, vertex-lookup
+    impls stay flat."""
     rng = random.Random(seed)
     records = []
     truth_events = []          # ordered (day, op, slot, value, source)
@@ -146,7 +150,7 @@ def generate(seed: int = 7):
         day += rng.randint(1, 3)
 
     # noise: hearsay about others + assistant suggestions (never truth)
-    for _ in range(10):
+    for _ in range(10 * density):
         slot = rng.choice(SLOTS)
         rec(rng.randint(2, 20), _person(), "hearsay",
             slot, rng.choice(VALS[slot]))
@@ -157,7 +161,7 @@ def generate(seed: int = 7):
     # statements + extra hearsay) spread across the whole stream — zero
     # effect on truth, but replay/retrieval serve machinery pays to wade
     # through them. This is what makes serve cost a real gradient.
-    for _ in range(75):
+    for _ in range(75 * density):
         slot = rng.choice(SLOTS)
         rec(rng.randint(2, 88), rng.choice(["device", "doc", "other"]),
             "statement", slot, rng.choice(VALS[slot]))
