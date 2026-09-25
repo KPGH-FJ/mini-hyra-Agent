@@ -88,3 +88,32 @@ All 5 scored at cost_how=measured; all direction=exploit, parents=[s0000]. Famil
 - W2 scored on bench HEAD a68e809+ (v8g semantics incl. control-op ordering, alias edges, derived-state probes, forget_range/exp rebuild); solutions dirs `run_v5/eb/solutions/s0037–s0041` verbatim on disk.
 - Scored-HEAD note: s0000's −2.6019 was measured post-pull on v8g; s0037+ were scored live by the harness on the same HEAD.
 - Dashboard serving run_v5 on :8000; EB live, run continues to ~16:42 UTC window end.
+
+### W2 final (window end ~16:42 + ~2h retry-drain, exited 18:47 UTC)
+
+W2 produced **18 commits: 6 scored / 12 dead** (cumulative EB 55 commits / 7 scored / 48 dead across both windows). Final scored set:
+
+| sol | score | quality | probe_bytes | parents | note |
+|---|---|---|---|---|---|
+| s0040 | **147.9013** | 148.0 | 232.6KB | s0000 | best; duration/drvprov/isconf/partial/transfer=0 |
+| s0037 | 145.9165 | 146.0 | 207.8KB | s0000 | + nchange 0 |
+| s0039 | 145.3928 | 146.0 | 2.86MB | s0000 | fat serve (10× probe bytes) |
+| s0041 | 122.9301 | 123.0 | 41.8KB | s0000 | cheap serve but broad partial quality |
+| s0046 | 63.3966 | 65.0 | 7.77MB | s0037 | **first non-seed parent — exploit regressed hard** (state .18, stale .11, purpose/budget 0) |
+| s0045 | −1e9 | — | — | s0037 | contract-fail: no asset.py with ingest()/answer() |
+| s0052 | ERR | — | — | s0040 | solve.sh exit 127 (generated code references missing cmd) |
+| s0053/54 | ERR | — | — | s0040 | proposal error: llm 400×8 — truncation ladder hit max_tokens=131072, model rejects |
+
+All scored cost_how=measured, 0 suspicious. Directions: exploit 46 / explore 3 / hybrid 2 / fresh 2 / repair 1 — the search converged hard onto refining the seed/journal family once scorers landed.
+
+### Endpoint state at close
+
+Stream fix held: **zero 502s for the entire 8h** (vs 287 in W1). Residual failure modes, in order of cost: (1) `empty completion (data_events≈10k, finish_reason=None)` — endpoint still cuts streams at ~10min in-flight, the dominant killer; (2) truncation ladder → `max_tokens=131072` → `400` — proposals that outgrow the model window can never complete (s0053/54 both died here); (3) occasional non-JSON context replies; (4) rare solve.sh exit 127. Throughput: ~1 scored / 40min at workers=4 under partial-health. Retry-drain ran ~2h past wall-clock because each dead stream burns ~10min.
+
+### Family verdict at close
+
+**Event-sourced journal is the only instantiated family — 4/4 honest scorers**, best s0040=147.90 vs v8g frontier lifemodel 191 (+43.1 headroom), tms 178, esr 179. All top-4 share the same design (normalized write/control events → day-authoritative reconstruction); they differ only in serve cost and the unresolved gaps (conf .43, subject .5, ops .6, duration/drvprov/isconf/partial/transfer all 0). The two exploit children of s0037/s0040 produced the first regression (s0046, 63.40) and a contract-fail (s0045) — the lineage is explored, not yet refined.
+
+### Next-round targets (unchanged priority)
+
+conf / subject / ops / duration / drvprov / isconf / partial / transfer — ~43 pts of honest headroom to lifemodel v1's 191. Second-order: probe_bytes discipline (s0040's 232KB vs s0039's 2.86MB is a 2.9-pt swing by itself) and getting a second family (tms-supports / filtered-serve) instantiated so the race isn't a walkover.
