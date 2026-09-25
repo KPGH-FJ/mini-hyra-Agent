@@ -161,7 +161,7 @@ class LifeModel:
   - **r6 M4 使用面**：serve 面专攻（partial/duration/drvprov/isconf/
     subject/ops/conf 各家缺口）；lab run_v7 进化中
   - **v9 语义**：195/195 满分前沿；60 种子 11726 探针全绿；契约套件
-    lm 29/29（results/life_model_v9/FAMILY_RACE.md）
+    lm 30/30（results/life_model_v9/FAMILY_RACE.md）
 - **P4**：真实授权数据验证（需单独授权，brief §83）
 
 ## 7. 遗留问题（r5 后更新）
