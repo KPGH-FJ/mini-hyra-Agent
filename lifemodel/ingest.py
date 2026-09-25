@@ -30,6 +30,7 @@ def normalize(rec: dict) -> dict:
         "value": rec.get("value"),
         "expires": rec.get("expires_day"),
         "supports": rec.get("supports"),
+        "about": rec.get("about"),      # entity the claim is about (None = self)
         "authoritative": src == "self" and kind in (WRITES | {"retraction"}),
         "text": rec.get("text", ""),
     }

@@ -100,10 +100,13 @@ class TemporalGraph:
             return
         if ev.get("id"):
             self.rsv[ev["id"]] = (ev["slot"], ev["value"])
-        self.hist.setdefault(_key(ev["source"], ev["slot"]), []).append(
+        who = (f'{ev["source"]}|{ev["about"]}' if ev.get("about")
+               else ev["source"])   # claimer|about|slot vertex
+        self.hist.setdefault(_key(who, ev["slot"]), []).append(
             [ev["value"], ev["day"], ev["kind"], ev.get("expires"),
              ev.get("id")])
-        if ev["source"] == SELF and ev["kind"] in WRITES:
+        if (ev["source"] == SELF and ev["kind"] in WRITES
+                and not ev.get("about")):
             vals = self.prov.setdefault(ev["slot"], [])
             if ev["value"] not in vals:
                 vals.append(ev["value"])
@@ -172,7 +175,10 @@ class TemporalGraph:
             kept = [e for e in self.hist[k] if not (lo <= e[1] <= hi)]
             n += len(self.hist[k]) - len(kept)
             if len(kept) != len(self.hist[k]):
-                touched.add(k.split("|", 1)[1])
+                if k.count("|") == 1:
+                    # self-domain registries only — about-other vertexes
+                    # (claimer|about|slot) have no slot registries
+                    touched.add(k.split("|", 1)[1])
                 for e in self.hist[k]:
                     if lo <= e[1] <= hi and e[4]:
                         self.rsv.pop(e[4], None)
@@ -213,9 +219,10 @@ class TemporalGraph:
 
     def live_at(self, source, slot, day=10**9):
         edges = self.edges_of(source, slot)
-        if source == SELF:
+        if source.split("|")[0] == SELF:
             edges = [e for e in edges if e[2] in AUTH]
-            if self.exp.get(slot) is not None and day > self.exp[slot]:
+            if (source == SELF and self.exp.get(slot) is not None
+                    and day > self.exp[slot]):
                 return None   # slot lease lapsed at read day
         return _edge_at(edges, day)
 
@@ -269,7 +276,8 @@ class TemporalGraph:
         if slots:
             keep = set(slots)
             d["hist"] = {k: v for k, v in self.hist.items()
-                         if k.rsplit("|", 1)[-1] in keep}
+                         if k.count("|") == 1
+                         and k.rsplit("|", 1)[-1] in keep}
             live_ids = {e[4] for v in d["hist"].values() for e in v
                         if len(e) > 4 and e[4]}
             d["rsv"] = {k: v for k, v in self.rsv.items()

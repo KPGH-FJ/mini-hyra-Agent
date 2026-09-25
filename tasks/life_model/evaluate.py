@@ -551,7 +551,9 @@ class TMSBaseline(_Mixin):
             return
         if r.get("id"):
             self._rec_slot_val[r["id"]] = (r["slot"], r["value"])
-        self.hist.setdefault(f'{r["source"]}|{r["slot"]}', []).append(
+        who = (f'{r["source"]}|{r["about"]}' if r.get("about")
+               else r["source"])   # claimer|about vertex
+        self.hist.setdefault(f'{who}|{r["slot"]}', []).append(
             [r["value"], r["day"], r["kind"], r.get("expires_day"),
              r.get("id")])
         if r["kind"] == "derived":
@@ -559,7 +561,8 @@ class TMSBaseline(_Mixin):
             if pre is not None:
                 self.drv[r["slot"]] = {"premises": pre}
                 self.cur[r["slot"]] = (r["value"], "inference")
-        elif r["source"] == self.SELF and r["kind"] in self.WRITES:
+        elif (r["source"] == self.SELF and r["kind"] in self.WRITES
+                and not r.get("about")):
             # day is authoritative, not arrival order
             if r["day"] >= self._wday.get(r["slot"], -1):
                 self._wday[r["slot"]] = r["day"]
@@ -571,7 +574,8 @@ class TMSBaseline(_Mixin):
                 vals.append(r["value"])
             if r.get("expires_day"):
                 self._exp[r["slot"]] = r["expires_day"]
-        elif r["kind"] == "retraction" and r["source"] == self.SELF:
+        elif (r["kind"] == "retraction" and r["source"] == self.SELF
+                and not r.get("about")):
             self.cur.pop(r["slot"], None)
             self._wday.pop(r["slot"], None)
         # expiry is judged at read day — keep cur but pass exp+now into
@@ -601,7 +605,8 @@ class TMSBaseline(_Mixin):
             for k, es in list(self.hist.items()):
                 kept = [e for e in es if not (lo <= e[1] <= hi)]
                 if len(kept) != len(es):
-                    touched.add(k.split("|", 1)[1])
+                    if k.count("|") == 1:   # self-domain registries only
+                        touched.add(k.split("|", 1)[1])
                     dead_ids.update(e[4] for e in es
                                     if lo <= e[1] <= hi and e[4])
                 if kept:
@@ -645,7 +650,7 @@ class TMSBaseline(_Mixin):
                 cur = e
             if e[1] <= day and e[3] is not None:
                 lease = e[3]   # slot-scoped lease: last declared <= day
-        if source == self.SELF:
+        if source.split("|")[0] == self.SELF:
             edges = [e for e in edges if e[2] in self.AUTH]
             cur, lease = None, None
             for e in edges:
@@ -664,6 +669,8 @@ class TMSBaseline(_Mixin):
     def answer(self, p):
         t, slot = p["type"], p["slot"]
         ckpt = p.get("ckpt", 10**9)
+        about = p.get("about")
+        _vx = lambda who: f"{who}|{about}" if about else who
         if t == "prov":
             vals = self.prov.get(slot, [])
             self._meter(vals)
@@ -672,7 +679,7 @@ class TMSBaseline(_Mixin):
             best, bd = None, -1
             seen = []
             for f in self._forms(p.get("person")):
-                edges = self.hist.get(f'{f}|{slot}', [])
+                edges = self.hist.get(f'{_vx(f)}|{slot}', [])
                 seen += edges
                 for e in edges:
                     if e[1] <= ckpt and e[2] != "retraction" \
@@ -718,7 +725,7 @@ class TMSBaseline(_Mixin):
             self._meter(vals)
             return ",".join(vals)
         if t == "duration":
-            edges = sorted(self.hist.get(f"self|{slot}", []),
+            edges = sorted(self.hist.get(f"{_vx('self')}|{slot}", []),
                            key=lambda e: e[1])
             self._meter(edges)
             live_val, start = None, None
@@ -737,7 +744,7 @@ class TMSBaseline(_Mixin):
                 return "无"
             return f"{ckpt - start}天"
         if t == "nchange":
-            edges = sorted(self.hist.get(f"self|{slot}", []),
+            edges = sorted(self.hist.get(f"{_vx('self')}|{slot}", []),
                            key=lambda e: e[1])
             self._meter(edges)
             n, prev = 0, None
@@ -756,13 +763,13 @@ class TMSBaseline(_Mixin):
             if person:
                 seen = []
                 for f in self._forms(person):
-                    seen += self.hist.get(f"{f}|{slot}", [])
+                    seen += self.hist.get(f"{_vx(f)}|{slot}", [])
                 self._meter(seen)
                 live = [e for e in seen
                         if e[1] <= ckpt and e[2] != "retraction"]
                 return "低" if live else "无"
-            self._meter(self.hist.get(f"self|{slot}", []))
-            return "高" if self._live_at(self.SELF, slot, ckpt) \
+            self._meter(self.hist.get(f"{_vx('self')}|{slot}", []))
+            return "高" if self._live_at(_vx(self.SELF), slot, ckpt) \
                 is not None else "无"
         if t == "ops":
             self._meter(self.ops)
@@ -778,6 +785,13 @@ class TMSBaseline(_Mixin):
                         if o["op"] == p.get("op")
                         and (o.get("slot") or o.get("purpose"))]
             return hits[0] if hits else "无"
+        if about:
+            # entity reads resolve on the self-claimer vertex for that
+            # entity — self-domain registries (cur/exp/drv) don't apply
+            v = self._live_at(_vx(self.SELF), slot,
+                              p.get("day", ckpt) if t == "as_of" else ckpt)
+            self._meter(self.hist.get(f"{_vx('self')}|{slot}", []))
+            return str(v) if v is not None else "未知"
         self._meter(self.cur.get(slot))
         if slot in self._exp and ckpt > self._exp[slot]:
             return "已删除" if t in ("retract", "cascade", "derive") \
@@ -871,13 +885,14 @@ class ESRBaseline(_Mixin):
                 if pre is not None:
                     drv[r["slot"]] = {"premises": pre}
                     cur[r["slot"]] = (r["value"], "inference")
-            elif r["source"] == "self" and r["kind"] in self.WRITES:
+            elif (r["source"] == "self" and r["kind"] in self.WRITES
+                    and not r.get("about")):
                 cur[r["slot"]] = (r["value"], "self")
                 if r.get("expires_day"):
                     exp[r["slot"]] = r["expires_day"]
                 if r.get("id"):
                     lrid[r["slot"]] = r["id"]
-            elif r["kind"] == "retraction":
+            elif r["kind"] == "retraction" and not r.get("about"):
                 cur.pop(r["slot"], None)
             self._prune(cur, drv, exp, r["day"])
         for s, d in list(exp.items()):
@@ -897,6 +912,20 @@ class ESRBaseline(_Mixin):
             out[by_id[rid]["slot"]] = by_id[rid]["value"]
         return out
 
+    def _about_hit(self, p, day=None):
+        """latest live self-claimed value about the probe's entity."""
+        about = p.get("about")
+        ckpt = day if day is not None else p.get("ckpt", 10**9)
+        live, bd = None, -1
+        for r in self.recs:
+            if (r.get("source") == "self" and r.get("about") == about
+                    and r.get("slot") == p["slot"]
+                    and r.get("kind") in (self.WRITES | {"retraction"})
+                    and r["day"] <= ckpt and r["day"] > bd):
+                live, bd = (None if r["kind"] == "retraction"
+                            else r["value"]), r["day"]
+        return live
+
     def answer(self, p):
         self._meter(self.recs)   # honest: replay consults the whole log
         t, slot = p["type"], p["slot"]
@@ -904,7 +933,8 @@ class ESRBaseline(_Mixin):
         if t == "prov":
             vals = [r["value"] for r in self.recs
                     if r["source"] == "self" and r["slot"] == slot
-                    and r["kind"] in self.WRITES]
+                    and r["kind"] in self.WRITES
+                    and not r.get("about")]
             return "本人" if p.get("value") in vals else "非本人"
         if t == "subject":
             _c, _l, alias, _drv = self._replay(ckpt)
@@ -916,7 +946,8 @@ class ESRBaseline(_Mixin):
                     forms.add(c)
             hits = [r for r in self.recs if r["kind"] == "hearsay"
                     and r["source"] in forms
-                    and r["slot"] == slot and r["day"] <= ckpt]
+                    and r["slot"] == slot and r["day"] <= ckpt
+                    and r.get("about") == p.get("about")]
             hits.sort(key=lambda x: x["day"])
             return hits[-1]["value"] if hits else "未知"
         if t == "as_of":
@@ -952,6 +983,7 @@ class ESRBaseline(_Mixin):
             evs = sorted([r for r in self.recs
                           if r.get("source") == "self"
                           and r.get("slot") == slot
+                          and r.get("about") == p.get("about")
                           and r.get("kind") in
                           self.WRITES | {"retraction"}],
                          key=lambda r: r["day"])
@@ -975,6 +1007,7 @@ class ESRBaseline(_Mixin):
             evs = sorted([r for r in self.recs
                           if r.get("source") == "self"
                           and r.get("slot") == slot
+                          and r.get("about") == p.get("about")
                           and r.get("kind") in
                           self.WRITES | {"retraction"}],
                          key=lambda r: r["day"])
@@ -1004,6 +1037,8 @@ class ESRBaseline(_Mixin):
                 self._meter(seen)
                 return "低" if seen else "无"
             _cc, _ll, _aa, _ddd = self._replay(ckpt)
+            if p.get("about"):
+                return "高" if self._about_hit(p) is not None else "无"
             self._meter(self.recs)
             return "高" if _cc.get(slot, (None, None))[1] == "self" \
                 else "无"
@@ -1020,6 +1055,10 @@ class ESRBaseline(_Mixin):
                         if o["op"] == p.get("op")
                         and (o.get("slot") or o.get("purpose"))]
             return hits[0] if hits else "无"
+        if p.get("about"):
+            v = self._about_hit(
+                p, p.get("day", ckpt) if t == "as_of" else ckpt)
+            return str(v) if v is not None else "未知"
         return self._answer_state(cur, p)
 
     def revoke_purpose(self, purpose):
@@ -1035,6 +1074,7 @@ class ESRBaseline(_Mixin):
         if slots:
             keep = set(slots)
             recs = [r for r in recs if r.get("slot") in keep
+                    and not r.get("about")
                     or r.get("kind") == "alias"]
             ops = [o for o in self.ops if o.get("slot") in keep]
         return {"recs": recs, "revoked": sorted(self.revoked),

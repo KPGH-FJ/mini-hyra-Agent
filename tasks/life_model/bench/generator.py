@@ -123,7 +123,7 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
         return forms
 
     def rec(day, source, kind, slot, value, expires=None,
-            supports=None, premises=None):
+            supports=None, premises=None, about=None):
         nonlocal rid
         r = {"id": f"r{rid:04d}", "day": day, "source": source,
              "kind": kind, "slot": slot, "value": value,
@@ -132,18 +132,20 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
             r["expires_day"] = expires
         if supports:
             r["supports"] = list(supports)
+        if about:
+            r["about"] = about
         records.append(r)
         rid += 1
         if kind == "derived":
             truth_events.append(
                 {"day": day, "op": "set_derived", "slot": slot,
                  "value": value, "premises": dict(premises or {})})
-        elif source == "self" and kind in (
-                "statement", "update", "correction"):
+        elif (source == "self" and kind in (
+                "statement", "update", "correction") and about is None):
             truth_events.append(
                 {"day": day, "op": "set", "slot": slot, "value": value,
                  "expires_day": expires})
-        elif kind == "retraction":
+        elif kind == "retraction" and about is None:
             truth_events.append({"day": day, "op": "del", "slot": slot})
         return r
 
@@ -406,7 +408,7 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
     def probe(ckpt, ptype, slot, expect, must_not=None, q=None,
               value=None, day=None, person=None, post_import=False,
               purpose=None, purpose_slots=None, budget=None, slots=None,
-              op=None, partial=False):
+              op=None, partial=False, about=None):
         nonlocal pid
         p = {"id": f"p{pid:03d}", "ckpt": ckpt, "type": ptype,
              "slot": slot, "expect": expect,
@@ -415,6 +417,8 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
             p["day"] = day
         if person is not None:
             p["person"] = person
+        if about is not None:
+            p["about"] = about
         if purpose is not None:
             p["purpose"] = purpose
         if purpose_slots is not None:
@@ -455,12 +459,13 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
         # skip a noise value the person independently also stated
         noise = [r for r in records if alive(r, c) and
                  r["kind"] in ("hearsay", "suggestion") and
-                 r["slot"] != forget_slot and
+                 r["slot"] != forget_slot and not r.get("about") and
                  not (c > CORRECT_DAY and r["slot"] == correct_slot
                       and r["value"] == correct_val)
                  and not any(s["source"] == "self" and s["slot"] == r["slot"]
-                             and s["value"] == r["value"] for s in records
-                             if alive(s, c))]
+                             and s["value"] == r["value"]
+                             and not s.get("about")
+                             for s in records if alive(s, c))]
         for r in (noise if storm else noise[:3]):
             probe(c, "prov", r["slot"], "非本人", value=r["value"],
                   q=f"“{r['slot']}={r['value']}”这条信息是本人说的吗？"
@@ -469,7 +474,8 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
         # (forget_slot excluded: post-forget "did they say it" is ambiguous)
         said = [r for r in records if alive(r, c) and
                 r["source"] == "self" and r["slot"] != forget_slot and
-                r["kind"] in ("statement", "update", "correction")]
+                r["kind"] in ("statement", "update", "correction")
+                and not r.get("about")]
         for r in (said if storm else said[-2:]):
             probe(c, "prov", r["slot"], "本人", value=r["value"],
                   q=f"“{r['slot']}={r['value']}”这条信息是本人说的吗？"
@@ -479,7 +485,8 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
         # (person, slot) keeping latest so simultaneous probes never ask
         # for two different values of the same attributed fact.
         heard = [r for r in records if alive(r, c) and r["day"] <= c
-                 and r["kind"] == "hearsay" and r["slot"] != forget_slot]
+                 and r["kind"] == "hearsay" and r["slot"] != forget_slot
+                 and not r.get("about")]
         latest_heard = {}
         for r in heard:
             # group alias forms onto the canonical person
@@ -668,7 +675,8 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
               q=f"截至第{D}天，此人{ex_asof}是什么？",
               post_import=True)
     lh = [r for r in records if r["kind"] == "hearsay"
-          and r["slot"] != forget_slot and alive(r, 90)]
+          and r["slot"] != forget_slot and alive(r, 90)
+          and not r.get("about")]
     # collapse by (canon, slot) -> latest; only probe keys whose
     # latest day is unambiguous (no same-day rival)
     lh_latest = {}
@@ -705,7 +713,8 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
               post_import=True)
     said90 = [r for r in records if alive(r, 90)
               and r["source"] == "self" and r["slot"] != forget_slot
-              and r["kind"] in ("statement", "update", "correction")]
+              and r["kind"] in ("statement", "update", "correction")
+              and not r.get("about")]
     if said90:
         r = said90[-1]
         probe(90, "prov", r["slot"], "本人", value=r["value"],
@@ -805,6 +814,42 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
     probe(90, "expdeny", "_rvkdoc", "已撤回", must_not=rvk_vals,
           q=f"按用途{rvk_purpose}导出（该用途授权已撤回——应拒绝）")
 
+    # multi-entity (v8): claims about a second entity live on
+    # (claimer, about, slot) vertexes — the pressure is isolation:
+    # her values must never surface as self's, and self-claimed
+    # knowledge about her grades high while hearsay grades low.
+    ENTITY = rng.choice(["妈妈", "爸爸", "姐姐"])
+    eslot = (rng.choice(list(cur90)) if cur90 and rng.random() < 0.7
+             else "health")
+    ev1 = rng.choice(VALS.get(eslot, ["良好"]))
+    ev2 = rng.choice([v for v in VALS.get(eslot, ["稳定"]) if v != ev1]
+                     or ["稳定"])
+    rec(rng.randint(6, 12), "self", "statement", eslot, ev1,
+        about=ENTITY)
+    rec(rng.randint(58, 68), "self", "update", eslot, ev2,
+        about=ENTITY)
+    espeaker = _person()
+    ehv = rng.choice([v for v in VALS.get(eslot, ["存疑"]) if v != ev2]
+                     or ["存疑"])
+    rec(rng.randint(20, 30), espeaker, "hearsay", eslot, ehv,
+        about=ENTITY)
+    # estate: self-claimed state about her — latest write wins
+    probe(90, "state", eslot, ev2, about=ENTITY,
+          q=f"{ENTITY}的{eslot}现在怎么样？")
+    # isolation: her value must never surface as MY value
+    if eslot in cur90 and cur90[eslot] != ev2:
+        probe(90, "state", eslot, cur90[eslot], must_not=[ev2, ev1],
+              q=f"本人的{eslot}现在是什么？（勿混入{ENTITY}的）")
+    elif eslot not in cur90:
+        probe(90, "state", eslot, "未知", must_not=[ev2, ev1],
+              q=f"本人的{eslot}是什么？（无本人记录，勿混入{ENTITY}的）")
+    # esubj: what did X claim about her
+    probe(90, "subject", eslot, ehv, person=espeaker, about=ENTITY,
+          q=f"{espeaker}说过{ENTITY}的{eslot}是什么？")
+    # econf: self-claimed knowledge about her is high-grade
+    probe(90, "conf", eslot, "高", about=ENTITY,
+          q=f"你对{ENTITY}的{eslot}有多确定？（高/低/无）")
+
     # budget: pack the listed slots' live values under a byte budget —
     # ordering becomes the decision (Lost-in-the-Middle pressure).
     # First `budget` bytes of the answer are what's scored.
@@ -833,7 +878,7 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
             if (r["source"] == "self" and r["slot"] == slot
                     and r["kind"] in ("statement", "update", "correction")
                     and r["day"] <= day and r["day"] > md
-                    and alive(r, day)):
+                    and not r.get("about") and alive(r, day)):
                 rid_, md = r["id"], r["day"]
         return rid_
 
