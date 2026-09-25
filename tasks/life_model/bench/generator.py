@@ -463,8 +463,8 @@ def generate(seed: int = 7, density: int = 1):
         # (must be stored without polluting self-state). Collapse by
         # (person, slot) keeping latest so simultaneous probes never ask
         # for two different values of the same attributed fact.
-        heard = [r for r in records if alive(r, c) and
-                 r["kind"] == "hearsay" and r["slot"] != forget_slot]
+        heard = [r for r in records if alive(r, c) and r["day"] <= c
+                 and r["kind"] == "hearsay" and r["slot"] != forget_slot]
         latest_heard = {}
         for r in heard:
             # group alias forms onto the canonical person
@@ -474,6 +474,16 @@ def generate(seed: int = 7, density: int = 1):
             if (key not in latest_heard
                     or r["day"] >= latest_heard[key]["day"]):
                 latest_heard[key] = r
+        # drop keys whose latest day has a same-day rival: "latest" is
+        # undefined within a day — don't probe what has no canonical
+        # answer (rng collision, not designed pressure)
+        def _canon_of(x):
+            return next((c for c, a in ALIASES.items()
+                         if x["source"] == a), x["source"])
+        for key, r in list(latest_heard.items()):
+            if any(x is not r and x["day"] == r["day"]
+                    and (_canon_of(x), x["slot"]) == key for x in heard):
+                del latest_heard[key]
         for key, r in list(latest_heard.items())[-2:]:
             canon = key[0]
             probe(c, "subject", r["slot"], r["value"], person=canon,
@@ -580,8 +590,24 @@ def generate(seed: int = 7, density: int = 1):
               post_import=True)
     lh = [r for r in records if r["kind"] == "hearsay"
           and r["slot"] != forget_slot and alive(r, 90)]
-    if lh:
-        r = lh[-1]
+    # collapse by (canon, slot) -> latest; only probe keys whose
+    # latest day is unambiguous (no same-day rival)
+    lh_latest = {}
+    for r in lh:
+        canon = next((c for c, a in ALIASES.items()
+                      if r["source"] == a), r["source"])
+        key = (canon, r["slot"])
+        if key not in lh_latest or r["day"] >= lh_latest[key]["day"]:
+            lh_latest[key] = r
+    def _lhcanon(x):
+        return next((c for c, a in ALIASES.items()
+                     if x["source"] == a), x["source"])
+    lh_cands = [r for key, r in lh_latest.items()
+                if not any(x is not r and x["day"] == r["day"]
+                           and (_lhcanon(x), x["slot"]) == key
+                           for x in lh)]
+    if lh_cands:
+        r = max(lh_cands, key=lambda x: (x["day"], records.index(x)))
         probe(90, "subject", r["slot"], r["value"], person=r["source"],
               q=f"传闻中{r['source']}的{r['slot']}是什么？",
               post_import=True)
