@@ -43,7 +43,7 @@
    "role": "correct / forget / export / revoke",
    "impl": "journal + 级联清除 + revoke_purpose + forget_range 回滚",
    "status": "v1",
-   "score": 132.97,
+   "score": 135.97,
    "next": "v6 考题已满分；剩余：部分导出/审计视图"
   }
  ],
@@ -100,7 +100,7 @@
      "id": "r5",
      "module": "M5 控制",
      "status": "running",
-     "desc": "v6 考题上线：revoked(目的撤回) + forget_range 回滚；系统已 132.97 满分，进化轮待启动"
+     "desc": "v6c 考题上线：revoked + forget_range 回滚 + ops 审计；系统已 135.97 满分(136/136)，进化轮待启动"
     }
    ]
   },
@@ -112,8 +112,8 @@
   }
  ],
  "experiment": {
-  "bench": "LifeStream v6b · 90天流 ~201条/seed · 累积：M3派生失效 + M4服务压力 + M1摄入(别名+乱序) + M5控制(目的撤回+区间删除回滚)",
-  "probes": 133,
+  "bench": "LifeStream v6c · 90天流 ~201条/seed · 累积：M3派生失效 + M4服务压力 + M1摄入(别名+乱序) + M5控制(撤回+回滚+审计)",
+  "probes": 136,
   "types": [
    "state",
    "stale",
@@ -128,27 +128,28 @@
    "purpose",
    "budget",
    "prov2",
-   "revoked"
+   "revoked",
+   "ops"
   ],
   "score": "quality − 0.002·KB(asset) − 0.0002·KB(probe) − 0.0002·tokens",
   "table": [
    [
     "lifemodel v1",
     "TemporalGraph+TMS+serve router（系统本体）",
-    132.97,
-    133
+    135.97,
+    136
    ],
    [
     "tms",
     "前提维护基线（内置；range-forget 回滚重建）",
-    133.0,
-    133
+    136.0,
+    136
    ],
    [
     "esr",
     "事件溯源重放基线（day排序）",
-    133.0,
-    133
+    136.0,
+    136
    ],
    [
     "raw",
