@@ -163,3 +163,30 @@ Event-sourced/temporal-edge journal still the only instantiated family — but n
 - W3 launched 19:08 on a937dd0, restarted 19:52 on 6eb5177; mid-run bench files reverted to a68e809 (v8g) for comparability — disclosed. Scored entries' `eval_version` matches the harness eval at commit time.
 - Winner dir `results/life_model_v5/` now contains s0084 verbatim (v8g score in meta.json feedback; v9.1 re-score recorded above, not in meta).
 - serve on :8000 serves the v3 research cockpit (PR #11 on main) — preview URL live.
+
+---
+
+## Amendment — W4 (100-commit cap reached, bench-mixing disclosed): winner s0095 = 158.911 on v9.1
+
+W4 launched 02:55 on the same EB with harness fixes cherry-picked from feature/p3-serve (60k base-material bound + task.md contract-first warning). **Important provenance correction:** the ~01:5x origin/main merge (e2f7715, v9.1 bench via PRs #11–13) overwrote the a68e809 bench pin, so the EB's last W3-drain evals (s0089 01:48, s0093 02:24) and all of W4 ran on **v9.1 semantics**, not v8g as the W3 table labeled s0089/s0093. Their scores stand — same bench family as the s0084 manual re-score (158.20). Entries ≤s0086 (01:08) are v8g.
+
+The box restarted ~04:0x killing the run+serve; on resume I merged origin/main (PR #20: cap-truncated completions now CONTINUE via the stream-cut path; refined 60k bound that closes mid-file excerpts at `<<<END>>>`), re-pinned bench files to a68e809 for the tail, and relaunched — but the EB had already hit the 100-commit cap at 03:37, so the tail added nothing. Task.md was kept at HEAD during the tail: its M4-serve guidance ("serve contract is where candidates bleed") + contract warning matched the round's direction.
+
+### W4 results (6 commits, all on v9.1: s0094–s0099)
+
+| sol | score | quality | probe_bytes | parents | note |
+|---|---|---|---|---|---|
+| **s0095** | **158.911** | 159.0 | **63.2KB** | s0080 | **best — explore direction** |
+| s0097 | 145.859 | ~146 | — | — | |
+| s0098 | 94.382 | ~94 | — | — | regression |
+| s0094/96/99 | dead | — | — | | solve.sh 127; 2× llm-400 exhaustions |
+
+**s0095 (v9.1 breakdown):** quality 159 — state .974, stale .963, prov/unans/as_of/derive/purpose/cascade/nchange/prov2/budget/retract/join/revoked/expdeny/transfer all 1.0; subject .938; ops .6; first .5; conf .429. Still zero: duration, drvprov, isconf, partial, order, absent, window, before, xcmp. **probe_bytes 63KB vs s0084's 3.27MB — a 52× cheaper serve** at equal quality; the serve-cost engineering the plateau needed. Baselines on v9.1: tms 181 / esr 182 / raw 107.5 — ~23 headroom remains, all in the nine zero families + conf/ops/first/subject.
+
+### Round state — run_v5 EB FINAL at cap
+
+**100 commits / 34 scored / 66 dead** across W1–W4 (four endpoint eras: 502 wave → streamed SSE → cut-recovery → truncation-continue + bounded prompts). Winner dir = s0095 verbatim. The EB is exhausted — next round needs a fresh `--work` dir.
+
+### Family verdict (final for this EB)
+
+Temporal-edge event-sourced journal, convergent across exploit lineage AND fresh clean-room (s0064). The winning margin came from serve cost (filtered probe payload 63KB) not storage novelty. Zero families on the winner: duration, drvprov, isconf, partial + v9 history-reasoning (order/absent/window/before/xcmp) — next round's surface.

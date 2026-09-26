@@ -93,8 +93,8 @@
         {
           "id": "r4",
           "module": "M1 摄入",
-          "status": "running",
-          "desc": "v9 考题（22+6 类 ~199 探针，含历史推理+派生复活）；run_v5 W2 s0040=147.90；W3 续跑压 serve 面"
+          "status": "done",
+          "result": "run_v5 打满 100 提交收官：冠军 s0095=158.911，赢在 serve 过滤（探针成本 63KB，同质量便宜 52×）；深史题型仍全 0"
         },
         {
           "id": "r5",
@@ -107,7 +107,7 @@
           "id": "r6",
           "module": "M4 使用面",
           "status": "running",
-          "desc": "serve 面专攻（partial/duration/nchange/drvprov/isconf/subject/ops/conf）；lab run_v7 新 EB 100解/4w/6h；目标超 s0040 147.90 → 前沿 191"
+          "desc": "serve 面专攻（partial/duration/drvprov/isconf/subject/ops/conf + 深史族）；lab run_v7 W2 在跑"
         }
       ]
     },
@@ -157,12 +157,6 @@
         "TemporalGraph+TMS+serve router+scoped export（系统本体，实体别名读侧聚合+isconf+v9历史推理+派生复活）",
         195.0,
         195
-      ],
-      [
-        "s0095 (run_v5·W4 冠军)",
-        "进化解：时态边 journal + 过滤式 serve（探针 63.2KB，同质量比 s0084 便宜 52×）；深史族仍全 0",
-        158.911,
-        197
       ],
       [
         "s0084 (run_v5·W4)",
@@ -236,7 +230,48 @@
       "text": "v9.1: before探针族（跨槽位时序排序——两槽各自当前值生效日比较）已上线出题端+serve+契约第31条；lm 31/31合规，全部基线诚实全灭"
     },
     "P3 r6/run_v7（M4 serve 专攻）收官：s0009=145.959@quality146.00 —— serve 播种生效（8 族 0→1.0），仍差前沿 ~49 分，全在 duration/drvprov/join/window/before 深史题。死亡集中在一个可修 bug：token 阶梯超 Atria 硬上限 65536 → 13/15 死；已修（clamp 65536, PR#18）。",
-    "run_v5 W4 窗口收官：s0084=158.20@v9.1（质量159，+10 破平台）——journal/时态边设计被纯净室独立复现（s0064≈148），证为搜索吸引子。剩余 ~23-27 分缺口全部在深史 serve 题（duration/drvprov/join/window/before）+ conf/isconf/partial。infra：input 超窗 400 由 prompt 无界拼接引起，已加 60000 字 base 预算（PR#18）。",
-    "run_v5 撞 100 提交上限收官（W4）：s0095=158.911 v9.1 —— 赢在 serve 成本工程而非存储。剩余 ~23 分缺口全在深史 serve（duration/drvprov/isconf/partial/order/absent/window/before/xcmp）；下一轮需新 EB，以 serve 深史为方向。"
+    "run_v5 W4 窗口收官：s0084=158.20@v9.1（质量159，+10 破平台）——journal/时态边设计被纯净室独立复现（s0064≈148），证为搜索吸引子。剩余 ~23-27 分缺口全部在深史 serve 题（duration/drvprov/join/window/before）+ conf/isconf/partial。infra：input 超窗 400 由 prompt 无界拼接引起，已加 60000 字 base 预算（PR#18）。"
+  ],
+  "timeline": [
+    {
+      "when": "P1 · 文献调研",
+      "title": "五个模块的问题大类，前人都研究过",
+      "text": "摄入=数据血缘（谁说的、可信吗）；表征=双时态库；更新=真值维护系统 TMS；使用=RAG 检索回答；控制=级联真删除。没有现成的 LifeModel，但每个零件都有成熟答案。"
+    },
+    {
+      "when": "P2 · 骨架落地",
+      "title": "v0 系统跑通",
+      "text": "五模块+冻结接口，77 题全对。从此只换模块实现，不改接口——谁的改动出问题能立刻定位。"
+    },
+    {
+      "when": "P3 r1 · M2 表征",
+      "title": "记忆按（谁说，什么事）记时态流水账",
+      "text": "四种不同实现全部 97/97 满分——这个表征方向被验证到底。系统升级 v1，反超所有参照。"
+    },
+    {
+      "when": "P3 r2 · M3 更新",
+      "title": "删一条记录，靠它推出的结论自动死",
+      "text": "获胜机制=TMS 前提维护：每条派生结论记住自己的依据，依据被删就级联失效。纠错（说错了）和变化（真变了）区分开。"
+    },
+    {
+      "when": "P3 r5 · M5 控制",
+      "title": "撤回用途=数据还在、视图拒绝",
+      "text": "consent 域视图：数据本体不删，但该用途下的回答被切断；操作日志嵌进资产本体，导出导入后审计不丢。"
+    },
+    {
+      "when": "P3 r4 · M1 摄入",
+      "title": "进化最优 158.9，赢在 serve 过滤",
+      "text": "冠军把探针成本压到 63KB（便宜 52×）。副产物：完全不同的起点独立进化出同一种 journal 架构——证明这个设计是搜索空间的收敛吸引子，不是运气。"
+    },
+    {
+      "when": "持续 · 评测器演化",
+      "title": "考题从 v2 升到 v9.1，~197 题/种子",
+      "text": "每轮进化前考题先加压：时态回溯、传闻归属、删除传导、导出导入、深史推理（先后/窗口/缺席/跨人比较）。系统本体仍 195 满分领跑，进化解在追。"
+    },
+    {
+      "when": "方法结论",
+      "title": "逐模块进化→折叠回系统→开下一轮",
+      "text": "整个研究系统：lifemodel 包（被研究对象）+ LifeStream 考题（裁判）+ 双层循环（我定方向、实验室批量进化）。当前主攻：深史 serve 题型。"
+    }
   ]
 }
