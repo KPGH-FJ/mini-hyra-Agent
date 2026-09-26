@@ -125,15 +125,42 @@ def _base_params(sol_dir: Path) -> dict:
     return {}
 
 
+def _json_from_text(text: str):
+    """Tolerant JSON extraction for LLM output: direct parse, fenced
+    block, then first `[`..`]` / `{..}` substring."""
+    for cand in (text.strip(),):
+        try:
+            return json.loads(cand)
+        except Exception:
+            pass
+    m = re.search(r"```(?:json)?\s*(.*?)```", text, re.S)
+    if m:
+        try:
+            return json.loads(m.group(1))
+        except Exception:
+            pass
+    for a, b in (("[", "]"), ("{", "}")):
+        i, j = text.find(a), text.rfind(b)
+        if 0 <= i < j:
+            try:
+                return json.loads(text[i:j + 1])
+            except Exception:
+                continue
+    return None
+
+
 async def make_inspirations(llm: LLM, eb: ExperienceBank, task_md: str,
                             n: int, eval_version: int,
                             max_file_chars: int = 20000) -> list[dict]:
     """Context Agent turn: digest the EB, emit n diverse inspirations."""
     prompt = (f"TASK:\n{task_md}\n\nEB DIGEST:\n"
               f"{eb.summary(eval_version)}\n\n"
-              f"Return {n} inspirations as strict JSON.")
+              f"Return ONLY a JSON array of {n} inspirations "
+              f"(no prose, no fences).")
     try:
-        items = json.loads(await llm.complete(CONTEXT_SYSTEM, prompt))
+        items = _json_from_text(await llm.complete(CONTEXT_SYSTEM, prompt))
+        if isinstance(items, dict):
+            items = items.get("inspirations") or [items]
         if not isinstance(items, list):
             items = []
     except Exception as e:
@@ -147,6 +174,8 @@ async def make_inspirations(llm: LLM, eb: ExperienceBank, task_md: str,
                       "note": "fallback exploit on best"})
     inspirations = []
     for it in items[:n]:
+        if not isinstance(it, dict):
+            continue
         base_ids = [b for b in (it.get("base_ids") or [])
                     if eb.get(b)]
         inspirations.append({
