@@ -312,8 +312,8 @@ border-radius:8px;padding:7px 12px;font-size:12px;color:var(--dim);cursor:pointe
 
 <nav class="topnav">
   <h1 style="margin:0"><span class="dot" id="runDot"></span><span class="brand">LifeModel 研究看板</span></h1>
-  <a href="#sec-sys">系统</a><a href="#sec-road">脉络</a><a href="#sec-now">当前轮</a>
-  <a href="#sec-gap">差距地图</a><a href="#sec-rank">排行榜</a><a href="#sec-evi">证据</a>
+  <a href="#sec-sys" class="rsch" style="display:none">系统</a><a href="#sec-road" class="rsch" style="display:none">脉络</a><a href="#sec-now" class="rsch" style="display:none">当前轮</a>
+  <a href="#sec-gap" class="rsch" style="display:none">差距地图</a><a href="#sec-rank" class="rsch" style="display:none">排行榜</a><a href="#sec-evi">证据</a>
   <span class="small" id="taskName" style="margin-left:auto"></span>
 </nav>
 
@@ -533,12 +533,19 @@ function drawCurrent(r){
 }
 
 function drawGap(r){
+  document.getElementById('gapdetail').style.display='none';
   const tb=r.experiment&&r.experiment.table;
   if(tb){document.getElementById('rankPanel').style.display='block';
-    document.getElementById('rank').innerHTML='<thead><tr><th>选手</th><th>说明</th><th>得分</th><th>答对题数</th></tr></thead><tbody>'+
-    tb.map((row,i)=>`<tr class="${i===0?'lead':''}"><td class="mono">${esc(row[0])}</td>
-      <td class="small" style="white-space:normal">${esc(row[1])}</td>
-      <td class="mono"><b>${row[2]}</b></td><td>${row[3]}</td></tr>`).join('')+'</tbody>';}
+    const grp=row=>row[0].startsWith('lifemodel')?0:/^s\d/.test(row[0])?1:2;
+    const glbl=['系统本体','进化解（自动进化产出）','基线（手写参照）'];
+    const sorted=[...tb].sort((a,b)=>grp(a)-grp(b)||b[2]-a[2]);
+    let lastG=-1,rowsHtml='';
+    sorted.forEach((row)=>{const g=grp(row);
+      if(g!==lastG){rowsHtml+=`<tr><td colspan="4" class="small" style="color:var(--dim);padding-top:6px">${glbl[g]}</td></tr>`;lastG=g}
+      rowsHtml+=`<tr class="${g===0?'lead':''}"><td class="mono">${esc(row[0])}</td>
+        <td class="small" style="white-space:normal">${esc(row[1])}</td>
+        <td class="mono"><b>${row[2]}</b></td><td>${row[3]}</td></tr>`});
+    document.getElementById('rank').innerHTML='<thead><tr><th>选手</th><th>说明</th><th>得分</th><th>答对题数</th></tr></thead><tbody>'+rowsHtml+'</tbody>';}
   const gp=r.gap;if(!(gp&&gp.rows))return;
   document.getElementById('gapPanel').style.display='block';
   const gc=v=>v>=0.99?'rgba(63,185,80,.85)':v>=0.5?'rgba(210,153,34,.75)':v>0?'rgba(248,81,73,.55)':'rgba(248,81,73,.9)';
@@ -563,6 +570,7 @@ function drawGap(r){
 
 function drawResearch(r){
   document.getElementById('research').style.display='block';
+  document.querySelectorAll('.topnav a.rsch').forEach(a=>a.style.display='');
   drawBanner(r);drawCurrent(r);drawGap(r);
   const pos={M1:[168,26],M3:[308,26],M2:[448,26],M4:[588,26]},bw=126,bh=100;
   const byId={};(r.modules||[]).forEach(m=>byId[m.id]=m);
