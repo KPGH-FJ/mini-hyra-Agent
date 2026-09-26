@@ -169,7 +169,14 @@ def drive(asset, records, probes, meta=None):
                 # document is the evidence, not a served answer
                 ans = scoped_doc if scoped_doc is not None else ""
             else:
-                ans = asset.answer(p)
+                try:
+                    ans = asset.answer(p)
+                except Exception:
+                    # one crashing probe must not kill the whole
+                    # submission — it scores 0 honestly and drive
+                    # continues; the asset's state may be degraded,
+                    # which later probes will show on their own
+                    ans = ""
             if str(ans).strip() not in ("", "未知"):
                 answered = True
             st = asset.stats() if hasattr(asset, "stats") else {}
