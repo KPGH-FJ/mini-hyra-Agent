@@ -4,6 +4,10 @@ You are evolving an implementation of a **Life Model asset**: a store that
 ingests a stream of records about one person and answers probes about that
 person — honestly, updatably, and cheaply.
 
+> ⚠ CONTRACT-FIRST: a submission with no `asset.py` exposing `ingest()` and
+> `answer()` scores **−1e9 outright** — 6 of 24 scored submissions in the last
+> window died this way. Ship the contract file FIRST, then optimize.
+
 ## Deliverable contract (HARD REQUIREMENTS)
 
 Your solution dir MUST contain `asset.py` exposing module-level:
