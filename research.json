@@ -290,7 +290,7 @@
   ],
   "current": {
     "verdict": "研究进行中 · P3 逐模块优化",
-    "round": "run_v7 · M4 使用面 — 已收官",
+    "round": "run_v8 · 深史 serve 专攻 — 进行中",
     "leader": "lifemodel v1 = 195.0（满分）",
     "best_evolved": "s0095 = 158.911",
     "remaining": "≈36 分 · 全在深史题",
@@ -298,10 +298,11 @@
     "goal_desc": "跨时间窗汇总、先后比较、缺席证明、派生溯源——目前 duration/window/before 深史题仍全 0",
     "opponent": "系统 195.0 · 最强进化解 158.9",
     "opponent_desc": "进化解每摸到一类深史题 +1~3 分",
-    "progress": "实验暂停 —— 看板 v4 上线后开新轮",
-    "window": "两端实验室待机",
+    "progress": "实验进行中 —— 新指引：统一历史边遍历基底",
+    "window": "lab#1 run_v8（新 EB）· lab#2 run_v7 W3（续跑）",
     "approach": "给进化喂统一历史边遍历的基底",
-    "approach_desc": "教训已写明：逐型处理器打不到深史题——要把 lm 的历史边遍历抽象成候选起点"
+    "approach_desc": "(subject,slot,read_day)→存活写入段有序边；每个深史题型只是薄折叠。已派发两端。",
+    "progress_pct": null
   },
   "glossary": [
     [
