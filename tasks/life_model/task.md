@@ -161,17 +161,41 @@ reward hacking — implement real metering instead.
 
 ## What to explore (the research space)
 
-This round is scoped to **M4 serve semantics** — how `answer()`
-routes, packs, cites, grades, and *refuses*. Store/update/ingest
-machinery is pinned by the frozen semantics (temporal history,
-supports, premise fixpoint, measured cost, alias resolution,
-day-authoritative ordering, the control ops from M5); what varies
-is the SERVE machinery — the decision of which slice to consult,
-what to say, what to withhold, and how confident to be. The winning
-margin lives in serve correctness, not another storage scheme:
-event-sourced journal storage already plateaued at ~148 vs the
-~191 frontier — storage is close enough; the serve contract is
-where candidates bleed.
+This round is scoped to **M4 serve — deep-history specialization** —
+how `answer()` routes, packs, cites, grades, and *refuses*.
+Store/update/ingest machinery is pinned by the frozen semantics
+(temporal history, supports, premise fixpoint, measured cost, alias
+resolution, day-authoritative ordering, the control ops from M5);
+what varies is the SERVE machinery. Last round's verdict: per-type
+processors plateaued — subject/transfer/isconf reached 1.0 but
+every deep-history family (duration/window/before/join, drvprov,
+order/absent/xcmp on some runs) stayed at 0. The frontier system
+(lifemodel v1, 195.0) wins these by *uniform history-edge
+traversal*: every fact is a (subject,slot) temporal edge, and ANY
+history question walks the same edge list — no per-type parser.
+
+**Seed this base**: expose a run-window edge traversal primitive —
+given (subject,slot,read_day) return the surviving write-run as
+ordered edges {(day,value,rid,authority,alive)}; retraction starts
+a new run, erasure rewrites the log (a pruned fact whose killer was
+erased comes back). Then EVERY deep-history type is a thin fold
+over that one traversal: `duration` = days since run's earliest
+edge; `window` = transitions inside [a,b] with prev carried in;
+`before`/`order` = edge day comparisons; `join` = edge list of
+slot2 read at slot1's transition day; `absent` = no surviving edge
+in range; `nchange` = live transitions count; `drvprov` = rids of
+a derived's live premises. Do NOT add another per-type processor —
+add the traversal, or thin folds over it.
+
+The winning margin lives in serve correctness, not another storage
+scheme: event-sourced journal storage plateaued at ~148-159 vs the
+195.0 frontier — storage is close enough; the serve contract is
+where candidates bleed. Two proven winners to study in results/:
+run_v5 W4 champion `s0095` (158.911, filtered serve, probe 63KB —
+results/life_model_v5/asset.py) and run_v7 W2 `s0040` (156.942,
+subject/transfer 1.0, drvprov .333 first nonzero, probe 2.1KB —
+results/life_model_v9_w2/best/asset.py on the
+results/lifemodel-p3-m4-w2 branch).
 
 Every probe type below is a serve decision and ALL are scored —
 weight inspirations toward these, not storage redesign:
