@@ -1,0 +1,13 @@
+{
+  "id": "s0040",
+  "score": 147.9013,
+  "direction": "exploit",
+  "parents": [
+    "s0000"
+  ],
+  "eval_version": 0,
+  "created": 1790339820.7186801,
+  "feedback": "quality=148.00 cost={'asset_bytes': 27272, 'probe_bytes': 232559, 'llm_tokens': 0} cost_how=measured breakdown={'state': 0.974, 'stale': 0.963, 'prov': 1.0, 'subject': 0.5, 'duration': 0.0, 'unans': 1.0, 'as_of': 1.0, 'derive': 1.0, 'purpose': 1.0, 'drvprov': 0.0, 'cascade': 1.0, 'conf': 0.429, 'nchange': 1.0, 'prov2': 1.0, 'budget': 1.0, 'ops': 0.6, 'retract': 1.0, 'isconf': 0.0, 'revoked': 1.0, 'partial': 0.0, 'expdeny': 1.0, 'transfer': 0.0} baselines={'raw': 105.5, 'ledger': 85.0, 'rag': 64.0, 'flat': 54.5, 'tms': 178.0, 'esr': 179.0} meta={'changed': ['city', 'learning', 'device', 'sleep', 'family'], 'retract_slot': 'exercise', 'exp_day': 50, 'n_records': 213, 'corr_slot': 'city', 'export_day': 72, 'forget': {'slot': 'family', 'day': 55}, 'correct': {'slot': 'device', 'value': '\u5e73\u677f', 'day': 78}, 'revoke': {'purpose': '\u5236\u5b9a\u672c\u5468\u8ba1\u5212', 'day': 84, 'slots': ['time_budget', 'risk', 'plan_hint', 'routine_fit']}, 'export_partial': {'purpose': '\u5236\u5b9a\u7167\u62a4\u65b9\u6848', 'slots': ['family', 'elder_plan', 'sleep'], 'day': 80}, 'forget_entity': {'about': '\u5988\u5988', 'day': 74}, 'forget_range': {'day': 62, 'lo': 52, 'hi': 53}}",
+  "error": null,
+  "path": "run_v5/eb/solutions/s0040"
+}

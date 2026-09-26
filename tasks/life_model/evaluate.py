@@ -21,12 +21,21 @@ The solution dir must contain `asset.py` exposing module-level:
     state() -> dict           # optional; serializable asset — MEASURED cost
     probe_bytes() -> int      # optional; cumulative consulted bytes
 
-Probe types (v2): state | stale | prov | retract | transfer — plus
+Probe types (v3): state | stale | prov | retract | transfer — plus
     as_of:   probe["day"]=D → value live at day D (history required)
     subject: probe["person"]=P → hearsay value attributed to P (self-state
              must NOT be polluted by it)
     cascade: fired after the evaluator's forget() call — every asserted
-             value of the forgotten slot must be gone (state AND history)
+             value of the forgotten slot must be gone (state AND
+             history, including DERIVED facts it supported)
+    derive:  premise superseded (correction) → derived value must be gone
+             (revision semantics; the gone-phrasing branch like cascade)
+    derived records: kind="derived", source="inference", supports=[rec_ids]
+             — live state probes expect them while premises hold
+    export-import: after meta["export_day"] ckpt probes the evaluator does
+             state() -> json -> import_state(); probes flagged
+             post_import score 0 if the round-trip is missing/failed
+             (asset must expose import_state(d) to earn them)
 
 Cost is MEASURED, not self-reported (v1 fix: s0023 gamed stats()): when the
 asset exposes state()/probe_bytes() the evaluator serializes them itself;
@@ -49,6 +58,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import sys
 import unicodedata
 from pathlib import Path
@@ -56,7 +66,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent / "bench"))
 from generator import CHECKPOINTS, generate  # noqa: E402
 
-EVAL_SEED = 7
+EVAL_SEED = int(sys.argv[2]) if len(sys.argv) > 2 else 7
 COST_ASSET = 0.002    # per KB of retained asset
 COST_PROBE = 0.0002   # per KB consulted across all probes
 COST_TOK = 0.0002     # per LLM token (0 for deterministic impls)
@@ -72,10 +82,15 @@ def score_probe(probe, answer):
     for bad in probe.get("must_not", []):
         if norm(bad) and norm(bad) in a:
             return -0.5
-    if probe["type"] in ("retract", "cascade"):
+    if probe["type"] in ("retract", "cascade", "derive"):
         # any acceptable "gone" phrasing scores
         opts = expect if isinstance(expect, list) else [expect]
         return 1.0 if any(norm(v) in a for v in opts) else 0.0
+    if probe["type"] == "budget":
+        # only the first `budget` bytes of the answer count — ordering
+        # under budget is the decision being scored
+        a = norm(str(answer).encode()[:probe.get("budget", 10**9)]
+                 .decode(errors="ignore"))
     if isinstance(expect, list):
         if not expect:
             return 0.0
@@ -125,7 +140,21 @@ def drive(asset, records, probes, meta=None):
     for p in probes:
         by_ckpt.setdefault(p["ckpt"], []).append(p)
     forget = (meta or {}).get("forget")
+    correct = (meta or {}).get("correct")
+    revoke = (meta or {}).get("revoke")
+    fr = (meta or {}).get("forget_range")
+    fent = (meta or {}).get("forget_entity")
+    export_day = (meta or {}).get("export_day")
+    exp2 = (meta or {}).get("export_partial")
     forget_fired = False
+    correct_fired = False
+    revoke_fired = False
+    fr_fired = False
+    fent_fired = False
+    exp2_fired = False
+    import_ok = None
+    scoped_doc = None
+    scoped_doc_rvk = None
     rows, cum_reported, answered = [], 0, False
     for i, ckpt in enumerate(CHECKPOINTS):
         for r in [x for x in records if x["day"] <= ckpt
@@ -133,23 +162,148 @@ def drive(asset, records, probes, meta=None):
             asset.ingest(r)
             r["_fed"] = True
         for p in by_ckpt.get(ckpt, []):
-            ans = asset.answer(p)
+            if p.get("post_import") and import_ok is False:
+                ans = ""   # no working export->import: continuity lost
+            elif p.get("post_partial"):
+                # purpose-scoped export content check — the scoped
+                # document is the evidence, not a served answer
+                ans = scoped_doc if scoped_doc is not None else ""
+            else:
+                ans = asset.answer(p)
             if str(ans).strip() not in ("", "未知"):
                 answered = True
             st = asset.stats() if hasattr(asset, "stats") else {}
             if not hasattr(asset, "probe_bytes"):
                 cum_reported += int(st.get("probe_bytes", 0))
-            rows.append({"probe": p, "answer": str(ans),
-                         "score": score_probe(p, ans)})
+            sc = score_probe(p, ans)
+            if p.get("post_partial") and scoped_doc is None:
+                # no scoped document exists — leak-checks can't pass
+                # vacuously on an empty answer either
+                sc = 0.0
+            if p["type"] == "expdeny":
+                # revoked-purpose export must refuse — any document
+                # produced is a consent-channel leak
+                sc = -0.5 if scoped_doc_rvk else 1.0
+            rows.append({"probe": p, "answer": str(ans), "score": sc})
         next_ckpt = CHECKPOINTS[i + 1] if i + 1 < len(CHECKPOINTS) else 10**9
+
+        def _feed_upto(op_day):
+            # control ops act on everything authored up to their own
+            # day, not only up to the checkpoint boundary — a window
+            # forget (e.g. days 59-60 fired at day 62) must see the
+            # in-window records that arrive at the next checkpoint
+            for r in [x for x in records if x["day"] <= op_day
+                      and not x.get("_fed")]:
+                asset.ingest(r)
+                r["_fed"] = True
+
+        # Control ops pending in this window fire in OP-DAY order, each
+        # preceded by feeding the records authored up to its own day —
+        # causality: an op never sees records authored after its day,
+        # and a later-day record never arrives before an earlier-day op.
+        _pend = []
         if (forget and not forget_fired
                 and ckpt < forget["day"] <= next_ckpt):
-            if hasattr(asset, "forget"):
+            _pend.append((forget["day"], "forget"))
+        if (correct and not correct_fired
+                and ckpt < correct["day"] <= next_ckpt):
+            _pend.append((correct["day"], "correct"))
+        if (fr and not fr_fired
+                and ckpt < fr["day"] <= next_ckpt):
+            _pend.append((fr["day"], "fr"))
+        if (fent and not fent_fired
+                and ckpt < fent["day"] <= next_ckpt):
+            _pend.append((fent["day"], "fent"))
+        if (exp2 and not exp2_fired
+                and ckpt < exp2["day"] <= next_ckpt):
+            _pend.append((exp2["day"], "exp2"))
+        if (revoke and not revoke_fired
+                and ckpt < revoke["day"] <= next_ckpt):
+            _pend.append((revoke["day"], "revoke"))
+        for _od, _which in sorted(_pend):
+            _feed_upto(_od)
+            if _which == "forget":
+                if hasattr(asset, "forget"):
+                    try:
+                        asset.forget({"slot": forget["slot"]})
+                    except Exception:
+                        pass
+                forget_fired = True
+            elif _which == "correct":
+                # user-control write — assets lacking correct() lose
+                # the probes expecting the corrected value, honestly
+                if hasattr(asset, "correct"):
+                    try:
+                        asset.correct(correct["slot"], correct["value"])
+                    except Exception:
+                        pass
+                correct_fired = True
+            elif _which == "fr":
+                # range forget — erasing write edges rolls values
+                # back; impls without history-aware deletes stay stale
+                if hasattr(asset, "forget"):
+                    try:
+                        asset.forget({"day_gte": fr["lo"],
+                                      "day_lte": fr["hi"]})
+                    except Exception:
+                        pass
+                fr_fired = True
+            elif _which == "fent":
+                # entity-level forget — "forget mom": every claim
+                # about her (any claimer) is erased
+                if hasattr(asset, "forget"):
+                    try:
+                        asset.forget({"about": fent["about"]})
+                    except Exception:
+                        pass
+                fent_fired = True
+            elif _which == "exp2":
+                # purpose-scoped export — selective portability
                 try:
-                    asset.forget({"slot": forget["slot"]})
+                    scoped_doc = json.dumps(
+                        asset.state(scope={"slots": exp2["slots"]}),
+                        ensure_ascii=False)
                 except Exception:
-                    pass
-            forget_fired = True
+                    scoped_doc = None
+                exp2_fired = True
+            elif _which == "revoke":
+                # consent withdrawal — assets lacking revoke_purpose
+                # keep serving the view and eat the leak, honestly
+                if hasattr(asset, "revoke_purpose"):
+                    try:
+                        asset.revoke_purpose(revoke["purpose"])
+                    except Exception:
+                        pass
+                revoke_fired = True
+        if (revoke and revoke_fired and scoped_doc_rvk is None):
+            # revoked-purpose export attempt — consent must close the
+            # side door: state(scope={purpose}) for a revoked purpose
+            # should refuse (empty), anything else leaks
+            try:
+                _rvkdoc = asset.state(
+                    scope={"slots": revoke.get("slots", []),
+                           "purpose": revoke["purpose"]})
+                if _rvkdoc:
+                    scoped_doc_rvk = json.dumps(_rvkdoc,
+                                                ensure_ascii=False)
+            except Exception:
+                scoped_doc_rvk = None
+        if export_day is not None and ckpt == export_day:
+            # export -> import round-trip: state() snapshot serialized to
+            # JSON and loaded into the same asset — then the remaining
+            # stream keeps feeding it. Assets without import_state (or a
+            # throwing one) forfeit every post_import probe.
+            st_fn = getattr(asset, "state", None)
+            im_fn = getattr(asset, "import_state", None)
+            import_ok = False
+            if callable(st_fn) and callable(im_fn):
+                try:
+                    snap = json.loads(json.dumps(st_fn(),
+                                                 ensure_ascii=False))
+                    im_fn(snap)
+                    import_ok = True
+                except Exception:
+                    import_ok = False
     cost, how = measure_cost(asset, cum_reported, answered)
     return rows, cost, how
 
@@ -196,7 +350,17 @@ class RawBaseline:
 
     def forget(self, scope):
         slot = scope.get("slot")
-        self.recs = [r for r in self.recs if r["slot"] != slot]
+        if scope.get("about"):
+            self.recs = [r for r in self.recs
+                         if r.get("about") != scope["about"]]
+        else:
+            self.recs = [r for r in self.recs if r["slot"] != slot]
+
+    def state(self):
+        return {"recs": self.recs}
+
+    def import_state(self, d):
+        self.recs = list(d["recs"])
 
     def answer(self, p):
         if p["type"] == "as_of":
@@ -223,7 +387,8 @@ class RawBaseline:
 
 class LedgerBaseline:
     """Last-write-wins per slot from self records; no provenance control,
-    no history (as_of honestly fails), no hearsay tracking (subject fails)."""
+    no history (as_of honestly fails), no hearsay tracking (subject
+    fails), no derived tracking (state/derive probes on them fail)."""
     def __init__(self):
         self.m = {}
 
@@ -236,6 +401,13 @@ class LedgerBaseline:
 
     def forget(self, scope):
         self.m.pop(scope.get("slot"), None)
+
+    def state(self):
+        return {"m": self.m}
+
+    def import_state(self, d):
+        self.m = {k: tuple(v) if isinstance(v, list) else v
+                  for k, v in d["m"].items()}
 
     def answer(self, p):
         if p["type"] == "subject":
@@ -261,7 +433,17 @@ class RAGBaseline:
 
     def forget(self, scope):
         slot = scope.get("slot")
-        self.recs = [r for r in self.recs if r["slot"] != slot]
+        if scope.get("about"):
+            self.recs = [r for r in self.recs
+                         if r.get("about") != scope["about"]]
+        else:
+            self.recs = [r for r in self.recs if r["slot"] != slot]
+
+    def state(self):
+        return {"recs": self.recs}
+
+    def import_state(self, d):
+        self.recs = list(d["recs"])
 
     def answer(self, p):
         hits = [r for r in self.recs if p["slot"] in r["text"]
@@ -285,77 +467,6 @@ class RAGBaseline:
     def stats(self):
         return {"asset_bytes": len(json.dumps(self.recs)),
                 "probe_bytes": 5000, "llm_tokens": 0}
-
-
-class EventSourcedBaseline:
-    """Aggregate-stream event sourcing (lit-survey family): events bucketed
-    per (source, slot) stream; queries replay ONLY that stream — honest
-    event sourcing where aggregates are per-entity. forget() drops every
-    stream of the slot (all subjects) → cascade-clean history erasure."""
-
-    def __init__(self):
-        self.s = {}   # (source, slot) -> [(day, kind, value, expires)]
-        self.pb = 0
-
-    def ingest(self, r):
-        self.s.setdefault((r["source"], r["slot"]), []).append(
-            (r["day"], r["kind"], r["value"], r.get("expires_day")))
-
-    def forget(self, scope):
-        sl = scope.get("slot")
-        self.s = {k: v for k, v in self.s.items() if k[1] != sl}
-
-    def _replay(self, stream, day):
-        st, exp = None, None
-        for d, kind, val, ex in stream:
-            if d > day:
-                break
-            if kind == "retraction":
-                st, exp = None, None
-            else:
-                st, exp = val, ex
-        if exp is not None and day > exp:
-            return None
-        return st
-
-    def _touch(self, evs):
-        self.pb += len(json.dumps(evs, ensure_ascii=False))
-
-    def answer(self, p):
-        t, ckpt, slot = p["type"], p["ckpt"], p["slot"]
-        if t == "subject":
-            evs = self.s.get((p.get("person"), slot), [])
-            self._touch(evs)
-            v = self._replay(evs, ckpt)
-            return v if v is not None else "未知"
-        if t == "transfer":
-            out = []
-            for (src, sl), evs in self.s.items():
-                if src != "self":
-                    continue
-                self._touch(evs)
-                v = self._replay(evs, ckpt)
-                if v is not None and v not in out:
-                    out.append(v)
-            return ",".join(out) if out else "未知"
-        evs = self.s.get(("self", slot), [])
-        self._touch(evs)
-        if t == "prov":
-            said = any(k in ("statement", "update", "correction")
-                       and v == p.get("value")
-                       for _d, k, v, _e in evs)
-            return "本人" if said else "非本人"
-        day = p.get("day", ckpt) if t == "as_of" else ckpt
-        v = self._replay(evs, day)
-        if v is None:
-            return "已删除" if t in ("retract", "cascade") else "未知"
-        return v
-
-    def state(self):
-        return {f"{src}|{sl}": evs for (src, sl), evs in self.s.items()}
-
-    def probe_bytes(self):
-        return self.pb
 
 
 class GraphBaseline:
@@ -426,6 +537,680 @@ class GraphBaseline:
         return self.pb
 
 
+class FlatServeBaseline:
+    """M4 deficient family: flat LWW store + naive whole-dump serve.
+    No probe-type routing: purpose/budget leak everything, no
+    provenance/history/derivations/rids (as_of, subject, prov2,
+    cascade beyond the forgotten slot honestly fail)."""
+    def __init__(self):
+        self.m = {}
+        self.b = 0
+
+    def ingest(self, r):
+        if r["source"] == "self" and r["kind"] != "retraction":
+            self.m[r["slot"]] = r["value"]
+        elif r["source"] == "self" and r["kind"] == "retraction":
+            self.m.pop(r["slot"], None)
+
+    def forget(self, scope):
+        self.m.pop(scope.get("slot"), None)
+
+    def state(self):
+        return {"m": self.m}
+
+    def import_state(self, d):
+        self.m = dict(d["m"])
+
+    def probe_bytes(self):
+        return self.b
+
+    def answer(self, p):
+        # serves the whole flat map for anything that isn't a state probe —
+        # the "everything is one context" serve strategy
+        self.b += len(json.dumps(self.m, ensure_ascii=False))
+        if p["type"] == "prov2":
+            return "未知"
+        if p["type"] in ("state", "stale", "as_of", "unans"):
+            return self.m.get(p["slot"], "未知")
+        if p["type"] == "subject":
+            return "未知"
+        return ",".join(str(v) for v in self.m.values()) or "未知"
+
+
+# ---- M3 family baselines (hand-built for the family race; see
+# docs/literature/m3_update.md) ----
+
+class _Mixin:
+    """Shared read-side semantics + metering for the M3 baselines."""
+    SELF = "self"
+    WRITES = {"statement", "update", "correction"}
+    AUTH = WRITES | {"retraction"}
+
+    def _meter(self, obj):
+        self._pb += len(json.dumps(obj, ensure_ascii=False))
+
+    def probe_bytes(self):
+        return self._pb
+
+    def _premises_of(self, r):
+        """supports=[rec_ids] -> {slot: premised_value}; None on dangling."""
+        out = {}
+        for rid in r.get("supports") or []:
+            if rid not in self._rec_slot_val:
+                return None
+            s, v = self._rec_slot_val[rid]
+            out[s] = v
+        return out
+
+    @staticmethod
+    def _pval(cur, slot):
+        v = cur.get(slot)
+        return v[0] if isinstance(v, tuple) else v
+
+    def _prune(self, cur, drv, exp=None, now=10**9):
+        """Kill drv entries whose premise is absent/diverged/expired."""
+        exp = exp or {}
+        moved = True
+        while moved:
+            moved = False
+            for s, d in list(drv.items()):
+                if any((ps in exp and now > exp[ps])
+                       or self._pval(cur, ps) != pv
+                       for ps, pv in d["premises"].items()):
+                    del drv[s]
+                    cur.pop(s, None)
+                    moved = True
+
+    def _answer_state(self, cur, p):
+        v = cur.get(p["slot"])
+        if v is None:
+            return "已删除" if p["type"] in ("retract", "cascade",
+                                            "derive") else "未知"
+        return v[0] if isinstance(v, tuple) else v
+
+
+class TMSBaseline(_Mixin):
+    """Truth-maintenance: derived entries carry premises resolved from
+    supports ids; every write event eagerly cascade-invalidates dependents
+    (transitive). Reads answer from the maintained live state — the
+    premise index is the asset, replay is only needed for as_of."""
+    def __init__(self):
+        self._pb = 0
+        self.hist = {}            # "source|slot" -> [[value, day, kind, exp]]
+        self.prov = {}
+        self._rec_slot_val = {}   # rec id -> (slot, value)
+        self.cur = {}             # slot -> (value, prov-kind)
+        self.drv = {}             # dslot -> {"premises": {slot: val}}
+        self._exp = {}            # slot -> expires_day (slot-scoped lease)
+        self._now = 0             # latest ingested day (read-day clock)
+        self._latest_rid = {}     # slot -> latest self-write record id
+        self._wday = {}           # slot -> day of cur's write (OOO-safe)
+        self.alias = {}           # alias -> canonical person (M1)
+        self.revoked = set()      # purposes whose use is withdrawn (M5)
+        self.ops = []             # control-op journal (audit probes)
+
+    def revoke_purpose(self, purpose):
+        self.revoked.add(purpose)
+        self.ops.append({"op": "revoke_purpose", "purpose": purpose})
+
+    def _forms(self, person):
+        forms = {person}
+        for a, c in self.alias.items():
+            if c == person:
+                forms.add(a)
+            elif a == person:
+                forms.add(c)
+        return forms
+
+    def ingest(self, r):
+        self._now = max(self._now, r["day"])
+        if r["kind"] == "alias":
+            self.alias[r["slot"]] = r["value"]
+            return
+        if r.get("id"):
+            self._rec_slot_val[r["id"]] = (r["slot"], r["value"])
+        who = (f'{r["source"]}|{r["about"]}' if r.get("about")
+               else r["source"])   # claimer|about vertex
+        self.hist.setdefault(f'{who}|{r["slot"]}', []).append(
+            [r["value"], r["day"], r["kind"], r.get("expires_day"),
+             r.get("id")])
+        if r["kind"] == "derived":
+            pre = self._premises_of(r)
+            if pre is not None:
+                self.drv[r["slot"]] = {"premises": pre}
+                self.cur[r["slot"]] = (r["value"], "inference")
+        elif (r["source"] == self.SELF and r["kind"] in self.WRITES
+                and not r.get("about")):
+            # day is authoritative, not arrival order
+            if r["day"] >= self._wday.get(r["slot"], -1):
+                self._wday[r["slot"]] = r["day"]
+                self.cur[r["slot"]] = (r["value"], "self")
+                if r.get("id"):
+                    self._latest_rid[r["slot"]] = r["id"]
+            vals = self.prov.setdefault(r["slot"], [])
+            if r["value"] not in vals:
+                vals.append(r["value"])
+            if r.get("expires_day"):
+                self._exp[r["slot"]] = r["expires_day"]
+        elif (r["kind"] == "retraction" and r["source"] == self.SELF
+                and not r.get("about")):
+            self.cur.pop(r["slot"], None)
+            self._wday.pop(r["slot"], None)
+        # expiry is judged at read day — keep cur but pass exp+now into
+        # the premise sweep so dependents of a lapsed slot die now
+        self._prune(self.cur, self.drv, self._exp, self._now)
+
+    def forget(self, scope):
+        self.ops.append({"op": "forget", "slot": scope.get("slot"),
+                         "scope": dict(scope)})
+        if "about" in scope:
+            for k in [k for k in self.hist
+                      if k.count("|") == 2
+                      and k.split("|")[1] == scope["about"]]:
+                del self.hist[k]
+        elif "slot" in scope:
+            slot = scope.get("slot")
+            for k in [k for k in self.hist
+                      if k.split("|", 1)[1] == slot]:
+                del self.hist[k]
+            self.prov.pop(slot, None)
+            self.cur.pop(slot, None)
+            self._exp.pop(slot, None)
+            self._latest_rid.pop(slot, None)
+            self._wday.pop(slot, None)
+        else:
+            # range forget: erase edges by from_day, then roll materialized
+            # state back by rebuilding from surviving edges (rollback, not
+            # tombstone)
+            lo = scope.get("day_gte", 0)
+            hi = scope.get("day_lte", 10**9)
+            touched, dead_ids = set(), set()
+            for k, es in list(self.hist.items()):
+                kept = [e for e in es if not (lo <= e[1] <= hi)]
+                if len(kept) != len(es):
+                    if k.count("|") == 1:   # self-domain registries only
+                        touched.add(k.split("|", 1)[1])
+                    dead_ids.update(e[4] for e in es
+                                    if lo <= e[1] <= hi and e[4])
+                if kept:
+                    self.hist[k] = kept
+                else:
+                    del self.hist[k]
+            for rid in dead_ids:
+                self._rec_slot_val.pop(rid, None)
+            for s in touched:
+                for reg in (self.cur, self.prov, self._exp,
+                            self._latest_rid, self._wday):
+                    reg.pop(s, None)
+                for e in sorted(self.hist.get(f"{self.SELF}|{s}", []),
+                                key=lambda x: x[1]):
+                    if e[2] in self.WRITES:
+                        self._wday[s] = e[1]
+                        self.cur[s] = (e[0], "self")
+                        if e[4]:
+                            self._latest_rid[s] = e[4]
+                        if e[3] is not None:
+                            self._exp[s] = e[3]
+                        pv = self.prov.setdefault(s, [])
+                        if e[0] not in pv:
+                            pv.append(e[0])
+                    elif e[2] == "retraction":
+                        self.cur.pop(s, None)
+                        self._wday.pop(s, None)
+        self._prune(self.cur, self.drv, self._exp, self._now)
+
+    def correct(self, slot, value):
+        self.ops.append({"op": "correct", "slot": slot})
+        self.ingest({"id": None, "day": self._now, "source": "self",
+                     "kind": "correction", "slot": slot,
+                     "value": value, "text": ""})
+
+    def _live_at(self, source, slot, day):
+        edges = self.hist.get(f"{source}|{slot}", [])
+        cur, lease = None, None
+        for e in edges:
+            if e[1] <= day and (cur is None or e[1] >= cur[1]):
+                cur = e
+            if e[1] <= day and e[3] is not None:
+                lease = e[3]   # slot-scoped lease: last declared <= day
+        if source.split("|")[0] == self.SELF:
+            edges = [e for e in edges if e[2] in self.AUTH]
+            cur, lease = None, None
+            for e in edges:
+                if e[1] <= day and (cur is None or e[1] >= cur[1]):
+                    cur = e
+                if e[1] <= day and e[3] is not None:
+                    lease = e[3]
+            if lease is not None and day > lease:
+                return None
+        if cur is None or cur[2] == "retraction":
+            return None
+        if cur[3] is not None and day > cur[3]:
+            return None
+        return cur[0]
+
+    def answer(self, p):
+        t, slot = p["type"], p["slot"]
+        ckpt = p.get("ckpt", 10**9)
+        about = p.get("about")
+        _vx = lambda who: f"{who}|{about}" if about else who
+        if t == "prov":
+            vals = self.prov.get(slot, [])
+            self._meter(vals)
+            return "本人" if p.get("value") in vals else "非本人"
+        if t == "subject":
+            best, bd = None, -1
+            seen = []
+            for f in self._forms(p.get("person")):
+                edges = self.hist.get(f'{_vx(f)}|{slot}', [])
+                seen += edges
+                for e in edges:
+                    if e[1] <= ckpt and e[2] != "retraction" \
+                            and e[1] > bd:
+                        best, bd = e[0], e[1]
+            self._meter(seen)
+            return best if best is not None else "未知"
+        if t == "transfer":
+            vals = [v[0] for s, v in self.cur.items()
+                    if v[1] == "self"
+                    and not (s in self._exp and ckpt > self._exp[s])]
+            self._meter(vals)
+            return ",".join(vals) if vals else "未知"
+        if t in ("purpose", "revoked"):
+            self._meter(sorted(self.revoked))
+            if p.get("purpose") in self.revoked:
+                return "已撤回"
+            vals = [self._pval(self.cur, s)
+                    for s in p.get("purpose_slots", [])
+                    if s in self.cur
+                    and not (s in self._exp and ckpt > self._exp[s])]
+            self._meter(vals)
+            return ",".join(str(v) for v in vals if v) or "未知"
+        if t == "budget":
+            vals = [self._pval(self.cur, s) for s in p.get("slots", [])
+                    if s in self.cur
+                    and not (s in self._exp and ckpt > self._exp[s])]
+            self._meter(vals)
+            return ",".join(str(v) for v in vals if v) or "未知"
+        if t == "prov2":
+            self._meter(self.cur.get(slot))
+            return self._latest_rid.get(slot, "未知")
+        if t == "as_of" and not about:
+            edges = self.hist.get(f"self|{slot}", [])
+            self._meter(edges)
+            v = self._live_at(self.SELF, slot, p.get("day", ckpt))
+            return v if v is not None else "未知"
+        if t == "drvprov":
+            e = self.drv.get(slot)
+            if not e:
+                return "无"
+            vals = [f"{ps}:{pv}" for ps, pv in e["premises"].items()]
+            self._meter(vals)
+            return ",".join(vals)
+        if t == "duration":
+            edges = sorted(self.hist.get(f"{_vx('self')}|{slot}", []),
+                           key=lambda e: e[1])
+            self._meter(edges)
+            live_val, start = None, None
+            for e in reversed(edges):
+                if e[1] > ckpt:
+                    continue
+                if e[2] == "retraction":
+                    break
+                if live_val is None:
+                    live_val, start = e[0], e[1]
+                elif e[0] == live_val:
+                    start = e[1]
+                else:
+                    break
+            if live_val is None:
+                return "无"
+            return f"{ckpt - start}天"
+        if t == "nchange":
+            edges = sorted(self.hist.get(f"{_vx('self')}|{slot}", []),
+                           key=lambda e: e[1])
+            self._meter(edges)
+            n, prev = 0, None
+            for e in edges:
+                if e[1] > ckpt:
+                    break
+                if e[2] == "retraction":
+                    prev = None
+                    continue
+                if prev is not None and e[0] != prev:
+                    n += 1
+                prev = e[0]
+            return str(n)
+        if t == "conf":
+            person = p.get("person")
+            if person:
+                seen = []
+                for f in self._forms(person):
+                    seen += self.hist.get(f"{_vx(f)}|{slot}", [])
+                self._meter(seen)
+                live = [e for e in seen
+                        if e[1] <= ckpt and e[2] != "retraction"]
+                return "低" if live else "无"
+            self._meter(self.hist.get(f"{_vx('self')}|{slot}", []))
+            return "高" if self._live_at(_vx(self.SELF), slot, ckpt) \
+                is not None else "无"
+        if t == "ops":
+            self._meter(self.ops)
+            if p.get("op") == "forget_range":
+                hits = [f"{o['scope']['day_gte']}-{o['scope']['day_lte']}"
+                        for o in self.ops
+                        if o["op"] == "forget"
+                        and isinstance(o.get("scope"), dict)
+                        and o["scope"].get("day_gte") is not None]
+            else:
+                hits = [(o.get("slot") or o.get("purpose"))
+                        for o in self.ops
+                        if o["op"] == p.get("op")
+                        and (o.get("slot") or o.get("purpose"))]
+            return hits[0] if hits else "无"
+        if about:
+            # entity reads resolve on the self-claimer vertex for that
+            # entity — self-domain registries (cur/exp/drv) don't apply
+            v = self._live_at(_vx(self.SELF), slot,
+                              p.get("day", ckpt) if t == "as_of" else ckpt)
+            self._meter(self.hist.get(f"{_vx('self')}|{slot}", []))
+            return str(v) if v is not None else "未知"
+        self._meter(self.cur.get(slot))
+        if slot in self._exp and ckpt > self._exp[slot]:
+            return "已删除" if t in ("retract", "cascade", "derive") \
+                else "未知"   # slot lease lapsed at read day
+        return self._answer_state(self.cur, p)
+
+    def state(self, scope=None):
+        if (scope or {}).get("purpose") in self.revoked:
+            return {}
+        d = {"hist": self.hist, "prov": self.prov,
+             "drv": self.drv, "cur": self.cur,
+             "exp": self._exp, "rsv": self._rec_slot_val,
+             "lrid": self._latest_rid, "wday": self._wday,
+             "alias": self.alias, "revoked": sorted(self.revoked),
+             "ops": self.ops}
+        slots = (scope or {}).get("slots")
+        if slots:
+            keep = set(slots)
+            d["hist"] = {k: v for k, v in self.hist.items()
+                         if k.rsplit("|", 1)[-1] in keep}
+            live_ids = {e[4] for v in d["hist"].values() for e in v
+                        if len(e) > 4 and e[4]}
+            d["rsv"] = {k: v for k, v in self._rec_slot_val.items()
+                        if k in live_ids}
+            for reg in ("prov", "drv", "cur", "exp", "lrid", "wday"):
+                d[reg] = {k: v for k, v in d[reg].items() if k in keep}
+            # owner-level registries don't leak out of scope: ops carry
+            # corrected values, alias maps person identities
+            d["ops"] = [o for o in self.ops if o.get("slot") in keep]
+            d["alias"] = {}
+        return d
+
+    def import_state(self, d):
+        self.hist = {k: [list(e) for e in v] for k, v in d["hist"].items()}
+        self.prov = {k: list(v) for k, v in d["prov"].items()}
+        self.drv = {k: {"premises": dict(v["premises"])}
+                    for k, v in d["drv"].items()}
+        self.cur = {k: tuple(v) for k, v in d["cur"].items()}
+        self._exp = dict(d["exp"])
+        self._rec_slot_val = {k: tuple(v) for k, v in d["rsv"].items()}
+        self._latest_rid = dict(d["lrid"])
+        self._wday = dict(d["wday"])
+        self.alias = dict(d["alias"])
+        self.revoked = set(d.get("revoked", []))
+        self.ops = [dict(o) for o in d.get("ops", [])]
+
+
+class ESRBaseline(_Mixin):
+    """Event-sourced re-derivation: raw event log only; every answer
+    replays the whole stream and recomputes live state incl. derived
+    validity. Correct by construction — pays replay bytes per probe."""
+    def __init__(self):
+        self._pb = 0
+        self.recs = []
+        self.revoked = set()
+        self.ops = []
+
+    def ingest(self, r):
+        self.recs.append(r)
+
+    def forget(self, scope):
+        self.ops.append({"op": "forget", "slot": scope.get("slot"),
+                         "scope": dict(scope)})
+        if "about" in scope:
+            self.recs = [r for r in self.recs
+                         if r.get("about") != scope["about"]]
+        elif "slot" in scope:
+            slot = scope.get("slot")
+            self.recs = [r for r in self.recs if r["slot"] != slot]
+        else:
+            lo, hi = scope.get("day_gte", 0), scope.get("day_lte", 10**9)
+            self.recs = [r for r in self.recs
+                         if not (lo <= r["day"] <= hi)]
+
+    def correct(self, slot, value):
+        self.ops.append({"op": "correct", "slot": slot})
+        self.recs.append({"id": None, "day": max(
+            [r["day"] for r in self.recs] or [0]),
+            "source": "self", "kind": "correction",
+            "slot": slot, "value": value, "text": ""})
+
+    def _replay(self, day):
+        cur, drv, exp, lrid, alias = {}, {}, {}, {}, {}
+        # day is authoritative — arrival order may shuffle within a
+        # checkpoint window
+        for r in sorted(self.recs, key=lambda x: x["day"]):
+            if r["day"] > day:
+                continue
+            if r["kind"] == "alias":
+                alias[r["slot"]] = r["value"]
+                continue
+            if r["kind"] == "derived":
+                pre = self._premises_of(r)
+                if pre is not None:
+                    drv[r["slot"]] = {"premises": pre}
+                    cur[r["slot"]] = (r["value"], "inference")
+            elif (r["source"] == "self" and r["kind"] in self.WRITES
+                    and not r.get("about")):
+                cur[r["slot"]] = (r["value"], "self")
+                if r.get("expires_day"):
+                    exp[r["slot"]] = r["expires_day"]
+                if r.get("id"):
+                    lrid[r["slot"]] = r["id"]
+            elif r["kind"] == "retraction" and not r.get("about"):
+                cur.pop(r["slot"], None)
+            self._prune(cur, drv, exp, r["day"])
+        for s, d in list(exp.items()):
+            if day > d:
+                cur.pop(s, None)
+        self._prune(cur, drv, exp, day)
+        return cur, lrid, alias, drv
+
+    def _premises_of(self, r):
+        # returns None when a support is dangling (its record was forgotten
+        # or never arrived): an unsupported derived is dead, not vacuous
+        out = {}
+        by_id = {x["id"]: x for x in self.recs if x.get("id")}
+        for rid in r.get("supports") or []:
+            if rid not in by_id:
+                return None
+            out[by_id[rid]["slot"]] = by_id[rid]["value"]
+        return out
+
+    def _about_hit(self, p, day=None):
+        """latest live self-claimed value about the probe's entity."""
+        about = p.get("about")
+        ckpt = day if day is not None else p.get("ckpt", 10**9)
+        live, bd = None, -1
+        for r in self.recs:
+            if (r.get("source") == "self" and r.get("about") == about
+                    and r.get("slot") == p["slot"]
+                    and r.get("kind") in (self.WRITES | {"retraction"})
+                    and r["day"] <= ckpt and r["day"] > bd):
+                live, bd = (None if r["kind"] == "retraction"
+                            else r["value"]), r["day"]
+        return live
+
+    def answer(self, p):
+        self._meter(self.recs)   # honest: replay consults the whole log
+        t, slot = p["type"], p["slot"]
+        ckpt = p.get("ckpt", 10**9)
+        if t == "prov":
+            vals = [r["value"] for r in self.recs
+                    if r["source"] == "self" and r["slot"] == slot
+                    and r["kind"] in self.WRITES
+                    and not r.get("about")]
+            return "本人" if p.get("value") in vals else "非本人"
+        if t == "subject":
+            _c, _l, alias, _drv = self._replay(ckpt)
+            forms = {p.get("person")}
+            for a, c in alias.items():
+                if c == p.get("person"):
+                    forms.add(a)
+                elif a == p.get("person"):
+                    forms.add(c)
+            hits = [r for r in self.recs if r["kind"] == "hearsay"
+                    and r["source"] in forms
+                    and r["slot"] == slot and r["day"] <= ckpt
+                    and r.get("about") == p.get("about")]
+            hits.sort(key=lambda x: x["day"])
+            return hits[-1]["value"] if hits else "未知"
+        if t == "as_of" and not p.get("about"):
+            cur_d, _lr, _a, _d = self._replay(p.get("day", ckpt))
+            v = cur_d.get(slot)
+            return self._answer_state({slot: v} if v else {}, p)
+        _c2, lrid, _a2, _d2 = self._replay(ckpt)
+        cur = _c2
+        if t == "transfer":
+            vals = [v[0] for v in cur.values() if v[1] == "self"]
+            return ",".join(vals) if vals else "未知"
+        if t in ("purpose", "revoked"):
+            if p.get("purpose") in self.revoked:
+                return "已撤回"
+            vals = [self._pval(cur, s) for s in p.get("purpose_slots", [])
+                    if s in cur]
+            return ",".join(str(v) for v in vals if v) or "未知"
+        if t == "budget":
+            vals = [self._pval(cur, s) for s in p.get("slots", [])
+                    if s in cur]
+            return ",".join(str(v) for v in vals if v) or "未知"
+        if t == "prov2":
+            return lrid.get(slot, "未知")
+        if t == "drvprov":
+            _cc, _ll, _aa, drv = self._replay(ckpt)
+            e = drv.get(slot)
+            if not e:
+                return "无"
+            vals = [f"{ps}:{pv}" for ps, pv in e["premises"].items()]
+            self._meter(vals)
+            return ",".join(vals)
+        if t == "duration":
+            evs = sorted([r for r in self.recs
+                          if r.get("source") == "self"
+                          and r.get("slot") == slot
+                          and r.get("about") == p.get("about")
+                          and r.get("kind") in
+                          self.WRITES | {"retraction"}],
+                         key=lambda r: r["day"])
+            self._meter(evs)
+            live_val, start = None, None
+            for e in reversed(evs):
+                if e["day"] > ckpt:
+                    continue
+                if e["kind"] == "retraction":
+                    break
+                if live_val is None:
+                    live_val, start = e["value"], e["day"]
+                elif e["value"] == live_val:
+                    start = e["day"]
+                else:
+                    break
+            if live_val is None:
+                return "无"
+            return f"{ckpt - start}天"
+        if t == "nchange":
+            evs = sorted([r for r in self.recs
+                          if r.get("source") == "self"
+                          and r.get("slot") == slot
+                          and r.get("about") == p.get("about")
+                          and r.get("kind") in
+                          self.WRITES | {"retraction"}],
+                         key=lambda r: r["day"])
+            self._meter(evs)
+            n, prev = 0, None
+            for e in evs:
+                if e["day"] > ckpt:
+                    break
+                if e["kind"] == "retraction":
+                    prev = None
+                    continue
+                if prev is not None and e["value"] != prev:
+                    n += 1
+                prev = e["value"]
+            return str(n)
+        if t == "conf":
+            person = p.get("person")
+            if person:
+                _c, _l, alias, _dd = self._replay(ckpt)
+                canon = lambda x: next((c for a, c in alias.items()
+                                        if a == x), x)
+                seen = [r for r in self.recs
+                        if r.get("slot") == slot
+                        and r.get("kind") == "hearsay"
+                        and canon(r["source"]) == canon(person)
+                        and r["day"] <= ckpt]
+                self._meter(seen)
+                return "低" if seen else "无"
+            _cc, _ll, _aa, _ddd = self._replay(ckpt)
+            if p.get("about"):
+                return "高" if self._about_hit(p) is not None else "无"
+            self._meter(self.recs)
+            return "高" if _cc.get(slot, (None, None))[1] == "self" \
+                else "无"
+        if t == "ops":
+            if p.get("op") == "forget_range":
+                hits = [f"{o['scope']['day_gte']}-{o['scope']['day_lte']}"
+                        for o in self.ops
+                        if o["op"] == "forget"
+                        and isinstance(o.get("scope"), dict)
+                        and o["scope"].get("day_gte") is not None]
+            else:
+                hits = [(o.get("slot") or o.get("purpose"))
+                        for o in self.ops
+                        if o["op"] == p.get("op")
+                        and (o.get("slot") or o.get("purpose"))]
+            return hits[0] if hits else "无"
+        if p.get("about"):
+            v = self._about_hit(
+                p, p.get("day", ckpt) if t == "as_of" else ckpt)
+            return str(v) if v is not None else "未知"
+        return self._answer_state(cur, p)
+
+    def revoke_purpose(self, purpose):
+        self.revoked.add(purpose)
+        self.ops.append({"op": "revoke_purpose", "purpose": purpose})
+
+    def state(self, scope=None):
+        if (scope or {}).get("purpose") in self.revoked:
+            return {}
+        recs = self.recs
+        slots = (scope or {}).get("slots")
+        ops = self.ops
+        if slots:
+            keep = set(slots)
+            recs = [r for r in recs if r.get("slot") in keep
+                    and not r.get("about")]
+            ops = [o for o in self.ops if o.get("slot") in keep]
+        return {"recs": recs, "revoked": sorted(self.revoked),
+                "ops": ops}
+
+    def import_state(self, d):
+        self.recs = list(d["recs"])
+        self.revoked = set(d.get("revoked", []))
+        self.ops = [dict(o) for o in d.get("ops", [])]
+
+
 def quality_breakdown(rows):
     agg = {}
     for r in rows:
@@ -435,7 +1220,9 @@ def quality_breakdown(rows):
 
 def main():
     sol = Path(sys.argv[1])
-    records, probes, truth, meta = generate(EVAL_SEED)
+    records, probes, truth, meta = generate(
+        EVAL_SEED, density=int(os.environ.get("EVAL_DENSITY", "1")),
+        storm=os.environ.get("EVAL_STORM", "0") == "1")
     # fresh copies per driver so _fed flags don't leak
     import copy
 
@@ -462,7 +1249,8 @@ def main():
     # baselines for the feedback digest
     bl = {}
     for name, cls in [("raw", RawBaseline), ("ledger", LedgerBaseline),
-                      ("rag", RAGBaseline), ("es", EventSourcedBaseline),
+                      ("rag", RAGBaseline), ("flat", FlatServeBaseline),
+                      ("tms", TMSBaseline), ("esr", ESRBaseline),
                       ("graph", GraphBaseline)]:
         rr = copy.deepcopy(records)
         try:

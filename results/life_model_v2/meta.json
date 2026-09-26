@@ -1,0 +1,13 @@
+{
+  "id": "s0001",
+  "score": 95.9952,
+  "direction": "explore",
+  "parents": [
+    "s0000"
+  ],
+  "eval_version": 0,
+  "created": 1790178749.608757,
+  "feedback": "quality=96.00 cost={'asset_bytes': 1370, 'probe_bytes': 10650, 'llm_tokens': 0} cost_how=measured breakdown={'state': 1.0, 'stale': 1.0, 'prov': 1.0, 'subject': 1.0, 'as_of': 1.0, 'cascade': 1.0, 'retract': 1.0, 'transfer': 0.0} baselines={'raw': 94.5, 'ledger': 74.0, 'rag': 77.0} meta={'changed': ['diet', 'device', 'contact', 'learning', 'risk'], 'retract_slot': 'time_budget', 'exp_day': 48, 'n_records': 44, 'forget': {'slot': 'learning', 'day': 55}}",
+  "error": null,
+  "path": "run_v2/eb/solutions/s0001"
+}
