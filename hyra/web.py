@@ -176,110 +176,203 @@ INDEX_HTML = r"""<!doctype html>
 <html lang="zh">
 <head>
 <meta charset="utf-8">
-<title>Hyra — Experience Bank</title>
+<title>LifeModel 研究看板</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
 :root{--bg:#0d1117;--panel:#161b22;--line:#30363d;--fg:#e6edf3;--dim:#8b949e;
 --acc:#58a6ff;--good:#3fb950;--bad:#f85149;--warn:#d29922}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--fg);font:15px/1.55 -apple-system,Segoe UI,
-Roboto,"Helvetica Neue",monospace-ui,sans-serif;padding:18px}
-h1{font-size:19px;display:flex;align-items:center;gap:10px;margin-bottom:12px}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--fg);font:14px/1.55 -apple-system,Segoe UI,
+Roboto,"Helvetica Neue","PingFang SC","Microsoft YaHei",sans-serif;padding:14px 22px 20px}
+h1{font-size:17px;display:flex;align-items:center;gap:10px}
 .dot{width:9px;height:9px;border-radius:50%;background:var(--dim);display:inline-block}
 .dot.on{background:var(--good);box-shadow:0 0 8px var(--good)}
 .dot.done{background:var(--acc)}
-.stats{display:flex;gap:24px;flex-wrap:wrap;color:var(--dim);margin:8px 0 16px;
-font-size:14px}
+.small{font-size:12px;color:var(--dim)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+section{scroll-margin-top:64px}
+/* —— 顶部导航 —— */
+.topnav{position:sticky;top:0;z-index:50;background:rgba(13,17,23,.92);backdrop-filter:blur(6px);
+margin:-14px -22px 12px;padding:9px 22px;border-bottom:1px solid var(--line);
+display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.topnav .brand{font-weight:700;font-size:13.5px;margin-right:12px}
+.topnav a{color:var(--dim);text-decoration:none;font-size:12px;padding:4px 9px;border-radius:6px}
+.topnav a:hover{color:var(--fg);background:#21262d}
+.topnav a.on{color:var(--acc);background:rgba(88,166,255,.12)}
+/* —— 状态横幅 —— */
+.banner{display:flex;gap:20px;align-items:center;background:#161b22;border:1px solid var(--line);
+border-left:4px solid var(--acc);border-radius:10px;padding:11px 16px;margin-bottom:8px;flex-wrap:wrap}
+.banner .verdict{font-size:15px;font-weight:600}
+.banner .seg{color:var(--dim);font-size:12px}
+.banner .seg b{color:var(--fg)}
+.pulse{width:9px;height:9px;border-radius:50%;background:var(--good);flex:none;
+box-shadow:0 0 0 3px rgba(63,185,80,.25);animation:p 2s infinite}
+@keyframes p{50%{box-shadow:0 0 0 6px rgba(63,185,80,.06)}}
+/* —— 名词解释：首读者悬停即释义 —— */
+.term{border-bottom:1px dotted var(--dim);cursor:help}
+.glossary{display:flex;gap:5px 18px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);
+border-radius:10px;padding:8px 14px;margin-bottom:12px;font-size:12px;color:var(--dim)}
+.glossary b{color:var(--fg);font-weight:600}
+/* —— 实时统计行 —— */
+.stats{display:flex;gap:22px;flex-wrap:wrap;color:var(--dim);font-size:12.5px;margin-bottom:14px}
 .stats>span{display:inline-flex;gap:6px;align-items:center}
 .stats b{color:var(--fg);font-weight:600}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;
-padding:12px;min-width:0}
-.panel h2{font-size:13px;color:var(--dim);text-transform:uppercase;
-letter-spacing:.07em;margin-bottom:10px}
-table{width:100%;border-collapse:collapse;font-size:13.5px}
-th{color:var(--dim);text-align:left;font-weight:500;padding:6px 8px;
-border-bottom:1px solid var(--line)}
-td{padding:5px 8px;border-bottom:1px solid #21262d;white-space:nowrap;
-max-width:460px;overflow:hidden;text-overflow:ellipsis}
-tr.sel td{background:#1f2a3a}
-tr:hover td{background:#1b2330;cursor:pointer}
-.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
-.tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12.5px;
-border:1px solid var(--line);color:var(--dim)}
-svg{display:block;width:100%}
-pre{background:#0a0d12;border:1px solid var(--line);border-radius:6px;
-padding:12px;overflow:auto;max-height:340px;font-size:13px;white-space:pre}
-.files{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 8px}
-.fbtn{background:#21262d;border:1px solid var(--line);border-radius:6px;
-padding:3px 11px;font-size:13px;cursor:pointer;color:var(--fg)}
-.fbtn.on{border-color:var(--acc);color:var(--acc)}
-.best{color:var(--good);font-weight:600}
-.neg{color:var(--bad)}
-.logbox{max-height:220px}
-.node{cursor:pointer}
-.node text{font-size:11px;fill:var(--dim)}
-.small{font-size:13px;color:var(--dim)}
-.brow{display:flex;align-items:center;gap:10px;margin:4px 0;font-size:13px}
-.blab{width:70px;color:var(--dim);text-align:right;flex:none}
-.bwrap{flex:1;height:11px;background:#21262d;border-radius:6px;overflow:hidden}
-.bfill{height:100%;background:var(--acc);border-radius:6px}
-.bval{width:48px;color:var(--dim);flex:none}
-.fb{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 10px}
-.strow{display:flex;gap:10px;align-items:baseline;margin:6px 0;font-size:14px}
-.strow .tag{min-width:44px;text-align:center;flex:none}
-.rnd{margin:2px 0 2px 54px;font-size:13px;color:var(--dim)}
-.rnd b{color:var(--fg)}
+/* —— 面板（可折叠） —— */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+padding:12px 14px;min-width:0;overflow:hidden;margin-bottom:14px}
+.grid .panel{margin-bottom:0}
+.panel>h2{font-size:13px;font-weight:600;color:var(--fg);margin-bottom:10px;
+cursor:pointer;user-select:none;display:flex;align-items:center;gap:7px}
+.panel>h2:before{content:'▾';color:var(--dim);font-size:11px;transition:transform .15s}
+.panel.closed>h2:before{transform:rotate(-90deg)}
+.panel.closed>h2{margin-bottom:0}
+.panel>.body{transition:opacity .15s}
+.panel.closed>.body{display:none}
+/* —— 架构图 —— */
 .mod{cursor:pointer}
 .mod rect.frame{transition:stroke .15s}
 .mod:hover rect.frame{stroke:var(--acc)}
-.exp table{font-size:13px}
+.mod.sel rect.frame{stroke:var(--acc);stroke-width:2.6}
+/* —— 阶段 —— */
+.strow{display:flex;gap:9px;align-items:baseline;margin:5px 0;font-size:13px}
+.strow .tag{min-width:44px;text-align:center;flex:none}
+.rnd{margin:2px 0 2px 52px;font-size:12.5px;color:var(--dim)}
+.rnd b{color:var(--fg)}
+.tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;
+border:1px solid var(--line);color:var(--dim)}
+.exp table{font-size:12.5px}
 .exp td{padding:3px 8px;border-bottom:1px solid #21262d}
+/* —— 研究脉络 —— */
 .tl{margin-top:4px}
 .tlit{position:relative;padding:3px 0 10px 18px;border-left:1px solid #30363d;margin-left:6px}
 .tlit:before{content:'';position:absolute;left:-5px;top:10px;width:8px;height:8px;border-radius:50%;background:var(--acc)}
 .tlit .tw{font-size:11px;color:var(--dim)}
 .tlit b{font-size:13px}
 .tlit .tt{font-size:12.5px;color:var(--dim);white-space:normal}
-#detail{display:none;margin-top:14px}
+/* —— 当前轮卡片 —— */
+.roundcard{display:flex;gap:14px;flex-wrap:wrap}
+.rc{flex:1;min-width:165px;background:#0d1117;border:1px solid var(--line);border-radius:8px;padding:9px 12px}
+.rc .k{font-size:11px;color:var(--dim);margin-bottom:3px}
+.rc .v{font-size:13.5px;font-weight:600}
+.pbar{height:6px;background:#21262d;border-radius:3px;margin-top:8px;overflow:hidden}
+.pbar i{display:block;height:100%;background:var(--acc);border-radius:3px}
+/* —— 差距地图 —— */
+table.gap{border-collapse:collapse;font-size:12px;width:100%}
+table.gap th,table.gap td{padding:5px 8px;text-align:center;border:1px solid #21262d}
+table.gap th{background:#0d1117;font-weight:600;position:sticky;top:0}
+table.gap td.fam{text-align:left;color:var(--dim);cursor:default;white-space:nowrap}
+.cell{border-radius:4px;display:inline-block;min-width:46px;padding:2px 6px;cursor:pointer}
+.cell:hover{outline:2px solid var(--acc)}
+.legend{display:flex;gap:14px;margin-top:8px;font-size:11.5px;color:var(--dim);flex-wrap:wrap}
+.legend .cell{cursor:default;min-width:38px}
+.gapdetail{margin-top:10px;padding:9px 12px;background:#0d1117;border:1px solid var(--line);
+border-radius:8px;font-size:12.5px;display:none}
+/* —— 排行榜 —— */
+table.rank{border-collapse:collapse;font-size:12.5px;width:100%}
+table.rank th{color:var(--dim);font-weight:600;text-align:left;padding:5px 8px;border-bottom:1px solid var(--line)}
+table.rank td{padding:5px 8px;border-bottom:1px solid #21262d}
+table.rank tbody tr{transition:background .1s}
+table.rank tbody tr:hover{background:#1c2128}
+.lead td:first-child{color:var(--good);font-weight:600}
+/* —— 证据区（EB 实时面板） —— */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{color:var(--dim);text-align:left;font-weight:500;padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:5px 8px;border-bottom:1px solid #21262d;white-space:nowrap;
+max-width:460px;overflow:hidden;text-overflow:ellipsis}
+tr.sel td{background:#1f2a3a}
+tbody tr:hover td{background:#1b2330;cursor:pointer}
+svg{display:block;width:100%}
+pre{background:#0a0d12;border:1px solid var(--line);border-radius:6px;
+padding:12px;overflow:auto;max-height:340px;font-size:12.5px;white-space:pre}
+.files{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 8px}
+.fbtn{background:#21262d;border:1px solid var(--line);border-radius:6px;
+padding:3px 11px;font-size:12.5px;cursor:pointer;color:var(--fg)}
+.fbtn.on{border-color:var(--acc);color:var(--acc)}
+.best{color:var(--good);font-weight:600}
+.neg{color:var(--bad)}
+.logbox{max-height:220px}
+.node{cursor:pointer}
+.node text{font-size:11px;fill:var(--dim)}
+.brow{display:flex;align-items:center;gap:10px;margin:4px 0;font-size:12.5px}
+.blab{width:70px;color:var(--dim);text-align:right;flex:none}
+.bwrap{flex:1;height:11px;background:#21262d;border-radius:6px;overflow:hidden}
+.bfill{height:100%;background:var(--acc);border-radius:6px}
+.bval{width:48px;color:var(--dim);flex:none}
+.fb{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 10px}
+#detail{display:none;margin-bottom:14px}
+.totop{position:fixed;right:20px;bottom:20px;background:var(--panel);border:1px solid var(--line);
+border-radius:8px;padding:7px 12px;font-size:12px;color:var(--dim);cursor:pointer;display:none;z-index:60}
+.totop:hover{color:var(--fg)}
 @media(max-width:900px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<h1><span class="dot" id="runDot"></span> Hyra — Experience Bank
- <span class="small" id="taskName"></span></h1>
+
+<nav class="topnav">
+  <h1 style="margin:0"><span class="dot" id="runDot"></span><span class="brand">LifeModel 研究看板</span></h1>
+  <a href="#sec-sys">系统</a><a href="#sec-road">脉络</a><a href="#sec-now">当前轮</a>
+  <a href="#sec-gap">差距地图</a><a href="#sec-rank">排行榜</a><a href="#sec-evi">证据</a>
+  <span class="small" id="taskName" style="margin-left:auto"></span>
+</nav>
+
+<div class="banner" id="banner" style="display:none"></div>
+<div class="small" id="readhint" style="display:none;margin-bottom:8px">读法：从上往下 —— 先一句话结论，再系统、再历史、再当前在做什么、差在哪、证据在最后。板块标题可点击折叠；虚线下划线的词悬停有解释。</div>
+<div class="glossary" id="glossary" style="display:none"></div>
 <div class="stats" id="stats"></div>
+
 <div id="research" style="display:none">
-<div class="grid" style="margin-bottom:14px">
-  <div class="panel"><h2>LifeModel System 架构 <span class="small" style="text-transform:none">— 点击模块看详情</span></h2>
+<div class="grid" id="sec-sys">
+  <div class="panel"><h2>系统长什么样 —— 五模块，接口冻结，每次只优化一块</h2><div class="body">
     <svg id="arch" height="230"></svg>
-    <div class="small" id="modInfo"></div></div>
-  <div class="panel"><h2>研究阶段与实验</h2><div id="stages"></div><div id="experiment"></div></div>
+    <div class="small" id="modInfo" style="margin-top:6px">点击任一模块看它当前的实现与下一步。</div></div></div>
+  <div class="panel"><h2>研究分几步走</h2><div class="body"><div id="stages"></div><div id="experiment"></div></div></div>
 </div>
-<div class="panel" style="margin-bottom:14px"><h2>研究脉络 — 历次结论回顾</h2>
-  <div class="tl" id="timeline"></div></div>
-</div>
+<section id="sec-road"><div class="panel"><h2>研究脉络 —— 每一步留下了什么结论</h2><div class="body"><div class="tl" id="timeline"></div></div></div></section>
+<section id="sec-now"><div class="panel" id="nowPanel" style="display:none"><h2>当前这一轮在做什么</h2><div class="body">
+  <div class="roundcard" id="roundcard"></div></div></div></section>
 <div class="grid">
-  <div class="panel"><h2>得分走势</h2><svg id="curve" height="280"></svg>
-    <div class="small" id="legend"></div></div>
-  <div class="panel"><h2>解的谱系（点击节点查看解）</h2><svg id="tree" height="280"></svg></div>
+  <div class="panel" id="gapPanel" style="display:none"><h2 id="sec-gap">差距地图 —— 哪类题还没人做对</h2><div class="body">
+    <div class="small" style="margin-bottom:8px">点格子看"这题考什么"。红色 = 空白得分区，就是下一轮的目标。</div>
+    <div style="max-height:340px;overflow:auto"><table class="gap" id="gapmap"></table></div>
+    <div class="legend">
+      <span><span class="cell" style="background:rgba(63,185,80,.85);color:#0d1117">✓</span> 满分</span>
+      <span><span class="cell" style="background:rgba(210,153,34,.75);color:#0d1117">0.x</span> 半对</span>
+      <span><span class="cell" style="background:rgba(248,81,73,.9)">0</span> 全错</span>
+    </div>
+    <div class="gapdetail" id="gapdetail"></div></div></div>
+  <div class="panel" id="rankPanel" style="display:none"><h2 id="sec-rank">排行榜 <span class="small" style="font-weight:400">得分 = 答对题数 − 成本</span></h2><div class="body">
+    <table class="rank" id="rank"></table></div></div>
+</div>
+</div>
+
+<div class="grid" id="sec-evi">
+  <div class="panel"><h2>得分走势 <span class="small" style="font-weight:400">蓝线=得分，虚线=答对数</span></h2><div class="body">
+    <svg id="curve" height="240"></svg>
+    <div class="small" id="legend" style="margin-top:6px"></div></div></div>
+  <div class="panel"><h2>解的谱系 <span class="small" style="font-weight:400">谁从谁进化来 · 点击节点查看解</span></h2><div class="body">
+    <svg id="tree" height="240"></svg></div></div>
 </div>
 <div id="detail" class="panel">
-  <h2 id="detTitle">Solution</h2>
+  <h2 id="detTitle">Solution</h2><div class="body">
   <div class="fb" id="detFb"></div>
   <div id="detBars"></div>
   <div class="files" id="detFiles"></div>
-  <pre class="mono" id="detBody"></pre>
+  <pre class="mono" id="detBody"></pre></div>
 </div>
-<div class="grid" style="margin-top:14px">
-  <div class="panel"><h2>候选解明细</h2>
+<div class="grid">
+  <div class="panel"><h2>候选解明细</h2><div class="body">
     <div style="max-height:320px;overflow:auto"><table id="tbl">
       <thead><tr><th>编号</th><th>得分</th><th>策略</th><th>父代</th>
       <th>考题版本</th><th>评语 / 错误</th></tr></thead><tbody></tbody></table>
-    </div></div>
-  <div class="panel"><h2>运行日志</h2>
-    <pre class="mono logbox" id="log">loading…</pre></div>
+    </div></div></div>
+  <div class="panel"><h2>运行日志</h2><div class="body">
+    <pre class="mono logbox" id="log">loading…</pre></div></div>
 </div>
+
+<div class="totop" id="totop" onclick="scrollTo({top:0,behavior:'smooth'})">↑ 回顶部</div>
+
 <script>
 const DC={seed:'#8b949e',exploit:'#58a6ff',explore:'#3fb950',fresh:'#bc8cff',
 repair:'#e08a00',hybrid:'#39c5cf',err:'#f85149'};
@@ -290,12 +383,15 @@ const col=d=>DC[d]||'#8b949e';
 
 async function j(u){const r=await fetch(u);return r.json()}
 
+/* 可折叠面板 */
+document.querySelectorAll('.panel>h2').forEach(h=>h.onclick=()=>h.parentElement.classList.toggle('closed'));
+
 function drawCurve(svg,idx,s){
   const el=document.getElementById(svg);el.innerHTML='';
-  const W=el.clientWidth||560,H=280,P=28,RM=76;
+  const W=el.clientWidth||560,H=240,P=28,RM=76;
   el.setAttribute('viewBox',`0 0 ${W} ${H}`);
   const pts=idx.filter(e=>e.score!=null);
-  if(!pts.length){el.innerHTML='<text x="20" y="120" fill="#8b949e">no scored solutions yet</text>';return}
+  if(!pts.length){el.innerHTML='<text x="20" y="120" fill="#8b949e">还没有计分的解</text>';return}
   const refs=[];
   if(s&&s.seed_score!=null)refs.push(['seed',s.seed_score,'#8b949e']);
   if(s&&s.baselines)Object.entries(s.baselines).forEach(([k,v])=>{
@@ -330,12 +426,12 @@ function drawCurve(svg,idx,s){
   el.querySelectorAll('.node').forEach(n=>n.onclick=()=>pick(n.dataset.sid));
   document.getElementById('legend').innerHTML=
     Object.keys(DC).map(k=>`<span class="tag" style="border-color:${col(k)};color:${col(k)}">${k}</span>`).join(' ')+
-    '<span class="tag" style="border-color:#bc8cff;color:#bc8cff">quality</span>';
+    '<span class="tag" style="border-color:#bc8cff;color:#bc8cff">答对数</span>';
 }
 
 function drawTree(idx){
   const el=document.getElementById('tree');el.innerHTML='';
-  const W=el.clientWidth||560,H=280;
+  const W=el.clientWidth||560,H=240;
   const dep={},ord={};
   idx.forEach(e=>{dep[e.id]=e.parents&&e.parents.length?
     Math.max(...e.parents.map(p=>(dep[p]??0)))+1:0});
@@ -366,17 +462,17 @@ function fbView(d){
   if(!f)return;
   const s=d.meta&&d.meta.score;
   let h='';
-  if(f.quality!=null)h+=`<span class="tag">quality ${f.quality.toPrecision(5)}</span>`;
-  if(f.cost)h+='<span class="tag">cost '+Object.entries(f.cost).map(([k,v])=>
+  if(f.quality!=null)h+=`<span class="tag">答对 ${f.quality.toPrecision(5)}</span>`;
+  if(f.cost)h+='<span class="tag">成本 '+Object.entries(f.cost).map(([k,v])=>
     k==='llm_tokens'?`${k}=${v}`:`${k}=${(v/1024).toFixed(1)}KB`).join(' ')+'</span>';
   if(f.cost_how){const ch=f.cost_how,
     c=ch==='measured'?'var(--good)':ch==='suspicious'?'var(--bad)':'var(--warn)';
-    h+=`<span class="tag" style="color:${c};border-color:${c}" title="cost accounting honesty">${ch}</span>`}
+    h+=`<span class="tag" style="color:${c};border-color:${c}" title="成本记账是否可信：measured=实测/reported=自报/suspicious=可疑">${ch}</span>`}
   if(f.baselines)h+=Object.entries(f.baselines).map(([k,v])=>{
     const beat=typeof v==='number'&&s!=null&&s>v;
     return `<span class="tag" style="color:${beat?'var(--good)':'var(--bad)'};border-color:${beat?'var(--good)':'var(--bad)'}">${k} ${typeof v==='number'?v.toPrecision(4):v} ${beat?'beat':'below'}</span>`}).join('');
   out.innerHTML=h;
-  if(f.breakdown)bars.innerHTML='<h2 style="margin:4px 0">各类题型得分</h2>'+
+  if(f.breakdown)bars.innerHTML='<h2 style="margin:4px 0;font-size:12.5px">各类题型得分</h2>'+
     Object.entries(f.breakdown).map(([k,v])=>{const pct=Math.max(0,Math.min(1,v))*100;
       return `<div class="brow"><span class="blab">${k}</span>
       <div class="bwrap"><div class="bfill" style="width:${pct}%;background:${pct>=99?'var(--good)':pct<50?'var(--warn)':'var(--acc)'}"></div></div>
@@ -388,7 +484,7 @@ async function pick(sid){
   const d=await j('/api/solution/'+sid);
   document.getElementById('detail').style.display='block';
   document.getElementById('detTitle').textContent=
-    `Solution ${sid}  ·  score=${fmt(d.meta&&d.meta.score)}  ·  ${d.meta?d.meta.direction:''}`;
+    `解 ${sid}  ·  得分=${fmt(d.meta&&d.meta.score)}  ·  ${d.meta?d.meta.direction:''}`;
   fbView(d);
   const fs=document.getElementById('detFiles');fs.innerHTML='';
   const names=Object.keys(d.files);
@@ -399,23 +495,85 @@ async function pick(sid){
     fs.appendChild(b)});
   if(names.length)fs.children[0].click();
   else document.getElementById('detBody').textContent='(no readable files)';
+  document.getElementById('detail').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
 const MC={done:'#3fb950',v0:'#8b949e',next:'#58a6ff',current:'#d29922',todo:'#6e7681'};
-const SLBL={done:'已落地',v0:'v0 骨架',next:'下一轮',current:'进行中',todo:'未开始'};
+const SLBL={done:'已完成',v0:'v0 骨架',next:'下一轮',current:'进行中',todo:'未开始'};
+
+function drawBanner(r){
+  const c=r.current||{};
+  const b=document.getElementById('banner');
+  const segs=[['当前轮',c.round],['领跑',c.leader],['最强进化解',c.best_evolved],['剩余差距',c.remaining]]
+    .filter(x=>x[1]);
+  if(!(c.verdict||segs.length))return;
+  b.style.display='flex';
+  b.innerHTML='<div class="pulse"></div>'+
+    (c.verdict?`<div class="verdict">${esc(c.verdict)}</div>`:'')+
+    segs.map(([k,v])=>`<div class="seg">${k} <b>${esc(v)}</b></div>`).join('');
+  document.getElementById('readhint').style.display='block';
+  const gl=document.getElementById('glossary');
+  if(r.glossary&&r.glossary.length){
+    gl.style.display='flex';
+    gl.innerHTML=r.glossary.map(([t,d])=>`<span><b class="term" title="${esc(d)}">${esc(t)}</b> ${esc(d)}</span>`).join('');
+  }
+}
+
+function drawCurrent(r){
+  const c=r.current,p=document.getElementById('nowPanel');
+  if(!(c&&(c.goal||c.progress)))return;
+  p.style.display='block';
+  const card=(k,v,desc,extra='')=>`<div class="rc"><div class="k">${k}</div><div class="v">${v}</div>${desc?`<div class="small" style="margin-top:4px">${desc}</div>`:''}${extra}</div>`;
+  document.getElementById('roundcard').innerHTML=
+    card('本轮目标',esc(c.goal||''),esc(c.goal_desc||''))+
+    card('对手线',esc(c.opponent||''),esc(c.opponent_desc||''))+
+    card('进度',esc(c.progress||''),esc(c.window||''),
+      c.progress_pct!=null?`<div class="pbar"><i style="width:${c.progress_pct}%"></i></div>`:'')+
+    card('这一轮的打法',esc(c.approach||''),esc(c.approach_desc||''));
+}
+
+function drawGap(r){
+  const tb=r.experiment&&r.experiment.table;
+  if(tb){document.getElementById('rankPanel').style.display='block';
+    document.getElementById('rank').innerHTML='<thead><tr><th>选手</th><th>说明</th><th>得分</th><th>答对题数</th></tr></thead><tbody>'+
+    tb.map((row,i)=>`<tr class="${i===0?'lead':''}"><td class="mono">${esc(row[0])}</td>
+      <td class="small" style="white-space:normal">${esc(row[1])}</td>
+      <td class="mono"><b>${row[2]}</b></td><td>${row[3]}</td></tr>`).join('')+'</tbody>';}
+  const gp=r.gap;if(!(gp&&gp.rows))return;
+  document.getElementById('gapPanel').style.display='block';
+  const gc=v=>v>=0.99?'rgba(63,185,80,.85)':v>=0.5?'rgba(210,153,34,.75)':v>0?'rgba(248,81,73,.55)':'rgba(248,81,73,.9)';
+  const tc=v=>v>=0.5?'#0d1117':'#e6edf3';
+  let h='<thead><tr><th style="text-align:left">题型</th>'+gp.cols.map(c=>`<th>${esc(c)}</th>`).join('')+'</tr></thead><tbody>';
+  let lastGrp='';
+  gp.rows.forEach(([grp,fam])=>{
+    h+=`<tr><td class="fam">${grp!==lastGrp?`<b style="color:#8b949e">${esc(grp)}</b><br>`:''}${esc(fam)}</td>`;
+    lastGrp=grp;
+    (gp.vals[fam]||[]).forEach((v,ci)=>{h+=`<td><span class="cell" data-f="${esc(fam)}" data-c="${esc(gp.cols[ci])}" data-v="${v}"
+      title="${esc(fam)} · ${esc(gp.cols[ci])} · 得分率 ${v}"
+      style="background:${gc(v)};color:${tc(v)}">${v>=0.99?'✓':v===0?'0':v.toFixed(1)}</span></td>`});
+    h+='</tr>'});
+  document.getElementById('gapmap').innerHTML=h+'</tbody>';
+  document.querySelectorAll('#gapmap .cell').forEach(c=>c.onclick=()=>{
+    const d=document.getElementById('gapdetail');
+    d.style.display='block';
+    d.innerHTML=`<b>${esc(c.dataset.f)}</b> — ${esc((r.probeinfo||{})[c.dataset.f]||'')}`
+      +`<br><span class="small">${esc(c.dataset.c)} 在此题得分率 <b>${c.dataset.v}</b></span>`;
+  });
+}
 
 function drawResearch(r){
   document.getElementById('research').style.display='block';
+  drawBanner(r);drawCurrent(r);drawGap(r);
   const pos={M1:[168,26],M3:[308,26],M2:[448,26],M4:[588,26]},bw=126,bh=100;
   const byId={};(r.modules||[]).forEach(m=>byId[m.id]=m);
   let g=`<defs><marker id="ar" markerWidth="7" markerHeight="7" refX="6" refY="3"
     orient="auto"><path d="M0,0 L6,3 L0,6" fill="none" stroke="#8b949e"/></marker></defs>
     <rect x="16" y="56" width="104" height="46" rx="8" fill="#21262d" stroke="#30363d"/>
-    <text x="68" y="74" text-anchor="middle" font-size="13" fill="#e6edf3">记录流</text>
-    <text x="68" y="90" text-anchor="middle" font-size="11" fill="#8b949e">records</text>
+    <text x="68" y="74" text-anchor="middle" font-size="13" fill="#e6edf3">原始记录</text>
+    <text x="68" y="90" text-anchor="middle" font-size="11" fill="#8b949e">90 天合成人生</text>
     <rect x="762" y="56" width="104" height="46" rx="8" fill="#21262d" stroke="#30363d"/>
     <text x="814" y="74" text-anchor="middle" font-size="13" fill="#e6edf3">回答/视图</text>
-    <text x="814" y="90" text-anchor="middle" font-size="11" fill="#8b949e">views</text>`;
+    <text x="814" y="90" text-anchor="middle" font-size="11" fill="#8b949e">对用户</text>`;
   const link=(x1,x2)=>`<line x1="${x1}" y1="79" x2="${x2}" y2="79" stroke="#8b949e" stroke-width="1.4" marker-end="url(#ar)"/>`;
   g+=link(120,168)+link(168+126,308)+link(308+126,448)+link(448+126,588)+link(588+126,762);
   ['M1','M3','M2','M4'].forEach(id=>{const m=byId[id];if(!m)return;
@@ -428,7 +586,7 @@ function drawResearch(r){
       <text x="${x+10}" y="${y+42}" font-size="11" fill="#8b949e">${esc(m.role||'')}</text>
       <text x="${x+10}" y="${y+63}" font-size="10.5" font-family="ui-monospace,monospace" fill="#58a6ff">${esc((m.impl||'').slice(0,20))}</text>
       ${m.score?`<text x="${x+10}" y="${y+86}" font-size="11.5" fill="#3fb950">★ ${m.score}</text>`:
-        `<text x="${x+10}" y="${y+86}" font-size="10.5" fill="#6e7681">${esc((m.next||'').slice(0,19))}</text>`}</g>`;});
+        `<text x="${x+10}" y="${y+86}" font-size="10.5" fill="#6e7681">${esc((m.next||'已定稿').slice(0,19))}</text>`}</g>`;});
   const m5=byId.M5;
   if(m5){const c=MC[m5.status]||'#6e7681',x=322,y=170,w=250,h=52;
     g+=`<line x1="${x+w*0.33}" y1="${y}" x2="392" y2="129" stroke="#8b949e" stroke-dasharray="3 3" marker-end="url(#ar)"/>
@@ -439,12 +597,14 @@ function drawResearch(r){
   const el=document.getElementById('arch');el.innerHTML=g;
   el.setAttribute('viewBox','0 0 882 230');el.setAttribute('width','100%');
   el.querySelectorAll('.mod').forEach(n=>n.onclick=()=>{
+    el.querySelectorAll('.mod').forEach(x=>x.classList.remove('sel'));
+    n.classList.add('sel');
     const m=byId[n.dataset.m];if(!m)return;
     document.getElementById('modInfo').innerHTML=
       `<b>${m.id} ${esc(m.name)}</b> · ${esc(m.role||'')}<br>
        当前实现：<span class="mono">${esc(m.impl||'—')}</span>
        ${m.score?` · 得分 <b class="best">${m.score}</b>`:''}<br>
-       ${m.note?esc(m.note)+'<br>':''}${m.next?'下一轮目标：'+esc(m.next):''}`});
+       ${m.note?esc(m.note)+'<br>':''}${m.next?'下一步：'+esc(m.next):''}`});
   const st=document.getElementById('stages');
   st.innerHTML=(r.stages||[]).map(s=>{
     const c=MC[s.status]||'#6e7681';
@@ -452,21 +612,16 @@ function drawResearch(r){
       <b>${esc(s.name)}</b><span class="small">${esc(s.desc||'')}</span></div>`+
       (s.rounds||[]).map(rw=>{const rc=MC[rw.status]||'#6e7681';
         return `<div class="rnd">└ <b style="color:${rc}">${rw.id}</b> ${esc(rw.module)} — <span style="color:${rc}">${SLBL[rw.status]||rw.status}</span>${rw.result||rw.desc?`：${esc(rw.result||rw.desc)}`:''}</div>`}).join('');
-  }).join('')+`<div class="small" style="margin-top:8px">${esc(r.tagline||'')}</div>`;
+  }).join('')+(r.tagline?`<div class="small" style="margin-top:8px">${esc(r.tagline)}</div>`:'');
   const tl=document.getElementById('timeline');
-  if(tl)tl.innerHTML=(r.timeline||[]).map(t=>
+  tl.innerHTML=(r.timeline||[]).map(t=>
     `<div class="tlit"><div class="tw">${esc(t.when||'')}</div>
      <b>${esc(t.title)}</b><div class="tt">${esc(t.text||'')}</div></div>`).join('');
   const ex=r.experiment;
   document.getElementById('experiment').innerHTML=ex?`<div class="exp">
     <div class="small" style="margin:10px 0 4px"><b>${esc(ex.bench)}</b> · ${ex.probes} 题/种子
       · ${(ex.types||[]).join(' / ')}</div>
-    <div class="small" style="margin-bottom:8px">得分规则：<span class="mono">${esc(ex.score)}</span></div>
-    <table><thead><tr><th>选手</th><th>说明</th><th>得分</th><th>答对题数</th></tr></thead>
-    <tbody>${(ex.table||[]).map(row=>`<tr><td class="mono">${esc(row[0])}</td>
-      <td class="small" style="white-space:normal">${esc(row[1])}</td>
-      <td class="mono" style="color:${row[0].startsWith('lifemodel')?'var(--good)':'var(--fg)'}"><b>${row[2]}</b></td>
-      <td class="small">${row[3]}</td></tr>`).join('')}</tbody></table></div>`:'';
+    <div class="small">得分规则：<span class="mono">${esc(ex.score)}</span></div></div>`:'';
 }
 
 async function tick(){
@@ -476,25 +631,26 @@ async function tick(){
     const dot=document.getElementById('runDot');
     dot.className='dot '+(s.running?'on':s.finished?'done':'');
     document._best=s.best?s.best.id:null;
+    document.getElementById('taskName').textContent=s.task||'';
     document.getElementById('stats').innerHTML=
       `<span>提交 <b>${s.commits}</b></span><span>计分 <b>${s.scored}</b></span>
        <span>失败 <b class="neg">${s.failed}</b></span>
        <span>最优 <b class="best">${s.best?fmt(s.best.score)+' ('+s.best.id+')':'—'}</b></span>
        <span>考题版本 ${s.eval_versions.join(',')}</span>
        <span>已运行 ${Math.round(s.elapsed)}s</span>`+
-      (s.suspicious?`<span><span class="tag" style="color:var(--bad);border-color:var(--bad)">suspicious:${s.suspicious}</span></span>`:'')+
+      (s.suspicious?`<span><span class="tag" style="color:var(--bad);border-color:var(--bad)">可疑:${s.suspicious}</span></span>`:'')+
       (s.error_kinds&&Object.keys(s.error_kinds).length?
-        '<span>err '+Object.entries(s.error_kinds).map(([k,n])=>
+        '<span>错误 '+Object.entries(s.error_kinds).map(([k,n])=>
           `<span class="tag" style="color:var(--bad);border-color:var(--bad)">${k}:${n}</span>`).join(' ')+'</span>':'')+
       (s.report&&s.report.llm_usage?
-        `<span>llm ${s.report.llm_usage.calls} calls / ${s.report.llm_usage.completion_tokens} tok</span>`:'');
+        `<span>llm ${s.report.llm_usage.calls} 次调用 / ${s.report.llm_usage.completion_tokens} tok</span>`:'');
     drawCurve('curve',idx,s);drawTree(idx);
     const tb=document.querySelector('#tbl tbody');tb.innerHTML=idx.map(e=>
       `<tr class="${e.id===sel?'sel':''}" onclick="pick('${e.id}')"><td class="mono">${e.id}</td>
-      <td class="mono ${e.score==null?'neg':''}">${e.score==null?(e.error?'ERR':'—'):Number(e.score).toPrecision(6)}${e.cost_how==='suspicious'?' <span class="neg" title="cost_how=suspicious">⚠</span>':''}</td>
+      <td class="mono ${e.score==null?'neg':''}">${e.score==null?(e.error?'ERR':'—'):Number(e.score).toPrecision(6)}${e.cost_how==='suspicious'?' <span class="neg" title="成本记账可疑">⚠</span>':''}</td>
       <td><span class="tag" style="color:${col(e.direction)};border-color:${col(e.direction)}">${e.direction||'?'}</span></td>
       <td class="mono">${(e.parents||[]).join(',')}</td><td>${e.eval_version}</td>
-      <td class="small">${esc((e.feedback||e.error||'').slice(0,90))}</td></tr>`).join('');
+      <td class="small" style="white-space:normal">${esc((e.feedback||e.error||'').slice(0,90))}</td></tr>`).join('');
     const lg=await j('/api/log?n=160');
     const lb=document.getElementById('log');
     const atEnd=lb.scrollTop+lb.clientHeight>=lb.scrollHeight-8;
@@ -502,6 +658,17 @@ async function tick(){
   }catch(e){}
 }
 setInterval(tick,2000);tick();
+
+/* 滚动时高亮当前导航锚点 + 回顶部 */
+const secs=['sys','road','now','gap','rank','evi'];
+addEventListener('scroll',()=>{
+  document.getElementById('totop').style.display=scrollY>500?'block':'none';
+  let cur='';
+  secs.forEach(id=>{const e=document.getElementById('sec-'+id);
+    if(e&&e.getBoundingClientRect().top<90)cur=id});
+  document.querySelectorAll('.topnav a').forEach(a=>
+    a.classList.toggle('on',a.getAttribute('href')==='#sec-'+cur));
+});
 </script>
 </body>
 </html>

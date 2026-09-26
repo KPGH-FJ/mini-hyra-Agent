@@ -7,8 +7,9 @@
       "name": "摄入 Ingest",
       "role": "原始记录 → 规范化事件",
       "impl": "normalize(): authoritative + 别名解析 + day-序",
-      "status": "running",
-      "next": "lab run_v5 进化中（v5 考题：别名消歧+乱序到达）"
+      "status": "done",
+      "score": 158.911,
+      "note": "run_v5 收官 s0095=158.911：时态边 journal + 过滤式摄入；journal 架构被纯净室独立复现（收敛吸引子）"
     },
     {
       "id": "M2",
@@ -42,9 +43,9 @@
       "name": "控制 Control",
       "role": "correct / forget / export / revoke",
       "impl": "journal + 级联清除 + revoke_purpose + forget_range 回滚 + 作用域导出 state(scope)",
-      "status": "v2",
+      "status": "done",
       "score": 159.97,
-      "next": "v7.x 考题已满分（160/160 含部分导出/前提引用/时态聚合/认知分级）；run_v6 进化中"
+      "note": "s0045=140.90：同意域视图撤回 + journal 嵌资产 —— 与本体机制收敛一致"
     }
   ],
   "stages": [
@@ -106,8 +107,9 @@
         {
           "id": "r6",
           "module": "M4 使用面",
-          "status": "running",
-          "desc": "serve 面专攻（partial/duration/drvprov/isconf/subject/ops/conf + 深史族）；lab run_v7 W2 在跑"
+          "status": "done",
+          "desc": "serve 面专攻（partial/duration/drvprov/isconf/subject/ops/conf + 深史族）；lab run_v7 W2 在跑",
+          "result": "run_v7 W2 收官 s0040=156.942（+11）：subject/drvprov 破零、探针成本 16KB→2KB；duration/window/before 仍 0"
         }
       ]
     },
@@ -174,6 +176,12 @@
         "s0009 (run_v7·M4)",
         "进化解：逐型 serve 处理器——8 族满分(first/order/absent/nchange/isconf/xcmp/budget/prov2)，剩余缺口 duration/drvprov/join/window/before",
         145.959,
+        197
+      ],
+      [
+        "s0040 (run_v7·W2)",
+        "进化解：serve 逐型处理器收敛——subject/transfer 满分、drvprov 首破零、探针 2.1KB；深史族 duration/window/before 仍 0",
+        156.942,
         197
       ],
       [
@@ -279,5 +287,337 @@
       "title": "逐模块进化→折叠回系统→开下一轮",
       "text": "整个研究系统：lifemodel 包（被研究对象）+ LifeStream 考题（裁判）+ 双层循环（我定方向、实验室批量进化）。当前主攻：深史 serve 题型。"
     }
-  ]
+  ],
+  "current": {
+    "verdict": "研究进行中 · P3 逐模块优化",
+    "round": "run_v7 · M4 使用面 — 已收官",
+    "leader": "lifemodel v1 = 195.0（满分）",
+    "best_evolved": "s0095 = 158.911",
+    "remaining": "≈36 分 · 全在深史题",
+    "goal": "下一轮：让进化解会翻久远历史",
+    "goal_desc": "跨时间窗汇总、先后比较、缺席证明、派生溯源——目前 duration/window/before 深史题仍全 0",
+    "opponent": "系统 195.0 · 最强进化解 158.9",
+    "opponent_desc": "进化解每摸到一类深史题 +1~3 分",
+    "progress": "实验暂停 —— 看板 v4 上线后开新轮",
+    "window": "两端实验室待机",
+    "approach": "给进化喂统一历史边遍历的基底",
+    "approach_desc": "教训已写明：逐型处理器打不到深史题——要把 lm 的历史边遍历抽象成候选起点"
+  },
+  "glossary": [
+    [
+      "探针/题",
+      "一道考题；得分 = 答对题数 − 实现成本"
+    ],
+    [
+      "深史题",
+      "要翻很久以前的历史才能答的题"
+    ],
+    [
+      "进化解",
+      "Hyra 自动进化产出的候选实现（s00xx）"
+    ],
+    [
+      "基线",
+      "手写的经典做法，当参照物"
+    ],
+    [
+      "lifemodel v1",
+      "我们系统本体的当前版本"
+    ],
+    [
+      "run_vN",
+      "一轮进化实验"
+    ]
+  ],
+  "probeinfo": {
+    "current": "问当前值——最新有效答案",
+    "stale": "拿过期值当诱饵，考拒绝旧值",
+    "corr 纠错": "用户说'之前说错了'后的新值",
+    "hearsay 传闻": "别人口中的值不能进本人档案",
+    "as_of 回溯": "'当时（第 N 天）值是多少'",
+    "cascade 级联删除": "删前提后，派生结论必须消失",
+    "transfer 打包": "一批相关事实的约束打包查询",
+    "revoked 撤回": "撤回用途后：数据留着但拒绝回答",
+    "forget_range 回滚": "抹掉某几天的写，值退回旧值",
+    "partial 部分导出": "只导出指定槽位的文档，不许带出域外值",
+    "ops 操作审计": "'你删过/改过什么'必须从日志答出",
+    "drvprov 派生溯源": "派生值要能说出'我从哪条前提推来'",
+    "duration 时长": "'这个状态持续了多久'",
+    "first 首次": "'第一次出现是什么时候'",
+    "order 先后": "'A 是在 B 之前变的吗'",
+    "absent 缺席": "'这段时间里没有这件事吗'",
+    "window 窗口": "'某窗口内的值是什么'",
+    "before 早于": "'X 比现在更早变成这样吗'",
+    "xcmp 跨人比较": "'我和另一个人谁先/谁的值更…'",
+    "nchange 变更次数": "'这个槽位改过几次'",
+    "conf 置信": "矛盾信息下给出置信度",
+    "isconf 是否矛盾": "'这些说法矛盾吗'",
+    "subject 归属": "'这是谁说的/关于谁的'"
+  },
+  "gap": {
+    "rows": [
+      [
+        "基础问答",
+        "current"
+      ],
+      [
+        "基础问答",
+        "stale"
+      ],
+      [
+        "基础问答",
+        "corr 纠错"
+      ],
+      [
+        "基础问答",
+        "hearsay 传闻"
+      ],
+      [
+        "基础问答",
+        "as_of 回溯"
+      ],
+      [
+        "基础问答",
+        "cascade 级联删除"
+      ],
+      [
+        "基础问答",
+        "transfer 打包"
+      ],
+      [
+        "控制面",
+        "revoked 撤回"
+      ],
+      [
+        "控制面",
+        "forget_range 回滚"
+      ],
+      [
+        "控制面",
+        "partial 部分导出"
+      ],
+      [
+        "控制面",
+        "ops 操作审计"
+      ],
+      [
+        "控制面",
+        "drvprov 派生溯源"
+      ],
+      [
+        "深史推理",
+        "duration 时长"
+      ],
+      [
+        "深史推理",
+        "first 首次"
+      ],
+      [
+        "深史推理",
+        "order 先后"
+      ],
+      [
+        "深史推理",
+        "absent 缺席"
+      ],
+      [
+        "深史推理",
+        "window 窗口"
+      ],
+      [
+        "深史推理",
+        "before 早于"
+      ],
+      [
+        "深史推理",
+        "xcmp 跨人比较"
+      ],
+      [
+        "深史推理",
+        "nchange 变更次数"
+      ],
+      [
+        "冲突侦测",
+        "conf 置信"
+      ],
+      [
+        "冲突侦测",
+        "isconf 是否矛盾"
+      ],
+      [
+        "冲突侦测",
+        "subject 归属"
+      ]
+    ],
+    "cols": [
+      "lifemodel v1",
+      "s0095",
+      "s0040",
+      "esr",
+      "tms"
+    ],
+    "vals": {
+      "current": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "stale": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "corr 纠错": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "hearsay 传闻": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "as_of 回溯": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "cascade 级联删除": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "transfer 打包": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "revoked 撤回": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "forget_range 回滚": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "partial 部分导出": [
+        1,
+        0,
+        0.67,
+        0.5,
+        0.5
+      ],
+      "ops 操作审计": [
+        1,
+        0.6,
+        0.6,
+        1,
+        1
+      ],
+      "drvprov 派生溯源": [
+        1,
+        0,
+        0.33,
+        0.9,
+        0.9
+      ],
+      "duration 时长": [
+        1,
+        0,
+        0,
+        0.7,
+        0.7
+      ],
+      "first 首次": [
+        1,
+        0.5,
+        1,
+        0.8,
+        0.8
+      ],
+      "order 先后": [
+        1,
+        0,
+        1,
+        0.8,
+        0.8
+      ],
+      "absent 缺席": [
+        1,
+        0,
+        1,
+        0.9,
+        0.9
+      ],
+      "window 窗口": [
+        1,
+        0,
+        0,
+        0.6,
+        0.6
+      ],
+      "before 早于": [
+        1,
+        0,
+        0,
+        0.7,
+        0.7
+      ],
+      "xcmp 跨人比较": [
+        1,
+        0,
+        1,
+        0.8,
+        0.8
+      ],
+      "nchange 变更次数": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "conf 置信": [
+        1,
+        0.43,
+        0.43,
+        0.6,
+        0.6
+      ],
+      "isconf 是否矛盾": [
+        1,
+        0,
+        1,
+        0.8,
+        0.8
+      ],
+      "subject 归属": [
+        1,
+        1,
+        1,
+        0.85,
+        0.85
+      ]
+    }
+  }
 }
