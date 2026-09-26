@@ -159,6 +159,12 @@
     195
    ],
    [
+    "s0084 (run_v5·W4)",
+    "进化解：时态边 journal + serve 成本工程（v9.1 下 transfer/subject/ops/nchange 近满分，深史族仍 0）——journal 架构被独立纯净室复现，证为收敛吸引子",
+    158.1995,
+    197
+   ],
+   [
     "s0009 (run_v7·M4)",
     "进化解：逐型 serve 处理器——8 族满分(first/order/absent/nchange/isconf/xcmp/budget/prov2)，剩余缺口 duration/drvprov/join/window/before",
     145.959,
@@ -223,6 +229,7 @@
    "ts": "2026-09-25T21:50Z",
    "text": "v9.1: before探针族（跨槽位时序排序——两槽各自当前值生效日比较）已上线出题端+serve+契约第31条；lm 31/31合规，全部基线诚实全灭"
   },
-  "P3 r6/run_v7（M4 serve 专攻）收官：s0009=145.959@quality146.00 —— serve 播种生效（8 族 0→1.0），仍差前沿 ~49 分，全在 duration/drvprov/join/window/before 深史题。死亡集中在一个可修 bug：token 阶梯超 Atria 硬上限 65536 → 13/15 死；已修（clamp 65536, PR#18）。"
+  "P3 r6/run_v7（M4 serve 专攻）收官：s0009=145.959@quality146.00 —— serve 播种生效（8 族 0→1.0），仍差前沿 ~49 分，全在 duration/drvprov/join/window/before 深史题。死亡集中在一个可修 bug：token 阶梯超 Atria 硬上限 65536 → 13/15 死；已修（clamp 65536, PR#18）。",
+  "run_v5 W4 窗口收官：s0084=158.20@v9.1（质量159，+10 破平台）——journal/时态边设计被纯净室独立复现（s0064≈148），证为搜索吸引子。剩余 ~23-27 分缺口全部在深史 serve 题（duration/drvprov/join/window/before）+ conf/isconf/partial。infra：input 超窗 400 由 prompt 无界拼接引起，已加 60000 字 base 预算（PR#18）。"
  ]
 }
