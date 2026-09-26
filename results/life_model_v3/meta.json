@@ -1,0 +1,11 @@
+{
+  "id": "s0000",
+  "score": 89.3238,
+  "direction": "seed",
+  "parents": [],
+  "eval_version": 0,
+  "created": 1790272383.4600654,
+  "feedback": "quality=101.00 cost={'asset_bytes': 10822, 'probe_bytes': 59673911, 'llm_tokens': 0} cost_how=reported breakdown={'state': 0.862, 'stale': 1.0, 'prov': 0.962, 'subject': 0.909, 'as_of': 0.889, 'derive': 0.75, 'cascade': 0.5, 'retract': 1.0, 'transfer': 1.0} baselines={'raw': 106.5, 'ledger': 83.5, 'rag': 79.0} meta={'changed': ['diet', 'device', 'contact', 'learning', 'risk'], 'retract_slot': 'time_budget', 'exp_day': 48, 'n_records': 47, 'corr_slot': 'diet', 'export_day': 72, 'forget': {'slot': 'learning', 'day': 55}}",
+  "error": null,
+  "path": "run_v3/eb/solutions/s0000"
+}
