@@ -235,6 +235,12 @@ padding:3px 11px;font-size:13px;cursor:pointer;color:var(--fg)}
 .mod:hover rect.frame{stroke:var(--acc)}
 .exp table{font-size:13px}
 .exp td{padding:3px 8px;border-bottom:1px solid #21262d}
+.tl{margin-top:4px}
+.tlit{position:relative;padding:3px 0 10px 18px;border-left:1px solid #30363d;margin-left:6px}
+.tlit:before{content:'';position:absolute;left:-5px;top:10px;width:8px;height:8px;border-radius:50%;background:var(--acc)}
+.tlit .tw{font-size:11px;color:var(--dim)}
+.tlit b{font-size:13px}
+.tlit .tt{font-size:12.5px;color:var(--dim);white-space:normal}
 #detail{display:none;margin-top:14px}
 @media(max-width:900px){.grid{grid-template-columns:1fr}}
 </style>
@@ -250,11 +256,13 @@ padding:3px 11px;font-size:13px;cursor:pointer;color:var(--fg)}
     <div class="small" id="modInfo"></div></div>
   <div class="panel"><h2>研究阶段与实验</h2><div id="stages"></div><div id="experiment"></div></div>
 </div>
+<div class="panel" style="margin-bottom:14px"><h2>研究脉络 — 历次结论回顾</h2>
+  <div class="tl" id="timeline"></div></div>
 </div>
 <div class="grid">
-  <div class="panel"><h2>Score 进化曲线</h2><svg id="curve" height="280"></svg>
+  <div class="panel"><h2>得分走势</h2><svg id="curve" height="280"></svg>
     <div class="small" id="legend"></div></div>
-  <div class="panel"><h2>解谱系（点击节点查看解）</h2><svg id="tree" height="280"></svg></div>
+  <div class="panel"><h2>解的谱系（点击节点查看解）</h2><svg id="tree" height="280"></svg></div>
 </div>
 <div id="detail" class="panel">
   <h2 id="detTitle">Solution</h2>
@@ -264,12 +272,12 @@ padding:3px 11px;font-size:13px;cursor:pointer;color:var(--fg)}
   <pre class="mono" id="detBody"></pre>
 </div>
 <div class="grid" style="margin-top:14px">
-  <div class="panel"><h2>Experience Bank 明细</h2>
+  <div class="panel"><h2>候选解明细</h2>
     <div style="max-height:320px;overflow:auto"><table id="tbl">
-      <thead><tr><th>id</th><th>score</th><th>dir</th><th>parents</th>
-      <th>eval_v</th><th>feedback / error</th></tr></thead><tbody></tbody></table>
+      <thead><tr><th>编号</th><th>得分</th><th>策略</th><th>父代</th>
+      <th>考题版本</th><th>评语 / 错误</th></tr></thead><tbody></tbody></table>
     </div></div>
-  <div class="panel"><h2>Harness 日志</h2>
+  <div class="panel"><h2>运行日志</h2>
     <pre class="mono logbox" id="log">loading…</pre></div>
 </div>
 <script>
@@ -368,7 +376,7 @@ function fbView(d){
     const beat=typeof v==='number'&&s!=null&&s>v;
     return `<span class="tag" style="color:${beat?'var(--good)':'var(--bad)'};border-color:${beat?'var(--good)':'var(--bad)'}">${k} ${typeof v==='number'?v.toPrecision(4):v} ${beat?'beat':'below'}</span>`}).join('');
   out.innerHTML=h;
-  if(f.breakdown)bars.innerHTML='<h2 style="margin:4px 0">探针类型得分</h2>'+
+  if(f.breakdown)bars.innerHTML='<h2 style="margin:4px 0">各类题型得分</h2>'+
     Object.entries(f.breakdown).map(([k,v])=>{const pct=Math.max(0,Math.min(1,v))*100;
       return `<div class="brow"><span class="blab">${k}</span>
       <div class="bwrap"><div class="bfill" style="width:${pct}%;background:${pct>=99?'var(--good)':pct<50?'var(--warn)':'var(--acc)'}"></div></div>
@@ -429,6 +437,7 @@ function drawResearch(r){
       <text x="${x+10}" y="${y+20}" font-size="14" font-weight="600" fill="#e6edf3">${m5.id} ${m5.name} <tspan font-size="11" fill="${c}">${SLBL[m5.status]||''}</tspan></text>
       <text x="${x+10}" y="${y+38}" font-size="11" fill="#8b949e">${esc(m5.role||'')} — ${esc((m5.impl||'').slice(0,24))}</text></g>`;}
   const el=document.getElementById('arch');el.innerHTML=g;
+  el.setAttribute('viewBox','0 0 882 230');el.setAttribute('width','100%');
   el.querySelectorAll('.mod').forEach(n=>n.onclick=()=>{
     const m=byId[n.dataset.m];if(!m)return;
     document.getElementById('modInfo').innerHTML=
@@ -444,16 +453,20 @@ function drawResearch(r){
       (s.rounds||[]).map(rw=>{const rc=MC[rw.status]||'#6e7681';
         return `<div class="rnd">└ <b style="color:${rc}">${rw.id}</b> ${esc(rw.module)} — <span style="color:${rc}">${SLBL[rw.status]||rw.status}</span>${rw.result||rw.desc?`：${esc(rw.result||rw.desc)}`:''}</div>`}).join('');
   }).join('')+`<div class="small" style="margin-top:8px">${esc(r.tagline||'')}</div>`;
+  const tl=document.getElementById('timeline');
+  if(tl)tl.innerHTML=(r.timeline||[]).map(t=>
+    `<div class="tlit"><div class="tw">${esc(t.when||'')}</div>
+     <b>${esc(t.title)}</b><div class="tt">${esc(t.text||'')}</div></div>`).join('');
   const ex=r.experiment;
   document.getElementById('experiment').innerHTML=ex?`<div class="exp">
-    <div class="small" style="margin:10px 0 4px"><b>${esc(ex.bench)}</b> · ${ex.probes} 探针
+    <div class="small" style="margin:10px 0 4px"><b>${esc(ex.bench)}</b> · ${ex.probes} 题/种子
       · ${(ex.types||[]).join(' / ')}</div>
-    <div class="small mono" style="margin-bottom:8px">score = ${esc(ex.score)}</div>
-    <table><thead><tr><th>实现</th><th>说明</th><th>score</th><th>quality</th></tr></thead>
+    <div class="small" style="margin-bottom:8px">得分规则：<span class="mono">${esc(ex.score)}</span></div>
+    <table><thead><tr><th>选手</th><th>说明</th><th>得分</th><th>答对题数</th></tr></thead>
     <tbody>${(ex.table||[]).map(row=>`<tr><td class="mono">${esc(row[0])}</td>
       <td class="small" style="white-space:normal">${esc(row[1])}</td>
       <td class="mono" style="color:${row[0].startsWith('lifemodel')?'var(--good)':'var(--fg)'}"><b>${row[2]}</b></td>
-      <td class="small">${row[3]}/97</td></tr>`).join('')}</tbody></table></div>`:'';
+      <td class="small">${row[3]}</td></tr>`).join('')}</tbody></table></div>`:'';
 }
 
 async function tick(){
@@ -464,11 +477,11 @@ async function tick(){
     dot.className='dot '+(s.running?'on':s.finished?'done':'');
     document._best=s.best?s.best.id:null;
     document.getElementById('stats').innerHTML=
-      `<span>commits <b>${s.commits}</b></span><span>scored <b>${s.scored}</b></span>
-       <span>failed <b class="neg">${s.failed}</b></span>
-       <span>best <b class="best">${s.best?fmt(s.best.score)+' ('+s.best.id+')':'—'}</b></span>
-       <span>eval_v ${s.eval_versions.join(',')}</span>
-       <span>elapsed ${Math.round(s.elapsed)}s</span>`+
+      `<span>提交 <b>${s.commits}</b></span><span>计分 <b>${s.scored}</b></span>
+       <span>失败 <b class="neg">${s.failed}</b></span>
+       <span>最优 <b class="best">${s.best?fmt(s.best.score)+' ('+s.best.id+')':'—'}</b></span>
+       <span>考题版本 ${s.eval_versions.join(',')}</span>
+       <span>已运行 ${Math.round(s.elapsed)}s</span>`+
       (s.suspicious?`<span><span class="tag" style="color:var(--bad);border-color:var(--bad)">suspicious:${s.suspicious}</span></span>`:'')+
       (s.error_kinds&&Object.keys(s.error_kinds).length?
         '<span>err '+Object.entries(s.error_kinds).map(([k,n])=>
