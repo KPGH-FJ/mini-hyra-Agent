@@ -198,7 +198,30 @@ results/life_model_v9_w2/best/asset.py on the
 results/lifemodel-p3-m4-w2 branch).
 
 Every probe type below is a serve decision and ALL are scored —
-weight inspirations toward these, not storage redesign:
+weight inspirations toward these, not storage redesign.
+
+**Expected answer shapes for deep-history types** (the exact strings
+truth produces — get these byte-exact):
+- `duration` → `"N天"` — days since the live value's streak began
+  (the earliest edge of the CURRENT surviving write-run)
+- `first` → the value of the current run's first edge (post-last-
+  retraction re-assertion, NOT all-time first)
+- `order` → `"v1→v2→v3"` — distinct values in day order across the
+  surviving log, consecutive duplicates collapsed
+- `join` → slot2's value on the day slot changed to its live value
+  (probe carries `day` and names `slot2` in the question)
+- `absent` → `"是"`/`"否"` — did the slot stay unchanged since day 40
+  (self-writes effectively stop ~day 55)
+- `window` → `"N"` (integer string) — count of value transitions
+  inside [30,60], prev value carried in from before the window
+- `before` → `"是"`/`"否"` — did slot's current value START before
+  slot2's current value (compare last-transition days, margin ≥2)
+- `xcmp` → `"是"`/`"否"`/`"未知"` — entity-vs-self same-slot compare;
+  missing entity → 未知
+- `nchange` → `"N"` — count of live-value transitions on the slot
+- `drvprov` → cite premise record ids of a LIVING derived fact
+  (e.g. `["creed:每天记录"]`); dead derived → gone-phrasing
+- `isconf` → `"是"`/`"否"`; `conf` → `"高"`/`"低"`/`"无"`
 
 Candidate families (from the literature survey, docs/literature/m4_serve.md):
 - **scoped-export documents** (`partial`, `post_partial`): the
