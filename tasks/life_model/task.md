@@ -161,44 +161,81 @@ reward hacking — implement real metering instead.
 
 ## What to explore (the research space)
 
-This round is scoped to **M5 control semantics** — how the owner
-steers the asset: consent, erasure, correction, auditability.
-Store/update/serve/ingest machinery is pinned by the frozen semantics
-(temporal history, supports, premise fixpoint, measured cost, alias
-resolution, day-authoritative ordering); what varies is the CONTROL
-machinery.
+This round is scoped to **M4 serve semantics** — how `answer()`
+routes, packs, cites, grades, and *refuses*. Store/update/ingest
+machinery is pinned by the frozen semantics (temporal history,
+supports, premise fixpoint, measured cost, alias resolution,
+day-authoritative ordering, the control ops from M5); what varies
+is the SERVE machinery — the decision of which slice to consult,
+what to say, what to withhold, and how confident to be. The winning
+margin lives in serve correctness, not another storage scheme:
+event-sourced journal storage already plateaued at ~148 vs the
+~191 frontier — storage is close enough; the serve contract is
+where candidates bleed.
 
-Candidate families (from the literature survey, docs/literature/m5_control.md):
-- **consent-scoped views** (purpose revocation): data stays in the
-  asset, but a withdrawn purpose's view must refuse — revocable
-  consent, not deletion (`meta["revoke"]`; `revoke_purpose` on the
-  asset interface).
-- **range-scoped erasure with rollback** (`forget({day_gte, day_lte})`):
-  erase the window's write edges, then rebuild materialized state from
-  surviving edges — the value rolls back to its previous live value,
-  not a tombstone (`meta["forget_range"]`).
-- **operation journal** (auditability): every control op — slot
-  forget, range forget, correct, revoke_purpose — is journaled; the
-  journal is part of the asset and survives export/import (post-import
-  `ops` probes ask "what did you forget / correct / revoke?").
-- **export continuity**: state()/import_state() round-trips the full
-  asset — journals, consent registry, attributed hearsay, alias map.
-- **user-driven correction**: `correct(slot, value)` asserts a new
-  live value at read time (`meta["correct"]`); provenance must still
-  answer, and dependent derived facts must die with the old premise.
+Every probe type below is a serve decision and ALL are scored —
+weight inspirations toward these, not storage redesign:
 
-Still on the table (cumulative pressure from earlier rounds): M1
-ingest (alias + out-of-order), M4 serve (purpose views, budgeted
-packing, prov2 citation, unans abstention), M3 premise maintenance.
-Everything the bench probes is scored.
+Candidate families (from the literature survey, docs/literature/m4_serve.md):
+- **scoped-export documents** (`partial`, `post_partial`): the
+  evaluator calls `state(scope={"slots":[...]})` at day ~80 — the
+  returned doc must contain the in-scope values and must NOT leak
+  out-of-scope values; probes are scored ON THE DOC, not on
+  answer(). Missing doc → 0.0; doc for a revoked purpose → −0.5.
+  This is THE single biggest untaken family — every prior candidate
+  scored 0.0 here.
+- **budgeted bundle packing** (`budget`, `transfer`, `purpose`):
+  pack live values comma-separated; `budget` scores ONLY the first
+  N bytes — value ordering IS the decision; `purpose` serves only
+  the view's slot list (anything else leaks).
+- **journal audit serve** (`ops`, `duration`, `nchange`): `ops`
+  answers the slot/purpose/range of a journaled control op
+  ("forget_range" expects its day window e.g. "52-53") — journal
+  entries must carry full scope dicts and survive export→import;
+  `duration` = days since the current run began; `nchange` =
+  count of a slot's live-value transitions (retraction resets).
+- **history-reasoning serve** (`first`, `order`, `join`, `absent`,
+  `window`, `xcmp` — new in v9): the surviving WRITE-RUN of a slot
+  is itself a serve object — `first` = earliest value of the
+  current run (post-last-retraction, not all-time); `order` = the
+  run's values "→"-joined in day order (consecutive dups collapse);
+  `join` = cross-slot day lookup (what slot2 held when slot changed
+  to live); `absent` = stability check (no surviving write day>40);
+  `window` = transitions of the live value inside [30,60] with prev
+  carried in; `xcmp` = entity-vs-self same-slot compare (是/否,
+  entity missing → 未知). These need run-boundary semantics, not
+  just latest-wins — retraction starts a NEW run.
+- **premise citation serve** (`prov2`, `drvprov`): cite the record
+  id carrying a slot's live self-assertion; derived facts must
+  expose their live premises.
+- **conflict + confidence serve** (`isconf`, `conf`): `isconf`
+  detects a non-self claimer asserting a different value on the
+  slot → 是/否 (self-domain only, retractions excluded); `conf`
+  grades 高 (self asserted) / 低 (hearsay only) / 无 — and has
+  +about entity variants.
+- **attribution serve** (`subject`, `subject+about`): latest claim
+  by person P, aliases merged — hearsay stays hearsay, never folded
+  into self state. Prior rounds bled hard here (.06–.19).
+- **refusal serve** (`unans`, `expdeny`, `revoked`, `retract`,
+  `cascade`, `derive`): distinguish never-evidenced (未知) from
+  deleted (已删除) — wrong gone-phrasing scores 0 and must_not
+  leaks score −0.5; a revoked-purpose scoped export must REFUSE
+  (produce no doc) or it scores −0.5.
+
+Still on the table (cumulative pressure): M1 ingest (alias +
+out-of-order), M3 premise maintenance, M5 control ops (journal,
+revoke, forget_range rollback, correct, export continuity) — all
+keep firing and are scored. **New store semantic in v9**: an
+erasure REWRITES the record log — derived state is rebuilt from
+surviving derived events in (day,arrival) order, so a derived
+pruned by a killer that was itself erased comes back alive
+(derive/cascade expect read-day-relative truth).
 
 Also in play:
-- purpose views: same asset, multiple use-cases — the view is
-  probe-conditioned, never whole-asset dumps
 - clarify as an output value: product-side `answer|clarify|abstain`
   exists; on this bench "clarify" maps to "未知" (no dialog channel)
 - llm_tokens: an LLM reader is legal but pays per token
 
 Baselines to beat (same stream+probes, run by the evaluator): raw records,
 last-write-wins ledger, keyword RAG, TMS baseline, event-sourced replay —
-plus the incumbent `lifemodel v1` (~140 on v7) and the seed.
+plus the incumbent `lifemodel v1` and the seed.
