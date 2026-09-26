@@ -107,7 +107,15 @@ def run_solution(solution_dir: str | Path, task_dir: str | Path, *,
                                capture_output=True, text=True,
                                timeout=eval_timeout)
             lines = q.stdout.strip().splitlines()
-            verdict = json.loads(lines[-1]) if lines else {}
+            verdict = {}
+            for line in reversed(lines):
+                try:
+                    cand = json.loads(line)
+                except Exception:
+                    continue
+                if isinstance(cand, dict) and "score" in cand:
+                    verdict = cand
+                    break
             res["score"] = float(verdict["score"])
             res["feedback"] = str(verdict.get("feedback", ""))[:4000]
             res["log"] += ("\n=== evaluator stderr ===\n" + q.stderr[-2000:]
