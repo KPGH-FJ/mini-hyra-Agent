@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 
 from . import ingest as m_ingest
+from . import query as m_query
 from . import serve as m_serve
 from . import update as m_update
 from .control import Control
@@ -27,7 +28,11 @@ class LifeModel:
 
     # ---- usage (M4) ----
     def answer(self, probe: dict) -> str:
-        return m_serve.answer(self.store, probe)
+        return m_serve.answer(self.store, probe, self.control.journal)
+
+    def query(self, text: str, purposes=None, ckpt=10**9) -> str:
+        """Natural-language surface: free text -> probe -> answer."""
+        return m_query.query(self, text, purposes, ckpt)
 
     # ---- user control (M5) ----
     def correct(self, slot, value) -> None:
@@ -36,12 +41,18 @@ class LifeModel:
     def forget(self, scope: dict) -> None:
         self.control.forget(scope)
 
+    def revoke_purpose(self, purpose: str) -> None:
+        self.control.revoke_purpose(purpose)
+
     def export(self) -> dict:
         return self.control.export(self.store.snapshot())
 
     # ---- honest cost surface (measured, not declared) ----
-    def state(self) -> dict:
-        return self.store.snapshot()
+    def state(self, scope=None) -> dict:
+        return self.store.snapshot(scope)
+
+    def import_state(self, d: dict) -> None:
+        self.store.restore(d)
 
     def probe_bytes(self) -> int:
         return m_serve.probe_bytes()

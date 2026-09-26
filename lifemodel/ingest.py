@@ -9,9 +9,10 @@ v0 policy (intentionally minimal — the evolution point):
 """
 from __future__ import annotations
 
-SOURCES = {"self", "other", "assistant", "device", "doc"}
+SOURCES = {"self", "other", "assistant", "device", "doc", "inference",
+           "system"}
 KINDS = {"statement", "update", "correction", "retraction",
-         "suggestion", "hearsay"}
+         "suggestion", "hearsay", "derived", "alias"}
 WRITES = {"statement", "update", "correction"}
 
 
@@ -21,12 +22,15 @@ def normalize(rec: dict) -> dict:
     src = str(rec.get("source", ""))
     kind = str(rec.get("kind", ""))
     ev = {
+        "id": rec.get("id"),
         "day": int(rec.get("day", 0)),
         "source": src,
         "kind": kind,
         "slot": rec.get("slot"),
         "value": rec.get("value"),
         "expires": rec.get("expires_day"),
+        "supports": rec.get("supports"),
+        "about": rec.get("about"),      # entity the claim is about (None = self)
         "authoritative": src == "self" and kind in (WRITES | {"retraction"}),
         "text": rec.get("text", ""),
     }

@@ -25,8 +25,20 @@ def forget(scope):
     _m.forget(scope)
 
 
-def state():
-    return _m.state()
+def correct(slot, value):
+    _m.correct(slot, value)
+
+
+def revoke_purpose(purpose):
+    _m.revoke_purpose(purpose)
+
+
+def state(scope=None):
+    return _m.state(scope)
+
+
+def import_state(d):
+    _m.import_state(d)
 
 
 def probe_bytes():

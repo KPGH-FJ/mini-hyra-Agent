@@ -21,8 +21,12 @@ from __future__ import annotations
 class Control:
     def __init__(self, store):
         self.store = store
-        self.journal: list = []
         self._day = 0
+
+    @property
+    def journal(self):
+        # the op log lives in the store so it rides export/import
+        return self.store.journal
 
     def observe_day(self, day: int) -> None:
         self._day = max(self._day, day)
@@ -31,15 +35,24 @@ class Control:
         self.store.append({"source": "self", "kind": "correction",
                            "slot": slot, "value": value,
                            "day": self._day, "expires": None})
-        self.journal.append({"op": "correct", "slot": slot, "value": value})
+        self.journal.append({"op": "correct", "slot": slot,
+                             "value": value})
 
     def forget(self, scope: dict) -> None:
         if "slot" in scope:
             n = self.store.forget_slot(scope["slot"])
+        elif "about" in scope:
+            n = self.store.forget_about(scope["about"])
         else:
             n = self.store.forget_range(scope.get("day_gte", 0),
                                         scope.get("day_lte", 10**9))
-        self.journal.append({"op": "forget", "scope": scope, "removed": n})
+        self.journal.append({"op": "forget", "scope": scope,
+                             "slot": scope.get("slot"), "removed": n})
+
+    def revoke_purpose(self, purpose: str) -> None:
+        """Withdraw consent for one use — the data stays, the view refuses."""
+        self.store.revoked.add(purpose)
+        self.journal.append({"op": "revoke_purpose", "purpose": purpose})
 
     def export(self, snapshot: dict) -> dict:
         self.journal.append({"op": "export"})
