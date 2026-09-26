@@ -1,0 +1,1 @@
+{"asset": "life_model", "entry": "asset.py", "status": "ok", "exports": ["answer", "correct", "forget", "import_state", "ingest", "probe_bytes", "revoke_purpose", "state", "stats"]}
