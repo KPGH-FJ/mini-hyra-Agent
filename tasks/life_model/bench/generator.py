@@ -1202,6 +1202,12 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
                     and e.get("expires_day")), None)
     if exp_rec:
         stale_decoys.append(exp_rec["value"])
+    # forgotten values must also never leak into a derived bundle —
+    # the transfer probe is asked AFTER forget() fired, so any answer
+    # still emitting the forgotten slot's value is a stale derivation
+    stale_decoys += [v for v in fs_vals
+                     if v and not any(v in lv or lv in v
+                                      for lv in transfer_expect)]
     if transfer_expect:
         # an empty bundle scores 0 unconditionally — the probe would be
         # unanswerable noise, not gradient
