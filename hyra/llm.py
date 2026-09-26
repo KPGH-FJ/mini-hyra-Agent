@@ -37,7 +37,13 @@ class LLMError(RuntimeError):
 
 
 class LLMLengthError(LLMError):
-    """Completion hit the token cap (finish_reason='length')."""
+    """Completion hit the token cap (finish_reason='length'). Carries
+    the truncated text so the caller can continue the generation
+    instead of discarding a whole capped response."""
+
+    def __init__(self, partial: str = ""):
+        super().__init__("completion truncated at token cap")
+        self.partial = partial
 
 
 class StreamCutError(LLMError):
@@ -122,13 +128,36 @@ class OpenAICompatLLM:
                             len(acc))
                 continue
             except LLMLengthError as e:
-                # reasoning models can burn the whole budget on reasoning;
-                # raise the cap and retry without counting it as a failure
                 last = e
+                if e.partial and conts <= 4:
+                    # cap-truncated mid-answer: keep the partial and
+                    # continue it exactly like a stream cut — the model
+                    # finishes the rest instead of us discarding a whole
+                    # 65536-token response and retrying from scratch
+                    acc += e.partial
+                    conts += 1
+                    tail = e.partial[-800:]
+                    messages = messages + [
+                        {"role": "assistant", "content": e.partial},
+                        {"role": "user", "content": (
+                            "Your previous answer hit the output cap. "
+                            "It ended with:\n```\n" + tail +
+                            "\n```\nContinue outputting EXACTLY from "
+                            "where it stopped — no preamble, no "
+                            "restart, no repetition. If the tail ends "
+                            "mid-file, finish that file's content "
+                            "first (do NOT reopen its <<<FILE>>> "
+                            "block), then emit any remaining files. "
+                            "Keep the same <<<FILE: path>>> ... "
+                            "<<<END>>> protocol.")}]
+                    log.warning("truncated at cap; continuing "
+                                "(cont #%d, %d chars so far)", conts,
+                                len(acc))
+                    continue
+                # no partial to continue (pure reasoning burn) or the
+                # continuation budget is spent — normal retry at the
+                # real cap (65536 confirmed; >65536 → 400)
                 attempt += 1
-                # Atria's max_tokens hard cap is 65536 (confirmed: >65536
-                # → 400). Retry at the same cap; the raise is kept only
-                # for callers that started lower.
                 max_tokens = min(max_tokens * 2, 65536)
                 log.warning("truncated; retrying max_tokens=%d", max_tokens)
                 await asyncio.sleep(0.5)
@@ -183,7 +212,7 @@ class OpenAICompatLLM:
             raise
         content = "".join(chunks)
         if finish == "length":
-            raise LLMLengthError("completion truncated at token cap")
+            raise LLMLengthError(content)
         if finish is None and not done and (content or n_data):
             # stream ended without [DONE] and without a finish_reason —
             # the gateway cut it; hand the partial up for continuation

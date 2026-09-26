@@ -178,13 +178,30 @@ async def write_solution(llm: LLM, task_md: str, inspiration: dict,
     # bound the joined base material: Atria rejects oversized prompts with
     # 400s, and evolved assets can reach ~40KB each — two parents plus the
     # task spec overran the input window in run_v5 W3 (12/15 deaths).
+    # A section that doesn't fit is cut at its last complete <<<END>>>
+    # file boundary; a mid-file excerpt is closed and labeled so the model
+    # never inherits a dangling <<<FILE>>> block. Too little room → drop.
     budget = total_base_chars
     for i, sec in enumerate(base_sections):
         if len(sec) > budget:
-            keep = max(budget - 200, 2000)
-            base_sections[i] = (sec[:keep] +
-                                f"\n[...truncated {len(sec) - keep} chars "
-                                "of base material...]")
+            if budget < 2500:
+                del base_sections[i:]
+                break
+            keep = budget - 220
+            excerpt = sec[:keep]
+            last_end = excerpt.rfind("<<<END>>>")
+            if last_end > 0:
+                excerpt = excerpt[:last_end + 9]
+                dropped = len(sec) - len(excerpt)
+                base_sections[i] = (
+                    excerpt +
+                    f"\n[{dropped} chars of base material omitted "
+                    "— file list truncated]")
+            else:
+                base_sections[i] = (
+                    excerpt +
+                    "\n<<<END>>>\n[partial file excerpt — "
+                    f"{len(sec) - keep} chars omitted mid-file]")
         budget -= len(base_sections[i])
         if budget <= 0:
             del base_sections[i + 1:]
