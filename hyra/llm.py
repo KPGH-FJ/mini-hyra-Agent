@@ -126,10 +126,10 @@ class OpenAICompatLLM:
                 # raise the cap and retry without counting it as a failure
                 last = e
                 attempt += 1
-                # stay under 131072 — Atria 400s at the hard cap, and
-                # streams get cut ~10min in-flight anyway; 98k is the
-                # practical ceiling where a completion can still land
-                max_tokens = min(max_tokens * 2, 98304)
+                # Atria's max_tokens hard cap is 65536 (confirmed: >65536
+                # → 400). Retry at the same cap; the raise is kept only
+                # for callers that started lower.
+                max_tokens = min(max_tokens * 2, 65536)
                 log.warning("truncated; retrying max_tokens=%d", max_tokens)
                 await asyncio.sleep(0.5)
             except Exception as e:

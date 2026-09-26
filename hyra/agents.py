@@ -162,7 +162,8 @@ async def make_inspirations(llm: LLM, eb: ExperienceBank, task_md: str,
 
 async def write_solution(llm: LLM, task_md: str, inspiration: dict,
                          eb: ExperienceBank, out_dir: Path,
-                         max_file_chars: int = 20000) -> tuple[Path, str]:
+                         max_file_chars: int = 20000,
+                         total_base_chars: int = 60000) -> tuple[Path, str]:
     """Proposal Agent: emit a full solution dir; returns (dir, raw_text)."""
     base_sections, params = [], {}
     for bid in inspiration.get("base_ids", []):
@@ -174,6 +175,20 @@ async def write_solution(llm: LLM, task_md: str, inspiration: dict,
             f"BASE SOLUTION {bid} (score={e['score']}):\n"
             f"{render_files(files)}")
         params = params or _base_params(Path(e["path"]))
+    # bound the joined base material: Atria rejects oversized prompts with
+    # 400s, and evolved assets can reach ~40KB each — two parents plus the
+    # task spec overran the input window in run_v5 W3 (12/15 deaths).
+    budget = total_base_chars
+    for i, sec in enumerate(base_sections):
+        if len(sec) > budget:
+            keep = max(budget - 200, 2000)
+            base_sections[i] = (sec[:keep] +
+                                f"\n[...truncated {len(sec) - keep} chars "
+                                "of base material...]")
+        budget -= len(base_sections[i])
+        if budget <= 0:
+            del base_sections[i + 1:]
+            break
     prompt = (
         f"TASK:\n{task_md}\n\n"
         f"<<<DIRECTION>>>{inspiration['direction']}<<<\n"
