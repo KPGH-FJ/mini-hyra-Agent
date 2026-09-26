@@ -38,12 +38,14 @@ class LLMError(RuntimeError):
 
 class LLMLengthError(LLMError):
     """Completion hit the token cap (finish_reason='length'). Carries
-    the truncated text so the caller can continue the generation
-    instead of discarding a whole capped response."""
+    the truncated text and its usage so the caller can continue the
+    generation instead of discarding a whole capped response — and so
+    the capped request's tokens still reach the usage ledger."""
 
-    def __init__(self, partial: str = ""):
+    def __init__(self, partial: str = "", usage: dict | None = None):
         super().__init__("completion truncated at token cap")
         self.partial = partial
+        self.usage = usage or {}
 
 
 class StreamCutError(LLMError):
@@ -129,11 +131,22 @@ class OpenAICompatLLM:
                 continue
             except LLMLengthError as e:
                 last = e
-                if e.partial and conts <= 4:
+                # a capped request still consumed tokens — count it
+                # (the success path below counts its own request; each
+                # raised call is accounted exactly once, here)
+                self.usage["calls"] += 1
+                self.usage["prompt_tokens"] += e.usage.get(
+                    "prompt_tokens", 0)
+                self.usage["completion_tokens"] += e.usage.get(
+                    "completion_tokens", 0)
+                if e.partial and conts < 4:
                     # cap-truncated mid-answer: keep the partial and
                     # continue it exactly like a stream cut — the model
                     # finishes the rest instead of us discarding a whole
-                    # 65536-token response and retrying from scratch
+                    # 65536-token response and retrying from scratch.
+                    # Raise the allowance too: a low cap otherwise burns
+                    # all four continuations on short segments.
+                    max_tokens = min(max_tokens * 2, 65536)
                     acc += e.partial
                     conts += 1
                     tail = e.partial[-800:]
@@ -155,8 +168,8 @@ class OpenAICompatLLM:
                                 len(acc))
                     continue
                 # no partial to continue (pure reasoning burn) or the
-                # continuation budget is spent — normal retry at the
-                # real cap (65536 confirmed; >65536 → 400)
+                # continuation budget is spent — normal retry at a
+                # raised cap (65536 confirmed max; >65536 → 400)
                 attempt += 1
                 max_tokens = min(max_tokens * 2, 65536)
                 log.warning("truncated; retrying max_tokens=%d", max_tokens)
@@ -212,7 +225,7 @@ class OpenAICompatLLM:
             raise
         content = "".join(chunks)
         if finish == "length":
-            raise LLMLengthError(content)
+            raise LLMLengthError(content, usage)
         if finish is None and not done and (content or n_data):
             # stream ended without [DONE] and without a finish_reason —
             # the gateway cut it; hand the partial up for continuation
