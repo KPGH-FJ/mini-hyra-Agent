@@ -1,1 +1,314 @@
-{"status": "ok", "probe_bytes": 168, "asset_bytes": 167}
+{
+ "status": "ok",
+ "contract": [
+  "ingest",
+  "answer",
+  "forget",
+  "correct",
+  "revoke_purpose",
+  "state",
+  "import_state",
+  "probe_bytes",
+  "stats"
+ ],
+ "smoke": {
+  "passed": 48,
+  "failed": 0,
+  "failures": []
+ },
+ "cost": {
+  "asset_bytes": 3994,
+  "probe_bytes": 15507,
+  "llm_tokens": 0
+ },
+ "checks": [
+  {
+   "name": "state_latest",
+   "got": "广州",
+   "want": "广州",
+   "ok": true
+  },
+  {
+   "name": "as_of",
+   "got": "珠海",
+   "want": "珠海",
+   "ok": true
+  },
+  {
+   "name": "stale",
+   "got": "广州",
+   "want": "广州",
+   "ok": true
+  },
+  {
+   "name": "prov",
+   "got": "本人",
+   "want": "本人",
+   "ok": true
+  },
+  {
+   "name": "prov_bad",
+   "got": "非本人",
+   "want": "非本人",
+   "ok": true
+  },
+  {
+   "name": "prov2",
+   "got": "r2",
+   "want": "r2",
+   "ok": true
+  },
+  {
+   "name": "unans",
+   "got": "未知",
+   "want": "未知",
+   "ok": true
+  },
+  {
+   "name": "sameday_tie",
+   "got": "B",
+   "want": "B",
+   "ok": true
+  },
+  {
+   "name": "subject_alias",
+   "got": "北京",
+   "want": "北京",
+   "ok": true
+  },
+  {
+   "name": "subject_canon",
+   "got": "北京",
+   "want": "北京",
+   "ok": true
+  },
+  {
+   "name": "hearsay_not_state",
+   "got": "广州",
+   "want": "广州",
+   "ok": true
+  },
+  {
+   "name": "derive_alive",
+   "got": "东区",
+   "want": "东区",
+   "ok": true
+  },
+  {
+   "name": "derive_state",
+   "got": "东区",
+   "want": "东区",
+   "ok": true
+  },
+  {
+   "name": "correct_state",
+   "got": "杭州",
+   "want": "杭州",
+   "ok": true
+  },
+  {
+   "name": "derive_dead",
+   "got": "未知",
+   "want": "未知",
+   "ok": true
+  },
+  {
+   "name": "correct_prov",
+   "got": "本人",
+   "want": "本人",
+   "ok": true
+  },
+  {
+   "name": "exp_live",
+   "got": "轻食",
+   "want": "轻食",
+   "ok": true
+  },
+  {
+   "name": "exp_gone",
+   "got": "未知",
+   "want": "未知",
+   "ok": true
+  },
+  {
+   "name": "pre_forget_state",
+   "got": "摄影",
+   "want": "摄影",
+   "ok": true
+  },
+  {
+   "name": "pre_forget_derived",
+   "got": "好",
+   "want": "好",
+   "ok": true
+  },
+  {
+   "name": "cascade_state",
+   "got": "未知",
+   "want": "未知",
+   "ok": true
+  },
+  {
+   "name": "cascade_derived",
+   "got": "未知",
+   "want": "未知",
+   "ok": true
+  },
+  {
+   "name": "cascade_history",
+   "got": "未知",
+   "want": "未知",
+   "ok": true
+  },
+  {
+   "name": "retract",
+   "got": "已删除",
+   "want": "已删除",
+   "ok": true
+  },
+  {
+   "name": "retract_state",
+   "got": "未知",
+   "want": "未知",
+   "ok": true
+  },
+  {
+   "name": "pre_range",
+   "got": "教师",
+   "want": "教师",
+   "ok": true
+  },
+  {
+   "name": "range_rollback",
+   "got": "工程师",
+   "want": "工程师",
+   "ok": true
+  },
+  {
+   "name": "purpose",
+   "got": "杭州,南山区",
+   "want": "杭州,南山区",
+   "ok": true
+  },
+  {
+   "name": "budget",
+   "got": "南山区,杭州",
+   "want": "南山区,杭州",
+   "ok": true
+  },
+  {
+   "name": "revoked",
+   "got": "已撤回",
+   "want": "已撤回",
+   "ok": true
+  },
+  {
+   "name": "purpose_after_revoke",
+   "got": "已撤回",
+   "want": "已撤回",
+   "ok": true
+  },
+  {
+   "name": "ops_forget",
+   "got": "hobby",
+   "want": "hobby",
+   "ok": true
+  },
+  {
+   "name": "ops_forget_range",
+   "got": "job",
+   "want": "job",
+   "ok": true
+  },
+  {
+   "name": "ops_correct",
+   "got": "city",
+   "want": "city",
+   "ok": true
+  },
+  {
+   "name": "ops_revoke",
+   "got": "work",
+   "want": "work",
+   "ok": true
+  },
+  {
+   "name": "ops_none",
+   "got": "无",
+   "want": "无",
+   "ok": true
+  },
+  {
+   "name": "import_state",
+   "got": "工程师",
+   "want": "工程师",
+   "ok": true
+  },
+  {
+   "name": "import_city",
+   "got": "杭州",
+   "want": "杭州",
+   "ok": true
+  },
+  {
+   "name": "import_history",
+   "got": "珠海",
+   "want": "珠海",
+   "ok": true
+  },
+  {
+   "name": "import_subject",
+   "got": "北京",
+   "want": "北京",
+   "ok": true
+  },
+  {
+   "name": "import_gone",
+   "got": "未知",
+   "want": "未知",
+   "ok": true
+  },
+  {
+   "name": "import_journal",
+   "got": "city",
+   "want": "city",
+   "ok": true
+  },
+  {
+   "name": "import_revoked",
+   "got": "已撤回",
+   "want": "已撤回",
+   "ok": true
+  },
+  {
+   "name": "about_state",
+   "got": "天津",
+   "want": "天津",
+   "ok": true
+  },
+  {
+   "name": "about_conf",
+   "got": "高",
+   "want": "高",
+   "ok": true
+  },
+  {
+   "name": "about_nchange",
+   "got": "1",
+   "want": "1",
+   "ok": true
+  },
+  {
+   "name": "about_subject",
+   "got": "上海",
+   "want": "上海",
+   "ok": true
+  },
+  {
+   "name": "about_forget",
+   "got": "未知",
+   "want": "未知",
+   "ok": true
+  }
+ ]
+}
