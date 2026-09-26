@@ -1,495 +1,616 @@
-# -*- coding: utf-8 -*-
-"""Life Model asset: M5 control semantics on top of a temporal edge store."""
+# asset.py -- Life Model asset (M5 control semantics)
+#
+# Contract: module-level ingest / answer / forget / correct / revoke_purpose /
+# state / import_state / probe_bytes / stats.
+#
+# Model: an append-only set of normalized records, indexed into
+# (about, slot) vertices ordered by (day, arrival).  Live values are derived by
+# replaying the vertex's write edges up to the probe's day (bitemporal), which
+# makes out-of-order ingest, same-day ties, expiry, retraction, supersession and
+# range-rollback all the same computation.  Derived (inference) facts are extra
+# write edges that are only live while their premise fixpoint holds.  Control
+# ops (forget / forget_range / correct / revoke_purpose) mutate a gone-set, add
+# read-time edges, or flip a purpose flag, and every one is journaled.
+
 import json
-import re
 
-WRITE_KINDS = ("statement", "update", "correction", "derived", "correct")
-
-
-def _new():
-    return {"recs": [], "journal": [], "revoked": [], "forgotten_slots": [],
-            "forgotten_about": [], "probe_bytes": 0, "seq": 0}
-
-
-_S = _new()
-_AM = None
-_AK = None
+_SAID = ("statement", "update", "correction")
 
 
 def _norm(v):
     if v is None:
-        return ""
-    return re.sub(r"\s+", "", str(v)).lower()
-
-
-def _sup(r):
-    s = r.get("supports")
-    if not s:
-        return []
-    if isinstance(s, str):
-        return [s]
-    try:
-        return [str(x) for x in s]
-    except Exception:
-        return []
-
-
-def _alias_map():
-    global _AM, _AK
-    key = (len(_S["recs"]), _S["seq"])
-    if _AM is not None and _AK == key:
-        return _AM
-    m = {}
-    for r in _S["recs"]:
-        if r.get("kind") == "alias" or r.get("slot") == "alias":
-            canon = str(r.get("value"))
-            txt = " ".join(str(r.get(k) or "") for k in ("text", "value", "slot", "id"))
-            if r.get("alias"):
-                txt += " " + str(r["alias"])
-            for n in re.findall(r"[\u4e00-\u9fa5A-Za-z0-9·]+", txt):
-                if n and n != canon:
-                    m.setdefault(n, canon)
-            m.setdefault(canon, canon)
-    _AM, _AK = m, key
-    return m
-
-
-def _canon(x):
-    if x is None:
         return None
-    return _alias_map().get(str(x), str(x))
+    if isinstance(v, str):
+        s = v.strip()
+        return s if s else None
+    return str(v)
 
 
-def _names():
-    m = _alias_map()
-    s = set(m.keys())
-    s.update(m.values())
-    return s
-
-
-def _write_ok(r):
-    k = r.get("kind")
-    src = r.get("source")
-    if k == "derived":
-        return src == "inference"
-    if k not in ("statement", "update", "correction", "correct"):
-        return False
-    if r.get("about") is None:
-        return src == "self"
-    return True
-
-
-# ------------------------------------------------------------------ ingest
-def ingest(rec):
-    rec = rec or {}
-    r = {}
-    for k in ("id", "day", "source", "kind", "slot", "value", "text",
-              "expires_day", "about", "supports"):
-        r[k] = rec.get(k)
+def _int(v, default=0):
     try:
-        r["day"] = int(r["day"])
-    except Exception:
-        r["day"] = 0
-    if r.get("expires_day") is not None:
-        try:
-            r["expires_day"] = int(r["expires_day"])
-        except Exception:
-            r["expires_day"] = None
-    _S["seq"] += 1
-    r["arr"] = _S["seq"]
-    _S["recs"].append(r)
+        return int(v)
+    except (TypeError, ValueError):
+        return default
 
 
-def _remove_edges(pred):
-    """Erase matching write edges, cascading to derived facts losing supports."""
-    removed = set()
-    first = True
-    while True:
-        again = False
-        keep = []
-        for r in _S["recs"]:
-            dead = (first and pred(r)) or (
-                r.get("kind") == "derived" and
-                any(s in removed for s in _sup(r)))
-            if dead:
-                removed.add(r["id"])
-                again = True
+def _exp(v):
+    if v is None:
+        return None
+    try:
+        return int(v)
+    except (TypeError, ValueError):
+        return None
+
+
+class LifeModel:
+    def __init__(self):
+        self.recs = {}        # id -> normalized record
+        self.gone = set()     # ids erased by forget / forget_range
+        self.journal = []     # control-op audit trail
+        self.purposes = {}    # purpose -> {"revoked": bool}
+        self.aliases = {}     # name -> canonical name
+        self.pb = 0           # cumulative bytes consulted
+        self.arr = 0          # arrival counter (tie-break, later wins)
+        self.max_day = 0
+        self.verts = None     # (about, slot) -> sorted edge list
+        self._sz = {}         # id -> serialized size (metering only)
+        self._dcache = None   # (ver, day) -> alive derived set
+        self._ver = 0
+
+    # ------------------------------------------------------------------ misc
+    def _bump(self):
+        self._ver += 1
+        self.verts = None
+        self._dcache = None
+
+    def _touch(self, r):
+        rid = r["id"]
+        sz = self._sz.get(rid)
+        if sz is None:
+            sz = len(json.dumps(r, ensure_ascii=False, separators=(",", ":")))
+            self._sz[rid] = sz
+        self.pb += sz
+
+    def _resolve(self, name):
+        """Resolve a person name to its canonical form through the alias map."""
+        if name is None:
+            return None
+        key = str(name).strip()
+        if not key:
+            return None
+        seen = set()
+        cur = key
+        while cur not in seen:
+            seen.add(cur)
+            nxt = self.aliases.get(cur)
+            if not nxt or nxt == cur:
+                break
+            cur = nxt
+        return cur
+
+    def _verts_get(self):
+        if self.verts is None:
+            d = {}
+            for r in self.recs.values():
+                d.setdefault((r["about"], r["slot"]), []).append(r)
+            for v in d.values():
+                v.sort(key=lambda e: (e["day"], e["arr"]))
+            self.verts = d
+        return self.verts
+
+    # ------------------------------------------------------------- ingestion
+    def ingest(self, rec):
+        if not isinstance(rec, dict):
+            return
+        rid = rec.get("id")
+        if rid is None:
+            rid = "_n%d" % self.arr
+        rid = str(rid)
+        if rid in self.recs:
+            return
+        supp = rec.get("supports")
+        if supp is None:
+            supp = None
+        elif isinstance(supp, (list, tuple)):
+            supp = [str(x) for x in supp if x is not None]
+        else:
+            supp = [str(supp)]
+        r = {
+            "id": rid,
+            "day": _int(rec.get("day")),
+            "arr": self.arr,
+            "source": rec.get("source"),
+            "kind": rec.get("kind"),
+            "slot": rec.get("slot"),
+            "value": _norm(rec.get("value")),
+            "exp": _exp(rec.get("expires_day")),
+            "about": rec.get("about"),
+            "supp": supp,
+            "text": rec.get("text"),
+        }
+        self.arr += 1
+        if r["day"] > self.max_day:
+            self.max_day = r["day"]
+        if r["kind"] == "alias":
+            canon = _norm(rec.get("value"))
+            names = []
+            for key in ("text", "alias"):
+                n = _norm(rec.get(key))
+                if n:
+                    names.append(n)
+            if rec.get("slot") and rec.get("slot") != "alias":
+                n = _norm(rec.get("slot"))
+                if n:
+                    names.append(n)
+            for key in ("names", "aliases"):
+                v = rec.get(key)
+                if isinstance(v, list):
+                    for n in v:
+                        n = _norm(n)
+                        if n:
+                            names.append(n)
+            if canon:
+                for n in names:
+                    if n != canon:
+                        self.aliases[n] = canon
+        self.recs[rid] = r
+        self._bump()
+
+    # --------------------------------------------------------- control ops
+    def forget(self, scope):
+        """Erase every record matching the scope.  slot / about / day_gte /
+        day_lte may be combined; a day window makes this a range forget that
+        rolls the live value back to the previous surviving write."""
+        if not isinstance(scope, dict):
+            scope = {}
+        slot = scope.get("slot")
+        about = scope.get("about")
+        g = scope.get("day_gte")
+        l = scope.get("day_lte")
+        if slot is None and about is None and g is None and l is None:
+            return
+        g = _int(g) if g is not None else None
+        l = _int(l) if l is not None else None
+        first_slot = None
+        n = 0
+        for r in self.recs.values():
+            if slot is not None and r["slot"] != slot:
                 continue
-            keep.append(r)
-        _S["recs"] = keep
-        first = False
-        if not again:
-            break
+            if about and (r["about"] or None) != about:
+                continue
+            if g is not None and r["day"] < g:
+                continue
+            if l is not None and r["day"] > l:
+                continue
+            if r["id"] not in self.gone:
+                self.gone.add(r["id"])
+                n += 1
+                if first_slot is None:
+                    first_slot = r["slot"]
+        op = "forget_range" if (g is not None or l is not None) else "forget"
+        target = slot or about or first_slot
+        self.journal.append({"op": op, "slot": slot, "about": about,
+                             "day_gte": g, "day_lte": l, "target": target,
+                             "n": n})
+        self._bump()
 
+    def correct(self, slot, value):
+        """User correction at read time: a fresh self correction edge that
+        supersedes the slot's live value (and therefore breaks premises that
+        depended on the old value)."""
+        if not slot:
+            return
+        rid = "_c%d" % self.arr
+        r = {"id": rid, "day": self.max_day, "arr": self.arr,
+             "source": "self", "kind": "correction", "slot": slot,
+             "value": _norm(value), "exp": None, "about": None,
+             "supp": None, "text": None}
+        self.arr += 1
+        self.recs[rid] = r
+        self.journal.append({"op": "correct", "slot": slot, "target": slot,
+                             "value": _norm(value)})
+        self._bump()
 
-def forget(scope):
-    scope = scope or {}
-    _S["seq"] += 1
-    if scope.get("slot") is not None:
-        slot = scope["slot"]
-        if slot not in _S["forgotten_slots"]:
-            _S["forgotten_slots"].append(slot)
-        _remove_edges(lambda r: r.get("slot") == slot)
-        _S["journal"].append({"op": "forget", "target": slot, "at": _S["seq"]})
-    elif scope.get("about") is not None:
-        a = _canon(scope["about"])
-        if a not in _S["forgotten_about"]:
-            _S["forgotten_about"].append(a)
-        _remove_edges(lambda r: _canon(r.get("about")) == a)
-        _S["journal"].append({"op": "forget", "target": a, "at": _S["seq"]})
-    elif scope.get("day_gte") is not None or scope.get("day_lte") is not None:
-        lo = scope.get("day_gte", -10 ** 9)
-        hi = scope.get("day_lte", 10 ** 9)
-        _remove_edges(lambda r: r.get("kind") in WRITE_KINDS and
-                      lo <= r.get("day", 0) <= hi)
-        _S["journal"].append({"op": "forget_range", "target": "%s~%s" % (lo, hi),
-                              "at": _S["seq"]})
+    def revoke_purpose(self, purpose):
+        """Withdraw a use-case view: the data stays, the view refuses."""
+        if not purpose:
+            return
+        p = str(purpose)
+        self.purposes[p] = {"revoked": True}
+        self.journal.append({"op": "revoke_purpose", "purpose": p, "target": p})
+        self._bump()
 
+    # ------------------------------------------------------- live-value core
+    def _eff(self, about, slot, T, alive, touch=True):
+        """Value effective at day T for vertex (about, slot): replay write
+        edges in (day, arrival) order, honouring erasure, expiry, retraction,
+        supersession and live derived facts."""
+        edges = self._verts_get().get((about, slot))
+        if not edges:
+            return None, None
+        cur = None
+        cure = None
+        for e in edges:
+            if e["day"] > T:
+                break
+            if e["id"] in self.gone:
+                continue
+            k = e["kind"]
+            if k == "hearsay" or k == "suggestion" or k == "alias":
+                continue
+            if k == "derived":
+                if alive is not None and e["id"] not in alive:
+                    continue
+            elif e["source"] != "self":
+                continue
+            exp = e["exp"]
+            if exp is not None and T > exp:
+                continue
+            if touch:
+                self._touch(e)
+            if k == "retraction":
+                cur = None
+                cure = None
+            else:
+                cur = e["value"]
+                cure = e
+        return cur, cure
 
-def correct(slot, value):
-    _S["seq"] += 1
-    day = max([r.get("day", 0) for r in _S["recs"]] or [0]) + 1
-    _S["recs"].append({"id": "correct_%d" % _S["seq"], "day": day,
-                       "source": "self", "kind": "correct", "slot": slot,
-                       "value": value, "text": "", "about": None,
-                       "supports": None, "arr": _S["seq"]})
-    _S["journal"].append({"op": "correct", "target": slot, "at": _S["seq"]})
-
-
-def revoke_purpose(purpose):
-    _S["seq"] += 1
-    if purpose not in _S["revoked"]:
-        _S["revoked"].append(purpose)
-    _S["journal"].append({"op": "revoke_purpose", "target": purpose,
-                          "at": _S["seq"]})
-
-
-# --------------------------------------------------- liveness / live value
-def _alive_all(qday, max_day=None, consulted=None):
-    recs = _S["recs"]
-    if consulted is not None:
-        for r in recs:
-            consulted.add(r["id"])
-    byid = {r["id"]: r for r in recs}
-    retr = {}
-    for r in recs:
-        if r.get("kind") == "retraction":
-            retr.setdefault((_canon(r.get("about")), r.get("slot")),
-                            []).append((r.get("day", 0), r.get("arr", 0)))
-    fs = set(_S["forgotten_slots"])
-    fa = set(_S["forgotten_about"])
-
-    def base(r):
-        if r.get("slot") in fs:
+    def _premises(self, d, alive, T):
+        if d["id"] in self.gone:
             return False
-        if _canon(r.get("about")) in fa:
+        if d["exp"] is not None and T > d["exp"]:
             return False
-        ex = r.get("expires_day")
-        if ex is not None and qday is not None and qday > ex:
-            return False
-        if max_day is not None and r.get("day", 0) > max_day:
-            return False
-        for k in retr.get((_canon(r.get("about")), r.get("slot")), []):
-            if k > (r.get("day", 0), r.get("arr", 0)):
+        supp = d["supp"]
+        if not supp:
+            return True
+        for sid in supp:
+            s = self.recs.get(sid)
+            if s is None or s["id"] in self.gone:
+                return False
+            about = s["about"] if s["about"] is not None else d["about"]
+            v, _ = self._eff(about, s["slot"], T, alive, touch=False)
+            if _norm(v) != _norm(s["value"]):
                 return False
         return True
 
-    alive = {r["id"]: base(r) and _write_ok(r) for r in recs}
-    livecache = {}
+    def _derived(self, T):
+        """Fixpoint of live derived facts at day T (death is transitive)."""
+        key = (self._ver, T)
+        if self._dcache is not None and self._dcache[0] == key:
+            return self._dcache[1]
+        derived = [r for r in self.recs.values() if r["kind"] == "derived"]
+        alive = set(d["id"] for d in derived)
+        changed = True
+        guard = 0
+        while changed and guard < 128:
+            guard += 1
+            changed = False
+            for d in derived:
+                if d["id"] not in alive:
+                    continue
+                if not self._premises(d, alive, T):
+                    alive.discard(d["id"])
+                    changed = True
+        for d in derived:
+            self._touch(d)
+            if d["id"] in alive:
+                for sid in (d["supp"] or []):
+                    s = self.recs.get(sid)
+                    if s is not None:
+                        self._touch(s)
+        self._dcache = (key, alive)
+        return alive
 
-    def liveval(about, slot):
-        key = (about, slot)
-        if key in livecache:
-            return livecache[key]
-        best = None
-        for r in recs:
-            if not alive.get(r["id"]):
+    # ------------------------------------------------------------- answers
+    def _a_state(self, about, slot, ckpt, alive):
+        v, _ = self._eff(about, slot, ckpt, alive)
+        return v if v is not None else "未知"
+
+    def _a_retract(self, about, slot, ckpt, alive):
+        v, _ = self._eff(about, slot, ckpt, alive)
+        if v is not None:
+            return v
+        verts = self._verts_get()
+        for e in verts.get((about, slot), ()):
+            if e["day"] > ckpt:
+                break
+            if e["id"] in self.gone:
                 continue
-            if _canon(r.get("about")) != about or r.get("slot") != slot:
-                continue
-            k = (r.get("day", 0), r.get("arr", 0))
-            if best is None or k > best[0]:
-                best = (k, r)
-        v = best[1]["value"] if best else None
-        livecache[key] = v
-        return v
-
-    for _ in range(20):
-        changed = False
-        livecache.clear()
-        for r in recs:
-            if not alive.get(r["id"]):
-                continue
-            if r.get("kind") != "derived":
-                continue
-            ok = True
-            for sid in _sup(r):
-                sr = byid.get(sid)
-                if sr is None or not alive.get(sr["id"]):
-                    ok = False
-                    break
-                if sr.get("kind") in WRITE_KINDS and sr.get("slot"):
-                    lv = liveval(_canon(sr.get("about")) or _canon(r.get("about")),
-                                 sr["slot"])
-                    if _norm(lv) != _norm(sr.get("value")):
-                        ok = False
-                        break
-            if not ok:
-                alive[r["id"]] = False
-                changed = True
-        if not changed:
-            break
-    return alive
-
-
-def _live(slot, day, about=None, consulted=None, max_day=None):
-    if slot is None:
-        return None
-    alive = _alive_all(day, max_day=max_day, consulted=consulted)
-    about = _canon(about)
-    best = None
-    for r in _S["recs"]:
-        if not alive.get(r["id"]):
-            continue
-        if r.get("slot") != slot or _canon(r.get("about")) != about:
-            continue
-        k = (r.get("day", 0), r.get("arr", 0))
-        if best is None or k > best[0]:
-            best = (k, r)
-    return best[1] if best else None
-
-
-def _history(slot, about=None, qday=None, consulted=None):
-    alive = _alive_all(qday, consulted=consulted)
-    about = _canon(about)
-    seq = [(r.get("day", 0), r.get("arr", 0), r)
-           for r in _S["recs"]
-           if alive.get(r["id"]) and r.get("slot") == slot and
-           _canon(r.get("about")) == about]
-    seq.sort(key=lambda x: (x[0], x[1]))
-    return [r for _, _, r in seq]
-
-
-# ------------------------------------------------------------- subject help
-def _hearsay_subject(r, names):
-    if r.get("about"):
-        return str(r["about"])
-    s = str(r.get("slot") or "")
-    t = str(r.get("text") or "")
-    for n in sorted(names, key=len, reverse=True):
-        if n and (n in s or n in t):
-            return n
-    for sep in (".", "。", "的", "：", ":", " ", "——"):
-        if sep in s:
-            head = s.split(sep)[0]
-            if head:
-                return head
-    m = re.search(r"([\u4e00-\u9fa5A-Za-z0-9·]{2,})", t)
-    return m.group(1) if m else None
-
-
-def _topic_match(r, slot):
-    if not slot:
-        return True
-    return (str(slot) in str(r.get("slot") or "")) or (str(slot) in str(r.get("text") or ""))
-
-
-# ------------------------------------------------------------------ answer
-def answer(probe):
-    probe = probe or {}
-    consulted = set()
-    try:
-        res = _answer(probe, consulted)
-    except Exception:
-        res = "未知"
-    try:
-        _S["probe_bytes"] += sum(
-            len(json.dumps(r, ensure_ascii=False))
-            for r in _S["recs"] if r["id"] in consulted)
-    except Exception:
-        pass
-    return res if isinstance(res, str) else "未知"
-
-
-def _answer(probe, consulted):
-    t = str(probe.get("type") or probe.get("q") or "")
-    day = probe.get("ckpt")
-    if day is None:
-        day = probe.get("day")
-    try:
-        day = int(day)
-    except Exception:
-        day = 90
-    slot = probe.get("slot")
-    about = _canon(probe.get("about"))
-
-    if t in ("state", "stale", ""):
-        r = _live(slot, day, about, consulted)
-        return str(r["value"]) if r is not None else "未知"
-
-    if t in ("as_of", "asof", "at"):
-        d = probe.get("day")
-        try:
-            d = int(d)
-        except Exception:
-            d = day
-        r = _live(slot, d, about, consulted, max_day=d)
-        return str(r["value"]) if r is not None else "未知"
-
-    if t in ("retract", "deleted"):
-        deleted = (slot in _S["forgotten_slots"]) or any(
-            r.get("kind") == "retraction" and r.get("slot") == slot and
-            _canon(r.get("about")) == about for r in _S["recs"])
-        return "已删除" if deleted else "未知"
-
-    if t in ("cascade", "derive", "unans", "unknown"):
+            if e["kind"] == "retraction" and e["source"] == "self":
+                if e["exp"] is None or ckpt <= e["exp"]:
+                    return "已删除"
+        for e in verts.get((about, slot), ()):
+            if e["id"] in self.gone:
+                return "已删除"
+            if e["source"] == "self" and e["kind"] in _SAID:
+                return "已删除"
+            if e["kind"] == "derived":
+                return "已删除"
         return "未知"
 
-    if t == "prov":
-        val = probe.get("value")
-        for r in _S["recs"]:
-            if (r.get("slot") == slot and r.get("source") == "self" and
-                    r.get("about") is None and
-                    r.get("kind") in ("statement", "update", "correction", "correct")):
-                if _norm(r.get("value")) == _norm(val):
-                    return "本人"
+    def _a_prov(self, probe, about, slot, ckpt, alive):
+        claimed = _norm(probe.get("value"))
+        v, e = self._eff(about, slot, ckpt, alive)
+        if e is not None and e["source"] == "self" and e["kind"] in _SAID \
+                and _norm(v) == claimed:
+            return "本人"
         return "非本人"
 
-    if t == "prov2":
-        r = _live(slot, day, about, consulted)
-        return str(r["id"]) if r is not None else "未知"
+    def _a_prov2(self, about, slot, ckpt, alive):
+        v, e = self._eff(about, slot, ckpt, alive)
+        if e is not None and e["source"] == "self" and e["kind"] in _SAID:
+            return str(e["id"])
+        best = None
+        for ed in self._verts_get().get((about, slot), ()):
+            if ed["id"] in self.gone:
+                continue
+            if ed["source"] == "self" and ed["kind"] in _SAID:
+                if best is None or (ed["day"], ed["arr"]) > (best["day"], best["arr"]):
+                    best = ed
+        return str(best["id"]) if best is not None else "未知"
 
-    if t in ("transfer", "budget", "pack"):
-        slots = probe.get("slots") or probe.get("purpose_slots") or []
-        vals = []
+    def _a_subject(self, probe, about, slot, ckpt):
+        person = probe.get("person")
+        canon = self._resolve(person) if person else None
+        best = None
+        for r in self.recs.values():
+            if r["kind"] != "hearsay" or r["id"] in self.gone:
+                continue
+            if canon is None or self._resolve(r["source"]) != canon:
+                continue
+            ra = r["about"]
+            if about is not None:
+                if ra != about:
+                    continue
+            elif ra is not None and self._resolve(ra) != canon:
+                continue
+            if slot is not None and r["slot"] != slot:
+                continue
+            if r["exp"] is not None and ckpt > r["exp"]:
+                continue
+            self._touch(r)
+            if best is None or (r["day"], r["arr"]) > (best["day"], best["arr"]):
+                best = r
+        return best["value"] if best is not None else "未知"
+
+    def _slot_list(self, probe, key):
+        v = probe.get(key)
+        if not v:
+            return []
+        if isinstance(v, (list, tuple)):
+            return [str(x) for x in v if x is not None and str(x).strip() != ""]
+        return [x.strip() for x in str(v).split(",") if x.strip()]
+
+    def _pack(self, slots, about, ckpt, alive):
+        out = []
         for s in slots:
-            r = _live(s, day, about, consulted)
-            if r is not None:
-                vals.append(str(r["value"]))
-        return ",".join(vals) if vals else "未知"
+            v, _ = self._eff(about, s, ckpt, alive)
+            if v is not None:
+                out.append(str(v))
+        return ",".join(out)
 
-    if t in ("purpose", "revoked", "view"):
-        pur = probe.get("purpose")
-        if pur is not None and pur in _S["revoked"]:
-            return "已撤回"
-        slots = probe.get("purpose_slots") or probe.get("slots") or []
-        vals = []
-        for s in slots:
-            r = _live(s, day, about, consulted)
-            if r is not None:
-                vals.append(str(r["value"]))
-        return ",".join(vals) if vals else "未知"
-
-    if t == "subject":
-        pc = _canon(probe.get("person"))
-        names = _names()
-        pslot = probe.get("slot")
-        cands = []
-        for r in _S["recs"]:
-            if probe.get("about") is not None:
-                if _canon(r.get("about")) != _canon(probe.get("about")):
+    def _a_transfer(self, probe, about, slot, ckpt, alive):
+        vals = probe.get("values")
+        if isinstance(vals, (list, tuple)):
+            return ",".join(str(x) for x in vals)
+        slots = self._slot_list(probe, "slots")
+        if slots:
+            s = self._pack(slots, about, ckpt, alive)
+            return s if s else "未知"
+        out = []
+        cur = None
+        for e in self._verts_get().get((about, slot), ()):
+            if e["day"] > ckpt:
+                break
+            if e["id"] in self.gone:
+                continue
+            k = e["kind"]
+            if k in ("hearsay", "suggestion", "alias"):
+                continue
+            if k == "derived":
+                if e["id"] not in alive:
                     continue
-                if _canon(r.get("source")) != pc:
-                    continue
-                if r.get("kind") not in ("hearsay", "statement", "update",
-                                         "correction", "suggestion"):
-                    continue
+            elif e["source"] != "self":
+                continue
+            if e["exp"] is not None and ckpt > e["exp"]:
+                continue
+            self._touch(e)
+            if k == "retraction":
+                cur = None
             else:
-                if r.get("kind") != "hearsay":
-                    continue
-                if _canon(_hearsay_subject(r, names)) != pc:
-                    continue
-                ex = r.get("expires_day")
-                if ex is not None and day > ex:
-                    continue
-            cands.append(r)
-        if pslot:
-            filtered = [r for r in cands if _topic_match(r, pslot)]
-            if filtered:
-                cands = filtered
-        if not cands:
-            return "未知"
-        r = max(cands, key=lambda r: (r.get("day", 0), r.get("arr", 0)))
-        for rid in [x["id"] for x in cands]:
-            consulted.add(rid)
-        return str(r.get("value"))
+                if e["value"] != cur:
+                    out.append(str(e["value"]))
+                cur = e["value"]
+        return ",".join(out) if out else "未知"
 
-    if t == "nchange":
-        seq = _history(slot, about, qday=day, consulted=consulted)
-        n = 0
-        prev = None
-        for r in seq:
-            if _norm(r.get("value")) != _norm(prev):
-                n += 1
-            prev = r.get("value")
-        # first assertion creates state, later divergences are transitions
-        return str(max(0, n - 1))
+    def _revoked(self, probe):
+        p = probe.get("purpose")
+        if not p:
+            return False
+        return bool(self.purposes.get(str(p), {}).get("revoked"))
 
-    if t == "conf":
-        selfsaid = False
-        heard = False
-        for r in _S["recs"]:
-            if _canon(r.get("about")) != about:
-                continue
-            if slot and r.get("slot") != slot:
-                continue
-            if r.get("source") == "self" and r.get("kind") in (
-                    "statement", "update", "correction", "correct"):
-                selfsaid = True
-            if r.get("kind") == "hearsay":
-                heard = True
-            consulted.add(r["id"])
-        return "高" if selfsaid else ("低" if heard else "无")
+    def _a_view(self, probe, about, ckpt, alive):
+        if self._revoked(probe):
+            return "已撤回"
+        slots = self._slot_list(probe, "purpose_slots") or self._slot_list(probe, "slots")
+        s = self._pack(slots, about, ckpt, alive)
+        return s if s else "未知"
 
-    if t == "ops":
+    def _a_budget(self, probe, about, ckpt, alive):
+        if self._revoked(probe):
+            return "已撤回"
+        slots = self._slot_list(probe, "slots")
+        if not slots and probe.get("slot"):
+            slots = [str(probe.get("slot"))]
+        s = self._pack(slots, about, ckpt, alive)
+        return s if s else "未知"
+
+    def _a_ops(self, probe):
         op = probe.get("op")
-        targets = [j["target"] for j in _S["journal"] if j.get("op") == op]
-        return ",".join(dict.fromkeys(targets)) if targets else "无"
+        if not op:
+            return "无"
+        op = str(op)
+        ents = [j for j in self.journal if j.get("op") == op]
+        if not ents:
+            return "无"
+        j = ents[-1]
+        t = j.get("target") or j.get("slot") or j.get("purpose") or j.get("about")
+        return str(t) if t else "无"
 
-    if t == "journal":
-        return json.dumps(_S["journal"], ensure_ascii=False)
+    def _nchange(self, about, slot, ckpt):
+        prev = None
+        count = 0
+        for e in self._verts_get().get((about, slot), ()):
+            if e["day"] > ckpt:
+                break
+            if e["id"] in self.gone:
+                continue
+            if e["source"] != "self" or e["kind"] not in _SAID:
+                continue
+            v = e["value"]
+            if prev is not None and v != prev:
+                count += 1
+            prev = v
+        return count
 
-    r = _live(slot, day, about, consulted)
-    return str(r["value"]) if r is not None else "未知"
+    def _conf(self, about, slot, ckpt, alive):
+        v, e = self._eff(about, slot, ckpt, alive)
+        if e is not None and e["source"] == "self" and e["kind"] in _SAID:
+            return "高"
+        for ed in self._verts_get().get((about, slot), ()):
+            if ed["id"] in self.gone or ed["source"] == "self":
+                continue
+            k = ed["kind"]
+            if k == "hearsay" or k in _SAID:
+                if ed["exp"] is None or ckpt <= ed["exp"]:
+                    return "低"
+        return "无"
+
+    # ------------------------------------------------------------- dispatch
+    def answer(self, probe):
+        if not isinstance(probe, dict):
+            return "未知"
+        t = probe.get("type")
+        if t is None:
+            t = probe.get("q")
+        t = str(t or "").strip().lower()
+        ck = probe.get("ckpt")
+        ckpt = _int(ck, self.max_day) if ck is not None else self.max_day
+        about = probe.get("about")
+        slot = probe.get("slot")
+        alive = self._derived(ckpt)
+
+        if t in ("state", "stale", "cascade", "derive"):
+            return self._a_state(about, slot, ckpt, alive)
+        if t == "unans":
+            return "未知"
+        if t == "retract":
+            return self._a_retract(about, slot, ckpt, alive)
+        if t == "as_of":
+            d = probe.get("day")
+            D = _int(d, ckpt) if d is not None else ckpt
+            al = self._derived(D)
+            v, _ = self._eff(about, slot, D, al)
+            return v if v is not None else "未知"
+        if t == "prov":
+            return self._a_prov(probe, about, slot, ckpt, alive)
+        if t == "prov2":
+            return self._a_prov2(about, slot, ckpt, alive)
+        if t == "subject":
+            return self._a_subject(probe, about, slot, ckpt)
+        if t == "transfer":
+            return self._a_transfer(probe, about, slot, ckpt, alive)
+        if t in ("purpose", "revoked"):
+            return self._a_view(probe, about, ckpt, alive)
+        if t == "budget":
+            return self._a_budget(probe, about, ckpt, alive)
+        if t == "ops":
+            return self._a_ops(probe)
+        if t == "nchange":
+            return str(self._nchange(about, slot, ckpt))
+        if t == "conf":
+            return self._conf(about, slot, ckpt, alive)
+
+        # lenient fallback for unseen probe shapes
+        if probe.get("purpose_slots") or (probe.get("purpose") and self._revoked(probe)):
+            return self._a_view(probe, about, ckpt, alive)
+        if probe.get("budget") is not None and probe.get("slots"):
+            return self._a_budget(probe, about, ckpt, alive)
+        if probe.get("person"):
+            return self._a_subject(probe, about, slot, ckpt)
+        if probe.get("day") is not None:
+            D = _int(probe.get("day"), ckpt)
+            al = self._derived(D)
+            v, _ = self._eff(about, slot, D, al)
+            return v if v is not None else "未知"
+        return self._a_state(about, slot, ckpt, alive)
+
+    # --------------------------------------------------------- persistence
+    def state(self):
+        return {
+            "v": 4,
+            "recs": list(self.recs.values()),
+            "gone": sorted(self.gone),
+            "journal": self.journal,
+            "purposes": self.purposes,
+            "aliases": self.aliases,
+            "pb": self.pb,
+            "arr": self.arr,
+            "max_day": self.max_day,
+        }
+
+    def import_state(self, d):
+        if not isinstance(d, dict):
+            return
+        self.recs = {}
+        self.gone = set(d.get("gone") or [])
+        self.journal = list(d.get("journal") or [])
+        self.purposes = dict(d.get("purposes") or {})
+        self.aliases = dict(d.get("aliases") or {})
+        self.pb = _int(d.get("pb"))
+        self.arr = _int(d.get("arr"))
+        self.max_day = _int(d.get("max_day"))
+        for r in (d.get("recs") or []):
+            if not isinstance(r, dict):
+                continue
+            rid = r.get("id")
+            if rid is None:
+                continue
+            self.recs[str(rid)] = {
+                "id": str(rid),
+                "day": _int(r.get("day")),
+                "arr": _int(r.get("arr")),
+                "source": r.get("source"),
+                "kind": r.get("kind"),
+                "slot": r.get("slot"),
+                "value": _norm(r.get("value")),
+                "exp": _exp(r.get("exp")),
+                "about": r.get("about"),
+                "supp": r.get("supp"),
+                "text": r.get("text"),
+            }
+        self._bump()
+
+    def probe_bytes(self):
+        return self.pb
+
+    def stats(self):
+        return {
+            "asset_bytes": len(json.dumps(self.state(), ensure_ascii=False)),
+            "probe_bytes": self.pb,
+            "llm_tokens": 0,
+        }
 
 
-# ------------------------------------------------------------- state / io
-def state():
-    return {"recs": _S["recs"], "journal": _S["journal"],
-            "revoked": list(_S["revoked"]),
-            "forgotten_slots": list(_S["forgotten_slots"]),
-            "forgotten_about": list(_S["forgotten_about"]),
-            "probe_bytes": _S["probe_bytes"], "seq": _S["seq"]}
+_M = LifeModel()
 
-
-def import_state(d):
-    global _AM, _AK
-    d = d or {}
-    _S["recs"] = [dict(r) for r in d.get("recs", [])]
-    _S["journal"] = list(d.get("journal", []))
-    _S["revoked"] = list(d.get("revoked", []))
-    _S["forgotten_slots"] = list(d.get("forgotten_slots", []))
-    _S["forgotten_about"] = list(d.get("forgotten_about", []))
-    try:
-        _S["probe_bytes"] = int(d.get("probe_bytes", 0))
-    except Exception:
-        _S["probe_bytes"] = 0
-    try:
-        _S["seq"] = int(d.get("seq", 0))
-    except Exception:
-        _S["seq"] = 0
-    for r in _S["recs"]:
-        r.setdefault("arr", 0)
-        if not isinstance(r.get("arr"), int):
-            r["arr"] = 0
-    _AM, _AK = None, None
-
-
-def probe_bytes():
-    return int(_S["probe_bytes"])
-
-
-def stats():
-    return {"asset_bytes": len(json.dumps(state(), ensure_ascii=False)),
-            "probe_bytes": int(_S["probe_bytes"]),
-            "llm_tokens": 0}
+def ingest(rec): _M.ingest(rec)
+def answer(probe): return _M.answer(probe)
+def forget(scope): _M.forget(scope)
+def correct(slot, value): _M.correct(slot, value)
+def revoke_purpose(purpose): _M.revoke_purpose(purpose)
+def state(): return _M.state()
+def import_state(d): _M.import_state(d)
+def probe_bytes(): return _M.probe_bytes()
+def stats(): return _M.stats()
