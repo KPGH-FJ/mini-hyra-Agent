@@ -1,1 +1,1 @@
-{"solution": "lifemodel_v2", "entry": "asset.py", "smoke": "ok", "probe_bytes": 633, "asset_bytes": 543}
+{"status": "ok", "probe_bytes": 168, "asset_bytes": 167}

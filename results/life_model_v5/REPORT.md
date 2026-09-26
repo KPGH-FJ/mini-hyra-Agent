@@ -117,3 +117,49 @@ Stream fix held: **zero 502s for the entire 8h** (vs 287 in W1). Residual failur
 ### Next-round targets (unchanged priority)
 
 conf / subject / ops / duration / drvprov / isconf / partial / transfer — ~43 pts of honest headroom to lifemodel v1's 191. Second-order: probe_bytes discipline (s0040's 232KB vs s0039's 2.86MB is a 2.9-pt swing by itself) and getting a second family (tms-supports / filtered-serve) instantiated so the race isn't a walkover.
+
+---
+
+## Amendment — W3 (streamed + cut-recovery + 98k cap): 24 scored, plateau broken
+
+Restarted at ~19:52 UTC on the SAME EB with llm.py at 6eb5177 (stream:true + SSE + resume-from-cut ≤4 conts + max_tokens 65536→98304 cap). Bench stayed v8g mid-run (v9 bench files pulled by the same merge were reverted to a68e809 to keep EB scores comparable); at window end I pulled v9.1 (8024256, main, PRs #11–13) and re-scored the winner. Window ran ~6h + ~35min drain, exited 02:25.
+
+### Results
+
+**W3: 39 commits / 24 scored / 15 dead** (vs W1's 0 evolved scorers and W2's 18/6/12). Cumulative EB: **94 commits / 31 scored / 63 dead**.
+
+| sol | score (v8g) | quality | probe_bytes | parents | note |
+|---|---|---|---|---|---|
+| s0084 | **155.287** | 156.0 | 3.27MB | s0040 | best; temporal edge store variant |
+| s0086 | 151.954 | 152.0 | 38.5KB | s0074 | cheapest quality-152 scorer |
+| s0080 | 148.935 | 149.0 | 29.3KB | s0040 | |
+| s0074 | 147.948 | 148.0 | 152.6KB | s0040 | |
+| s0064 | 147.799 | 148.0 | 577KB | [] (fresh) | clean-room converged to journal |
+| s0067 | 146.437 | 146.5 | 156KB | s0055+s0040 | first real recombination |
+| s0093 | 146.421 | 146.5 | 76.7KB | s0080 | |
+| s0082 | 146.842 | 147.0 | 67.6KB | s0074 | |
+| others | 89–145 | | | | s0046-style regressions |
+| s0045/57/61/65/68/71 | −1e9 | — | — | | 6 contract-fails (missing ingest/answer contract) |
+
+All honest scores cost_how=measured, 0 suspicious.
+
+### Winner re-scored on v9.1 HEAD (8024256, ~199 probes)
+
+**s0084 = 158.1995** — quality ROSE to 159 on the new bench: `transfer` now 1.0 (was 0), subject .94, ops .8, nchange 1.0; the v9 history-reasoning families are all-new zeros (order/absent/window/before/xcmp 0, first .5) plus unchanged zeros (duration/drvprov/isconf/partial, conf .43). Frontier on v9.1: tms 181 / esr 182 — still ~23-27 ahead. Baselines: raw 107.5, ledger 87, rag 66, flat 58.5.
+
+### Endpoint / harness notes
+
+- Stream-cut recovery works — log shows `resuming (cont #1..#3)` regularly; attempts now survive the ~10min cut instead of dying (throughput roughly doubled vs W2: ~24 scored/6h vs ~6/6h).
+- New dominant killer: **prompt-too-large HTTP 400s** — some proposal/context prompts now exceed the model window at ANY max_tokens; attempts burn 8/8 in seconds. 12 of 15 W3 dead commits are llm-400 exhaustions or eval-side crashes (solve.sh exit 1/2/127).
+- One stray 502 all window (20:20) — endpoint genuinely stable.
+- Contract-fail rate is real: 6/24 scorers scored −1e9 for emitting no `asset.py` with ingest()/answer() — proposals land but skip the contract. Worth a task.md-side nudge or a proposal-prompt reminder.
+
+### Family verdict
+
+Event-sourced/temporal-edge journal still the only instantiated family — but now **proven convergent**: a fresh (parents=[]) clean-room scored 147.8, matching lineage quality 148. The plateau broke on serve-cost engineering, not storage: s0084's +7.3 over s0040 came from quality 156 (+8) partially offset by 3.3MB probe cost; the serve-surface gaps (conf .43, ops, subject, duration/drvprov/isconf/partial) are STILL all zero on every scorer — the +23-27 headroom to tms/esr on v9.1 lives there, plus all five new v9 history families.
+
+### Provenance
+
+- W3 launched 19:08 on a937dd0, restarted 19:52 on 6eb5177; mid-run bench files reverted to a68e809 (v8g) for comparability — disclosed. Scored entries' `eval_version` matches the harness eval at commit time.
+- Winner dir `results/life_model_v5/` now contains s0084 verbatim (v8g score in meta.json feedback; v9.1 re-score recorded above, not in meta).
+- serve on :8000 serves the v3 research cockpit (PR #11 on main) — preview URL live.
