@@ -1,0 +1,37 @@
+{
+ "contract": true,
+ "exposed": [
+  "ingest",
+  "answer",
+  "forget",
+  "state",
+  "import_state",
+  "probe_bytes",
+  "stats",
+  "correct",
+  "revoke_purpose",
+  "run_edges"
+ ],
+ "probe_bytes": 2082,
+ "asset_bytes": 889,
+ "checks": {
+  "state": "上海",
+  "as_of": "北京",
+  "subject": "广州",
+  "prov": "本人",
+  "prov2": "r2",
+  "duration": "18天",
+  "first": "北京",
+  "order": "北京→上海",
+  "nchange": "1",
+  "join": "未知",
+  "absent": "是",
+  "window": "0",
+  "drvprov": "r2",
+  "conf": "高",
+  "unans": "未知",
+  "cascade": "已删除",
+  "ops_forget": "city",
+  "post_import": "深圳"
+ }
+}
