@@ -190,10 +190,48 @@ add the traversal, or thin folds over it.
 The winning margin lives in serve correctness, not another storage
 scheme: event-sourced journal storage plateaued at ~148-159 vs the
 195.0 frontier — storage is close enough; the serve contract is
-where candidates bleed. Two proven winners to study in results/:
-run_v5 W4 champion `s0095` (158.911, filtered serve, probe 63KB —
-results/life_model_v5/asset.py) and run_v7 W2 `s0040` (156.942,
-subject/transfer 1.0, drvprov .333 first nonzero, probe 2.1KB —
+where candidates bleed. **STUDY THE CURRENT CHAMPION**: run_v7 W4's `s0096` = **166.958**
+(results/life_model_v9_w4/best/asset.py on branch
+results/lifemodel-p3-m4-w4 — or results/life_model_v9_w4/ on main
+once PR #34 lands). Its design is the reference implementation of
+this section's directive: ONE serve-layer primitive
+`run_edges(slot, read_day, about=None)` returning the surviving
+write-run as ordered edges {(day,value,rid,authority,alive)};
+retraction opens a new run; erasure rewrites the log. Every
+deep-history answer is a thin fold over that traversal, and the
+traversal meters ONLY the requested (subject,slot) edge list —
+probe_bytes 5.2KB, lowest in the round. Do not reinvent it;
+specialize it.
+
+What s0096 already owns (1.0): window, before, nchange, first,
+order, absent, xcmp, isconf, subject, transfer, budget, prov,
+prov2, retract, cascade, derive, unans, as_of, expdeny, revoked.
+Remaining targets, in order of headroom:
+- `join` = 0.0 everywhere — the LAST deep-history zero. Spec:
+  slot2's value on the day slot changed to its live value; probe
+  carries `day` and names `slot2` in the question. s0096's
+  as_of(slot2, day slot's live value started) scored 0 — figure
+  out WHICH day the probe expects (the transition day? the day
+  carried in the probe? read_day semantics?) — likely a day-
+  resolution off-by-one or a wrong "live value started" notion.
+- `drvprov` unstable (.667 → 0.0 between sibling variants):
+  premise-rid tracking breaks under variant perturbations —
+  cite rids of the LIVE premises of a living derived fact;
+  dead derived → gone-phrasing. Make premise refs survive
+  correct()/forget()/export round-trips.
+- `duration` .545 → 1.0: "N天" — days since the CURRENT surviving
+  write-run's earliest edge. The .545 candidates get the shape
+  right but the wrong run boundary — likely including pre-
+  retraction edges or picking the wrong run's first edge.
+- `conf` stuck at .429: 高 = self asserted, 低 = hearsay only,
+  无 = no evidence. Check the 无 arm and the +about variants.
+- `partial` .667: scoped export doc must contain ONLY in-scope
+  live values; leaks score negative. `ops` .6: journal the
+  forget_range day window ("52-53" format) with full scope dicts.
+
+Two earlier winners also worth diffing against s0096:
+run_v5 W4 champion `s0095` (158.911 — results/life_model_v5/
+asset.py) and run_v7 W2 `s0040` (156.942 —
 results/life_model_v9_w2/best/asset.py on the
 results/lifemodel-p3-m4-w2 branch).
 
