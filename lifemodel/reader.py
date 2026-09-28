@@ -114,12 +114,38 @@ async def aretrieve(model, llm, question: str, qdate: str,
     return keys
 
 
+_EXTRACT_SYS = ("You are the extraction stage of a memory QA system. "
+                "Given the memory and question, output a JSON array of "
+                "candidate items: each element {\"value\": <short "
+                "value/name>, \"date\": \"YYYY-MM-DD\" (the event date if "
+                "given, else the said date)}. Include every plausibly "
+                "relevant item — dedupe by meaning. JSON array only.")
+
+
 async def aanswer(model, llm, question: str, qdate: str) -> dict:
-    """Two-stage answer. Returns {response, selected_vertices, digest}."""
+    """Three-stage answer: retrieve -> extract candidates -> answer with a
+    deterministically deduped/sorted/counted item table. Returns
+    {response, selected_vertices, digest}."""
     keys = await aretrieve(model, llm, question, qdate)
     dg = render_vertices(model, keys)
-    prompt = (f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\n"
-              f"QUESTION: {question}\n\nAnswer:")
+    raw = _json_list(await llm.complete(
+        _EXTRACT_SYS,
+        f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\nQUESTION: {question}\n\n"
+        "Candidate items JSON array:"))
+    items, seen = [], set()
+    for it in raw:
+        if not isinstance(it, dict):
+            continue
+        v, d = str(it.get("value", "")).strip(), str(it.get("date", ""))
+        sig = (v.lower(), d)
+        if v and sig not in seen:
+            seen.add(sig)
+            items.append((d, v))
+    items.sort()
+    table = "\n".join(f"- {v} @{d}" for d, v in items) or "(none)"
+    prompt = (f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\nPRE-EXTRACTED "
+              f"CANDIDATES (deduped, sorted, deterministic count="
+              f"{len(items)}):\n{table}\n\nQUESTION: {question}\n\nAnswer:")
     resp = (await llm.complete(ANSWER_SYS, prompt)).strip()
     return {"response": resp, "selected": keys, "digest": dg}
 

@@ -76,7 +76,15 @@ class GLMCompat:
                 self.usage["prompt_tokens"] += u.get("prompt_tokens", 0)
                 self.usage["completion_tokens"] += u.get(
                     "completion_tokens", 0)
-                return d["choices"][0]["message"]["content"]
+                choice = d["choices"][0]
+                msg = choice["message"]
+                content = msg.get("content")
+                if content is None:
+                    if choice.get("finish_reason") == "length":
+                        raise RuntimeError("429-length: content "
+                                           "truncated mid-reasoning")
+                    content = msg.get("reasoning") or ""
+                return content
             except Exception as e:  # noqa: BLE001
                 last = e
                 await asyncio.sleep(delay)
@@ -98,7 +106,7 @@ def _make_llm(args, thinking=False, backend=None):
                                  "stealth/space-bunny-alpha"),
             base_url="https://openrouter.ai/api/v1",
             api_key=os.environ.get("OR_API_KEY", ""),
-            max_tokens=8192)
+            max_tokens=16384)
     return OpenAICompatLLM(model=args.model, base_url=args.base_url,
                            api_key=args.api_key, max_tokens=8192)
 
