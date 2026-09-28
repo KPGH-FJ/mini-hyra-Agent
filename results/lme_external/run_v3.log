@@ -1,0 +1,72 @@
+[1/10] gpt4_2655b836 (temporal-reasoning) recs=40 resp='GPS system malfunction on March 22nd' usage={'prompt_tokens': 10018, 'completion_tokens': 2492, 'calls': 3}
+[2/10] gpt4_2487a7cb (temporal-reasoning) recs=21 resp='Effective Time Management workshop' usage={'prompt_tokens': 17772, 'completion_tokens': 3810, 'calls': 5}
+[3/10] gpt4_76048e76 (temporal-reasoning) recs=39 resp="I don't have enough information to answer that." usage={'prompt_tokens': 24078, 'completion_tokens': 6065, 'calls': 7}
+[4/10] gpt4_2312f94c (temporal-reasoning) recs=31 resp='Samsung Galaxy S22 (purchased February 20th) before the Dell' usage={'prompt_tokens': 30704, 'completion_tokens': 7895, 'calls': 9}
+[5/10] 0bb5a684 (temporal-reasoning) recs=42 resp='4 days' usage={'prompt_tokens': 38860, 'completion_tokens': 10477, 'calls': 11}
+[6/10] 08f4fc43 (temporal-reasoning) recs=31 resp='0 days' usage={'prompt_tokens': 46007, 'completion_tokens': 12428, 'calls': 13}
+[7/10] 2c63a862 (temporal-reasoning) recs=22 resp='16 days' usage={'prompt_tokens': 52346, 'completion_tokens': 13753, 'calls': 15}
+[8/10] gpt4_385a5000 (temporal-reasoning) recs=30 resp="I don't have enough information to answer that." usage={'prompt_tokens': 57765, 'completion_tokens': 15644, 'calls': 17}
+[9/10] 2a1811e2 (temporal-reasoning) recs=28 resp='21 days had passed between Holi (February 26th) and the Sund' usage={'prompt_tokens': 64674, 'completion_tokens': 17314, 'calls': 19}
+[10/10] bbf86515 (temporal-reasoning) recs=33 resp='4 days' usage={'prompt_tokens': 71530, 'completion_tokens': 19402, 'calls': 21}
+[11/10] gpt4_5dcc0aab (temporal-reasoning) recs=74 resp="I don't have enough information to answer that." usage={'prompt_tokens': 87325, 'completion_tokens': 23983, 'calls': 26}
+[12/10] gpt4_0b2f1d21 (temporal-reasoning) recs=29 resp='The malfunction of the stand mixer happened first. The coffe' usage={'prompt_tokens': 94872, 'completion_tokens': 25704, 'calls': 28}
+[13/10] 0a995998 (multi-session) recs=46 resp="I don't have enough information to answer that." usage={'prompt_tokens': 104232, 'completion_tokens': 28317, 'calls': 31}
+[14/10] 6d550036 (multi-session) recs=57 resp='1' usage={'prompt_tokens': 120275, 'completion_tokens': 31880, 'calls': 35}
+[15/10] gpt4_59c863d7 (multi-session) recs=102 resp="I don't have enough information to answer that." usage={'prompt_tokens': 137879, 'completion_tokens': 37912, 'calls': 39}
+[16/10] b5ef892d (multi-session) recs=51 resp='15 days' usage={'prompt_tokens': 149312, 'completion_tokens': 41377, 'calls': 42}
+[17/10] e831120c (multi-session) recs=20 resp="I don't have enough information to answer that." usage={'prompt_tokens': 155926, 'completion_tokens': 42400, 'calls': 44}
+[18/10] 3a704032 (multi-session) recs=50 resp='1' usage={'prompt_tokens': 167400, 'completion_tokens': 45516, 'calls': 47}
+[19/10] gpt4_d84a3211 (multi-session) recs=48 resp="I don't have enough information to answer that." usage={'prompt_tokens': 180523, 'completion_tokens': 48470, 'calls': 51}
+[20/10] aae3761f (multi-session) recs=51 resp="I don't have enough information to answer that." usage={'prompt_tokens': 191272, 'completion_tokens': 51483, 'calls': 54}
+[21/10] gpt4_f2262a51 (multi-session) recs=39 resp='4 different doctors: Dr. Patel, Dr. Lee, Dr. Smith, and an E' usage={'prompt_tokens': 202266, 'completion_tokens': 53704, 'calls': 57}
+[22/10] dd2973ad (multi-session) recs=32 resp="I don't have enough information to answer that." usage={'prompt_tokens': 208617, 'completion_tokens': 55851, 'calls': 59}
+[23/10] c4a1ceb8 (multi-session) recs=72 resp='3' usage={'prompt_tokens': 222862, 'completion_tokens': 60461, 'calls': 63}
+[24/10] gpt4_a56e767c (multi-session) recs=37 resp='Based on your memory, you attended at least 4 film festivals' usage={'prompt_tokens': 234792, 'completion_tokens': 62795, 'calls': 66}
+[25/10] 6a1eabeb (knowledge-update) recs=20 resp='25:50' usage={'prompt_tokens': 243040, 'completion_tokens': 63968, 'calls': 68}
+[26/10] 6aeb4375 (knowledge-update) recs=32 resp="I don't have enough information to answer that." usage={'prompt_tokens': 248983, 'completion_tokens': 65934, 'calls': 70}
+[27/10] 830ce83f (knowledge-update) recs=22 resp='suburbs near Tampa' usage={'prompt_tokens': 254829, 'completion_tokens': 67250, 'calls': 72}
+[28/10] 852ce960 (knowledge-update) recs=21 resp='$350,000' usage={'prompt_tokens': 261431, 'completion_tokens': 68580, 'calls': 74}
+[29/10] 945e3d21 (knowledge-update) recs=31 resp='Three times a week' usage={'prompt_tokens': 268428, 'completion_tokens': 70418, 'calls': 76}
+[30/10] d7c942c3 (knowledge-update) recs=25 resp="I don't have enough information to answer that." usage={'prompt_tokens': 274248, 'completion_tokens': 71913, 'calls': 78}
+[31/10] 71315a70 (knowledge-update) recs=27 resp='10-12 hours' usage={'prompt_tokens': 282538, 'completion_tokens': 73444, 'calls': 80}
+[32/10] 89941a93 (knowledge-update) recs=45 resp='four bikes' usage={'prompt_tokens': 290313, 'completion_tokens': 76031, 'calls': 82}
+[33/10] ce6d2d27 (knowledge-update) recs=32 resp='Fridays' usage={'prompt_tokens': 296647, 'completion_tokens': 78032, 'calls': 84}
+[34/10] 9ea5eabc (knowledge-update) recs=44 resp='Paris with family' usage={'prompt_tokens': 304649, 'completion_tokens': 80392, 'calls': 86}
+[35/10] 07741c44 (knowledge-update) recs=30 resp='Under the bed' usage={'prompt_tokens': 311073, 'completion_tokens': 82157, 'calls': 88}
+[36/10] a1eacc2a (knowledge-update) recs=29 resp='7 short stories' usage={'prompt_tokens': 318810, 'completion_tokens': 84129, 'calls': 90}
+[37/10] 8a2466db (single-session-preference) recs=0 resp="I don't have enough information to answer that." usage={'prompt_tokens': 324499, 'completion_tokens': 84131, 'calls': 91}
+[38/10] 06878be2 (single-session-preference) recs=20 resp='Based on your Sony A7R IV with Godox V1 flash and Sony 24-70' usage={'prompt_tokens': 329332, 'completion_tokens': 85367, 'calls': 92}
+[39/10] 75832dbd (single-session-preference) recs=0 resp="I don't have enough information to answer that." usage={'prompt_tokens': 333588, 'completion_tokens': 85369, 'calls': 93}
+[40/10] 0edc2aef (single-session-preference) recs=18 resp="I don't have enough information to answer that." usage={'prompt_tokens': 337754, 'completion_tokens': 86458, 'calls': 94}
+[41/10] 35a27287 (single-session-preference) recs=15 resp="I don't have enough information to answer that." usage={'prompt_tokens': 342342, 'completion_tokens': 87302, 'calls': 95}
+[42/10] 32260d93 (single-session-preference) recs=12 resp="Based on your comedy influence being John Mulaney, I'd recom" usage={'prompt_tokens': 346228, 'completion_tokens': 88024, 'calls': 96}
+[43/10] 195a1a1b (single-session-preference) recs=19 resp='Based on your preferences, you could try these evening activ' usage={'prompt_tokens': 350602, 'completion_tokens': 89315, 'calls': 97}
+[44/10] afdc33df (single-session-preference) recs=15 resp="I don't have enough information to answer that." usage={'prompt_tokens': 355669, 'completion_tokens': 90344, 'calls': 98}
+[45/10] caf03d32 (single-session-preference) recs=14 resp='Based on your slow cooker cooking goal and equipment, here a' usage={'prompt_tokens': 360678, 'completion_tokens': 91152, 'calls': 99}
+[46/10] 54026fce (single-session-preference) recs=26 resp='Virtual coffee breaks could help you stay connected with col' usage={'prompt_tokens': 363969, 'completion_tokens': 92708, 'calls': 100}
+[47/10] 06f04340 (single-session-preference) recs=11 resp='You could make a caprese salad with your cherry tomatoes, fr' usage={'prompt_tokens': 368349, 'completion_tokens': 93378, 'calls': 101}
+[48/10] 6b7dfb22 (single-session-preference) recs=18 resp="I don't have enough information to answer that." usage={'prompt_tokens': 373303, 'completion_tokens': 94474, 'calls': 102}
+[49/10] 7161e7e2 (single-session-assistant) recs=7 resp="I don't have enough information to answer that." usage={'prompt_tokens': 375728, 'completion_tokens': 94890, 'calls': 103}
+[50/10] c4f10528 (single-session-assistant) recs=6 resp='Miss Bee Providore' usage={'prompt_tokens': 377723, 'completion_tokens': 95266, 'calls': 104}
+[51/10] 89527b6b (single-session-assistant) recs=9 resp="I don't have enough information to answer that." usage={'prompt_tokens': 378724, 'completion_tokens': 95823, 'calls': 105}
+[52/10] e9327a54 (single-session-assistant) recs=0 resp="I don't have enough information to answer that." usage={'prompt_tokens': 381051, 'completion_tokens': 95825, 'calls': 106}
+[53/10] 4c36ccef (single-session-assistant) recs=14 resp='Roscioli' usage={'prompt_tokens': 382079, 'completion_tokens': 96636, 'calls': 107}
+[54/10] 6ae235be (single-session-assistant) recs=0 resp="I don't have enough information to answer that." usage={'prompt_tokens': 384010, 'completion_tokens': 96638, 'calls': 108}
+[55/10] 7e00a6cb (single-session-assistant) recs=0 resp="I don't have enough information to answer that." usage={'prompt_tokens': 385091, 'completion_tokens': 96640, 'calls': 109}
+[56/10] 1903aded (single-session-assistant) recs=0 resp="I don't have enough information to answer that." usage={'prompt_tokens': 385569, 'completion_tokens': 96642, 'calls': 110}
+[57/10] ceb54acb (single-session-assistant) recs=0 resp="I don't have enough information to answer that." usage={'prompt_tokens': 386146, 'completion_tokens': 96644, 'calls': 111}
+[58/10] f523d9fe (single-session-assistant) recs=11 resp="I don't have enough information to answer that." usage={'prompt_tokens': 387622, 'completion_tokens': 97348, 'calls': 112}
+[59/10] 0e5e2d1a (single-session-assistant) recs=0 resp="I don't have enough information to answer that." usage={'prompt_tokens': 388582, 'completion_tokens': 97350, 'calls': 113}
+[60/10] fea54f57 (single-session-assistant) recs=0 resp="I don't have enough information to answer that." usage={'prompt_tokens': 390487, 'completion_tokens': 97352, 'calls': 114}
+[61/10] e47becba (single-session-user) recs=12 resp='Business Administration degree' usage={'prompt_tokens': 394581, 'completion_tokens': 98150, 'calls': 115}
+[62/10] 118b2229 (single-session-user) recs=10 resp='45 minutes each way' usage={'prompt_tokens': 397757, 'completion_tokens': 98754, 'calls': 116}
+[63/10] 51a45a95 (single-session-user) recs=15 resp="I don't have enough information to answer that." usage={'prompt_tokens': 400406, 'completion_tokens': 99699, 'calls': 117}
+[64/10] 58bf7951 (single-session-user) recs=14 resp="I don't have enough information to answer that." usage={'prompt_tokens': 402818, 'completion_tokens': 100521, 'calls': 118}
+[65/10] 1e043500 (single-session-user) recs=11 resp='Summer Vibes' usage={'prompt_tokens': 405974, 'completion_tokens': 101191, 'calls': 119}
+[66/10] c5e8278d (single-session-user) recs=14 resp='Johnson' usage={'prompt_tokens': 409620, 'completion_tokens': 102105, 'calls': 120}
+[67/10] 6ade9755 (single-session-user) recs=11 resp='Serenity Yoga' usage={'prompt_tokens': 411928, 'completion_tokens': 102794, 'calls': 121}
+[68/10] 6f9b354f (single-session-user) recs=20 resp='lighter gray' usage={'prompt_tokens': 415415, 'completion_tokens': 104091, 'calls': 122}
+[69/10] 58ef2f1c (single-session-user) recs=11 resp="I don't have enough information to answer that." usage={'prompt_tokens': 418423, 'completion_tokens': 104747, 'calls': 123}
+[70/10] f8c5f88b (single-session-user) recs=10 resp='sports store downtown' usage={'prompt_tokens': 421691, 'completion_tokens': 105414, 'calls': 124}
+[71/10] 5d3d2817 (single-session-user) recs=16 resp='marketing specialist' usage={'prompt_tokens': 425433, 'completion_tokens': 106409, 'calls': 125}
+[72/10] 7527f7e2 (single-session-user) recs=18 resp="I don't have enough information to answer that." usage={'prompt_tokens': 429294, 'completion_tokens': 107510, 'calls': 126}
