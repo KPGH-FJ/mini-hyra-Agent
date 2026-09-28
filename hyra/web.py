@@ -609,7 +609,7 @@ function drawResearch(r){
     n.classList.add('sel');
     const m=byId[n.dataset.m];if(!m)return;
     document.getElementById('modInfo').innerHTML=
-      `<b>${m.id} ${esc(m.name)}</b> · ${esc(m.role||'')}<br>
+      `<b>${m.id} ${esc(m.name)}</b><br>${m.plain?`<div style="margin:4px 0 6px;color:#c9d1d9">${esc(m.plain)}</div>`:''}<span style="color:#8b949e">${esc(m.role||'')}</span><br>
        当前实现：<span class="mono">${esc(m.impl||'—')}</span>
        ${m.score?` · 得分 <b class="best">${m.score}</b>`:''}<br>
        ${m.note?esc(m.note)+'<br>':''}${m.next?'下一步：'+esc(m.next):''}`});

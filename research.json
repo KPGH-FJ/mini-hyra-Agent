@@ -9,7 +9,8 @@
       "impl": "normalize(): authoritative + 别名解析 + day-序",
       "status": "done",
       "score": 158.911,
-      "note": "run_v5 收官 s0095=158.911：时态边 journal + 过滤式摄入；journal 架构被纯净室独立复现（收敛吸引子）"
+      "note": "run_v5 收官 s0095=158.911：时态边 journal + 过滤式摄入；journal 架构被纯净室独立复现（收敛吸引子）",
+      "plain": "原始信息先进来分类：是事实、纠正、传闻还是建议——决定该不该写、写成什么"
     },
     {
       "id": "M2",
@@ -18,7 +19,8 @@
       "impl": "TemporalGraph 时态图 (v1)",
       "status": "done",
       "score": 96.9954,
-      "note": "P3 r1 获胜家族已回灌：按(主体,槽位)时态边，max-from 查值；5×数据量下探针成本持平（3→5KB）"
+      "note": "P3 r1 获胜家族已回灌：按(主体,槽位)时态边，max-from 查值；5×数据量下探针成本持平（3→5KB）",
+      "plain": "每条信息按“谁说的+关于谁+什么属性”挂到时态图上，像按时间排版的账本"
     },
     {
       "id": "M3",
@@ -27,7 +29,8 @@
       "impl": "TMS 前提维护 (v2)：drv/rsv 注册表 + _prune 不动点",
       "status": "done",
       "score": 111.99,
-      "note": "P3 r2 获胜：supports→premises 解析，每次写后级联失效；forget/纠错传导"
+      "note": "P3 r2 获胜：supports→premises 解析，每次写后级联失效；forget/纠错传导",
+      "plain": "纠正/删除/撤回进来时，顺藤摸瓜把依赖它的派生事实一起清理掉"
     },
     {
       "id": "M4",
@@ -36,7 +39,8 @@
       "impl": "probe-type router + live_bundle 视图 + rvid 引用",
       "status": "done",
       "score": 128.97,
-      "note": "M4 语义沉淀 serve router；NL 查询面验证通过；新增时态聚合/前提引用/认知分级路由"
+      "note": "M4 语义沉淀 serve router；NL 查询面验证通过；新增时态聚合/前提引用/认知分级路由",
+      "plain": "收到问题去查记忆，按题型组装答案——当前值、历史回溯、证据引用"
     },
     {
       "id": "M5",
@@ -45,7 +49,8 @@
       "impl": "journal + 级联清除 + revoke_purpose + forget_range 回滚 + 作用域导出 state(scope)",
       "status": "done",
       "score": 159.97,
-      "note": "s0045=140.90：同意域视图撤回 + journal 嵌资产 —— 与本体机制收敛一致"
+      "note": "s0045=140.90：同意域视图撤回 + journal 嵌资产 —— 与本体机制收敛一致",
+      "plain": "管隐私操作：忘了谁、撤了哪个用途、导出哪部分，还能回滚"
     }
   ],
   "stages": [
