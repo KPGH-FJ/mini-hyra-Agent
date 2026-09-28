@@ -44,13 +44,26 @@ def sessions(conv: dict) -> list:
                    if k.startswith("session_")
                    and not k.endswith("_date_time")),
                   key=lambda k: int(k.split("_")[1]))
-    return [(conv.get(k + "_date_time", ""), conv[k]) for k in keys]
+    out = []
+    for k in keys:
+        label = conv.get(k + "_date_time", "")
+        try:  # '1:56 pm on 8 May, 2023' -> '2023-05-08' as resolution anchor
+            import datetime as dt
+            label = dt.date.fromordinal(_day_of(label)).isoformat()
+        except Exception:
+            pass
+        out.append((label, conv[k]))
+    return out
 
 
 def _day_of(date_label: str) -> int:
-    """LoCoMo dates like '1:56 pm on 8 May, 2023'. Ordinal or stable hash."""
+    """LoCoMo dates like '1:56 pm on 8 May, 2023' or ISO '2023-05-08'."""
     import datetime as dt
     import re
+    m = re.match(r"(\d{4})-(\d{2})-(\d{2})", date_label)
+    if m:
+        y, mo, d = m.groups()
+        return dt.date(int(y), int(mo), int(d)).toordinal()
     m = re.search(r"(\d{1,2})\s+(\w+),?\s+(\d{4})", date_label)
     if m:
         d, mon, y = m.groups()
