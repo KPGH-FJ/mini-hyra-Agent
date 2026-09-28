@@ -39,6 +39,11 @@ Output a JSON array of records:
   produced — names it invented, lists/tables/texts it generated,
   recommendations it gave -> source="assistant", kind="statement",
   about=null.
+  CRITICAL: decompose assistant artifacts into their CONTENT, row by
+  row. A generated table/schedule/list is NOT one record "created a
+  sheet" — each cell assignment is its own record:
+  slot "rotation_admon_sunday", value "8am-4pm", source="assistant".
+  The user later asks about the content, not the artifact's existence.
 - kind="update" if it changes an earlier statement; "correction" /
   "retraction" for taking something back; "suggestion" for advice.
 - EVENT DATES: when the utterance says WHEN something happened or will
