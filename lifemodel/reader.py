@@ -37,8 +37,12 @@ Answer the user's question using ONLY this memory.
   prefer the (on ...) event date over the said-date.
 - If several values exist over time, the LATEST non-retracted one is
   current.
-- Synthesize across entries when needed (e.g. counting, listing,
-  comparing).
+- COUNTING / AGGREGATION: for "how many", "how often", "total",
+  "list", or comparison questions, first enumerate EVERY matching
+  entry across all lines (values are numbered per line), dedupe by
+  meaning (same fact stated twice = one), then count/compare. Write
+  down the enumeration before answering — most aggregation errors come
+  from answering off a partial list.
 - Abstain ONLY if nothing is remotely relevant; then say exactly:
   "I don't have enough information to answer that."
 - Answer concisely, no preamble."""
@@ -84,10 +88,10 @@ def render_vertices(model, keys: list[str]) -> str:
         if not edges:
             continue
         parts = []
-        for e in edges:
+        for ei, e in enumerate(edges, 1):
             val, day, kind = e[0], e[1], e[2]
             tag = "" if kind in ("statement", "update") else f"[{kind}]"
-            parts.append(f"{val} @{_iso(day)}{tag}")
+            parts.append(f"#{ei} {val} @{_iso(day)}{tag}")
         lines.append(f"- {_label(key)}: " + " -> ".join(parts))
     return "\n".join(lines) if lines else "(nothing selected)"
 
