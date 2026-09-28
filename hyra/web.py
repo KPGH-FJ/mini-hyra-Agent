@@ -345,6 +345,7 @@ border-radius:8px;padding:7px 12px;font-size:12px;color:var(--dim);cursor:pointe
   <div class="panel" id="rankPanel" style="display:none"><h2 id="sec-rank">排行榜 <span class="small" style="font-weight:400">得分 = 答对题数 − 成本</span></h2><div class="body">
     <table class="rank" id="rank"></table></div></div>
 </div>
+<section id="sec-ext"><div class="panel" id="extPanel" style="display:none"><h2>外部考卷 · 行业标准基准 <span class="small" style="font-weight:400">不是内部训练题——拿公开 benchmark 给系统体检</span></h2><div class="body" id="extBody"></div></div></section>
 </div>
 
 <div class="grid" id="sec-evi">
@@ -571,7 +572,7 @@ function drawGap(r){
 function drawResearch(r){
   document.getElementById('research').style.display='block';
   document.querySelectorAll('.topnav a.rsch').forEach(a=>a.style.display='');
-  drawBanner(r);drawCurrent(r);drawGap(r);
+  drawBanner(r);drawCurrent(r);drawGap(r);drawExternal(r);
   const pos={M1:[168,26],M3:[308,26],M2:[448,26],M4:[588,26]},bw=126,bh=100;
   const byId={};(r.modules||[]).forEach(m=>byId[m.id]=m);
   let g=`<defs><marker id="ar" markerWidth="7" markerHeight="7" refX="6" refY="3"
@@ -625,6 +626,18 @@ function drawResearch(r){
   tl.innerHTML=(r.timeline||[]).map(t=>
     `<div class="tlit"><div class="tw">${esc(t.when||'')}</div>
      <b>${esc(t.title)}</b><div class="tt">${esc(t.text||'')}</div></div>`).join('');
+  const ext=r.external;
+  if(ext){document.getElementById('extPanel').style.display='block';
+    const rows=(ext.rounds||[]).map(w=>`<tr><td class="mono">${esc(w.v)}</td><td><b>${esc(w.score)}</b></td><td class="small">${esc(w.note||'')}</td></tr>`).join('');
+    document.getElementById('extBody').innerHTML=`
+      <div class="small" style="margin-bottom:8px"><b>${esc(ext.name||'')}</b> — ${esc(ext.desc||'')}</div>
+      <div class="roundcard" style="margin-bottom:8px">
+        <div><div class="small">当前成绩</div><b style="font-size:20px">${esc(ext.current_score||'')}</b></div>
+        <div><div class="small">爬坡轨迹</div><div class="small">${esc(ext.baseline||'')}</div></div>
+        <div><div class="small">强项</div><div class="small">${esc(ext.strong||'')}</div></div>
+        <div><div class="small">弱项</div><div class="small">${esc(ext.weak||'')}</div></div></div>
+      ${rows?`<table class="gap" style="text-align:left"><thead><tr><th style="text-align:left">轮次</th><th>成绩</th><th style="text-align:left">说明</th></tr></thead><tbody>${rows}</tbody></table>`:''}
+      <div class="small" style="margin-top:8px;color:var(--dim)">管道：${esc(ext.pipeline||'')}</div>`;}
   const ex=r.experiment;
   document.getElementById('experiment').innerHTML=ex?`<div class="exp">
     <div class="small" style="margin:10px 0 4px"><b>${esc(ex.bench)}</b> · ${ex.probes} 题/种子

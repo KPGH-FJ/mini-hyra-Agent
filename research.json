@@ -305,13 +305,13 @@
     }
   ],
   "current": {
-    "verdict": "研究进行中 · P3 逐模块优化",
+    "verdict": "双轨推进 · 内部满分 + 外部爬坡",
     "round": "run_v8（新EB）· run_v7 W4（续跑）— 双路进行中",
-    "leader": "lifemodel v1 = 195.0（满分）",
-    "best_evolved": "s0096 = 166.958",
+    "leader": "LifeStream 197/197 满分",
+    "best_evolved": "LongMemEval 47.2%（检索消融最优臂）",
     "remaining": "≈28 分 · join/drvprov/partial/conf/补差距",
-    "goal": "下一轮：让进化解会翻久远历史",
-    "goal_desc": "join 是唯一还 0 的深史题；drvprov 不稳（.667→0）；partial/conf 半对；state/stale 尚有尾部扣分",
+    "goal": "外部考卷攻坚 + 模块机制沉淀",
+    "goal_desc": "M1 两阶段归并、M4 检索层已进包；下一步扩样/LoCoMo 副考",
     "opponent": "系统 195.0 · 最强进化解 158.9",
     "opponent_desc": "进化解每摸到一类深史题 +1~3 分",
     "progress": "实验中 —— 深史专攻 + context-agent 修复生效窗",
@@ -636,5 +636,41 @@
         0.938
       ]
     }
+  },
+  "external": {
+    "name": "LongMemEval（外部标准基准）",
+    "desc": "业界记忆系统公开考卷：500 题 6 题型，对话→LLM 抽取→lifemodel→检索→LLM 答题→官方判分",
+    "current_score": "45.8%（72 题分层抽样，OpenRouter 判）/ 41.7%（GLM 判）",
+    "baseline": "首考 34.7% → 机制下沉后 41.7% → 检索调优 47.2%（消融最优臂）",
+    "strong": "knowledge-update 75% · single-session-user 75%（track 修改/删除架构对口）",
+    "weak": "multi-session ~42% · preference ~33% · assistant ~8%",
+    "pipeline": "tasks/life_model/external/lme.py（GLM 抽取+作答 / 双判分官 GLM+OpenRouter）",
+    "rounds": [
+      {
+        "v": "v1",
+        "score": "34.7%",
+        "note": "首考——多会话 8.3% 暴露槽位发散"
+      },
+      {
+        "v": "v3",
+        "score": "40.3%",
+        "note": "适配层补丁：槽位复用+助手内容入库"
+      },
+      {
+        "v": "v4",
+        "score": "41.7%/45.8%",
+        "note": "机制下沉进包（ingest_llm+reader），双判分官"
+      },
+      {
+        "v": "检索消融",
+        "score": "47.2%",
+        "note": "6 臂对照：max_pick=50 最优最省；pick10/twohop 均输"
+      },
+      {
+        "v": "摄入消融",
+        "score": "43.1%",
+        "note": "8 变体：两阶段归并赢单轮复用；已进 ingest_llm 默认"
+      }
+    ]
   }
 }
