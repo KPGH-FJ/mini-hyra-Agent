@@ -1,0 +1,72 @@
+{"question_id": "gpt4_2655b836", "question_type": "temporal-reasoning", "response": "GPS system malfunction on March 22nd, about a week after the service on March 15th.", "n_records": 85}
+{"question_id": "gpt4_2487a7cb", "question_type": "temporal-reasoning", "response": "I don't have enough information to answer that.", "n_records": 56}
+{"question_id": "gpt4_76048e76", "question_type": "temporal-reasoning", "response": "The bike was repaired in mid-February.", "n_records": 77}
+{"question_id": "gpt4_2312f94c", "question_type": "temporal-reasoning", "response": "Samsung Galaxy S22 (purchased on January 28th, 2023)", "n_records": 76}
+{"question_id": "0bb5a684", "question_type": "temporal-reasoning", "response": "7 days", "n_records": 62}
+{"question_id": "08f4fc43", "question_type": "temporal-reasoning", "response": "I don't have enough information to answer that.", "n_records": 76}
+{"question_id": "2c63a862", "question_type": "temporal-reasoning", "response": "19 days", "n_records": 55}
+{"question_id": "gpt4_385a5000", "question_type": "temporal-reasoning", "response": "I don't have enough information to answer that.", "n_records": 51}
+{"question_id": "2a1811e2", "question_type": "temporal-reasoning", "response": "21 days had passed between the Hindu festival of Holi (February 26th) and the Sunday mass at St. Mary's Church (March 19th).", "n_records": 37}
+{"question_id": "bbf86515", "question_type": "temporal-reasoning", "response": "I don't have enough information to answer that.", "n_records": 80}
+{"question_id": "gpt4_5dcc0aab", "question_type": "temporal-reasoning", "response": "white Adidas sneakers", "n_records": 167}
+{"question_id": "gpt4_0b2f1d21", "question_type": "temporal-reasoning", "response": "The purchase of the coffee maker happened first. The coffee maker was purchased about three weeks ago (around 2023-04/05/29-30), while the stand mixer malfunctioned approximately two weeks ago (around 2023-05/08).", "n_records": 72}
+{"question_id": "0a995998", "question_type": "multi-session", "response": "I don't have enough information to answer that.", "n_records": 92}
+{"question_id": "6d550036", "question_type": "multi-session", "response": "I don't have enough information to answer that.", "n_records": 148}
+{"question_id": "gpt4_59c863d7", "question_type": "multi-session", "response": "Based on the memory, you have worked on or bought at least 5 model kits:\n1. Revell F-15 Eagle\n2. Tamiya 1/48 scale Spitfire Mk.V\n3. German Tiger I tank\n4. B-29 bomber\n5. '69 Camaro", "n_records": 247}
+{"question_id": "b5ef892d", "question_type": "multi-session", "response": "3 days", "n_records": 112}
+{"question_id": "e831120c", "question_type": "multi-session", "response": "I don't have enough information to answer that.", "n_records": 104}
+{"question_id": "3a704032", "question_type": "multi-session", "response": "3 plants", "n_records": 109}
+{"question_id": "gpt4_d84a3211", "question_type": "multi-session", "response": "$160 (bike lights: $40, Bell Zephyr helmet: $120)", "n_records": 102}
+{"question_id": "aae3761f", "question_type": "multi-session", "response": "I don't have enough information to answer that.", "n_records": 113}
+{"question_id": "gpt4_f2262a51", "question_type": "multi-session", "response": "3 different doctors: Dr. Lee, Dr. Smith, and Dr. Patel.", "n_records": 105}
+{"question_id": "dd2973ad", "question_type": "multi-session", "response": "2 AM", "n_records": 68}
+{"question_id": "c4a1ceb8", "question_type": "multi-session", "response": "I don't have enough information to answer that.", "n_records": 96}
+{"question_id": "gpt4_a56e767c", "question_type": "multi-session", "response": "I don't have enough information to answer that.", "n_records": 129}
+{"question_id": "6a1eabeb", "question_type": "knowledge-update", "response": "25:50", "n_records": 57}
+{"question_id": "6aeb4375", "question_type": "knowledge-update", "response": "I don't have enough information to answer that.", "n_records": 40}
+{"question_id": "830ce83f", "question_type": "knowledge-update", "response": "I don't have enough information to answer that.", "n_records": 54}
+{"question_id": "852ce960", "question_type": "knowledge-update", "response": "$400,000", "n_records": 62}
+{"question_id": "945e3d21", "question_type": "knowledge-update", "response": "You attend yoga classes three times a week.", "n_records": 69}
+{"question_id": "d7c942c3", "question_type": "knowledge-update", "response": "No, your mom prefers using a paper list while you use a grocery list app.", "n_records": 62}
+{"question_id": "71315a70", "question_type": "knowledge-update", "response": "10-12 hours", "n_records": 109}
+{"question_id": "89941a93", "question_type": "knowledge-update", "response": "You currently own 4 bikes: road bike, mountain bike, commuter bike, and hybrid bike.", "n_records": 87}
+{"question_id": "ce6d2d27", "question_type": "knowledge-update", "response": "Friday", "n_records": 59}
+{"question_id": "9ea5eabc", "question_type": "knowledge-update", "response": "Paris", "n_records": 77}
+{"question_id": "07741c44", "question_type": "knowledge-update", "response": "Under the bed", "n_records": 53}
+{"question_id": "a1eacc2a", "question_type": "knowledge-update", "response": "7 short stories", "n_records": 40}
+{"question_id": "8a2466db", "question_type": "single-session-preference", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "06878be2", "question_type": "single-session-preference", "response": "Based on your Sony A7R IV with 24-70mm f/2.8 lens, Godox V1 flash, and Gitzo GT3543LS tripod, I recommend:\n\n1. Portable power: Anker PowerCore 20000 PD, Mophie Powerstation XXL, or Jackery Titan S 20000\n2. Flash protection: Godox V1 Hard Case, Think Tank Photo Flash Pouch, or Nanuk 915 Hard Case\n3. Lens care: Microfiber cloth, cleaning wipes, and lens solution", "n_records": 16}
+{"question_id": "75832dbd", "question_type": "single-session-preference", "response": "Based on your research interests in explainable AI and medical image analysis, I can recommend these recent publications from my memory:\n\n- Attention-based Saliency Maps for Medical Image Analysis by Chen et al. (2020)\n- Visualizing Attention in Deep Neural Networks for Medical Image Analysis by Wang et al. (2020)\n- Model Interpretability Techniques for Deep Neural Networks by Zhang et al. (2020)\n- Saliency Maps for Medical Image Analysis by Rajpurkar et al. (2020)\n\nThese are the most recent papers I have in my memory that align with your research focus.", "n_records": 15}
+{"question_id": "0edc2aef", "question_type": "single-session-preference", "response": "I don't have enough information to answer that.", "n_records": 39}
+{"question_id": "35a27287", "question_type": "single-session-preference", "response": "I don't have enough information to answer that.", "n_records": 18}
+{"question_id": "32260d93", "question_type": "single-session-preference", "response": "Hasan Minhaj: Homecoming King", "n_records": 33}
+{"question_id": "195a1a1b", "question_type": "single-session-preference", "response": "Based on your wind-down schedule and preferences, here are evening activities you could do:\n\n1. Relaxation activities (8:45 pm)\n   - Practice your Body Scan meditation using Insight Timer\n   - Try guided sleep meditations from apps like Calm or Headspace\n   - Listen to relaxation resources like Meditation Oasis or Rainy Mood\n\n2. Electronic device detox (9:15 pm)\n   - Read a physical book\n   - Journal about your day\n   - Practice gentle stretching\n\n3. Prepare environment (9:20 pm)\n   - Dim lights\n   - Make your bed comfortable\n   - Prepare any items needed for the next day\n\n4. Wind down routine (9:25 pm)\n   - Take a warm bath or shower\n   - Change into comfortable sleepwear\n   - Practice deep breathing exercises\n\nThese activities align with your structured schedule and meditation preferences for better sleep.", "n_records": 29}
+{"question_id": "afdc33df", "question_type": "single-session-preference", "response": "Clean utensil holder regularly and store utensils by task. Avoid harsh chemicals, use soft cloths, and perform regular maintenance. Use coasters, cutting boards, and seal your granite countertop to prevent damage.", "n_records": 44}
+{"question_id": "caf03d32", "question_type": "single-session-preference", "response": "Based on your interest in slow cooking, here's some advice for better results:\n\n- Use various vegetables and experiment with grains\n- Be creative with spices and add acidic elements\n- Choose low-sodium canned goods\n- For slow cooker yogurt, use low heat setting for 8-12 hours\n- Maintain a 1:1 cashew to water ratio for yogurt\n- Try these vegan recipes: lentil curry, roasted vegetable stew, black bean chili, eggplant parmesan, butternut squash risotto, vegan chili, quinoa black bean bowl, lentil mushroom stew, vegan mac and cheese, or chickpea spinach curry", "n_records": 33}
+{"question_id": "54026fce", "question_type": "single-session-preference", "response": "Virtual coffee breaks, online team activities, collaborative projects, social channels, recognition and celebrations, and interest-based groups.", "n_records": 8}
+{"question_id": "06f04340", "question_type": "single-session-preference", "response": "With your homegrown basil, mint, and cherry tomatoes, you could make a fresh caprese salad with cherry tomatoes, basil, mozzarella, and a mint-infused vinaigrette. Alternatively, try a pasta dish with cherry tomatoes, fresh basil, and mint as a garnish.", "n_records": 18}
+{"question_id": "6b7dfb22", "question_type": "single-session-preference", "response": "Based on your memory, you currently find inspiration from social media. I'd suggest continuing to seek inspiration there, as well as incorporating other elements like viewing other art pieces, surrounding yourself with plants, and listening to music while you paint.", "n_records": 35}
+{"question_id": "7161e7e2", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 10}
+{"question_id": "c4f10528", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 6}
+{"question_id": "89527b6b", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 9}
+{"question_id": "e9327a54", "question_type": "single-session-assistant", "response": "The Sugar Factory is known for its giant, elaborate milkshakes.", "n_records": 19}
+{"question_id": "4c36ccef", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "6ae235be", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "7e00a6cb", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 10}
+{"question_id": "1903aded", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "ceb54acb", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "f523d9fe", "question_type": "single-session-assistant", "response": "Doc Martin", "n_records": 16}
+{"question_id": "0e5e2d1a", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "fea54f57", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 16}
+{"question_id": "e47becba", "question_type": "single-session-user", "response": "Business Administration", "n_records": 29}
+{"question_id": "118b2229", "question_type": "single-session-user", "response": "45 minutes each way", "n_records": 17}
+{"question_id": "51a45a95", "question_type": "single-session-user", "response": "I don't have enough information to answer that.", "n_records": 32}
+{"question_id": "58bf7951", "question_type": "single-session-user", "response": "The Glass Menagerie", "n_records": 23}
+{"question_id": "1e043500", "question_type": "single-session-user", "response": "Summer Vibes", "n_records": 20}
+{"question_id": "c5e8278d", "question_type": "single-session-user", "response": "I don't have enough information to answer that.", "n_records": 24}
+{"question_id": "6ade9755", "question_type": "single-session-user", "response": "You take yoga classes at home (using the Down Dog app) and at Serenity Yoga studio.", "n_records": 31}
+{"question_id": "6f9b354f", "question_type": "single-session-user", "response": "light gray", "n_records": 37}
+{"question_id": "58ef2f1c", "question_type": "single-session-user", "response": "I don't have enough information to answer that.", "n_records": 38}
+{"question_id": "f8c5f88b", "question_type": "single-session-user", "response": "Sports store downtown", "n_records": 29}
+{"question_id": "5d3d2817", "question_type": "single-session-user", "response": "startup", "n_records": 35}
+{"question_id": "7527f7e2", "question_type": "single-session-user", "response": "I don't have enough information to answer that.", "n_records": 51}

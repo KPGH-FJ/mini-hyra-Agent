@@ -1,0 +1,72 @@
+{"question_id": "gpt4_2655b836", "question_type": "temporal-reasoning", "response": "GPS system malfunction on 3/22", "n_records": 47}
+{"question_id": "gpt4_2487a7cb", "question_type": "temporal-reasoning", "response": "Based on the memory, you attended the 'Effective Time Management' workshop first, followed by the 'Data Analysis using Python' webinar.", "n_records": 22}
+{"question_id": "gpt4_76048e76", "question_type": "temporal-reasoning", "response": "The bike was taken care of first in February, with repairs done mid-February.", "n_records": 47}
+{"question_id": "gpt4_2312f94c", "question_type": "temporal-reasoning", "response": "The Dell XPS 13 was purchased first on January 28th, while the Samsung Galaxy S22 was purchased on February 20th.", "n_records": 38}
+{"question_id": "0bb5a684", "question_type": "temporal-reasoning", "response": "4 days", "n_records": 32}
+{"question_id": "08f4fc43", "question_type": "temporal-reasoning", "response": "0 days had passed between the Sunday mass at St. Mary's Church and the Ash Wednesday service at the cathedral, as both occurred on 2023-02-20 according to the memory.", "n_records": 30}
+{"question_id": "2c63a862", "question_type": "temporal-reasoning", "response": "20 days", "n_records": 19}
+{"question_id": "gpt4_385a5000", "question_type": "temporal-reasoning", "response": "Marigolds were started first on February 20th.", "n_records": 30}
+{"question_id": "2a1811e2", "question_type": "temporal-reasoning", "response": "21 days had passed between the Hindu festival of Holi (February 26th) and the Sunday mass at St. Mary's Church (March 19th).", "n_records": 27}
+{"question_id": "bbf86515", "question_type": "temporal-reasoning", "response": "I don't have enough information to answer that.", "n_records": 35}
+{"question_id": "gpt4_5dcc0aab", "question_type": "temporal-reasoning", "response": "White Adidas sneakers", "n_records": 64}
+{"question_id": "gpt4_0b2f1d21", "question_type": "temporal-reasoning", "response": "I don't have enough information to answer that.", "n_records": 30}
+{"question_id": "0a995998", "question_type": "multi-session", "response": "I don't have enough information to answer that.", "n_records": 44}
+{"question_id": "6d550036", "question_type": "multi-session", "response": "Based on the memory, you have led at least 1 project: leading the data analysis team in a case competition hosted by a consulting firm.", "n_records": 62}
+{"question_id": "gpt4_59c863d7", "question_type": "multi-session", "response": "You have worked on or bought 5 model kits: Revell F-15 Eagle, Tamiya 1/48 scale Spitfire Mk.V, 1/72 scale B-29 bomber, 1/24 scale '69 Camaro, and 1/16 scale German Tiger I diorama.", "n_records": 131}
+{"question_id": "b5ef892d", "question_type": "multi-session", "response": "Based on your memory, you spent 8 days on camping trips in the United States this year: 3 days on a solo camping trip to Big Sur in early April and 5 days on a camping trip to Yellowstone National Park last month.", "n_records": 62}
+{"question_id": "e831120c", "question_type": "multi-session", "response": "It took you 2 weeks to watch all 22 Marvel Cinematic Universe movies. I don't have information about how long it took to watch the main Star Wars films.", "n_records": 20}
+{"question_id": "3a704032", "question_type": "multi-session", "response": "5 plants", "n_records": 29}
+{"question_id": "gpt4_d84a3211", "question_type": "multi-session", "response": "I can identify two specific bike-related expenses: $40 for bike lights and $120 for a Bell Zephyr helmet. However, I don't have the price for the Saris Bones bike rack you purchased. Based on the information available, you've spent at least $160 on bike expenses since the start of the year.", "n_records": 51}
+{"question_id": "aae3761f", "question_type": "multi-session", "response": "30-31 hours", "n_records": 52}
+{"question_id": "gpt4_f2262a51", "question_type": "multi-session", "response": "I don't have enough information to answer that.", "n_records": 37}
+{"question_id": "dd2973ad", "question_type": "multi-session", "response": "2 AM", "n_records": 34}
+{"question_id": "c4a1ceb8", "question_type": "multi-session", "response": "4 different types: lime, orange, lemon, and general citrus (from sangria with citrus twist)", "n_records": 84}
+{"question_id": "gpt4_a56e767c", "question_type": "multi-session", "response": "I don't have enough information to answer that.", "n_records": 46}
+{"question_id": "6a1eabeb", "question_type": "knowledge-update", "response": "25:50", "n_records": 24}
+{"question_id": "6aeb4375", "question_type": "knowledge-update", "response": "Four Korean restaurants", "n_records": 28}
+{"question_id": "830ce83f", "question_type": "knowledge-update", "response": "I don't have enough information to answer that.", "n_records": 18}
+{"question_id": "852ce960", "question_type": "knowledge-update", "response": "I don't have enough information to answer that.", "n_records": 27}
+{"question_id": "945e3d21", "question_type": "knowledge-update", "response": "Three times a week", "n_records": 30}
+{"question_id": "d7c942c3", "question_type": "knowledge-update", "response": "I don't have enough information to answer that.", "n_records": 24}
+{"question_id": "71315a70", "question_type": "knowledge-update", "response": "10-12 hours", "n_records": 29}
+{"question_id": "89941a93", "question_type": "knowledge-update", "response": "four bikes", "n_records": 42}
+{"question_id": "ce6d2d27", "question_type": "knowledge-update", "response": "Fridays", "n_records": 25}
+{"question_id": "9ea5eabc", "question_type": "knowledge-update", "response": "Paris with family", "n_records": 31}
+{"question_id": "07741c44", "question_type": "knowledge-update", "response": "under the bed", "n_records": 30}
+{"question_id": "a1eacc2a", "question_type": "knowledge-update", "response": "7 short stories completed in 3 months", "n_records": 23}
+{"question_id": "8a2466db", "question_type": "single-session-preference", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "06878be2", "question_type": "single-session-preference", "response": "Based on your Sony A7R IV with 24-70mm f/2.8 lens and Godox V1 flash, I'd suggest these accessories:\n\n1. Battery packs: Anker PowerCore 20000 PD, Mophie Powerstation XXL, or Jackery Titan S 20000 for extended shooting\n2. Camera bag: Think Tank Photo, Lowepro, or Peak Design options\n3. Flash case: Godox V1 Hard Case or Think Tank Photo Flash Pouch\n4. Lens cleaning supplies: For maintaining your Sony 24-70mm f/2.8\n5. Tripod: Gitzo GT3543LS with G-Lock Ultra system\n6. Alternative flashes: Sony HVL-F60RM, Godox AD200, or Profoto A1 for different lighting needs", "n_records": 15}
+{"question_id": "75832dbd", "question_type": "single-session-preference", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "0edc2aef", "question_type": "single-session-preference", "response": "I don't have enough information to answer that.", "n_records": 12}
+{"question_id": "35a27287", "question_type": "single-session-preference", "response": "I don't have enough information to answer that.", "n_records": 23}
+{"question_id": "32260d93", "question_type": "single-session-preference", "response": "I recommend watching a John Mulaney comedy special since he's your favorite comedian.", "n_records": 21}
+{"question_id": "195a1a1b", "question_type": "single-session-preference", "response": "Based on your preferences, you could try these evening activities:\n\n- Meditation with imagery and visualization (your favorite element)\n- Body scan meditation\n- Progressive muscle relaxation\n- Loving-kindness meditation\n- Sleep meditations from Headspace or Calm apps\n- Using meditation apps like Insight Timer or Buddhify\n- Following a gradual wind-down schedule leading to your 9:30 pm bedtime", "n_records": 22}
+{"question_id": "afdc33df", "question_type": "single-session-preference", "response": "Based on your previous interest in kitchen organization, here are some tips for keeping your kitchen clean:\n\nOrganize your kitchen utensils efficiently by using drawer dividers, wall-mounted racks, or countertop organizers. Group similar items together and frequently used tools within easy reach. Clean as you go while cooking to prevent messes from accumulating. Wipe down countertops and surfaces daily, and establish a regular cleaning schedule for appliances and cabinets.", "n_records": 15}
+{"question_id": "caf03d32", "question_type": "single-session-preference", "response": "Based on your slow cooker preferences, here are some tips for better results:\n\n1. For beef stew (your preferred recipe), ensure you're browning the meat first for better flavor\n2. Layer ingredients properly: root vegetables at the bottom, meat on top\n3. Don't overfill your slow cooker - keep it 2/3 full for even cooking\n4. Adjust cooking times: high for 3-4 hours or low for 7-8 hours\n5. Add fresh herbs at the end to preserve their flavor\n6. For plant-based options, consider the cashew yogurt recipe I shared earlier as a base for other dishes", "n_records": 12}
+{"question_id": "54026fce", "question_type": "single-session-preference", "response": "Based on your preferences, virtual coffee breaks would be a good way to stay connected with colleagues. You've previously indicated that you miss social interactions and prefer keeping conversations casual without work talk. The assistant has provided various suggestions for virtual coffee breaks that could help maintain those connections while ensuring team comfort.", "n_records": 14}
+{"question_id": "06f04340", "question_type": "single-session-preference", "response": "Based on your homegrown ingredients of cherry tomatoes, basil, and mint, you could make a fresh caprese salad with cherry tomatoes, basil, and mozzarella, or a mint and basil infused pasta dish.", "n_records": 11}
+{"question_id": "6b7dfb22", "question_type": "single-session-preference", "response": "Based on your memory, you currently use social media as your inspiration source. Since you're interested in realistic flower paintings, you might try observing real flowers directly for inspiration. You've also shown interest in palette knife techniques, which could provide a fresh approach to your work. Breaking projects into smaller tasks has helped you stay motivated before, so you could apply that method to exploring new techniques or subjects.", "n_records": 20}
+{"question_id": "7161e7e2", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 8}
+{"question_id": "c4f10528", "question_type": "single-session-assistant", "response": "Miss Bee Providore", "n_records": 11}
+{"question_id": "89527b6b", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "e9327a54", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "4c36ccef", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "6ae235be", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "7e00a6cb", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "1903aded", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "ceb54acb", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "f523d9fe", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 11}
+{"question_id": "0e5e2d1a", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "fea54f57", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "e47becba", "question_type": "single-session-user", "response": "Business Administration", "n_records": 12}
+{"question_id": "118b2229", "question_type": "single-session-user", "response": "45 minutes each way", "n_records": 12}
+{"question_id": "51a45a95", "question_type": "single-session-user", "response": "I don't have enough information to answer that.", "n_records": 17}
+{"question_id": "58bf7951", "question_type": "single-session-user", "response": "The Glass Menagerie", "n_records": 15}
+{"question_id": "1e043500", "question_type": "single-session-user", "response": "Summer Vibes", "n_records": 11}
+{"question_id": "c5e8278d", "question_type": "single-session-user", "response": "Johnson", "n_records": 16}
+{"question_id": "6ade9755", "question_type": "single-session-user", "response": "Serenity Yoga", "n_records": 9}
+{"question_id": "6f9b354f", "question_type": "single-session-user", "response": "light gray", "n_records": 15}
+{"question_id": "58ef2f1c", "question_type": "single-session-user", "response": "I don't have enough information to answer that.", "n_records": 9}
+{"question_id": "f8c5f88b", "question_type": "single-session-user", "response": "sports store downtown", "n_records": 11}
+{"question_id": "5d3d2817", "question_type": "single-session-user", "response": "marketing specialist", "n_records": 20}
+{"question_id": "7527f7e2", "question_type": "single-session-user", "response": "I don't have enough information to answer that.", "n_records": 18}
