@@ -41,6 +41,11 @@ Output a JSON array of records:
   about=null.
 - kind="update" if it changes an earlier statement; "correction" /
   "retraction" for taking something back; "suggestion" for advice.
+- EVENT DATES: when the utterance says WHEN something happened or will
+  happen (absolute date or relative like "last Tuesday", "in March"),
+  append it to the value as ` (on YYYY-MM-DD)` resolved against the
+  session date. This is the event's own date, distinct from the session
+  date. Only append when a date is actually stated or implied.
 - Keep slot names consistent; reuse names from the existing slot list
   when one covers the fact.
 Extract liberally — even small details count. Empty array only if truly
