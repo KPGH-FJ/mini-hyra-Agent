@@ -106,7 +106,12 @@ async def aretrieve(model, llm, question: str, qdate: str,
               f"QUESTION: {question}\n\nRelevant vertex keys JSON array:")
     picks = _json_list(await llm.complete(RETRIEVE_SYS, prompt))
     keys = [k for k in picks if isinstance(k, str) and k in cat]
-    return keys[:max_pick] if keys else list(cat)[:max_pick]
+    keys = keys[:max_pick] if keys else list(cat)[:max_pick]
+    heads = {k.split("|")[-1].split("_")[0] for k in keys}
+    seen = set(keys)
+    keys += [k for k in cat if k not in seen
+             and k.split("|")[-1].split("_")[0] in heads]
+    return keys
 
 
 async def aanswer(model, llm, question: str, qdate: str) -> dict:
