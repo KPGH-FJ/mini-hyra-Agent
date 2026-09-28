@@ -1,0 +1,12 @@
+{
+  "n": 72,
+  "accuracy": 0.4027777777777778,
+  "by_type": {
+    "temporal-reasoning": 0.5,
+    "multi-session": 0.08333333333333333,
+    "knowledge-update": 0.8333333333333334,
+    "single-session-preference": 0.08333333333333333,
+    "single-session-assistant": 0.16666666666666666,
+    "single-session-user": 0.75
+  }
+}
