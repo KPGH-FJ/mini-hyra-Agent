@@ -1,0 +1,72 @@
+{"question_id": "gpt4_2655b836", "question_type": "temporal-reasoning", "response": "GPS system replaced on 3/22 after first service on February 10th", "n_records": 45}
+{"question_id": "gpt4_2487a7cb", "question_type": "temporal-reasoning", "response": "Effective Time Management workshop", "n_records": 26}
+{"question_id": "gpt4_76048e76", "question_type": "temporal-reasoning", "response": "The bike was taken care of first in February (mid-February) before the car was washed on February 27th.", "n_records": 39}
+{"question_id": "gpt4_2312f94c", "question_type": "temporal-reasoning", "response": "Samsung Galaxy S22 (January 28th) before the Dell XPS 13 (February 25th)", "n_records": 35}
+{"question_id": "0bb5a684", "question_type": "temporal-reasoning", "response": "4 days", "n_records": 25}
+{"question_id": "08f4fc43", "question_type": "temporal-reasoning", "response": "I don't have enough information to answer that.", "n_records": 32}
+{"question_id": "2c63a862", "question_type": "temporal-reasoning", "response": "I don't have enough information to answer that.", "n_records": 22}
+{"question_id": "gpt4_385a5000", "question_type": "temporal-reasoning", "response": "The tomatoes were started first on February 20th, while the marigolds were started on March 3rd.", "n_records": 26}
+{"question_id": "2a1811e2", "question_type": "temporal-reasoning", "response": "21 days", "n_records": 28}
+{"question_id": "bbf86515", "question_type": "temporal-reasoning", "response": "I don't have enough information to answer that.", "n_records": 32}
+{"question_id": "gpt4_5dcc0aab", "question_type": "temporal-reasoning", "response": "white Adidas sneakers", "n_records": 69}
+{"question_id": "gpt4_0b2f1d21", "question_type": "temporal-reasoning", "response": "The stand mixer malfunction happened first.", "n_records": 33}
+{"question_id": "0a995998", "question_type": "multi-session", "response": "I don't have enough information to answer that.", "n_records": 59}
+{"question_id": "6d550036", "question_type": "multi-session", "response": "I can identify two projects you've worked on:\n\n1. A solo Data Mining class project (which may have been led by you since it was solo)\n2. A case competition project for a consulting firm focused on comprehensive market analysis for a new product launch\n\nThe memory doesn't explicitly state leadership roles for these projects, but the solo nature of the Data Mining project suggests you may have led it.", "n_records": 70}
+{"question_id": "gpt4_59c863d7", "question_type": "multi-session", "response": "Based on the memory, you have worked on or bought at least 4 model kits:\n1. Revell F-15 Eagle\n2. Tamiya 1/48 scale Spitfire Mk.V\n3. 1/16 scale German Tiger I tank\n4. 1/72 scale B-29 bomber (your next project)", "n_records": 106}
+{"question_id": "b5ef892d", "question_type": "multi-session", "response": "15 days", "n_records": 46}
+{"question_id": "e831120c", "question_type": "multi-session", "response": "I don't have enough information to answer that.", "n_records": 10}
+{"question_id": "3a704032", "question_type": "multi-session", "response": "I don't have enough information to answer that.", "n_records": 54}
+{"question_id": "gpt4_d84a3211", "question_type": "multi-session", "response": "I don't have enough information to answer that.", "n_records": 46}
+{"question_id": "aae3761f", "question_type": "multi-session", "response": "18-19 hours total (7-8 hours from Outer Banks to Tybee, 6 hours to Washington D.C., and 5 hours updated driving distance)", "n_records": 32}
+{"question_id": "gpt4_f2262a51", "question_type": "multi-session", "response": "4 different doctors", "n_records": 34}
+{"question_id": "dd2973ad", "question_type": "multi-session", "response": "2 AM", "n_records": 32}
+{"question_id": "c4a1ceb8", "question_type": "multi-session", "response": "Orange, lemon, and lime", "n_records": 111}
+{"question_id": "gpt4_a56e767c", "question_type": "multi-session", "response": "I don't have enough information to answer that.", "n_records": 39}
+{"question_id": "6a1eabeb", "question_type": "knowledge-update", "response": "25:50", "n_records": 21}
+{"question_id": "6aeb4375", "question_type": "knowledge-update", "response": "4", "n_records": 31}
+{"question_id": "830ce83f", "question_type": "knowledge-update", "response": "suburbs near Tampa", "n_records": 21}
+{"question_id": "852ce960", "question_type": "knowledge-update", "response": "I don't have enough information to answer that.", "n_records": 26}
+{"question_id": "945e3d21", "question_type": "knowledge-update", "response": "You attend yoga classes three times a week.", "n_records": 30}
+{"question_id": "d7c942c3", "question_type": "knowledge-update", "response": "Yes, you've shared your grocery list app with your mom.", "n_records": 22}
+{"question_id": "71315a70", "question_type": "knowledge-update", "response": "10-12 hours", "n_records": 35}
+{"question_id": "89941a93", "question_type": "knowledge-update", "response": "Four bikes (road bike, mountain bike, commuter bike, hybrid bike)", "n_records": 25}
+{"question_id": "ce6d2d27", "question_type": "knowledge-update", "response": "Fridays", "n_records": 19}
+{"question_id": "9ea5eabc", "question_type": "knowledge-update", "response": "Paris with family", "n_records": 31}
+{"question_id": "07741c44", "question_type": "knowledge-update", "response": "Under the bed", "n_records": 28}
+{"question_id": "a1eacc2a", "question_type": "knowledge-update", "response": "7 short stories", "n_records": 23}
+{"question_id": "8a2466db", "question_type": "single-session-preference", "response": "Based on your interests in Adobe Premiere Pro and the Lumetri Color Panel, I can recommend these resources:\n\n- assistant_premiere_pro_tips: 10 advanced settings tips\n- assistant_color_grading_best_practices: Color grading guidelines\n- assistant_cinematic_curves_tips: Creating cinematic look with Curves\n- assistant_color_wheels_overview: Color Wheels usage guide\n- assistant_toe_shoulder_controls: Toe and Shoulder controls explanation\n- assistant_creative_vs_curves: Creative and Curves panel comparison\n- assistant_creative_curves_workflow: Using Creative and Curves together", "n_records": 21}
+{"question_id": "06878be2", "question_type": "single-session-preference", "response": "Based on your Sony A7R IV with 24-70mm f/2.8 lens and Godox V1 flash, here are complementary accessories:\n\n1. External battery packs for extended shooting sessions\n2. Sony-compatible camera bag brands for better comfort and durability\n3. Cases and pouches specifically for your Godox V1 flash\n4. Gitzo GT3543LS tripod for stable support\n5. Lens cleaning supplies for maintaining your 24-70mm f/2.8 lens", "n_records": 14}
+{"question_id": "75832dbd", "question_type": "single-session-preference", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "0edc2aef", "question_type": "single-session-preference", "response": "I don't have enough information to answer that.", "n_records": 21}
+{"question_id": "35a27287", "question_type": "single-session-preference", "response": "I don't have enough information to answer that.", "n_records": 19}
+{"question_id": "32260d93", "question_type": "single-session-preference", "response": "Based on your interest in comedy with strong storytelling, I'd recommend watching John Mulaney's \"Kid Gorgeous\" comedy special on Netflix, which you mentioned as an example you enjoy.", "n_records": 12}
+{"question_id": "195a1a1b", "question_type": "single-session-preference", "response": "Based on your preferences, I suggest these evening activities:\n\n1. Practice sleep meditations with imagery and visualization (your favorite part)\n2. Follow a gradual wind-down routine to transition to sleep\n3. Use meditation apps like Insight Timer or Headspace for guided sleep meditations\n4. Create a structured evening schedule that includes meditation time before your 9:30 pm bedtime", "n_records": 20}
+{"question_id": "afdc33df", "question_type": "single-session-preference", "response": "Based on your previous interest in kitchen organization, here are some tips for keeping your kitchen clean:\n\n1. Implement a utensil organization system with your new utensil holder\n2. Group similar items together for easier access and maintenance\n3. Regularly declutter countertops and frequently used areas\n4. Clean as you go to prevent buildup\n5. Designate specific zones for different kitchen activities", "n_records": 15}
+{"question_id": "caf03d32", "question_type": "single-session-preference", "response": "Based on your slow cooker cooking skill and preference for beef stew, here's some advice:\n\n1. Follow the slow cooker recipes specifically designed for beef stew\n2. For better results with plant-based meals, consider the vegan slow cooker recipes\n3. If making yogurt, use the slow cooker yogurt recipe method\n4. Ensure proper temperature control with a thermometer for consistent results\n\nWould you like more specific details on any of these approaches?", "n_records": 15}
+{"question_id": "54026fce", "question_type": "single-session-preference", "response": "Virtual coffee breaks with colleagues, keeping conversations casual and avoiding work talk, can help you stay connected and improve morale and collaboration.", "n_records": 14}
+{"question_id": "06f04340", "question_type": "single-session-preference", "response": "Based on your homegrown ingredients, you could make a caprese salad with your cherry tomatoes and fresh basil, or a pasta dish incorporating both basil and mint.", "n_records": 15}
+{"question_id": "6b7dfb22", "question_type": "single-session-preference", "response": "Based on your memory, your current inspiration source is social media. Since you're interested in flower paintings and acrylic techniques, you might try exploring nature directly for inspiration, visiting botanical gardens, or studying flower photography beyond social media. You could also experiment with different techniques like palette knife textures that you've shown interest in.", "n_records": 20}
+{"question_id": "7161e7e2", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 7}
+{"question_id": "c4f10528", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 10}
+{"question_id": "89527b6b", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 9}
+{"question_id": "e9327a54", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "4c36ccef", "question_type": "single-session-assistant", "response": "La Pergola", "n_records": 14}
+{"question_id": "6ae235be", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "7e00a6cb", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "1903aded", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "ceb54acb", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "f523d9fe", "question_type": "single-session-assistant", "response": "I remember you suggested that Netflix should keep all seasons of old shows available, but I don't have information about the specific show you used as an example where only the last season was available.", "n_records": 11}
+{"question_id": "0e5e2d1a", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "fea54f57", "question_type": "single-session-assistant", "response": "I don't have enough information to answer that.", "n_records": 0}
+{"question_id": "e47becba", "question_type": "single-session-user", "response": "Business Administration degree", "n_records": 10}
+{"question_id": "118b2229", "question_type": "single-session-user", "response": "45 minutes each way", "n_records": 17}
+{"question_id": "51a45a95", "question_type": "single-session-user", "response": "I don't have enough information to answer that.", "n_records": 13}
+{"question_id": "58bf7951", "question_type": "single-session-user", "response": "The Glass Menagerie", "n_records": 14}
+{"question_id": "1e043500", "question_type": "single-session-user", "response": "Summer Vibes", "n_records": 12}
+{"question_id": "c5e8278d", "question_type": "single-session-user", "response": "Johnson", "n_records": 11}
+{"question_id": "6ade9755", "question_type": "single-session-user", "response": "Serenity Yoga", "n_records": 14}
+{"question_id": "6f9b354f", "question_type": "single-session-user", "response": "light gray", "n_records": 17}
+{"question_id": "58ef2f1c", "question_type": "single-session-user", "response": "2023-04-02", "n_records": 12}
+{"question_id": "f8c5f88b", "question_type": "single-session-user", "response": "sports store downtown", "n_records": 10}
+{"question_id": "5d3d2817", "question_type": "single-session-user", "response": "marketing specialist", "n_records": 20}
+{"question_id": "7527f7e2", "question_type": "single-session-user", "response": "I don't have enough information to answer that.", "n_records": 19}
