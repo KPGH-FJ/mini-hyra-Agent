@@ -1,0 +1,171 @@
+"""M1 LLM ingest frontend — pluggable implementation.
+
+Real-world lifemodel input is unstructured (chat turns, diary, notes),
+not schema-conformant records. This module is the bridge: an LLM
+extracts records per session, and the frontend enforces
+*canonicalization* — new facts reuse existing slot/entity names rather
+than minting near-duplicate vertices.
+
+Two mechanisms, both first-class:
+
+1. Catalog reuse: every extraction call receives the store's current
+   slot names; the LLM must reuse them when a fact fits.
+2. Local canonicalization: a returned slot is normalized (lowercase,
+   snake) and, when it is a near-duplicate of a catalog entry (token
+   overlap >= THRESH), folded to the canonical name before ingest.
+
+`about` entity names get the same treatment: near-duplicate entity
+names fold to the canonical form so the store's person-alias layer can
+keep one vertex per entity.
+"""
+from __future__ import annotations
+
+import asyncio
+import json
+import re
+
+EXTRACT_SYS = """You extract memory records from a chat session between a user
+and an AI assistant. Extract EVERY piece of personal information the user
+reveals: facts, events, preferences, plans, possessions, relationships,
+experiences, opinions, problems they mention.
+Output a JSON array of records:
+{"slot": "snake_case_topic", "value": "what was said",
+ "about": null or "person name", "kind": "statement",
+ "source": "self", "text": "supporting quote <=20 words"}
+- about=null means the fact is about the user; about="name" for facts
+  about other people; things others said that the user relays ->
+  kind="hearsay".
+- ASSISTANT turns: also record the SUBSTANTIVE CONTENT the assistant
+  produced — names it invented, lists/tables/texts it generated,
+  recommendations it gave -> source="assistant", kind="statement",
+  about=null.
+- kind="update" if it changes an earlier statement; "correction" /
+  "retraction" for taking something back; "suggestion" for advice.
+- Keep slot names consistent; reuse names from the existing slot list
+  when one covers the fact.
+Extract liberally — even small details count. Empty array only if truly
+nothing personal is said. Return ONLY the JSON array."""
+
+_SLOT_TOKEN_RE = re.compile(r"[a-z0-9]+")
+
+
+def _tokens(s: str) -> set:
+    return set(_SLOT_TOKEN_RE.findall(str(s).lower()))
+
+
+def _canon(slot: str, catalog: list[str], thresh: float = 0.5) -> str:
+    """Fold a candidate slot onto an existing catalog name when the
+    token overlap is high enough. Returns the (possibly new) name."""
+    slot = re.sub(r"\W+", "_", str(slot).strip().lower()).strip("_")[:60]
+    if not slot:
+        return slot
+    if slot in catalog:
+        return slot
+    ts = _tokens(slot)
+    best, best_j = slot, 0.0
+    for c in catalog:
+        ct = _tokens(c)
+        if not ct:
+            continue
+        j = len(ts & ct) / max(len(ts | ct), 1)
+        if j > best_j:
+            best_j, best = j, c
+    return best if best_j >= thresh else slot
+
+
+def _json_list(text: str):
+    t = text.strip()
+    try:
+        v = json.loads(t)
+        return v if isinstance(v, list) else [v]
+    except Exception:
+        pass
+    m = re.search(r"```(?:json)?\s*(\[.*?\])\s*```", t, re.S)
+    if m:
+        try:
+            v = json.loads(m.group(1))
+            return v if isinstance(v, list) else []
+        except Exception:
+            pass
+    i, j = t.find("["), t.rfind("]")
+    if i >= 0 and j > i:
+        try:
+            v = json.loads(t[i:j + 1])
+            return v if isinstance(v, list) else []
+        except Exception:
+            return []
+    return []
+
+
+class LLMIngestor:
+    """Async LLM-driven ingestor for a LifeModel.
+
+    llm: any object with `async complete(system, prompt) -> str`
+    (hyra.llm.OpenAICompatLLM, GLMCompat, ...).
+    """
+
+    def __init__(self, llm, day_of=None):
+        self.llm = llm
+        # day_of(date_or_label) -> int day; default = caller supplies ints
+        self.day_of = day_of or (lambda d: int(d))
+        self.n_extracted = 0
+
+    def catalog(self, model) -> list[str]:
+        """Existing slot names the extractor should reuse."""
+        hist = model.export()["asset"].get("hist", {})
+        return sorted({k.split("|")[-1] for k in hist})
+
+    def entity_catalog(self, model) -> list[str]:
+        hist = model.export()["asset"].get("hist", {})
+        return sorted({k.split("|")[1] for k in hist
+                       if k.count("|") == 2})
+
+    async def aextract(self, date_label, turns: list, model=None) -> list:
+        """turns: [{role, content}] -> normalized record dicts."""
+        body = "\n".join(
+            ("USER" if t["role"] == "user" else "ASSISTANT")
+            + ": " + t["content"] for t in turns)
+        known = ""
+        if model is not None:
+            slots = self.catalog(model)
+            if slots:
+                known = ("\n\nExisting slot names (REUSE one verbatim "
+                         "when it covers the fact; invent a new name "
+                         "only when none fits):\n"
+                         + ", ".join(slots[:400]))
+        prompt = (f"Session date: {date_label}\n{known}\n\n{body}\n\n"
+                  "Records JSON array:")
+        text = await self.llm.complete(EXTRACT_SYS, prompt)
+        recs = _json_list(text)
+        day = self.day_of(date_label)
+        catalog = self.catalog(model) if model is not None else []
+        ents = self.entity_catalog(model) if model is not None else []
+        out = []
+        for i, r in enumerate(recs):
+            if not isinstance(r, dict) or not r.get("slot"):
+                continue
+            about = r.get("about")
+            if about:
+                about = _canon(str(about), ents, thresh=0.4)
+            out.append({
+                "id": f"llm_{day}_{i}_{self.n_extracted}",
+                "day": day,
+                "source": r.get("source", "self"),
+                "kind": r.get("kind", "statement"),
+                "slot": _canon(r["slot"], catalog),
+                "value": r.get("value"),
+                "about": about,
+                "text": str(r.get("text", ""))[:200],
+            })
+            self.n_extracted += 1
+        return out
+
+    def extract(self, date_label, turns: list, model=None) -> list:
+        return asyncio.run(self.aextract(date_label, turns, model))
+
+    async def aingest_session(self, model, date_label, turns: list) -> int:
+        """Extract and ingest one session; returns record count."""
+        recs = await self.aextract(date_label, turns, model)
+        for r in recs:
+            model.ingest(r)
+        return len(recs)
