@@ -1,0 +1,138 @@
+{
+  "n": 25,
+  "accuracy": 0.56,
+  "by_type": {
+    "1:multi-hop": 0.6,
+    "2:temporal": 0.0,
+    "3:single-hop": 0.4,
+    "4:open-domain": 0.8,
+    "5:adversarial": 1.0
+  },
+  "rows": [
+    {
+      "qid": "c0_q3",
+      "category": 1,
+      "correct": true
+    },
+    {
+      "qid": "c0_q4",
+      "category": 1,
+      "correct": true
+    },
+    {
+      "qid": "c0_q7",
+      "category": 1,
+      "correct": false
+    },
+    {
+      "qid": "c0_q11",
+      "category": 1,
+      "correct": false
+    },
+    {
+      "qid": "c0_q13",
+      "category": 1,
+      "correct": true
+    },
+    {
+      "qid": "c0_q0",
+      "category": 2,
+      "correct": false
+    },
+    {
+      "qid": "c0_q1",
+      "category": 2,
+      "correct": false
+    },
+    {
+      "qid": "c0_q5",
+      "category": 2,
+      "correct": false
+    },
+    {
+      "qid": "c0_q6",
+      "category": 2,
+      "correct": false
+    },
+    {
+      "qid": "c0_q8",
+      "category": 2,
+      "correct": false
+    },
+    {
+      "qid": "c0_q2",
+      "category": 3,
+      "correct": true
+    },
+    {
+      "qid": "c0_q14",
+      "category": 3,
+      "correct": false
+    },
+    {
+      "qid": "c0_q22",
+      "category": 3,
+      "correct": true
+    },
+    {
+      "qid": "c0_q27",
+      "category": 3,
+      "correct": false
+    },
+    {
+      "qid": "c0_q30",
+      "category": 3,
+      "correct": false
+    },
+    {
+      "qid": "c0_q82",
+      "category": 4,
+      "correct": true
+    },
+    {
+      "qid": "c0_q83",
+      "category": 4,
+      "correct": false
+    },
+    {
+      "qid": "c0_q84",
+      "category": 4,
+      "correct": true
+    },
+    {
+      "qid": "c0_q85",
+      "category": 4,
+      "correct": true
+    },
+    {
+      "qid": "c0_q86",
+      "category": 4,
+      "correct": true
+    },
+    {
+      "qid": "c0_q152",
+      "category": 5,
+      "correct": true
+    },
+    {
+      "qid": "c0_q153",
+      "category": 5,
+      "correct": true
+    },
+    {
+      "qid": "c0_q154",
+      "category": 5,
+      "correct": true
+    },
+    {
+      "qid": "c0_q155",
+      "category": 5,
+      "correct": true
+    },
+    {
+      "qid": "c0_q156",
+      "category": 5,
+      "correct": true
+    }
+  ]
+}

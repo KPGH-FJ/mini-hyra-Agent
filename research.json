@@ -640,11 +640,11 @@
   "external": {
     "name": "LongMemEval（外部标准基准）",
     "desc": "业界记忆系统公开考卷：500 题 6 题型，对话→LLM 抽取→lifemodel→检索→LLM 答题→官方判分",
-    "current_score": "45.3%（150题分层·OR判）/ 40.0%（GLM判）",
+    "current_score": "LME 45.3%/40.0%（150题）· LoCoMo 56%（25题·OR判）· pref 子卷修复后 60%",
     "baseline": "34.7% → 41.7% → 150题扩样 40.0%/45.3%（噪声收敛后真实水位）",
     "strong": "knowledge-update 80% · user ~70%（n=25/类）",
-    "weak": "multi-session 24% · assistant 4% · preference 20-48%",
-    "pipeline": "tasks/life_model/external/lme.py（GLM 抽取+作答 / 双判分官 GLM+OpenRouter）",
+    "weak": "multi-session 24%（已证为作答端聚合推理缺陷·检索完备性反证）· temporal(LoCoMo) 0%·过度拒答残留",
+    "pipeline": "对话→LLM抽取(两阶段槽位归并·空抽取重试·逐格拆解·事件日期保留)→lifemodel→检索(目录≤50全渲染·否则LLM挑顶点+族扩展)→两段式作答(个性化条款·聚合枚举)→官方判分",
     "rounds": [
       {
         "v": "v1",
@@ -665,6 +665,20 @@
         "v": "LoCoMo 冒烟",
         "score": "53.3%",
         "note": "15题：multi-hop 100%，temporal 0%（事件日期缺陷→#47）"
+      },
+      {
+        "id": "v6",
+        "name": "解剖→修复闭环",
+        "date": "2026-09-28",
+        "result": "preference 25题: GLM 20→32% / OR 48→60%（H1个性化条款验证）；assistant 4%根因修复（助手产出物逐格拆解）；LoCoMo 类别语义纠正后基线 56%（adversarial 100%·open-domain 80%·multi-hop 60%·temporal 0%）",
+        "conclusion": "读者把记忆当检索表而非用户画像是 preference 主失分；空抽取静默丢 25% 题→重试机制；模糊事件日期（June 2023）曾被全量丢弃→verbatim 保留"
+      },
+      {
+        "id": "v7",
+        "name": "检索完备性对照（lab#1）",
+        "date": "2026-09-28",
+        "result": "multi-session 25题: mix 20% > base 16% > fam/topic/recur/big150 12%；7 道大目录题全臂≤1/7 含全量渲染",
+        "conclusion": "完备性路线证伪——摊开全部记忆照样错，瓶颈在作答端聚合推理而非召回；族扩展作为零成本保险落地(+12% token)"
       }
     ]
   }
