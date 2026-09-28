@@ -31,9 +31,18 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, _HERE)
 sys.path.insert(0, os.path.abspath(os.path.join(_HERE, "..", "..", "..")))
 
-from lme import (_make_llm, _json_list, _ordinal, _iso, digest,  # noqa: E402
-                 ANSWER_SYS, _judge_prompt, EXTRACT_SYS)
+from lme import _make_llm, _ordinal, _judge_prompt  # noqa: E402
+from lifemodel.ingest_llm import _json_list, EXTRACT_SYS  # noqa: E402
+from lifemodel.reader import (ANSWER_SYS, _iso, render_vertices,  # noqa: E402
+                              vertex_catalog)
+
+
 from lifemodel.model import LifeModel  # noqa: E402
+
+
+def digest(model, now):
+    """Full-store digest (no retrieval stage) as in the pre-refactor lme.py."""
+    return render_vertices(model, list(vertex_catalog(model)))
 
 THRESH = float(os.environ.get("LME_THRESH", "0.5"))
 ENTITY = os.environ.get("LME_ENTITY", "1") == "1"
