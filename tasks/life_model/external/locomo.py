@@ -33,7 +33,7 @@ from lifemodel.ingest_llm import LLMIngestor  # noqa: E402
 from lifemodel.reader import aanswer  # noqa: E402
 
 CAT = {1: "multi-hop", 2: "temporal", 3: "single-hop",
-       4: "adversarial", 5: "open-domain"}
+       4: "open-domain", 5: "adversarial"}
 
 ABS = "I don't have enough information to answer that."
 
@@ -146,7 +146,7 @@ def judge(args):
         g = gold.get(h["qid"])
         if not g:
             continue
-        is_abs = h["category"] == 4
+        is_abs = h["category"] == 5
         note = ("This question is UNANSWERABLE from the conversation; "
                 "yes only if the response abstains/doesn't invent. "
                 if is_abs else "")

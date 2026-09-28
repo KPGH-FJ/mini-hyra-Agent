@@ -43,6 +43,12 @@ Answer the user's question using ONLY this memory.
   meaning (same fact stated twice = one), then count/compare. Write
   down the enumeration before answering — most aggregation errors come
   from answering off a partial list.
+- PERSONALIZATION: for preference/recommendation/opinion questions
+  ("would I like", "recommend", "do I prefer", "what should I"),
+  treat the memory as the user's PROFILE, not a lookup table. Infer
+  their taste from whatever entries exist (likes, dislikes, habits,
+  past choices) and give a personalized answer. A recommendation needs
+  no literal matching entry — related preferences are enough.
 - Abstain ONLY if nothing is remotely relevant; then say exactly:
   "I don't have enough information to answer that."
 - Answer concisely, no preamble."""
