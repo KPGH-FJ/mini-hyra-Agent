@@ -47,10 +47,13 @@ Output a JSON array of records:
 - kind="update" if it changes an earlier statement; "correction" /
   "retraction" for taking something back; "suggestion" for advice.
 - EVENT DATES: when the utterance says WHEN something happened or will
-  happen (absolute date or relative like "last Tuesday", "in March"),
-  append it to the value as ` (on YYYY-MM-DD)` resolved against the
-  session date. This is the event's own date, distinct from the session
-  date. Only append when a date is actually stated or implied.
+  happen, append it to the value as ` (on <date>)`. Resolve to
+  YYYY-MM-DD against the session date when a single day is identified
+  ("last Tuesday", "May 7th"); when the stated time is fuzzy or
+  relative to another event ("June 2023", "the week before my talk",
+  "next month"), keep it VERBATIM, e.g. ` (on June 2023)` — never drop
+  it and never invent a day. This is the event's own date, distinct
+  from the session date. Only append when a date is actually stated.
 - Keep slot names consistent; reuse names from the existing slot list
   when one covers the fact.
 Extract liberally — even small details count. Empty array only if truly
@@ -180,6 +183,19 @@ class LLMIngestor:
                   "Records JSON array:")
         text = await self.llm.complete(EXTRACT_SYS, prompt)
         recs = _json_list(text)
+        # A substantive session yielding zero records is almost always a
+        # transient extraction failure, not an empty session — retry once
+        # with an explicit nudge.
+        if not recs and len(body) > 500:
+            nudge = ("\n\nYou returned an empty array before. Re-read the "
+                     "session carefully — there IS personal information "
+                     "here. List every fact, preference, plan, event, or "
+                     "assistant artifact, one record each.")
+            text = await self.llm.complete(
+                EXTRACT_SYS,
+                prompt[:-len("Records JSON array:")]
+                + nudge + "\n\nRecords JSON array:")
+            recs = _json_list(text)
         day = self.day_of(date_label)
         ents = self.entity_catalog(model) if model is not None else []
         raw_slots = [r["slot"] for r in recs

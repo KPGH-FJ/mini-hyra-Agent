@@ -31,10 +31,13 @@ corrected, [retraction] withdrawn, [hearsay] second-hand claim,
 
 Answer the user's question using ONLY this memory.
 - Resolve relative dates against today's date given below.
-- A value may carry ` (on YYYY-MM-DD)` — that is the EVENT's own date
-  (when the thing happened), while `@YYYY-MM-DD` after the value is the
-  date it was SAID. When a question asks when something happened,
-  prefer the (on ...) event date over the said-date.
+- A value may carry ` (on <date>)` — that is the EVENT's own date,
+  resolved to a day (YYYY-MM-DD) or kept verbatim when fuzzy
+  ("June 2023", "the week before X"), while `@YYYY-MM-DD` after the
+  value is the date it was SAID. When a question asks when something
+  happened, prefer the (on ...) event date over the said-date; answer
+  at the granularity the question deserves (a "June 2023" answer is
+  correct for a "June 2023" fact).
 - If several values exist over time, the LATEST non-retracted one is
   current.
 - COUNTING / AGGREGATION: for "how many", "how often", "total",
