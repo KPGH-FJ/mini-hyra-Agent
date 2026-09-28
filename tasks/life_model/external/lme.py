@@ -162,8 +162,9 @@ def judge_one(llm: OpenAICompatLLM, q: dict, response: str) -> bool:
     absn = q["question_id"].endswith("_abs")
     prompt = _judge_prompt(q["question_type"], q["question"],
                            q["answer"], response, absn)
-    out = asyncio.run(_ask(llm, "You are a strict grader. "
-                            "Reply yes or no only.", prompt)).strip().lower()
+    out = asyncio.run(llm.complete(
+        "You are a strict grader. Reply yes or no only.",
+        prompt)).strip().lower()
     return out.startswith("yes")
 
 

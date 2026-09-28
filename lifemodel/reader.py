@@ -89,7 +89,7 @@ def render_vertices(model, keys: list[str]) -> str:
 
 
 async def aretrieve(model, llm, question: str, qdate: str,
-                    max_pick: int = 25) -> list[str]:
+                    max_pick: int = 50) -> list[str]:
     cat = vertex_catalog(model)
     if len(cat) <= max_pick:
         return list(cat)
