@@ -24,6 +24,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(
     os.path.dirname(__file__), "..", "..", "..")))
 from hyra.llm import OpenAICompatLLM  # noqa: E402
 from lifemodel.model import LifeModel  # noqa: E402
+from lifemodel.ingest_llm import LLMIngestor  # noqa: E402
+from lifemodel.reader import aanswer  # noqa: E402
 
 
 class GLMCompat:
@@ -112,158 +114,6 @@ def _ordinal(s: str) -> int:
     return _parse_date(s).toordinal()
 
 
-def _iso(ordinal: int) -> str:
-    return _dt.date.fromordinal(int(ordinal)).isoformat()
-
-
-# ---------- M1: LLM extraction frontend ------------------------------------
-
-EXTRACT_SYS = """You extract memory records from a chat session between a user
-and an AI assistant. Extract EVERY piece of personal information the user
-reveals: facts, events, preferences, plans, possessions, relationships,
-experiences, opinions, problems they mention.
-Output a JSON array of records:
-{"slot": "snake_case_topic", "value": "what was said",
- "about": null or "person name", "kind": "statement",
- "source": "self", "text": "supporting quote <=20 words"}
-- about=null means the fact is about the user; about="name" for facts
-  about other people; things others said that the user relays ->
-  kind="hearsay".
-- ASSISTANT turns: also record the SUBSTANTIVE CONTENT the assistant
-  produced — names it invented, lists/tables/texts it generated,
-  recommendations it gave, decisions it made -> source="assistant",
-  kind="statement", about=null, slot naming the artifact
-  (e.g. "assistant_shift_sheet", "assistant_story_detail").
-  The user may later ask what the assistant said/created.
-- kind="update" if it changes an earlier statement; "correction" /
-  "retraction" for taking something back; "suggestion" for advice the
-  user received from the assistant.
-- Keep slot names consistent across the session (e.g. "car", "job",
-  "allergy"). Values short and canonical.
-Extract liberally — even small details count. Empty array only if truly
-nothing personal is said. Return ONLY the JSON array."""
-
-
-async def _ask(llm: OpenAICompatLLM, system: str, prompt: str) -> str:
-    return await llm.complete(system, prompt)
-
-
-def extract_session(llm, date_str: str, turns: list,
-                    known_slots: list = None) -> list:
-    body = []
-    for t in turns:
-        role = "USER" if t["role"] == "user" else "ASSISTANT"
-        body.append(f"{role}: {t['content']}")
-    known = ""
-    if known_slots:
-        known = ("\n\nExisting slot names (REUSE one of these verbatim "
-                 "when it covers the fact; invent a new name only when "
-                 "none fits):\n" + ", ".join(sorted(known_slots)[:400]))
-    prompt = (f"Session date: {date_str}\n{known}\n\n"
-              + "\n".join(body) + "\n\nRecords JSON array:")
-    text = asyncio.run(_ask(llm, EXTRACT_SYS, prompt))
-    recs = _json_list(text)
-    day = _ordinal(date_str)
-    out = []
-    for i, r in enumerate(recs):
-        if not isinstance(r, dict) or not r.get("slot"):
-            continue
-        out.append({
-            "id": f"lme_{day}_{i}",
-            "day": day,
-            "source": r.get("source", "self"),
-            "kind": r.get("kind", "statement"),
-            "slot": str(r["slot"])[:60],
-            "value": r.get("value"),
-            "about": r.get("about"),
-            "text": str(r.get("text", ""))[:200],
-        })
-    return out
-
-
-def _json_list(text: str):
-    """Tolerant JSON array extraction (fences / prose)."""
-    t = text.strip()
-    try:
-        v = json.loads(t)
-        return v if isinstance(v, list) else [v]
-    except Exception:
-        pass
-    m = re.search(r"```(?:json)?\s*(\[.*?\])\s*```", t, re.S)
-    if m:
-        try:
-            v = json.loads(m.group(1))
-            return v if isinstance(v, list) else []
-        except Exception:
-            pass
-    i, j = t.find("["), t.rfind("]")
-    if i >= 0 and j > i:
-        try:
-            v = json.loads(t[i:j + 1])
-            return v if isinstance(v, list) else []
-        except Exception:
-            return []
-    return []
-
-
-# ---------- M4: LLM reader over exported asset -----------------------------
-
-def digest(model: LifeModel, now_ord: int) -> str:
-    """Render the store's history map as an annotated text digest.
-
-    Keys are 'src|slot' (self claims) or 'src|about|slot' (claims about
-    an entity) — group entity claims under the entity name so the reader
-    sees one block per subject regardless of who said it.
-    """
-    asset = model.export()["asset"]
-    hist = asset.get("hist", {})
-    lines = []
-    for key, edges in sorted(hist.items()):
-        parts_k = key.split("|")
-        if len(parts_k) == 3:
-            src, about, slot = parts_k
-            who = f"{about} (per {src})"
-        else:
-            src, slot = parts_k
-            who = "user" if src == "self" else src
-        parts = []
-        for e in edges:
-            val, day, kind = e[0], e[1], e[2]
-            tag = "" if kind in ("statement", "update") else f"[{kind}]"
-            parts.append(f"{val} @{_iso(day)}{tag}")
-        lines.append(f"- {who}·{slot}: " + " -> ".join(parts))
-    for slot, d in sorted(asset.get("drv", {}).items()):
-        if d.get("value") is not None:
-            lines.append(f"- derived·{slot}: {d['value']}")
-    return "\n".join(lines) if lines else "(memory empty)"
-
-
-ANSWER_SYS = """You are an assistant with a long-term memory of the user.
-Below is everything remembered: each line is an attribute with its value
-history and the dates it was said. Tags: [correction] corrected, [retraction]
-withdrawn, [hearsay] second-hand claim, [suggestion] someone suggested.
-
-Answer the user's question using ONLY this memory.
-- Resolve relative dates against today's date given below.
-- If several values exist over time, the LATEST non-retracted one is current.
-- Search the memory thoroughly: the answer may sit under a differently-
-  named attribute (e.g. a car problem may be under car_gps_issue).
-  Use the closest relevant entries.
-- Entries shown as "X (per assistant)" or tagged [suggestion] are things
-  the assistant or others said — you MAY still use them as answers.
-- Abstain ONLY if no attribute is remotely relevant; then say exactly:
-  "I don't have enough information to answer that."
-- Answer concisely, no preamble."""
-
-
-def answer_question(llm: OpenAICompatLLM, model: LifeModel, q: dict) -> str:
-    now = _ordinal(q["question_date"])
-    dg = digest(model, now)
-    prompt = (f"Today's date: {_iso(now)} ({q['question_date']})\n\n"
-              f"MEMORY:\n{dg}\n\nQUESTION: {q['question']}\n\nAnswer:")
-    return asyncio.run(_ask(llm, ANSWER_SYS, prompt)).strip()
-
-
 # ---------- judge (official anscheck prompts) -------------------------------
 
 def _judge_prompt(qtype, question, answer, response, abstention):
@@ -344,22 +194,18 @@ def run(args):
             continue
         counts[q["question_type"]] = counts.get(q["question_type"], 0) + 1
         model = LifeModel()
+        ing = LLMIngestor(llm, day_of=_ordinal)
         nrecs = 0
         for date, sess in zip(q["haystack_dates"], q["haystack_sessions"]):
-            known = [k.split("|")[-1]
-                     for k in model.export()["asset"].get("hist", {})]
             try:
-                recs = extract_session(llm, date, sess,
-                                       known_slots=known)
+                nrecs += asyncio.run(ing.aingest_session(model, date, sess))
             except Exception as e:
                 print(f"[{q['question_id']}] extract fail @{date}: {e}",
                       file=sys.stderr)
-                recs = []
-            for r in recs:
-                model.ingest(r)
-            nrecs += len(recs)
         try:
-            resp = answer_question(llm_answer, model, q)
+            resp = asyncio.run(
+                aanswer(model, llm_answer, q["question"],
+                        q["question_date"]))["response"]
         except Exception as e:
             resp = f"__answer_error__ {e}"
         fh.write(json.dumps({
