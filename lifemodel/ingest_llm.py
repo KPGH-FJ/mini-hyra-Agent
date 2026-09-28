@@ -46,6 +46,14 @@ Output a JSON array of records:
 Extract liberally — even small details count. Empty array only if truly
 nothing personal is said. Return ONLY the JSON array."""
 
+MERGE_SYS = """You are the canonicalization stage of a memory ingestor.
+Stage 1 produced NEW slot names for one session; the store already has
+a CATALOG of existing slot names. Map each new name to an existing
+catalog name when they denote the same attribute/fact, or keep the new
+name when nothing fits. Merge aggressively across synonyms and phrasing
+variants (car_gps_issue -> car_problem), but do not merge distinct
+attributes. Return ONLY a JSON object {new_name: canonical_name}."""
+
 _SLOT_TOKEN_RE = re.compile(r"[a-z0-9]+")
 
 
@@ -120,26 +128,54 @@ class LLMIngestor:
         return sorted({k.split("|")[1] for k in hist
                        if k.count("|") == 2})
 
-    async def aextract(self, date_label, turns: list, model=None) -> list:
+    async def _amerge_slots(self, new_slots: list[str],
+                            catalog: list[str]) -> dict:
+        """Stage-2 merge: LLM maps the session's fresh slot names onto
+        the catalog. Beats per-call forced reuse because the merge sees
+        the whole session's new names at once (variant ablation:
+        +4pp over single-call reuse)."""
+        new_slots = [s for s in dict.fromkeys(new_slots) if s]
+        if not new_slots or not catalog:
+            return {}
+        prompt = ("CATALOG:\n" + ", ".join(catalog[:400])
+                  + "\n\nNEW NAMES:\n" + ", ".join(new_slots)
+                  + "\n\nMapping JSON object:")
+        text = await self.llm.complete(MERGE_SYS, prompt)
+        t = text.strip()
+        i, j = t.find("{"), t.rfind("}")
+        m = {}
+        if i >= 0 and j > i:
+            try:
+                v = json.loads(t[i:j + 1])
+                if isinstance(v, dict):
+                    m = {str(k): str(vv) for k, vv in v.items()}
+            except Exception:
+                pass
+        return {k: v for k, v in m.items() if v in catalog}
+
+    async def aextract(self, date_label, turns: list, model=None,
+                       twostage: bool = True) -> list:
         """turns: [{role, content}] -> normalized record dicts."""
         body = "\n".join(
             ("USER" if t["role"] == "user" else "ASSISTANT")
             + ": " + t["content"] for t in turns)
+        catalog = self.catalog(model) if model is not None else []
         known = ""
-        if model is not None:
-            slots = self.catalog(model)
-            if slots:
-                known = ("\n\nExisting slot names (REUSE one verbatim "
-                         "when it covers the fact; invent a new name "
-                         "only when none fits):\n"
-                         + ", ".join(slots[:400]))
+        if catalog and not twostage:
+            known = ("\n\nExisting slot names (REUSE one verbatim "
+                     "when it covers the fact; invent a new name "
+                     "only when none fits):\n"
+                     + ", ".join(catalog[:400]))
         prompt = (f"Session date: {date_label}\n{known}\n\n{body}\n\n"
                   "Records JSON array:")
         text = await self.llm.complete(EXTRACT_SYS, prompt)
         recs = _json_list(text)
         day = self.day_of(date_label)
-        catalog = self.catalog(model) if model is not None else []
         ents = self.entity_catalog(model) if model is not None else []
+        raw_slots = [r["slot"] for r in recs
+                     if isinstance(r, dict) and r.get("slot")]
+        merge = (await self._amerge_slots(raw_slots, catalog)
+                 if twostage else {})
         out = []
         for i, r in enumerate(recs):
             if not isinstance(r, dict) or not r.get("slot"):
@@ -147,12 +183,14 @@ class LLMIngestor:
             about = r.get("about")
             if about:
                 about = _canon(str(about), ents, thresh=0.4)
+            raw = str(r["slot"])
+            slot = merge.get(raw) or _canon(raw, catalog)
             out.append({
                 "id": f"llm_{day}_{i}_{self.n_extracted}",
                 "day": day,
                 "source": r.get("source", "self"),
                 "kind": r.get("kind", "statement"),
-                "slot": _canon(r["slot"], catalog),
+                "slot": slot,
                 "value": r.get("value"),
                 "about": about,
                 "text": str(r.get("text", ""))[:200],
