@@ -1,0 +1,23 @@
+ANSWER_SYS tail: 
+- SUBJECT CHECK: each memory line names who it is about ("caroline
+  (per self)·slot" / "user·slot"). An answer may only attribute a fact
+  to the person its line names. If the question asks about person X but
+  the matching records are about person Y, say the records describe Y —
+  e.g. "the records describe Y's adoption process, not X's". Never
+  silently transfer one person's facts to another.
+[subject_swap] What is Melanie excited about in her adoption process?
+  -> Memory doesn't record any adoption process for Melanie. The adoption entries describe Caroline — she was thrilled to make a family for kids who need one and to give kids a loving home (both said 2022-
+
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[ctrl_own_fact] When is Melanie planning to go camping?
+  -> Melanie was thinking about going camping in June 2023.
+
+[ctrl_cross] Is Melanie excited about Caroline's adoption?
+  -> I don't have enough information to answer that. Memory only records Melanie's own updates (her kids' summer break excitement, camping plans, and a charity race) and Caroline's adoption journey separat
+
+[ctrl_absent] What is David excited about?
+  -> I don't have enough information to answer that. Memory has no entries about David — the only excitement recorded is Melanie's kids being excited about summer break (@2022-09-24) and Caroline being thr
+
+[ctrl_attributed] What is Melanie excited about in Caroline's adoption process?
+  -> Memory doesn't record Melanie's feelings about Caroline's adoption process. Melanie's entries only describe her own activities — her kids' excitement about summer break, camping plans, and a charity r
+

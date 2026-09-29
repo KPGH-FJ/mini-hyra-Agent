@@ -128,8 +128,11 @@ async def main():
           file=sys.stderr)
 
     if args.judge:
-        jllm = _make_llm(args, backend="openrouter")
-        for arm in ARMS:
+        # judge follows the same --api-key/--base-url/--model flags —
+        # Atria judged runs need no extra_body (Atria 400s on reasoning)
+        jllm = _make_llm(args)
+        arms_to_judge = [args.arm] if args.arm != "all" else list(ARMS)
+        for arm in arms_to_judge:
             path = f"{args.out_dir}/dial_{arm}.jsonl"
             if not os.path.exists(path):
                 continue
@@ -155,7 +158,8 @@ async def main():
                    / max(len(rows), 1),
                    "by_cat": {c: v[0] / v[1] for c, v in sorted(by.items())},
                    "rows": rows}
-            mp = f"{args.out_dir}/dial_{arm}_metrics.json"
+            suf = "_atria" if "atria" in (args.base_url or "") else ""
+            mp = f"{args.out_dir}/dial_{arm}_metrics{suf}.json"
             json.dump(out, open(mp, "w"), indent=2)
             print(arm, json.dumps({k: v for k, v in out.items()
                                    if k != "rows"}))

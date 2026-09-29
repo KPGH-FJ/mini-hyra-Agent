@@ -115,3 +115,62 @@ Cross-judge read:
   directionally; single-question deltas carry judge+ingest noise.
 - `evhedge` needs an OR-judge pass after the 00:00 UTC reset for a same-judge
   comparison against the other three arms.
+
+## Merged-stack validation (all-Atria, post-dial)
+
+After the dial, the landed `ANSWER_SYS` (commit ced208e, branch
+`devin/1790614556-reader-personal`) = fuzzy-date + granularity + COUNTING +
+PERSONALIZATION + EVIDENCE RULE + **SUBJECT CHECK** (the q156-autopsy clause).
+This run validates that exact package verbatim — arm `merged` = live
+`R.ANSWER_SYS` — on the same 22 questions, with answer+judge both on
+Atria-Dawn-Preview (zero OR spend; pool exhausted until 09-30 00:00 UTC).
+
+- Ingest: conv-0 19 sessions via Atria extract → 305 records (vs 593–720 on
+  the OR ingests; lighter extract model → sparser memory, noted for caliper).
+- Baseline for comparison: `evreq` single clause on the same Atria layer.
+
+| arm    | adv (12) | guard (10) | total (22) |
+|--------|----------|------------|------------|
+| evreq  | 10/12 = 83.3% | 5/10 | 15/22 = 68.2% |
+| merged | 10/12 = 83.3% | 5/10 | 15/22 = 68.2% |
+
+**Aggregate: merged ≡ evreq — SUBJECT CHECK did not drag adversarial
+precision or guard abstention.** The composition shifted though:
+
+- FIXED vs evreq: **q152** (evreq's only net regression — clause recovers it
+  verbatim: "the records describe Melanie's charity race experience, not
+  Caroline's"), q3 (evreq retrieval-slice "Career options" → correct
+  "adoption agencies"), q13.
+- LOST vs evreq: **q161** (merged asserts "reminds her of art and
+  self-expression" where evreq cleanly abstained — a confidence-side
+  regression, not subject-related), **q8, q10** (guard over-fire, below).
+- q156 still missed under the merged stack — answer asserts Melanie's
+  excitement from her *adjacent* family records, the exact anatomy from
+  Q156_SUBJECT_BIND.md: hardest swap type, clause doesn't cover "records
+  about X exist and partially support the bridge".
+
+### SUBJECT CHECK mechanics (the point of this round)
+
+- cat5: fires on 10/12 — "the records describe **Y**, not X" is now the
+  dominant abstention shape (q152/154/155/157/159/160/162/163 + two plain
+  "Memory only records" forms). The clause visibly works at model level.
+- Guard over-fire ×2 (q8, q10), mechanism identified at data level:
+  **Caroline is speaker_a = the user.** Her self-statements ingest as
+  `user·slot` lines; the questions name "Caroline". SUBJECT CHECK's rule
+  ("a fact may only be attributed to the person its line names") then reads
+  `user` ≠ `Caroline` → abstains "records describe you (the user), not
+  Caroline". The content was right — q10's response literally contained
+  "4 years" — but the attributed-abstention frame scores as a non-answer.
+  Fix direction: either ingest names the persona on self-lines
+  (`caroline·slot` instead of `user·slot`, and consistently — the same
+  persona currently appears as both `caroline (per self)·` and `user·`),
+  or ANSWER_SYS bridges "the user is <persona>". Without that, `user·`
+  lines are invisible to every question that names the persona.
+- probe_subject.py (official clause verbatim, 9-vertex model, Atria):
+  **5/5** — subject_swap → "the adoption entries describe Caroline",
+  4 controls clean, zero over-kill at small scale. Output in
+  `probe_subj_out.txt`.
+
+Cost: 0 OR calls; ~130 Atria calls (ingest ~40 + 22 answers + 22 judge +
+probe ~6, plus retry churn under lab#1's shared-key 429 congestion).
+OR-judge review pass of the merged arm still queued for the 09-30 reset.
