@@ -1,0 +1,231 @@
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[1/150] gpt4_2655b836 recs=48 extract={'prompt_tokens': 10257, 'completion_tokens': 9909, 'calls': 5} answer={'prompt_tokens': 2016, 'completion_tokens': 120, 'calls': 1}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+[2/150] gpt4_2487a7cb recs=37 extract={'prompt_tokens': 18118, 'completion_tokens': 16283, 'calls': 8} answer={'prompt_tokens': 3650, 'completion_tokens': 309, 'calls': 2}
+[3/150] gpt4_76048e76 recs=42 extract={'prompt_tokens': 24576, 'completion_tokens': 21045, 'calls': 11} answer={'prompt_tokens': 5266, 'completion_tokens': 551, 'calls': 3}
+[4/150] gpt4_2312f94c recs=43 extract={'prompt_tokens': 31297, 'completion_tokens': 26127, 'calls': 14} answer={'prompt_tokens': 6842, 'completion_tokens': 817, 'calls': 4}
+[5/150] 0bb5a684 recs=44 extract={'prompt_tokens': 39595, 'completion_tokens': 32041, 'calls': 17} answer={'prompt_tokens': 8700, 'completion_tokens': 896, 'calls': 5}
+[6/150] 08f4fc43 recs=28 extract={'prompt_tokens': 46815, 'completion_tokens': 36494, 'calls': 20} answer={'prompt_tokens': 9966, 'completion_tokens': 1001, 'calls': 6}
+[7/150] 2c63a862 recs=24 extract={'prompt_tokens': 53224, 'completion_tokens': 39627, 'calls': 23} answer={'prompt_tokens': 10959, 'completion_tokens': 1062, 'calls': 7}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[8/150] gpt4_385a5000 recs=25 extract={'prompt_tokens': 58699, 'completion_tokens': 43407, 'calls': 26} answer={'prompt_tokens': 12032, 'completion_tokens': 1261, 'calls': 8}
+[9/150] 2a1811e2 recs=38 extract={'prompt_tokens': 65725, 'completion_tokens': 52299, 'calls': 29} answer={'prompt_tokens': 13530, 'completion_tokens': 1364, 'calls': 9}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 3/8): HTTP Error 429: Too Many Requests
+[10/150] bbf86515 recs=40 extract={'prompt_tokens': 72629, 'completion_tokens': 60500, 'calls': 32} answer={'prompt_tokens': 15041, 'completion_tokens': 1512, 'calls': 10}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+[11/150] gpt4_5dcc0aab recs=84 extract={'prompt_tokens': 89205, 'completion_tokens': 81023, 'calls': 41} answer={'prompt_tokens': 17925, 'completion_tokens': 1607, 'calls': 11}
+[12/150] gpt4_0b2f1d21 recs=32 extract={'prompt_tokens': 96867, 'completion_tokens': 85733, 'calls': 44} answer={'prompt_tokens': 19255, 'completion_tokens': 1741, 'calls': 12}
+[13/150] f0853d11 recs=27 extract={'prompt_tokens': 104689, 'completion_tokens': 89673, 'calls': 47} answer={'prompt_tokens': 20392, 'completion_tokens': 1849, 'calls': 13}
+[14/150] gpt4_6ed717ea recs=34 extract={'prompt_tokens': 112260, 'completion_tokens': 93655, 'calls': 50} answer={'prompt_tokens': 21795, 'completion_tokens': 2082, 'calls': 14}
+[15/150] gpt4_70e84552 recs=32 extract={'prompt_tokens': 120224, 'completion_tokens': 98818, 'calls': 53} answer={'prompt_tokens': 23319, 'completion_tokens': 2196, 'calls': 15}
+[16/150] a3838d2b recs=90 extract={'prompt_tokens': 141699, 'completion_tokens': 112572, 'calls': 64} answer={'prompt_tokens': 24879, 'completion_tokens': 3116, 'calls': 17}
+[17/150] gpt4_93159ced recs=33 extract={'prompt_tokens': 149276, 'completion_tokens': 117058, 'calls': 67} answer={'prompt_tokens': 26069, 'completion_tokens': 3244, 'calls': 18}
+[18/150] gpt4_2d58bcd6 recs=35 extract={'prompt_tokens': 157535, 'completion_tokens': 122752, 'calls': 70} answer={'prompt_tokens': 27496, 'completion_tokens': 3478, 'calls': 19}
+[19/150] gpt4_65aabe59 recs=38 extract={'prompt_tokens': 165449, 'completion_tokens': 127581, 'calls': 73} answer={'prompt_tokens': 28857, 'completion_tokens': 3538, 'calls': 20}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[20/150] 982b5123 recs=33 extract={'prompt_tokens': 172274, 'completion_tokens': 132632, 'calls': 76} answer={'prompt_tokens': 30299, 'completion_tokens': 4248, 'calls': 21}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+[21/150] b9cfe692 recs=39 extract={'prompt_tokens': 181834, 'completion_tokens': 139991, 'calls': 81} answer={'prompt_tokens': 31906, 'completion_tokens': 4388, 'calls': 22}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[22/150] gpt4_4edbafa2 recs=33 extract={'prompt_tokens': 189517, 'completion_tokens': 144855, 'calls': 84} answer={'prompt_tokens': 33262, 'completion_tokens': 4575, 'calls': 23}
+[23/150] c8090214 recs=37 extract={'prompt_tokens': 196553, 'completion_tokens': 150564, 'calls': 87} answer={'prompt_tokens': 34950, 'completion_tokens': 4686, 'calls': 24}
+[24/150] gpt4_483dd43c recs=36 extract={'prompt_tokens': 203824, 'completion_tokens': 157322, 'calls': 90} answer={'prompt_tokens': 36574, 'completion_tokens': 5419, 'calls': 25}
+[25/150] e4e14d04 recs=22 extract={'prompt_tokens': 210732, 'completion_tokens': 161269, 'calls': 93} answer={'prompt_tokens': 37683, 'completion_tokens': 5530, 'calls': 26}
+truncated; retrying max_tokens=16384
+truncated; retrying max_tokens=32768
+[26/150] 0a995998 recs=51 extract={'prompt_tokens': 221296, 'completion_tokens': 194440, 'calls': 100} answer={'prompt_tokens': 39621, 'completion_tokens': 6062, 'calls': 27}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[27/150] 6d550036 recs=60 extract={'prompt_tokens': 237514, 'completion_tokens': 206405, 'calls': 107} answer={'prompt_tokens': 41002, 'completion_tokens': 7425, 'calls': 29}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[28/150] gpt4_59c863d7 recs=47 extract={'prompt_tokens': 255362, 'completion_tokens': 216595, 'calls': 113} answer={'prompt_tokens': 42996, 'completion_tokens': 8527, 'calls': 30}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[29/150] b5ef892d recs=57 extract={'prompt_tokens': 267121, 'completion_tokens': 225796, 'calls': 118} answer={'prompt_tokens': 45383, 'completion_tokens': 8764, 'calls': 31}
+[30/150] e831120c recs=25 extract={'prompt_tokens': 273793, 'completion_tokens': 230525, 'calls': 121} answer={'prompt_tokens': 46402, 'completion_tokens': 8951, 'calls': 32}
+[31/150] 3a704032 recs=60 extract={'prompt_tokens': 285672, 'completion_tokens': 237642, 'calls': 126} answer={'prompt_tokens': 48589, 'completion_tokens': 9846, 'calls': 33}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[32/150] gpt4_d84a3211 recs=55 extract={'prompt_tokens': 299188, 'completion_tokens': 252123, 'calls': 133} answer={'prompt_tokens': 50572, 'completion_tokens': 10093, 'calls': 34}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[33/150] aae3761f recs=50 extract={'prompt_tokens': 310249, 'completion_tokens': 257610, 'calls': 138} answer={'prompt_tokens': 52617, 'completion_tokens': 10208, 'calls': 35}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[34/150] gpt4_f2262a51 recs=45 extract={'prompt_tokens': 321554, 'completion_tokens': 266258, 'calls': 143} answer={'prompt_tokens': 54427, 'completion_tokens': 10338, 'calls': 36}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 3/8): HTTP Error 429: Too Many Requests
+[35/150] dd2973ad recs=32 extract={'prompt_tokens': 327978, 'completion_tokens': 270919, 'calls': 146} answer={'prompt_tokens': 55864, 'completion_tokens': 12802, 'calls': 37}
+[36/150] c4a1ceb8 recs=63 extract={'prompt_tokens': 342680, 'completion_tokens': 283540, 'calls': 153} answer={'prompt_tokens': 57979, 'completion_tokens': 14352, 'calls': 39}
+[37/150] gpt4_a56e767c recs=50 extract={'prompt_tokens': 354875, 'completion_tokens': 290974, 'calls': 158} answer={'prompt_tokens': 59958, 'completion_tokens': 14647, 'calls': 40}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 502: Bad Gateway
+[38/150] 6cb6f249 recs=36 extract={'prompt_tokens': 362467, 'completion_tokens': 295398, 'calls': 161} answer={'prompt_tokens': 61344, 'completion_tokens': 14980, 'calls': 41}
+[39/150] 46a3abf7 recs=39 extract={'prompt_tokens': 374987, 'completion_tokens': 307720, 'calls': 166} answer={'prompt_tokens': 62802, 'completion_tokens': 15454, 'calls': 42}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[40/150] 36b9f61e recs=47 extract={'prompt_tokens': 386259, 'completion_tokens': 315669, 'calls': 171} answer={'prompt_tokens': 64691, 'completion_tokens': 15783, 'calls': 43}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 3/8): HTTP Error 429: Too Many Requests
+[41/150] 28dc39ac recs=85 extract={'prompt_tokens': 406964, 'completion_tokens': 326281, 'calls': 180} answer={'prompt_tokens': 67740, 'completion_tokens': 16001, 'calls': 44}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[42/150] gpt4_2f8be40d recs=68 extract={'prompt_tokens': 419612, 'completion_tokens': 339281, 'calls': 185} answer={'prompt_tokens': 68967, 'completion_tokens': 19190, 'calls': 46}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[43/150] 2e6d26dc recs=48 extract={'prompt_tokens': 432166, 'completion_tokens': 349583, 'calls': 192} answer={'prompt_tokens': 70847, 'completion_tokens': 19718, 'calls': 47}
+truncated; retrying max_tokens=16384
+truncated at cap; continuing (cont #1, 203 chars so far)
+[44/150] gpt4_15e38248 recs=62 extract={'prompt_tokens': 445175, 'completion_tokens': 378642, 'calls': 201} answer={'prompt_tokens': 73028, 'completion_tokens': 20595, 'calls': 48}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+[45/150] 88432d0a recs=63 extract={'prompt_tokens': 459799, 'completion_tokens': 391149, 'calls': 208} answer={'prompt_tokens': 74301, 'completion_tokens': 21735, 'calls': 50}
+truncated; retrying max_tokens=16384
+[46/150] 80ec1f4f recs=64 extract={'prompt_tokens': 468656, 'completion_tokens': 414045, 'calls': 214} answer={'prompt_tokens': 76510, 'completion_tokens': 21932, 'calls': 51}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[47/150] d23cf73b recs=64 extract={'prompt_tokens': 484923, 'completion_tokens': 430008, 'calls': 221} answer={'prompt_tokens': 78948, 'completion_tokens': 22639, 'calls': 52}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[48/150] gpt4_7fce9456 recs=78 extract={'prompt_tokens': 505122, 'completion_tokens': 444521, 'calls': 230} answer={'prompt_tokens': 80218, 'completion_tokens': 26344, 'calls': 54}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+[49/150] d682f1a2 recs=51 extract={'prompt_tokens': 515989, 'completion_tokens': 452155, 'calls': 235} answer={'prompt_tokens': 82228, 'completion_tokens': 26598, 'calls': 55}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[50/150] 7024f17c recs=57 extract={'prompt_tokens': 526762, 'completion_tokens': 459653, 'calls': 240} answer={'prompt_tokens': 84362, 'completion_tokens': 27921, 'calls': 56}
+[51/150] 6a1eabeb recs=28 extract={'prompt_tokens': 535085, 'completion_tokens': 465351, 'calls': 243} answer={'prompt_tokens': 85602, 'completion_tokens': 28167, 'calls': 57}
+[52/150] 6aeb4375 recs=33 extract={'prompt_tokens': 541052, 'completion_tokens': 469653, 'calls': 246} answer={'prompt_tokens': 86918, 'completion_tokens': 28264, 'calls': 58}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[53/150] 830ce83f recs=28 extract={'prompt_tokens': 546994, 'completion_tokens': 476610, 'calls': 249} answer={'prompt_tokens': 88029, 'completion_tokens': 28461, 'calls': 59}
+[54/150] 852ce960 recs=27 extract={'prompt_tokens': 553674, 'completion_tokens': 479724, 'calls': 252} answer={'prompt_tokens': 89162, 'completion_tokens': 28617, 'calls': 60}
+truncated; retrying max_tokens=16384
+[55/150] 945e3d21 recs=37 extract={'prompt_tokens': 561011, 'completion_tokens': 492417, 'calls': 256} answer={'prompt_tokens': 90580, 'completion_tokens': 28695, 'calls': 61}
+[56/150] d7c942c3 recs=28 extract={'prompt_tokens': 566921, 'completion_tokens': 496791, 'calls': 259} answer={'prompt_tokens': 91714, 'completion_tokens': 28924, 'calls': 62}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+truncated; retrying max_tokens=16384
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 3/8): HTTP Error 429: Too Many Requests
+[57/150] 71315a70 recs=35 extract={'prompt_tokens': 575739, 'completion_tokens': 523511, 'calls': 263} answer={'prompt_tokens': 93261, 'completion_tokens': 29043, 'calls': 63}
+llm call failed (attempt 1/8): HTTP Error 502: Bad Gateway
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[58/150] 89941a93 recs=39 extract={'prompt_tokens': 583596, 'completion_tokens': 530371, 'calls': 266} answer={'prompt_tokens': 94670, 'completion_tokens': 29130, 'calls': 64}
+[59/150] ce6d2d27 recs=31 extract={'prompt_tokens': 590022, 'completion_tokens': 534615, 'calls': 269} answer={'prompt_tokens': 96007, 'completion_tokens': 29282, 'calls': 65}
+[60/150] 9ea5eabc recs=32 extract={'prompt_tokens': 598125, 'completion_tokens': 538998, 'calls': 272} answer={'prompt_tokens': 97354, 'completion_tokens': 30452, 'calls': 66}
+[61/150] 07741c44 recs=24 extract={'prompt_tokens': 604596, 'completion_tokens': 542616, 'calls': 275} answer={'prompt_tokens': 98358, 'completion_tokens': 30514, 'calls': 67}
+[62/150] a1eacc2a recs=32 extract={'prompt_tokens': 612399, 'completion_tokens': 546061, 'calls': 278} answer={'prompt_tokens': 99636, 'completion_tokens': 30569, 'calls': 68}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+[63/150] 184da446 recs=27 extract={'prompt_tokens': 621537, 'completion_tokens': 551098, 'calls': 281} answer={'prompt_tokens': 101061, 'completion_tokens': 30733, 'calls': 69}
+[64/150] 031748ae recs=31 extract={'prompt_tokens': 627589, 'completion_tokens': 555013, 'calls': 284} answer={'prompt_tokens': 102263, 'completion_tokens': 30914, 'calls': 70}
+[65/150] 4d6b87c8 recs=34 extract={'prompt_tokens': 634563, 'completion_tokens': 560907, 'calls': 287} answer={'prompt_tokens': 103651, 'completion_tokens': 31109, 'calls': 71}
+[66/150] 0f05491a recs=29 extract={'prompt_tokens': 639370, 'completion_tokens': 566615, 'calls': 290} answer={'prompt_tokens': 104967, 'completion_tokens': 31197, 'calls': 72}
+[67/150] 08e075c7 recs=32 extract={'prompt_tokens': 646376, 'completion_tokens': 570319, 'calls': 293} answer={'prompt_tokens': 106229, 'completion_tokens': 31338, 'calls': 73}
+[68/150] f9e8c073 recs=41 extract={'prompt_tokens': 654427, 'completion_tokens': 575392, 'calls': 296} answer={'prompt_tokens': 107798, 'completion_tokens': 31495, 'calls': 74}
+[69/150] 41698283 recs=32 extract={'prompt_tokens': 662292, 'completion_tokens': 579751, 'calls': 299} answer={'prompt_tokens': 109155, 'completion_tokens': 31656, 'calls': 75}
+[70/150] 2698e78f recs=32 extract={'prompt_tokens': 669110, 'completion_tokens': 584189, 'calls': 302} answer={'prompt_tokens': 110268, 'completion_tokens': 31889, 'calls': 76}
+[71/150] b6019101 recs=33 extract={'prompt_tokens': 675270, 'completion_tokens': 594568, 'calls': 305} answer={'prompt_tokens': 111720, 'completion_tokens': 32050, 'calls': 77}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[72/150] 45dc21b6 recs=42 extract={'prompt_tokens': 682423, 'completion_tokens': 599342, 'calls': 308} answer={'prompt_tokens': 113436, 'completion_tokens': 32115, 'calls': 78}
+[73/150] 5a4f22c0 recs=43 extract={'prompt_tokens': 689160, 'completion_tokens': 611615, 'calls': 311} answer={'prompt_tokens': 115406, 'completion_tokens': 32125, 'calls': 79}
+[74/150] 6071bd76 recs=32 extract={'prompt_tokens': 694843, 'completion_tokens': 615752, 'calls': 314} answer={'prompt_tokens': 116587, 'completion_tokens': 32346, 'calls': 80}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+[75/150] e493bb7c recs=31 extract={'prompt_tokens': 702259, 'completion_tokens': 619307, 'calls': 317} answer={'prompt_tokens': 118074, 'completion_tokens': 32515, 'calls': 81}
+[76/150] 8a2466db recs=23 extract={'prompt_tokens': 707898, 'completion_tokens': 622374, 'calls': 318} answer={'prompt_tokens': 119017, 'completion_tokens': 32687, 'calls': 82}
+[77/150] 06878be2 recs=19 extract={'prompt_tokens': 712681, 'completion_tokens': 623853, 'calls': 319} answer={'prompt_tokens': 119829, 'completion_tokens': 33446, 'calls': 83}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[78/150] 75832dbd recs=11 extract={'prompt_tokens': 716887, 'completion_tokens': 625052, 'calls': 320} answer={'prompt_tokens': 120723, 'completion_tokens': 34402, 'calls': 84}
+[79/150] 0edc2aef recs=19 extract={'prompt_tokens': 721003, 'completion_tokens': 626798, 'calls': 321} answer={'prompt_tokens': 121564, 'completion_tokens': 34454, 'calls': 85}
+[80/150] 35a27287 recs=13 extract={'prompt_tokens': 725541, 'completion_tokens': 628366, 'calls': 322} answer={'prompt_tokens': 122384, 'completion_tokens': 34820, 'calls': 86}
+[81/150] 32260d93 recs=11 extract={'prompt_tokens': 729377, 'completion_tokens': 629746, 'calls': 323} answer={'prompt_tokens': 123136, 'completion_tokens': 35011, 'calls': 87}
+[82/150] 195a1a1b recs=22 extract={'prompt_tokens': 733701, 'completion_tokens': 631625, 'calls': 324} answer={'prompt_tokens': 124132, 'completion_tokens': 35374, 'calls': 88}
+[83/150] afdc33df recs=15 extract={'prompt_tokens': 738718, 'completion_tokens': 635194, 'calls': 325} answer={'prompt_tokens': 124942, 'completion_tokens': 36039, 'calls': 89}
+[84/150] caf03d32 recs=16 extract={'prompt_tokens': 743677, 'completion_tokens': 637456, 'calls': 326} answer={'prompt_tokens': 125964, 'completion_tokens': 37454, 'calls': 90}
+[85/150] 54026fce recs=19 extract={'prompt_tokens': 746918, 'completion_tokens': 639183, 'calls': 327} answer={'prompt_tokens': 126847, 'completion_tokens': 37838, 'calls': 91}
+[86/150] 06f04340 recs=13 extract={'prompt_tokens': 751248, 'completion_tokens': 640316, 'calls': 328} answer={'prompt_tokens': 127592, 'completion_tokens': 38315, 'calls': 92}
+[87/150] 6b7dfb22 recs=22 extract={'prompt_tokens': 756152, 'completion_tokens': 642245, 'calls': 329} answer={'prompt_tokens': 128556, 'completion_tokens': 39605, 'calls': 93}
+[88/150] 1a1907b4 recs=16 extract={'prompt_tokens': 760238, 'completion_tokens': 643963, 'calls': 330} answer={'prompt_tokens': 129411, 'completion_tokens': 40088, 'calls': 94}
+[89/150] 09d032c9 recs=16 extract={'prompt_tokens': 766583, 'completion_tokens': 646997, 'calls': 331} answer={'prompt_tokens': 130532, 'completion_tokens': 40209, 'calls': 95}
+[90/150] 38146c39 recs=14 extract={'prompt_tokens': 771400, 'completion_tokens': 649078, 'calls': 332} answer={'prompt_tokens': 131414, 'completion_tokens': 41107, 'calls': 96}
+[91/150] d24813b1 recs=16 extract={'prompt_tokens': 775983, 'completion_tokens': 650471, 'calls': 333} answer={'prompt_tokens': 132192, 'completion_tokens': 41684, 'calls': 97}
+[92/150] 57f827a0 recs=13 extract={'prompt_tokens': 779765, 'completion_tokens': 651782, 'calls': 334} answer={'prompt_tokens': 132941, 'completion_tokens': 42074, 'calls': 98}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[93/150] 95228167 recs=12 extract={'prompt_tokens': 783436, 'completion_tokens': 653141, 'calls': 335} answer={'prompt_tokens': 133623, 'completion_tokens': 42955, 'calls': 99}
+[94/150] 505af2f5 recs=16 extract={'prompt_tokens': 787454, 'completion_tokens': 654748, 'calls': 336} answer={'prompt_tokens': 134531, 'completion_tokens': 43822, 'calls': 100}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[95/150] 75f70248 recs=10 extract={'prompt_tokens': 791468, 'completion_tokens': 655810, 'calls': 337} answer={'prompt_tokens': 135142, 'completion_tokens': 44027, 'calls': 101}
+[96/150] d6233ab6 recs=21 extract={'prompt_tokens': 794507, 'completion_tokens': 657826, 'calls': 338} answer={'prompt_tokens': 136127, 'completion_tokens': 44558, 'calls': 102}
+[97/150] 1da05512 recs=11 extract={'prompt_tokens': 799133, 'completion_tokens': 658659, 'calls': 339} answer={'prompt_tokens': 136737, 'completion_tokens': 45098, 'calls': 103}
+[98/150] fca70973 recs=16 extract={'prompt_tokens': 802760, 'completion_tokens': 660174, 'calls': 340} answer={'prompt_tokens': 137660, 'completion_tokens': 45678, 'calls': 104}
+[99/150] b6025781 recs=13 extract={'prompt_tokens': 805875, 'completion_tokens': 661284, 'calls': 341} answer={'prompt_tokens': 138378, 'completion_tokens': 46502, 'calls': 105}
+[100/150] a89d7624 recs=15 extract={'prompt_tokens': 809123, 'completion_tokens': 662806, 'calls': 342} answer={'prompt_tokens': 139240, 'completion_tokens': 47025, 'calls': 106}
+[101/150] 7161e7e2 recs=6 extract={'prompt_tokens': 811498, 'completion_tokens': 663372, 'calls': 343} answer={'prompt_tokens': 139704, 'completion_tokens': 47419, 'calls': 107}
+[102/150] c4f10528 recs=10 extract={'prompt_tokens': 813443, 'completion_tokens': 664211, 'calls': 344} answer={'prompt_tokens': 140367, 'completion_tokens': 47536, 'calls': 108}
+[103/150] 89527b6b recs=5 extract={'prompt_tokens': 814394, 'completion_tokens': 664871, 'calls': 345} answer={'prompt_tokens': 140806, 'completion_tokens': 47626, 'calls': 109}
+[104/150] e9327a54 recs=12 extract={'prompt_tokens': 816671, 'completion_tokens': 666509, 'calls': 346} answer={'prompt_tokens': 141640, 'completion_tokens': 47801, 'calls': 110}
+[105/150] 4c36ccef recs=7 extract={'prompt_tokens': 817649, 'completion_tokens': 667209, 'calls': 347} answer={'prompt_tokens': 142124, 'completion_tokens': 47865, 'calls': 111}
+[106/150] 6ae235be recs=7 extract={'prompt_tokens': 819530, 'completion_tokens': 668445, 'calls': 348} answer={'prompt_tokens': 142663, 'completion_tokens': 47915, 'calls': 112}
+[107/150] 7e00a6cb recs=5 extract={'prompt_tokens': 820561, 'completion_tokens': 669151, 'calls': 349} answer={'prompt_tokens': 143121, 'completion_tokens': 48500, 'calls': 113}
+[108/150] 1903aded recs=2 extract={'prompt_tokens': 820989, 'completion_tokens': 669673, 'calls': 350} answer={'prompt_tokens': 143473, 'completion_tokens': 48570, 'calls': 114}
+[109/150] ceb54acb recs=3 extract={'prompt_tokens': 821516, 'completion_tokens': 670302, 'calls': 351} answer={'prompt_tokens': 143816, 'completion_tokens': 48668, 'calls': 115}
+[110/150] f523d9fe recs=13 extract={'prompt_tokens': 822942, 'completion_tokens': 672718, 'calls': 352} answer={'prompt_tokens': 144482, 'completion_tokens': 48755, 'calls': 116}
+[111/150] 0e5e2d1a recs=5 extract={'prompt_tokens': 823852, 'completion_tokens': 673573, 'calls': 353} answer={'prompt_tokens': 144957, 'completion_tokens': 48836, 'calls': 117}
+[112/150] fea54f57 recs=15 extract={'prompt_tokens': 825707, 'completion_tokens': 675183, 'calls': 354} answer={'prompt_tokens': 145702, 'completion_tokens': 48944, 'calls': 118}
+[113/150] cc539528 recs=6 extract={'prompt_tokens': 827135, 'completion_tokens': 675776, 'calls': 355} answer={'prompt_tokens': 146212, 'completion_tokens': 49070, 'calls': 119}
+[114/150] dc439ea3 recs=7 extract={'prompt_tokens': 828455, 'completion_tokens': 676651, 'calls': 356} answer={'prompt_tokens': 146753, 'completion_tokens': 49164, 'calls': 120}
+[115/150] 18dcd5a5 recs=10 extract={'prompt_tokens': 829612, 'completion_tokens': 677773, 'calls': 357} answer={'prompt_tokens': 147401, 'completion_tokens': 49308, 'calls': 121}
+[116/150] 488d3006 recs=9 extract={'prompt_tokens': 831188, 'completion_tokens': 678482, 'calls': 358} answer={'prompt_tokens': 148013, 'completion_tokens': 49408, 'calls': 122}
+[117/150] 58470ed2 recs=2 extract={'prompt_tokens': 832582, 'completion_tokens': 678819, 'calls': 359} answer={'prompt_tokens': 148356, 'completion_tokens': 49569, 'calls': 123}
+[118/150] 8cf51dda recs=3 extract={'prompt_tokens': 833279, 'completion_tokens': 679350, 'calls': 360} answer={'prompt_tokens': 148703, 'completion_tokens': 49681, 'calls': 124}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[119/150] 1d4da289 recs=7 extract={'prompt_tokens': 834247, 'completion_tokens': 680295, 'calls': 361} answer={'prompt_tokens': 149227, 'completion_tokens': 49951, 'calls': 125}
+[120/150] 8464fc84 recs=21 extract={'prompt_tokens': 835684, 'completion_tokens': 681927, 'calls': 362} answer={'prompt_tokens': 150104, 'completion_tokens': 50034, 'calls': 126}
+[121/150] 8aef76bc recs=9 extract={'prompt_tokens': 836785, 'completion_tokens': 683078, 'calls': 363} answer={'prompt_tokens': 150648, 'completion_tokens': 50123, 'calls': 127}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+[122/150] 71a3fd6b recs=4 extract={'prompt_tokens': 837549, 'completion_tokens': 684022, 'calls': 364} answer={'prompt_tokens': 151097, 'completion_tokens': 50168, 'calls': 128}
+[123/150] 2bf43736 recs=8 extract={'prompt_tokens': 839875, 'completion_tokens': 685176, 'calls': 365} answer={'prompt_tokens': 151656, 'completion_tokens': 50314, 'calls': 129}
+[124/150] 70b3e69b recs=10 extract={'prompt_tokens': 842375, 'completion_tokens': 686453, 'calls': 366} answer={'prompt_tokens': 152448, 'completion_tokens': 50401, 'calls': 130}
+[125/150] 8752c811 recs=1 extract={'prompt_tokens': 844372, 'completion_tokens': 686686, 'calls': 367} answer={'prompt_tokens': 152737, 'completion_tokens': 50500, 'calls': 131}
+[126/150] e47becba recs=18 extract={'prompt_tokens': 848416, 'completion_tokens': 688242, 'calls': 368} answer={'prompt_tokens': 153645, 'completion_tokens': 50538, 'calls': 132}
+[127/150] 118b2229 recs=13 extract={'prompt_tokens': 851542, 'completion_tokens': 689565, 'calls': 369} answer={'prompt_tokens': 154305, 'completion_tokens': 50555, 'calls': 133}
+[128/150] 51a45a95 recs=21 extract={'prompt_tokens': 854141, 'completion_tokens': 691260, 'calls': 370} answer={'prompt_tokens': 155243, 'completion_tokens': 50989, 'calls': 134}
+[129/150] 58bf7951 recs=14 extract={'prompt_tokens': 856503, 'completion_tokens': 692717, 'calls': 371} answer={'prompt_tokens': 156066, 'completion_tokens': 51070, 'calls': 135}
+[130/150] 1e043500 recs=15 extract={'prompt_tokens': 859609, 'completion_tokens': 694279, 'calls': 372} answer={'prompt_tokens': 156865, 'completion_tokens': 51133, 'calls': 136}
+[131/150] c5e8278d recs=12 extract={'prompt_tokens': 863205, 'completion_tokens': 695418, 'calls': 373} answer={'prompt_tokens': 157480, 'completion_tokens': 51186, 'calls': 137}
+[132/150] 6ade9755 recs=14 extract={'prompt_tokens': 865463, 'completion_tokens': 696501, 'calls': 374} answer={'prompt_tokens': 158124, 'completion_tokens': 51260, 'calls': 138}
+[133/150] 6f9b354f recs=18 extract={'prompt_tokens': 868900, 'completion_tokens': 698466, 'calls': 375} answer={'prompt_tokens': 158886, 'completion_tokens': 51294, 'calls': 139}
+[134/150] 58ef2f1c recs=14 extract={'prompt_tokens': 871858, 'completion_tokens': 699937, 'calls': 376} answer={'prompt_tokens': 159629, 'completion_tokens': 51629, 'calls': 140}
+[135/150] f8c5f88b recs=15 extract={'prompt_tokens': 875076, 'completion_tokens': 701324, 'calls': 377} answer={'prompt_tokens': 160310, 'completion_tokens': 51636, 'calls': 141}
+[136/150] 5d3d2817 recs=21 extract={'prompt_tokens': 878768, 'completion_tokens': 703011, 'calls': 378} answer={'prompt_tokens': 161186, 'completion_tokens': 51699, 'calls': 142}
+[137/150] 7527f7e2 recs=23 extract={'prompt_tokens': 882579, 'completion_tokens': 705235, 'calls': 379} answer={'prompt_tokens': 162249, 'completion_tokens': 51767, 'calls': 143}
+[138/150] c960da58 recs=23 extract={'prompt_tokens': 886367, 'completion_tokens': 707227, 'calls': 380} answer={'prompt_tokens': 163230, 'completion_tokens': 51809, 'calls': 144}
+[139/150] 3b6f954b recs=16 extract={'prompt_tokens': 889504, 'completion_tokens': 708748, 'calls': 381} answer={'prompt_tokens': 163950, 'completion_tokens': 51873, 'calls': 145}
+[140/150] 726462e0 recs=16 extract={'prompt_tokens': 893106, 'completion_tokens': 710366, 'calls': 382} answer={'prompt_tokens': 164767, 'completion_tokens': 51892, 'calls': 146}
+[141/150] 94f70d80 recs=17 extract={'prompt_tokens': 896427, 'completion_tokens': 711926, 'calls': 383} answer={'prompt_tokens': 165541, 'completion_tokens': 51974, 'calls': 147}
+[142/150] 66f24dbb recs=9 extract={'prompt_tokens': 898034, 'completion_tokens': 712698, 'calls': 384} answer={'prompt_tokens': 166087, 'completion_tokens': 52029, 'calls': 148}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[143/150] ad7109d1 recs=16 extract={'prompt_tokens': 901554, 'completion_tokens': 714030, 'calls': 385} answer={'prompt_tokens': 166835, 'completion_tokens': 52084, 'calls': 149}
+[144/150] af8d2e46 recs=14 extract={'prompt_tokens': 904611, 'completion_tokens': 715265, 'calls': 386} answer={'prompt_tokens': 167537, 'completion_tokens': 52153, 'calls': 150}
+[145/150] dccbc061 recs=18 extract={'prompt_tokens': 909429, 'completion_tokens': 717648, 'calls': 387} answer={'prompt_tokens': 168428, 'completion_tokens': 52224, 'calls': 151}
+[146/150] c8c3f81d recs=12 extract={'prompt_tokens': 912300, 'completion_tokens': 718786, 'calls': 388} answer={'prompt_tokens': 169007, 'completion_tokens': 52270, 'calls': 152}
+[147/150] 8ebdbe50 recs=13 extract={'prompt_tokens': 916448, 'completion_tokens': 720219, 'calls': 389} answer={'prompt_tokens': 169773, 'completion_tokens': 52343, 'calls': 153}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[148/150] 6b168ec8 recs=16 extract={'prompt_tokens': 920247, 'completion_tokens': 722084, 'calls': 390} answer={'prompt_tokens': 170624, 'completion_tokens': 52416, 'calls': 154}
+[149/150] 75499fd8 recs=15 extract={'prompt_tokens': 923531, 'completion_tokens': 723442, 'calls': 391} answer={'prompt_tokens': 171305, 'completion_tokens': 52462, 'calls': 155}
+[150/150] 21436231 recs=16 extract={'prompt_tokens': 927516, 'completion_tokens': 725060, 'calls': 392} answer={'prompt_tokens': 172230, 'completion_tokens': 52478, 'calls': 156}
