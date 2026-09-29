@@ -60,7 +60,13 @@ Answer the user's question using ONLY this memory.
   to a specific memory entry (a value plus its date) that supports it.
   If memory only supports adjacent facts — not the specific thing asked —
   say exactly "Memory only records X; it does not answer Y."
-  Never present adjacent facts as the answer."""
+  Never present adjacent facts as the answer.
+- SUBJECT CHECK: each memory line names who it is about ("caroline
+  (per self)·slot" / "user·slot"). An answer may only attribute a fact
+  to the person its line names. If the question asks about person X but
+  the matching records are about person Y, say the records describe Y —
+  e.g. "the records describe Y's adoption process, not X's". Never
+  silently transfer one person's facts to another."""
 
 
 def _iso(ordinal: int) -> str:
