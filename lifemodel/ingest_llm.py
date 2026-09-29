@@ -24,18 +24,30 @@ import asyncio
 import json
 import re
 
-EXTRACT_SYS = """You extract memory records from a chat session between a user
-and an AI assistant. Extract EVERY piece of personal information the user
-reveals: facts, events, preferences, plans, possessions, relationships,
-experiences, opinions, problems they mention.
+EXTRACT_SYS = """You extract memory records from a chat session — either between a
+user and an AI assistant, or between named people whose speaker names
+prefix each utterance line as `Name:`. Extract EVERY piece of personal
+information the speakers reveal: facts, events, preferences, plans,
+possessions, relationships, experiences, opinions, problems they
+mention.
 Output a JSON array of records:
 {"slot": "snake_case_topic", "value": "what was said",
  "about": null or "person name", "kind": "statement",
  "source": "self", "text": "supporting quote <=20 words"}
-- about=null means the fact is about the user; about="name" for facts
-  about other people; things others said that the user relays ->
+- about=null means the fact is about the user (or about the utterance's
+  own speaker in a named-person chat); about="name" for facts about
+  other people; things a speaker relays that others said ->
   kind="hearsay".
-- ASSISTANT turns: also record the SUBSTANTIVE CONTENT the assistant
+- SPEAKER BINDING: when utterance lines carry a `Name:` speaker prefix
+  — a chat between named people, no AI assistant exists there; the
+  prefix may also sit inside an outer role tag like `USER: Name: ...`
+  — bind each record to the real name: source="<that name, lowercase>"
+  and about=null for the speaker themself, about="<person name>" for
+  facts about someone else. Never collapse named speakers into
+  source="self"/"user"/"assistant" — generic labels destroy
+  attribution downstream.
+- ASSISTANT turns (only when the session actually has an assistant
+  side): also record the SUBSTANTIVE CONTENT the assistant
   produced — names it invented, lists/tables/texts it generated,
   recommendations it gave -> source="assistant", kind="statement",
   about=null.
