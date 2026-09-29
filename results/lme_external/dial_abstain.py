@@ -34,6 +34,10 @@ import lifemodel.reader as R                    # noqa: E402
 BASE_SYS = R.ANSWER_SYS
 
 ARMS = {
+    # verbatim stack from the imported lifemodel.reader (used for the
+    # merged-stack validation: EVIDENCE RULE + SUBJECT CHECK shipped in
+    # the package, not appended here)
+    "merged": BASE_SYS,
     "evreq": BASE_SYS + """
 
 - EVIDENCE RULE: before asserting an answer, you must be able to point
