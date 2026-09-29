@@ -54,7 +54,13 @@ Answer the user's question using ONLY this memory.
   no literal matching entry — related preferences are enough.
 - Abstain ONLY if nothing is remotely relevant; then say exactly:
   "I don't have enough information to answer that."
-- Answer concisely, no preamble."""
+- Answer concisely, no preamble.
+
+- EVIDENCE RULE: before asserting an answer, you must be able to point
+  to a specific memory entry (a value plus its date) that supports it.
+  If memory only supports adjacent facts — not the specific thing asked —
+  say exactly "Memory only records X; it does not answer Y."
+  Never present adjacent facts as the answer."""
 
 
 def _iso(ordinal: int) -> str:
