@@ -640,10 +640,10 @@
   "external": {
     "name": "LongMemEval（外部标准基准）",
     "desc": "业界记忆系统公开考卷：500 题 6 题型，对话→LLM 抽取→lifemodel→检索→LLM 答题→官方判分",
-    "current_score": "LME 45.3%/40.0%（150题）· LoCoMo 56%（25题·OR判）· pref 子卷修复后 60%",
+    "current_score": "LME 45.3%/40.0%（150题GLM口径）· LoCoMo 修复栈 66.7%（conv-0·OR口径,基线33.3%）· conv-1 57.4%",
     "baseline": "34.7% → 41.7% → 150题扩样 40.0%/45.3%（噪声收敛后真实水位）",
     "strong": "knowledge-update 80% · user ~70%（n=25/类）",
-    "weak": "multi-session 24%（已证为作答端聚合推理缺陷·检索完备性反证）· temporal(LoCoMo) 0%·过度拒答残留",
+    "weak": "adversarial 拒答精度 58%（放宽代价面·拨盘轮进行中）· GLM欠费停机→OR单后端",
     "pipeline": "对话→LLM抽取(两阶段槽位归并·空抽取重试·逐格拆解·事件日期保留)→lifemodel→检索(目录≤50全渲染·否则LLM挑顶点+族扩展)→两段式作答(个性化条款·聚合枚举)→官方判分",
     "rounds": [
       {
@@ -679,6 +679,20 @@
         "date": "2026-09-28",
         "result": "multi-session 25题: mix 20% > base 16% > fam/topic/recur/big150 12%；7 道大目录题全臂≤1/7 含全量渲染",
         "conclusion": "完备性路线证伪——摊开全部记忆照样错，瓶颈在作答端聚合推理而非召回；族扩展作为零成本保险落地(+12% token)"
+      },
+      {
+        "id": "v8",
+        "name": "修复栈双基准验证（lab#2）",
+        "date": "2026-09-29",
+        "result": "LoCoMo conv-0 33.3%→66.7%(+33.4pp)·拒答率60%→15%·temporal 0%→58%·conv-1未见会话57.4%",
+        "conclusion": "个性化+模糊日期+重试+拆解的修复栈在副考独立验证；代价面：adversarial 75→58%（3题放宽后编造貌似有据答案）→拒答精度拨盘轮接续"
+      },
+      {
+        "id": "v9",
+        "name": "作答端聚合对照（lab#1）",
+        "date": "2026-09-28",
+        "result": "ms-25 OR口径：code-assist 40% > verify 32% > router 28% > base/twopass 24%",
+        "conclusion": "确定性聚合表（LLM抽候选→Python去重排序计数→带count=N作答）是真机制，+16pp且死区题救回；aanswer 已三段式落地"
       }
     ]
   }
