@@ -1,0 +1,247 @@
+{
+  "n": 47,
+  "accuracy": 0.574468085106383,
+  "by_type": {
+    "1:multi-hop": 0.45454545454545453,
+    "2:temporal": 0.8333333333333334,
+    "4:open-domain": 0.5,
+    "5:adversarial": 0.5
+  },
+  "rows": [
+    {
+      "qid": "c1_q3",
+      "category": 1,
+      "correct": false
+    },
+    {
+      "qid": "c1_q5",
+      "category": 1,
+      "correct": true
+    },
+    {
+      "qid": "c1_q9",
+      "category": 1,
+      "correct": false
+    },
+    {
+      "qid": "c1_q17",
+      "category": 1,
+      "correct": true
+    },
+    {
+      "qid": "c1_q18",
+      "category": 1,
+      "correct": true
+    },
+    {
+      "qid": "c1_q23",
+      "category": 1,
+      "correct": false
+    },
+    {
+      "qid": "c1_q24",
+      "category": 1,
+      "correct": false
+    },
+    {
+      "qid": "c1_q25",
+      "category": 1,
+      "correct": false
+    },
+    {
+      "qid": "c1_q27",
+      "category": 1,
+      "correct": true
+    },
+    {
+      "qid": "c1_q29",
+      "category": 1,
+      "correct": true
+    },
+    {
+      "qid": "c1_q31",
+      "category": 1,
+      "correct": false
+    },
+    {
+      "qid": "c1_q0",
+      "category": 2,
+      "correct": true
+    },
+    {
+      "qid": "c1_q1",
+      "category": 2,
+      "correct": true
+    },
+    {
+      "qid": "c1_q6",
+      "category": 2,
+      "correct": true
+    },
+    {
+      "qid": "c1_q7",
+      "category": 2,
+      "correct": false
+    },
+    {
+      "qid": "c1_q8",
+      "category": 2,
+      "correct": true
+    },
+    {
+      "qid": "c1_q10",
+      "category": 2,
+      "correct": true
+    },
+    {
+      "qid": "c1_q11",
+      "category": 2,
+      "correct": true
+    },
+    {
+      "qid": "c1_q12",
+      "category": 2,
+      "correct": true
+    },
+    {
+      "qid": "c1_q13",
+      "category": 2,
+      "correct": false
+    },
+    {
+      "qid": "c1_q14",
+      "category": 2,
+      "correct": true
+    },
+    {
+      "qid": "c1_q15",
+      "category": 2,
+      "correct": true
+    },
+    {
+      "qid": "c1_q16",
+      "category": 2,
+      "correct": true
+    },
+    {
+      "qid": "c1_q2",
+      "category": 4,
+      "correct": true
+    },
+    {
+      "qid": "c1_q4",
+      "category": 4,
+      "correct": false
+    },
+    {
+      "qid": "c1_q39",
+      "category": 4,
+      "correct": true
+    },
+    {
+      "qid": "c1_q40",
+      "category": 4,
+      "correct": true
+    },
+    {
+      "qid": "c1_q41",
+      "category": 4,
+      "correct": false
+    },
+    {
+      "qid": "c1_q42",
+      "category": 4,
+      "correct": true
+    },
+    {
+      "qid": "c1_q43",
+      "category": 4,
+      "correct": false
+    },
+    {
+      "qid": "c1_q44",
+      "category": 4,
+      "correct": false
+    },
+    {
+      "qid": "c1_q45",
+      "category": 4,
+      "correct": true
+    },
+    {
+      "qid": "c1_q46",
+      "category": 4,
+      "correct": true
+    },
+    {
+      "qid": "c1_q47",
+      "category": 4,
+      "correct": false
+    },
+    {
+      "qid": "c1_q48",
+      "category": 4,
+      "correct": false
+    },
+    {
+      "qid": "c1_q79",
+      "category": 5,
+      "correct": true
+    },
+    {
+      "qid": "c1_q82",
+      "category": 5,
+      "correct": true
+    },
+    {
+      "qid": "c1_q83",
+      "category": 5,
+      "correct": false
+    },
+    {
+      "qid": "c1_q84",
+      "category": 5,
+      "correct": true
+    },
+    {
+      "qid": "c1_q85",
+      "category": 5,
+      "correct": false
+    },
+    {
+      "qid": "c1_q86",
+      "category": 5,
+      "correct": false
+    },
+    {
+      "qid": "c1_q87",
+      "category": 5,
+      "correct": true
+    },
+    {
+      "qid": "c1_q88",
+      "category": 5,
+      "correct": false
+    },
+    {
+      "qid": "c1_q89",
+      "category": 5,
+      "correct": false
+    },
+    {
+      "qid": "c1_q90",
+      "category": 5,
+      "correct": true
+    },
+    {
+      "qid": "c1_q91",
+      "category": 5,
+      "correct": false
+    },
+    {
+      "qid": "c1_q92",
+      "category": 5,
+      "correct": true
+    }
+  ]
+}

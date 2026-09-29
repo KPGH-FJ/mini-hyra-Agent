@@ -1,0 +1,168 @@
+## conv-0 accuracy (OR judge): before -> after
+(before = v5 GLM ingest+answer; after = fix-stack OR ingest+answer — cross-model, not a clean per-q A/B)
+| cat | v5 acc | v6 acc | v5 abstain | v6 abstain |
+| multi-hop | 3/12 (25%) | 8/12 (67%) | 4/12 | 0/12 |
+| temporal | 0/12 (0%) | 7/12 (58%) | 9/12 | 2/12 |
+| single-hop | 4/12 (33%) | 10/12 (83%) | 8/12 | 1/12 |
+| open-domain | 4/12 (33%) | 8/12 (67%) | 6/12 | 1/12 |
+| adversarial | 9/12 (75%) | 7/12 (58%) | 9/12 | 5/12 |
+
+overall: v5 33.3% -> v6 66.7%  (n=60 vs 60)
+
+## conv-1 after (OR judge)
+| cat | acc | abstain |
+| multi-hop | 5/11 (45%) | 1/11 |
+| temporal | 10/12 (83%) | 0/12 |
+| single-hop | 0/0 (0%) | 0/0 |
+| open-domain | 6/12 (50%) | 1/12 |
+| adversarial | 6/12 (50%) | 6/12 |
+conv-1 overall: 57.4% (n=47)
+
+## per-question reconciliation — cat2 temporal + cat5 adversarial (conv-0)
+
+### c0_q0 cat2 [SAME] v5=F v6=F
+Q: When did Caroline go to the LGBTQ support group?
+GOLD: 7 May 2023
+v5: I don't have enough information to answer that.
+v6: By May 8, 2023.
+
+### c0_q1 cat2 [SAME] v5=F v6=F
+Q: When did Melanie paint a sunrise?
+GOLD: 2022
+v5: 2023-05-08
+v6: May 8, 2023.
+
+### c0_q5 cat2 [FIXED] v5=F v6=T
+Q: When did Melanie run a charity race?
+GOLD: The sunday before 25 May 2023
+v5: I don't have enough information to answer that.
+v6: May 20, 2023.
+
+### c0_q6 cat2 [FIXED] v5=F v6=T
+Q: When is Melanie planning on going camping?
+GOLD: June 2023
+v5: I don't have enough information to answer that.
+v6: Next month, around June 2023.
+
+### c0_q8 cat2 [FIXED] v5=F v6=T
+Q: When did Caroline give a speech at a school?
+GOLD: The week before 9 June 2023
+v5: I don't have enough information to answer that.
+v6: Caroline gave a speech at her school event in the week before June 9, 2023.
+
+### c0_q9 cat2 [FIXED] v5=F v6=T
+Q: When did Caroline meet up with her friends, family, and mentors?
+GOLD: The week before 9 June 2023
+v5: I don't have enough information to answer that.
+v6: Caroline met up with her friends in the week before June 9, 2023. No specific meeting dates with her family or mentors are recorded.
+
+### c0_q10 cat2 [FIXED] v5=F v6=T
+Q: How long has Caroline had her current group of friends for?
+GOLD: 4 years
+v5: I don't have enough information to answer that.
+v6: Caroline has had her current group of friends for four years.
+
+### c0_q12 cat2 [SAME] v5=F v6=F
+Q: How long ago was Caroline's 18th birthday?
+GOLD: 10 years ago
+v5: I don't have enough information to answer that.
+v6: I don't have enough information to answer that.
+
+### c0_q16 cat2 [FIXED] v5=F v6=T
+Q: When did Melanie sign up for a pottery class?
+GOLD: 2 July 2023
+v5: 2023-07-03
+v6: Melanie signed up for a pottery class on July 2, 2023.
+
+### c0_q17 cat2 [FIXED] v5=F v6=T
+Q: When is Caroline going to the transgender conference?
+GOLD: July 2023
+v5: I don't have enough information to answer that.
+v6: This month (July 2023).
+
+### c0_q20 cat2 [SAME] v5=F v6=F
+Q: When did Melanie go to the museum?
+GOLD: 5 July 2023
+v5: Melanie took the kids to the museum on 2023-07-06.
+v6: Melanie went to the museum on July 6, 2023.
+
+### c0_q21 cat2 [SAME] v5=F v6=F
+Q: When did Caroline have a picnic?
+GOLD: The week before 6 July 2023
+v5: I don't have enough information to answer that.
+v6: I don't have enough information to answer that.
+
+### c0_q152 cat5 [SAME] v5=T v6=T
+Q: What did Caroline realize after her charity race?
+GOLD: None
+v5: I don't have enough information to answer that.
+v6: There’s no record that Caroline realized anything. Melanie, who ran the race, found it rewarding and thought-provoking, and Caroline was proud of her participation.
+
+### c0_q153 cat5 [SAME] v5=T v6=T
+Q: What are Melanie's plans for the summer with respect to adoption?
+GOLD: None
+v5: I don't have enough information to answer that.
+v6: I don't have enough information to answer that.
+
+### c0_q154 cat5 [SAME] v5=T v6=T
+Q: What type of individuals does the adoption agency Melanie is considering support?
+GOLD: None
+v5: I don't have enough information to answer that.
+v6: I don't have enough information to answer that.
+
+### c0_q155 cat5 [SAME] v5=T v6=T
+Q: Why did Melanie choose the adoption agency?
+GOLD: None
+v5: I don't have enough information to answer that.
+v6: Melanie hasn’t chosen an adoption agency yet. She’s considering adoption because a friend became happy with their child, and Caroline advised her to research and contact an adoption agency or lawyer f
+
+### c0_q156 cat5 [REGRESSED] v5=T v6=F
+Q: What is Melanie excited about in her adoption process?
+GOLD: None
+v5: I don't have enough information to answer that.
+v6: Melanie is excited about adopting a child, inspired by her friend’s happiness with theirs.
+
+### c0_q157 cat5 [SAME] v5=F v6=F
+Q: What does Melanie's necklace symbolize?
+GOLD: None
+v5: love, faith and strength
+v6: Melanie’s necklace symbolizes love, faith, strength, roots, family love, and family support.
+
+### c0_q158 cat5 [SAME] v5=T v6=T
+Q: What country is Melanie's grandma from?
+GOLD: None
+v5: I don't have enough information to answer that.
+v6: I don't have enough information to answer that.
+
+### c0_q159 cat5 [REGRESSED] v5=T v6=F
+Q: What was grandma's gift to Melanie?
+GOLD: None
+v5: I don't have enough information to answer that.
+v6: A necklace.
+
+### c0_q160 cat5 [SAME] v5=T v6=T
+Q: What was grandpa's gift to Caroline?
+GOLD: None
+v5: I don't have enough information to answer that.
+v6: I don't have enough information to answer that.
+
+### c0_q161 cat5 [SAME] v5=F v6=F
+Q: What is Caroline's hand-painted bowl a reminder of?
+GOLD: None
+v5: The hand-painted bowl reminds the user of art and self-expression.
+v6: Her 18th birthday.
+
+### c0_q162 cat5 [FIXED] v5=F v6=T
+Q: What did Caroline and her family do while camping?
+GOLD: None
+v5: Based on the memory, Caroline (the user) and her family did the following while camping:
+- Roasted marshmallows and told stories around the campfire
+- Explored nature
+- Experienced peaceful mornings w
+v6: I don't have enough information to answer that.
+
+### c0_q163 cat5 [REGRESSED] v5=T v6=F
+Q: What kind of counseling and mental health services is Melanie interested in pursuing?
+GOLD: None
+v5: I don't have enough information to answer that.
+v6: Counseling and mental health services focused on trans people—helping them accept themselves, support their mental health, and create a safe, inviting space to grow.

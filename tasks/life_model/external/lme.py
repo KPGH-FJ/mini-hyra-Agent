@@ -54,33 +54,42 @@ class GLMCompat:
         import urllib.request
         delay = 1.5
         last = None
-        body = json.dumps({
-            "model": self.model,
-            "messages": [{"role": "system", "content": system},
-                         {"role": "user", "content": prompt}],
-            "max_tokens": self.max_tokens,
-            "temperature": 0.3,
-            "stream": False,
-            **self.extra_body,
-        }).encode()
+        max_tokens = self.max_tokens
         for _ in range(self.retries):
+            body = json.dumps({
+                "model": self.model,
+                "messages": [{"role": "system", "content": system},
+                             {"role": "user", "content": prompt}],
+                "max_tokens": max_tokens,
+                "temperature": 0.3,
+                "stream": False,
+                **self.extra_body,
+            }).encode()
             try:
                 req = urllib.request.Request(
                     self.base_url + "/chat/completions", data=body,
                     headers={"Content-Type": "application/json",
                              "Authorization": f"Bearer {self.api_key}"})
-                with urllib.request.urlopen(req, timeout=180) as r:
+                with urllib.request.urlopen(req, timeout=300) as r:
                     d = json.loads(r.read())
                 u = d.get("usage", {})
                 self.usage["calls"] += 1
                 self.usage["prompt_tokens"] += u.get("prompt_tokens", 0)
                 self.usage["completion_tokens"] += u.get(
                     "completion_tokens", 0)
-                return d["choices"][0]["message"]["content"]
+                content = d["choices"][0]["message"].get("content")
+                if not content:
+                    fr = d["choices"][0].get("finish_reason")
+                    if fr == "length":
+                        # reasoning ate the whole cap; leave room for
+                        # content next attempt
+                        max_tokens = min(max_tokens * 2, 65536)
+                    raise ValueError(f"empty completion (finish_reason={fr})")
+                return content
             except Exception as e:  # noqa: BLE001
                 last = e
                 await asyncio.sleep(delay)
-                delay = min(delay * 2, 60)
+                delay = min(delay * 8, 120)
         raise last
 
 
@@ -92,13 +101,25 @@ def _make_llm(args, thinking=False, backend=None):
                             else "disabled"}}
         return GLMCompat(api_key=os.environ.get("GLM_API_KEY"),
                          extra_body=body)
-    if backend == "openrouter":
+    or_via_flags = (backend is None
+                    and getattr(args, "base_url", None)
+                    and "openrouter" in args.base_url)
+    if backend == "openrouter" or or_via_flags:
+        # reasoning tokens dwarf the actual output on OR's stealth model;
+        # exclude for short-output calls, keep a low effort for answering
+        # OR reasoning: effort and max_tokens are mutually exclusive —
+        # sending both 400s. Hard-cap reasoning for non-thinking calls;
+        # let effort=low bound thinking calls.
+        body = ({"reasoning": {"effort": "low"}}
+                if thinking else
+                {"reasoning": {"exclude": True, "max_tokens": 1024}})
         return GLMCompat(
-            model=os.environ.get("OR_MODEL",
-                                 "stealth/space-bunny-alpha"),
+            model=getattr(args, "model", None)
+            or os.environ.get("OR_MODEL", "stealth/space-bunny-alpha"),
             base_url="https://openrouter.ai/api/v1",
-            api_key=os.environ.get("OR_API_KEY", ""),
-            max_tokens=8192)
+            api_key=getattr(args, "api_key", None)
+            or os.environ.get("OR_API_KEY", ""),
+            max_tokens=8192, extra_body=body)
     return OpenAICompatLLM(model=args.model, base_url=args.base_url,
                            api_key=args.api_key, max_tokens=8192)
 
