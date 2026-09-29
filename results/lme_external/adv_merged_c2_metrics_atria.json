@@ -1,0 +1,212 @@
+{
+  "conv": 2,
+  "n": 41,
+  "adv_acc": 0.926829268292683,
+  "rows": [
+    {
+      "qid": "c2_q152",
+      "correct": true,
+      "response": "Memory only records that John has been focusing on education reform and infrastructure development recently (as of 2023-04-18); it does not mention any focus of his in international politics."
+    },
+    {
+      "qid": "c2_q153",
+      "correct": true,
+      "response": "Memory only records Maria donating her old car (on 2022-12-21) and baked goods to a homeless shelter; it does not answer what she donated to a luxury store in December 2023."
+    },
+    {
+      "qid": "c2_q154",
+      "correct": true,
+      "response": "Memory only records that John's family is the reason he never gives up and that his family and friends support his desire to volunteer; it does not state who inspired him to start volunteering."
+    },
+    {
+      "qid": "c2_q155",
+      "correct": true,
+      "response": "Memory only records Maria's local-politics note-taking, her fight for school funding and education awareness, and her community involvement \u2014 it does not mention her running for office, or any reason for it."
+    },
+    {
+      "qid": "c2_q156",
+      "correct": true,
+      "response": "Memory records that Rob invited **John** (his colleague) to a beginner's yoga class \u2014 not Maria. The records describe John's invitation, not Maria's."
+    },
+    {
+      "qid": "c2_q157",
+      "correct": true,
+      "response": "The memory doesn't record a one-year-old child for Maria. The only one-year-old child mentioned is **Kyle**, who is John's son (per Kyle himself, stated 2023-03-06) \u2014 not Maria's. Maria's records only note that she values children and has a small family."
+    },
+    {
+      "qid": "c2_q158",
+      "correct": true,
+      "response": "I don't have enough information to answer that."
+    },
+    {
+      "qid": "c2_q159",
+      "correct": true,
+      "response": "Memory only records that Maria made a painting to bring the magic of the castles into her home, inspired by a trip to England (London) \u2014 not France. It does not record anything she made to remind her of a trip to France."
+    },
+    {
+      "qid": "c2_q160",
+      "correct": true,
+      "response": "The memory records describe Maria's castle-inspired painting, not John's castle shadow box. There is no entry about John or a shadow box, so I don't have enough information to answer that."
+    },
+    {
+      "qid": "c2_q161",
+      "correct": true,
+      "response": "Memory only records that Maria received a **medal** from the shelter for helping (on last week, said 2023-08-09); it does not mention any certificate."
+    },
+    {
+      "qid": "c2_q162",
+      "correct": false,
+      "response": "John's recorded interests point to **nature appreciation and photography**: nature's beauty gives him peace, hope, and inspiration during tough times (2023-04-10), and he later described nature as a calming \"reset button\" (2023-06-12). He also takes photos that capture peaceful nature feelings (second-hand, 2023-08-11), with subjects including hiking trips and family beach moments (2023-05-25)."
+    },
+    {
+      "qid": "c2_q163",
+      "correct": true,
+      "response": "Memory only records that Maria has been taking notes about local politics in her notebook (2023-01-09); it does not mention her blogging about politics and policies or why she started."
+    },
+    {
+      "qid": "c2_q164",
+      "correct": true,
+      "response": "Memory only records that John's blog focuses on politics and government; it does not mention any travel and photography blog."
+    },
+    {
+      "qid": "c2_q165",
+      "correct": true,
+      "response": "I don't have enough information to answer that. Memory shows Maria works out (gym, aerial yoga, hiking), but nothing indicates she works out with family or how often."
+    },
+    {
+      "qid": "c2_q166",
+      "correct": true,
+      "response": "Memory only records that John's boot camp attendance has improved his family's energy, strength, and endurance, along with family bonding and mutual support; it does not mention any artistic skills."
+    },
+    {
+      "qid": "c2_q167",
+      "correct": true,
+      "response": "The memory doesn't mention a dinner with her father. It only records that Maria made dinner together with her mom on 2023-05-03, and that the dinner spread included salads, sandwiches, and homemade desserts."
+    },
+    {
+      "qid": "c2_q168",
+      "correct": false,
+      "response": "Memory only records John\u2019s community actions\u2014it does not mention anything he did regarding faith. Those actions included joining a fire-fighting brigade, volunteering at a local school career fair, attending community meetings, exploring local politics, and running for office."
+    },
+    {
+      "qid": "c2_q169",
+      "correct": true,
+      "response": "Memory only records Maria's church membership \u2014 she joined a nearby church on 2023-05-05 to feel closer to a community and her faith. It does not record John joining a church."
+    },
+    {
+      "qid": "c2_q170",
+      "correct": true,
+      "response": "Memory only records that Max was John's pet (who passed away) and that Maria adopted a puppy named Coco; it does not answer how long Max was part of Maria's family."
+    },
+    {
+      "qid": "c2_q171",
+      "correct": true,
+      "response": "Memory only records that Maria got a puppy named Coco (on 2023-07-28) and that Coco brings her joy and greets her when she comes home; it does not record any plans she has to honor the memories of a beloved pet. The entries about Max's passing, the cherished photo, and his lessons of unconditional love and loyalty describe the user's family, not Maria."
+    },
+    {
+      "qid": "c2_q172",
+      "correct": true,
+      "response": "The records about teaching kids values through adopting a rescue dog belong to **you, not Maria** \u2014 your entries mention responsibility and compassion, plus unconditional love and loyalty.\n\nFor Maria, memory only records that she got a puppy named Coco (female, on 2023-07-28) and that she believes kids are our future and deserve the best \u2014 nothing about adopting a rescue dog to teach her kids specific values."
+    },
+    {
+      "qid": "c2_q173",
+      "correct": true,
+      "response": "Memory only records that Maria visited a waterfall and bridge that felt magical, like a fairy tale, with calming water sounds (@2023-06-12); it does not answer what she said it was like being at the desert in Oregon."
+    },
+    {
+      "qid": "c2_q174",
+      "correct": true,
+      "response": "Memory only records that John feels great mentally and physically after each yoga session and that yoga helps him relax, increase flexibility, and feel more connected; it does not answer what he feels when doing upside-down yoga poses."
+    },
+    {
+      "qid": "c2_q175",
+      "correct": true,
+      "response": "I don't have enough information to answer that. Memory only records that Maria's life has been rough lately and that she wants to get stronger and improve endurance \u2014 nothing about a promotion."
+    },
+    {
+      "qid": "c2_q176",
+      "correct": true,
+      "response": "I don't have enough information to answer that."
+    },
+    {
+      "qid": "c2_q177",
+      "correct": true,
+      "response": "Memory doesn't record John helping his cousin. The records describe the user's situation: she is helping her cousin find a new place after the cousin had to leave her previous home in a hurry, and the user asked John for resources or organizations that could help \u2014 John's own recorded involvement is his and Maria's advocacy for affordable housing, not personal assistance to a cousin."
+    },
+    {
+      "qid": "c2_q178",
+      "correct": true,
+      "response": "Memory only records Maria committing to help John with his veterans project (May 20, 2023); it does not record any event she participated in to show support for veterans' rights. The veterans' party on May 19 was thrown by you, not Maria."
+    },
+    {
+      "qid": "c2_q179",
+      "correct": true,
+      "response": "Memory only records a flood, not a drought: John's old area was hit by a nasty flood (last week, per his account), and poor infrastructure meant lots of homes were ruined in that flood. It does not mention any drought or its impact."
+    },
+    {
+      "qid": "c2_q180",
+      "correct": true,
+      "response": "Memory doesn't record John criticizing anything about the veteran's hospital visit. The only record about John describes him starting a petition and finding it tricky but cool to reconnect with buddies and gain support (@2023-05-25) \u2014 it doesn't mention the hospital visit at all. The hospital visit entry is about your own experience (you met amazing people and found it eye-opening)."
+    },
+    {
+      "qid": "c2_q181",
+      "correct": true,
+      "response": "Memory only records John volunteering at a career fair at a local school, where he saw how a lack of resources affects kids' dreams and found the experience rewarding (on last weekend, said 2023-04-07); it does not answer what he took away from visiting an orphanage."
+    },
+    {
+      "qid": "c2_q182",
+      "correct": true,
+      "response": "Memory has no record of Maria feeling inspired to join the military \u2014 that fact belongs to someone else. The entries about the veteran's hospital visit and the reminder of \"why he wanted to join the military\" are about the user (John), not Maria. Maria's own related entry is that she committed to helping John with his veterans project (2023-05-20), but nothing indicates she herself was inspired to enlist."
+    },
+    {
+      "qid": "c2_q183",
+      "correct": true,
+      "response": "The memory entries describe **John's** kids' reaction \u2014 they were awestruck and humbled at the military memorial \u2014 not Maria's. I don't have any records about Maria's children."
+    },
+    {
+      "qid": "c2_q184",
+      "correct": true,
+      "response": "Memory only records that Maria believes kids are our future and deserve the best, and that she advocates for more money and resources for schools; it does not record any view of hers about younger generations visiting art galleries."
+    },
+    {
+      "qid": "c2_q185",
+      "correct": true,
+      "response": "Memory doesn't record anything about Maria's job. The only August 2023 job-related entries describe the user's situation: losing a job at a mechanical engineering company when it failed unexpectedly, and possibly finding a new job at a tech company needing mechanical skills for their hardware team (both noted @2023-08-05). There's no entry about Maria's employment."
+    },
+    {
+      "qid": "c2_q186",
+      "correct": false,
+      "response": "The 5K charity run supported a homeless shelter \u2014 Maria participated to help raise support for people experiencing homelessness (per her entry from last weekend, noted 2023-04-07). Note: memory records her as a participant, not explicitly as the organizer."
+    },
+    {
+      "qid": "c2_q187",
+      "correct": true,
+      "response": "Memory only records John raising funds and awareness for veterans and their families (a 5K charity run, a community fundraiser, and canned food/toiletries/clothes drives); it does not record any animal-welfare work or who he partnered with for it."
+    },
+    {
+      "qid": "c2_q188",
+      "correct": true,
+      "response": "Memory only records John's volunteering at a school career fair, his fulfillment from brigade work, and his participation in a community fundraiser with a great turnout; it does not mention any recognition he received at a homeless shelter in August 2023."
+    },
+    {
+      "qid": "c2_q189",
+      "correct": true,
+      "response": "The records describe **Maria's** puppy \u2014 she got a female puppy named **Coco** two weeks before August 11, 2023. There is no record of John getting a puppy; the memory only records that John lost his pet Max and was still grieving him."
+    },
+    {
+      "qid": "c2_q190",
+      "correct": true,
+      "response": "Memory only records that Maria went camping with friends from church last weekend and had a great time; it does not mention anyone named Max."
+    },
+    {
+      "qid": "c2_q191",
+      "correct": true,
+      "response": "Memory only records that Maria got a female puppy named Coco (on 2023-07-28); it does not answer the name of Maria's second kitten."
+    },
+    {
+      "qid": "c2_q192",
+      "correct": true,
+      "response": "The memory doesn't contain any information about John or his puppy. The records describe the user's new dog, Shadow \u2014 adopted from a shelter last week, getting along great with the user's other dog, and currently learning commands and house training. If John is the user, Shadow is adjusting well; otherwise, I don't have enough information to answer that."
+    }
+  ]
+}

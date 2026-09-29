@@ -174,3 +174,104 @@ precision or guard abstention.** The composition shifted though:
 Cost: 0 OR calls; ~130 Atria calls (ingest ~40 + 22 answers + 22 judge +
 probe ~6, plus retry churn under lab#1's shared-key 429 congestion).
 OR-judge review pass of the merged arm still queued for the 09-30 reset.
+
+---
+
+## Expanded adversarial coverage — all cat5, conv-0..2 (merged stack, all-Atria)
+
+**Headline: 95/112 = 84.8%** — the n=12 dial slice (83.3%) held up at ~9x scale.
+conv-0 is the outlier, and its misses are a different failure mode
+(ingest mislabeling, not clause misses).
+
+| conv | speakers | cat5 n | adv_acc | ingest |
+|------|----------|--------|---------|--------|
+| conv-0 | Caroline/Melanie | 47 | 35/47 = **74.5%** | 336 records, 19/19 ok |
+| conv-1 | Jon/Gina | 24 | 22/24 = **91.7%** | 305 records, 19/19 ok |
+| conv-2 | John/Maria | 41 | 38/41 = **92.7%** | 410 records, 31 ok + 1 partial |
+| **total** | | **112** | **84.8%** | 1051 records, 69/70 sessions |
+
+### Watch item 1: does SUBJECT CHECK catch real subject-swaps?
+
+**Yes — wherever labels tell the truth.** Verbatim rationales:
+
+- c0_q154: "Memory only records that **Caroline's** chosen adoption
+  agency helps LGBTQ+ folks with adoption; it doesn't record anything
+  about an agency Melanie is considering or whom it supports."
+- c0_q180: "Memory only records that Caroline used to go horseback
+  riding with her dad … it does not record any activity Melanie used to
+  do with her dad."
+- c2_q156: "Memory records that Rob invited **John** (his colleague) to
+  a beginner's yoga class — not Maria."
+- c2_q157: "The only one-year-old child mentioned is **Kyle**, who is
+  John's son (per Kyle himself, stated 2023-03-06) — not Maria's."
+- c2_q169: "Memory only records Maria's church membership — she joined a
+  nearby church on 2023-05-05 … It does not record John joining a
+  church."
+
+Attribution-style abstentions are the dominant correct shape — the
+clause names the right owner and the wrong subject explicitly.
+
+### Watch item 2: true adv precision at n=112 — and where it still fails
+
+conv-0 wrong-12 decomposition (verbatim responses checked):
+
+- **8 ingest-mislabel subject swaps** — Melanie self-reports landed
+  under `user·`/`assistant·`/`son (per self)` labels (EXTRACT_SYS maps
+  `about=null` → "the user", both speakers). Reader trusts the labels
+  and asserts Melanie's facts as Caroline's: q168-170 (running/shoes),
+  q186 (Ed Sheeran — `user·music_tastes`), q191/194/195 (son's accident
+  — `son (per self)`), q198 (family camping — `user·…tradition`).
+- 1 pure assertion (q161 bowl reminder).
+- 1 bridge confab (q156 — Melanie-side family records bridged into an
+  adoption answer; the known hard case).
+- 2 debatable (q184 piano, q188 transition setback — real Caroline
+  content, benchmark ambiguity).
+
+conv-1 wrong-2: c1_q91 "Jon's store" — Jon has a dance studio, the store
+is Gina's; model bridged studio→store. c1_q95 confabulated "trophy" for
+Gina's contest prize.
+
+conv-2 wrong-3: q162 scope-bridge (John's nature/photography interests
+asserted as "art appreciation"); q168 borderline (correct abstention on
+faith + listed community actions — judge scored as answer); q186
+confabulated "homeless shelter" as Maria's 5K cause.
+
+### Root cause (data-level, not prompt-level)
+
+The labeling gap is symmetric and it poisons the very labels the clauses
+read: named speakers' self-reports emit `user·`/`assistant·`/`X (per
+self)` labels with no persona name. SUBJECT CHECK can only reject swaps
+whose labels expose the true owner (`melanie (per self)·…`) — it cannot
+catch swaps the ingest hid under the user side. conv-0 is mislabel-heavy
+(74.5%); conv-1/conv-2 emit persona names (`jon·`/`gina·`,
+`john·`/`maria·`) and the same stack hits 91.7%/92.7%.
+
+Fix direction (same as the guard over-fire fix): ingest-side persona
+naming — self-reports from a named speaker emit `<name>·slot`, never
+`user·`/`assistant·`. E.g. EXTRACT_SYS line: "the user is <speaker_a
+name>; self-reports get about=<that name>". Prompt-level patching cannot
+recover swaps the labels already lied about.
+
+### Ingest ops notes (conv-2 course-correction)
+
+- Terse-JSON nudge on extract prompts ("output the JSON array only, no
+  reasoning dump"): kept 31/32 sessions under cap. The unpatched run
+  spent ~2h ingesting with one session grinding truncation-retries;
+  patched run did 32 sessions in ~85min under the same 429 congestion.
+- 600s per-session timeout + halve-body fallback fired once:
+  `2023-07-03` (29 turns) → **partial**, +8 records — zero sessions
+  lost, zero failed. Truncation was **not** systemic — Atria chain stays
+  viable with the nudge.
+- Per-session checkpoints (`ingest_c{ci}_progress.json` + model snapshot
+  after every session) make kill/restart lossless; `adv_cov.py` resumes
+  from done/partial/failed sets.
+
+Cost: 0 OR calls. ~1200 Atria calls total across the three convs
+(ingest ~1050 + 112 answers + 112 judges + retry churn).
+
+Files: `adv_merged_c{0,1,2}.jsonl` (hypotheses),
+`adv_merged_c{0,1,2}_metrics_atria.json` (judged rows),
+`ingest_c{0,1,2}_atria.json` (LifeModel snapshots — reloadable),
+`ingest_c2_progress.json` (partial marker), `adv_cov.py` (runner).
+Measured HEAD: worktree ced208e + lme.py OR/Atria patch (unchanged
+reader.py).
