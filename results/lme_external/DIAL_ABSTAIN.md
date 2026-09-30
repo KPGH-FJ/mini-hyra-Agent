@@ -396,3 +396,58 @@ misses as "not gold-matched", not necessarily "confabulated".
 Files: `pv_probe*.jsonl` (v1/v2/v3/final), `pv_probe_metrics_atria.json`,
 `pv_probe_metrics_atria_adj.json`. Cost: +1 call/question (verify);
 fail-open on parse failure.
+
+## Premise-on OR-judged full-coverage pass — 112 cat5, conv-0..2
+
+Same stock-ingest snapshots as the merged arm (reader-side verify is
+the only delta); answers on Atria, **both arms re-judged by OR
+stealth** (`pv112.py --judge`) so the comparison sits under one judge.
+
+**Strict OR-judged: premise_on 101/112 = 90.2% vs merged 96/112 =
+85.7% → +4.5pp under the same judge.** Baselines held: merged arm was
+83.3% (22q) / 84.8% (112q) under Atria — OR reads it at 85.7%, and
+premise_on does not lose precision under the OR judge, it gains.
+
+Adjudicated layer (transcript-forensic per row):
+| | OR-strict | adjudicated |
+|---|---|---|
+| premise_on | 90.2% | **94.6%** (106/112) |
+| merged | 85.7% | 89.3% (100/112) |
+
+pv112's 11 OR-judged misses decompose to: 4 benchmark mislabels
+(q161 bowl="art and self-expression" verbatim, q184 piano, q188
+breakup, c1_q95 trophy — all transcript-confirmed correct answers),
+1 judge-borderline on a correct abstain (q167: B&W bowl is Melanie's,
+SPLICED-abstain marked wrong while merged's "No—Melanie made it" was
+marked right — abstain-phrasing variance), 1 false abstain on an
+answerable question (q178: "Oscar, my guinea pig" IS in transcript —
+pet name never made it into any ingest snapshot, recall gap),
+4 real who-swap confabulations (q189/q192/q194/q195: the
+painting-to-keep-busy / accident / scared kids / life-is-precious
+records all belong to **Melanie**, attributed to Caroline), and 1
+premise-nuance hedge (c2_q186: Maria *participated in* the 5K for a
+homeless shelter; John *organized* a different 5K for veterans —
+response surfaced the caveat but still answered).
+
+Flip detail (same-judge): premise_on **fixed 9** — including
+**q156, the canonical unfixable subject-swap** (Melanie-friend's
+adoption bridged onto Caroline for three straight rounds; verify
+bound the who-atom to Melanie's records, found no adoption event,
+ABSENT). Lost 4: q167+q178 (abstain-side, above) and q189+q192
+(who-swap confab, below).
+
+**Who-swap residual is a snapshot-label artifact, not a gate
+failure**: pv112 ran on *stock* ingest snapshots whose records carry
+generic `user·`/`assistant·` owners, so `_pv_gate`'s cross-owner check
+sees a single owner and cannot fire. Probe on the audit-ingest
+snapshot (`attr_audit_c0_atria.json`, named `caroline·`/`melanie·`
+labels) with `premise_check=True`: q189/q192/q194/q195 → **all four
+clean ABSENT with correct attribution** ("no record of Caroline's
+children"). Combined stack (audit/bind ingest + premise_check)
+removes the entire remaining confabulation class observed in this
+pass; only the q178 Oscar recall gap survives (ingest never captured
+the pet's name — upstream of the reader).
+
+Files: `pv112.py`, `pv112.jsonl` (verdicts+atoms per question),
+`pv112_metrics_or.json`, `adv_merged_metrics_or.json` (same-judge
+merged re-score).
