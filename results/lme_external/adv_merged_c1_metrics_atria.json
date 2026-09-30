@@ -1,0 +1,127 @@
+{
+  "conv": 1,
+  "n": 24,
+  "adv_acc": 0.9166666666666666,
+  "rows": [
+    {
+      "qid": "c1_q79",
+      "correct": true,
+      "response": "Memory only records that Jon got a temp job to help cover expenses while looking for investors (said 2023-07-21); it does not specify what the temporary job was."
+    },
+    {
+      "qid": "c1_q82",
+      "correct": true,
+      "response": "Memory only records Jon's favorite dance style \u2014 contemporary; it does not answer his favorite style of painting."
+    },
+    {
+      "qid": "c1_q83",
+      "correct": true,
+      "response": "Memory only records that Jon had an awesome festival performance and that his crew won first place in a local competition; it does not state which was his favorite dancing memory."
+    },
+    {
+      "qid": "c1_q84",
+      "correct": true,
+      "response": "I don't have enough information to answer that. Memory only records that Jon's dance crew took first place in a local competition; it doesn't note what kind of dance piece they performed."
+    },
+    {
+      "qid": "c1_q85",
+      "correct": true,
+      "response": "Memory only records Gina's attitude toward the dance competition event and the studio's grand opening \u2014 not the dance festival. Specifically, she said she is \"definitely coming\" to the dance competition event next month (said 2023-04-03), and per hearsay she \"will be right by Jon's side\" at the grand opening on 2023-06-20 (said 2023-06-19). It does not answer her attitude toward participating in the dance festival."
+    },
+    {
+      "qid": "c1_q86",
+      "correct": true,
+      "response": "Memory only records Jon's flooring preferences \u2014 he wants Marley flooring (the type dance studios usually use) because it's grippy but still lets you move, tough, and easy to keep clean (@2023-01-29). It does not record any flooring preference for Gina; the entries about Gina only cover her opinion of Jon's studio."
+    },
+    {
+      "qid": "c1_q87",
+      "correct": true,
+      "response": "Memory only records that Gina found a perfect spot for her clothing store on 2023-02-01 \u2014 it does not record Jon finding anything for a clothing store (Jon's records concern his dance studio business)."
+    },
+    {
+      "qid": "c1_q88",
+      "correct": true,
+      "response": "The memory only records that **Gina** designed her store space herself \u2014 cozy and inviting, reflecting her style, with the idea coming from a fashion magazine (@2023-02-01, @2023-02-08). It does not record Jon designing anything for his store; his entries only mention an online platform to showcase his dance studio (@2023-07-21)."
+    },
+    {
+      "qid": "c1_q89",
+      "correct": true,
+      "response": "Memory only records Gina's goal for customers to feel like they're in a cool oasis, creating an experience that makes them come back (said 2023-02-01). It does not record anything Jon wanted customers to feel in her store \u2014 his entries describe his own business and dancers."
+    },
+    {
+      "qid": "c1_q90",
+      "correct": true,
+      "response": "Memory only records Gina's furniture and decor choices \u2014 she picked furniture that looks great and is comfy, with a chandelier adding a glam feel that matches her store's style (2023-02-01). It does not record anything about Jon choosing furniture or decor for his store."
+    },
+    {
+      "qid": "c1_q91",
+      "correct": false,
+      "response": "As of the latest record (July 21, 2023), Jon's dance studio is on tenuous grounds, but he's staying positive. He's also sprucing up his business plan, tweaking his pitch to investors, and working on an online platform to showcase the studio."
+    },
+    {
+      "qid": "c1_q92",
+      "correct": true,
+      "response": "Memory only records Gina's tattoo \u2014 it symbolizes freedom: dancing without worrying what people think, following passions, and expressing herself. It does not answer what Jon's tattoo symbolizes."
+    },
+    {
+      "qid": "c1_q93",
+      "correct": true,
+      "response": "Memory only records that **Jon** had to shut down his business bank account; it does not record any bank account closure for Gina. The records about Gina describe her struggle to source trendy pieces for her store, which she overcame through research and networking."
+    },
+    {
+      "qid": "c1_q94",
+      "correct": true,
+      "response": "Memory doesn't record Jon having a clothing business. It only records that Jon runs a dance studio business; the clothing store in memory is owned by Gina, not Jon. There's no entry explaining any combination of clothing and dance."
+    },
+    {
+      "qid": "c1_q95",
+      "correct": false,
+      "response": "Gina received a **trophy** from a dance contest \u2014 one she keeps as a reminder of hard work, dedication, and joy."
+    },
+    {
+      "qid": "c1_q96",
+      "correct": true,
+      "response": "Memory has no record of Jon being accepted for anything on May 23, 2023. The only acceptance in memory is Gina's fashion internship (recorded @2023-05-27) \u2014 that entry describes Gina, not Jon. Jon's professional entries only cover losing his banking job and taking a temp job to cover expenses while seeking investors."
+    },
+    {
+      "qid": "c1_q97",
+      "correct": true,
+      "response": "Memory only records Gina's fashion internship \u2014 a part-time position in the fashion department of an international company; it does not answer where her HR internship is."
+    },
+    {
+      "qid": "c1_q98",
+      "correct": true,
+      "response": "The records describe Gina's fashion internship (a part-time position in the fashion department of an international company), not Jon's. Memory has no information about a fashion internship for Jon."
+    },
+    {
+      "qid": "c1_q99",
+      "correct": true,
+      "response": "I don't have enough information to answer that. Memory only records Jon currently reading \"The Lean Startup\"; it does not mention Gina's reading."
+    },
+    {
+      "qid": "c1_q100",
+      "correct": true,
+      "response": "I don't have enough information to answer that."
+    },
+    {
+      "qid": "c1_q101",
+      "correct": true,
+      "response": "I don't have enough information to answer that. Memory only records Jon's trip to Paris (January 28, 2023), which he thought was really cool; it does not mention any trip to Barcelona or its purpose."
+    },
+    {
+      "qid": "c1_q102",
+      "correct": true,
+      "response": "Memory only records that **Gina** made a limited edition line (to show off her style and creativity, described as tough but worth it) \u2014 it does not mention Jon making one."
+    },
+    {
+      "qid": "c1_q103",
+      "correct": true,
+      "response": "I don't have enough information to answer that. Memory records Gina losing her job at Door Dash, starting her own business, and landing a fashion internship, but it doesn't mention any temporary job she took to cover expenses."
+    },
+    {
+      "qid": "c1_q104",
+      "correct": true,
+      "response": "The networking-event records describe **Jon**, not Gina: Jon attended a networking event, met investors, and got good advice (2023-07-21), and Gina advised Jon to reach out to people in his field. Memory doesn't record Gina receiving advice at a networking event, so it doesn't answer what plans she has as a result.\n\nFor context, Gina's own recorded plans around that time are building a new website for customer orders (on the week of 2023-07-16) and continuing to grow her customer base, but those aren't tied to networking-event advice."
+    }
+  ]
+}
