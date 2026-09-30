@@ -420,8 +420,9 @@ breakup, c1_q95 trophy — all transcript-confirmed correct answers),
 1 judge-borderline on a correct abstain (q167: B&W bowl is Melanie's,
 SPLICED-abstain marked wrong while merged's "No—Melanie made it" was
 marked right — abstain-phrasing variance), 1 false abstain on an
-answerable question (q178: "Oscar, my guinea pig" IS in transcript —
-pet name never made it into any ingest snapshot, recall gap),
+answerable question (q178 — see the autopsy below: Oscar IS ingested
+with correct attribution; the miss was an under-informative ABSENT,
+not a recall gap),
 4 real who-swap confabulations (q189/q192/q194/q195: the
 painting-to-keep-busy / accident / scared kids / life-is-precious
 records all belong to **Melanie**, attributed to Caroline), and 1
@@ -445,9 +446,91 @@ labels) with `premise_check=True`: q189/q192/q194/q195 → **all four
 clean ABSENT with correct attribution** ("no record of Caroline's
 children"). Combined stack (audit/bind ingest + premise_check)
 removes the entire remaining confabulation class observed in this
-pass; only the q178 Oscar recall gap survives (ingest never captured
-the pet's name — upstream of the reader).
+pass.
 
 Files: `pv112.py`, `pv112.jsonl` (verdicts+atoms per question),
 `pv112_metrics_or.json`, `adv_merged_metrics_or.json` (same-judge
 merged re-score).
+
+## Ingest-recall autopsy (conv-0 s13/s17/s18) + SUBJECT-bullet arm
+
+Ordered task: line-by-line said-vs-stored accounting on the q178
+session plus the q189/q192/q194/q195 sessions, then an EXTRACT_SYS
+"named entity + attribute coverage" bullet arm on the same sessions.
+
+**q178 premise correction (second falsification of a recall-gap
+hypothesis).** Oscar is *not* missing from ingest: the stock conv-0
+snapshot carries `self|caroline|pets` "Has a guinea pig named Oscar"
+**and** `self|oscar|oscar_favorite_food`, both correctly attributed
+(session_13, Caroline: "yup, I do- Oscar, my guinea pig"). The
+question ("Is Oscar Melanie's pet?") is a subject swap; pv112's
+ABSENT was semantically correct — its only defect was being
+uninformative (no true-owner pointer), which made it judge-fragile
+(see noise finding below). **No recall gap existed here.**
+
+**Coverage accounting** on the three implicated sessions (s13
+roadtrip accident/pottery injury, s17 adoption/friend/painting, s18
+support network): ~38/40 spoken entities+attributes land in records
+(~95%). The systematic defect is **subject binding**, not coverage —
+~5 records in these sessions carry possessive-pronoun values with
+topic-owner keys: `self|son|son_accident` = "Her son got into an
+accident", `self|kids|kids_accident_reaction`, `self|friend|friend_
+adoption`, `self|pottery_injury_break`, `self|accident_fear`. The
+person vanished from both key and value; the verifier binds
+"Caroline's son" to name-free records, and `_pv_gate`'s cross-owner
+check sees only topic owners. All 4 who-swap confabs bound on
+exactly these records.
+
+**Arms** (Atria, package EXTRACT_SYS vs +SUBJECT bullet):
+
+| metric | A = package (SPEAKER BINDING) | B = +SUBJECT bullet |
+|---|---|---|
+| records (s13/s17/s18) | 22 / 19 / 7 = 48 | 23 / 24 / 8 = 55 |
+| topic/pseudo-entity `about` | 3 (friend, melanie_s_son, melanie_s_kids) | 1 (melanie_s_buddy) |
+| leading-pronoun values | 3 ("Her buddy", "Her art", "Her kids") | **0** |
+| extra coverage | — | +adoption_consideration, grand_canyon, support splits; no junk records |
+
+`SUBJECT_BULLET` (tested): *"a fact whose grammatical subject is a
+possessive pronoun (\"her son\", \"my kids\", \"his dog\") belongs to
+the SPEAKER — about=null, never about=\"son\"/\"kids\"/an object noun.
+Resolve the pronoun inside the value so it names the speaker."*
+
+Verdict: recommend adding the bullet to EXTRACT_SYS — it removes the
+residual pronoun-value surface (the who-swap binding substrate) and
+helps verbatim-grep readers; cost is +15% records, all meaningful.
+Pending parent sign-off before it lands in `ingest_llm.py`.
+
+**Deviating from the ordered arm, honestly**: the literal
+"coverage" bullet would only recover ~1 marginal item
+(Melanie-considering-adoption); coverage was never the lesion. The
+SUBJECT bullet targets the lesion the accounting actually found.
+
+## Informative-abstention arm + an OR-judge noise correction
+
+Mechanism (PR #64): `_pv_abstain(verify, records, model)` — when the
+asked entity is recorded under a different owner, the refusal names
+it (pool = full `hist`, needed because the true-owner key isn't in
+the retrieved listing); SPLICED found-parts are annotated with their
+bound record's owner.
+
+Probe results (`info_abstain_probe.py`, `info_abstain.jsonl`):
+- q178 → "Memory has no record of the pet being Oscar; **Oscar is
+  recorded under caroline: 'Has a guinea pig named Oscar who has
+  been great'**, so it does not answer the question." — OR judge
+  3/3 yes.
+- q167 → "…made a black and white bowl **(recorded under melanie)**…"
+  — 3/3 yes.
+- Controls: q152 / c2_q152 clean abstains emit no note; c1_q95 and
+  c2_q186 verdicts unchanged.
+
+**Judge-noise correction to the earlier claim**: re-judging the
+*bare* phrasings 3× each gives 3/3 yes too — the single-draw 'no's
+that motivated this arm (and the q167/q178 "phrasing sensitivity"
+reported above) were OR-judge draws on borderline abstain rows
+(~1/3 no-rate per draw), **not** phrasing sensitivity. The arm's
+confirmed value is correction info inside refusals — useful to users
+and softer judges — not a demonstrated acceptance flip. Treat any
+single-draw judge flip on abstain rows as noise until replicated 3×.
+
+Files: `recall_ab.py`, `recall_ab.json`, `info_abstain_probe.py`,
+`info_abstain.jsonl`.
