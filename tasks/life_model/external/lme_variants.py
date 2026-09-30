@@ -143,8 +143,99 @@ async def v_kwfilter(model, llm, question, qdate):
                                    keys[:max_pick] if keys else cand)
 
 
+def _slot_of(key: str) -> str:
+    return key.split("|")[-1]
+
+
+def _overlap(a: set, b: set) -> float:
+    if not a or not b:
+        return 0.0
+    return len(a & b) / min(len(a), len(b))
+
+
+def _dedup(keys):
+    return list(dict.fromkeys(keys))
+
+
+async def v_fam(model, llm, question, qdate):
+    """Family expansion: LLM picks, then auto-include every catalog
+    vertex whose slot tokens overlap a picked slot's tokens >=0.5."""
+    cat = reader.vertex_catalog(model)
+    keys = await reader.aretrieve(model, llm, question, qdate)
+    picked_slot_toks = [_toks(_slot_of(k)) for k in keys]
+    extra = [k for k in cat if k not in set(keys) and any(
+        _overlap(_toks(_slot_of(k)), s) >= 0.5 for s in picked_slot_toks)]
+    return await _answer_from_keys(model, llm, question, qdate,
+                                   _dedup(keys + extra))
+
+
+async def v_topic(model, llm, question, qdate):
+    """Two-round pick: round 1 the LLM picks semantic families (slot
+    names), round 2 includes ALL vertices under those slots."""
+    cat = reader.vertex_catalog(model)
+    if len(cat) <= 50:
+        return await _answer_from_keys(model, llm, question, qdate,
+                                       list(cat))
+    fams = sorted({_slot_of(k) for k in cat})
+    sys = ("You are the retrieval stage of a memory system. Given the "
+           "user's question and a list of memory topic families (slot "
+           "names), pick the families that could contain the answer. "
+           "Favor recall: include a family when plausibly relevant. "
+           "Return ONLY a JSON array of the picked family names.")
+    prompt = (f"Today: {qdate}\n\nTOPIC FAMILIES:\n" + ", ".join(fams) +
+              f"\n\nQUESTION: {question}\n\nRelevant family names "
+              "JSON array:")
+    picks = {f for f in reader._json_list(await llm.complete(sys, prompt))
+             if f in set(fams)}
+    keys = [k for k in cat if _slot_of(k) in picks]
+    return await _answer_from_keys(model, llm, question, qdate,
+                                   (keys or list(cat))[:150])
+
+
+async def v_recur(model, llm, question, qdate):
+    """Recursive expansion: if the pick hits the cap, a second round
+    asks the LLM which topics are still missing."""
+    cat = reader.vertex_catalog(model)
+    keys = await reader.aretrieve(model, llm, question, qdate)
+    if len(keys) >= 50 and len(cat) > len(keys):
+        rest = [k for k in cat if k not in set(keys)]
+        listing = "\n".join(f"{k}  ({cat[k][1]} entries)" for k in rest)
+        sys = (RETRIEVE_SYS + " You already picked other vertices; now "
+               "pick ONLY additional keys that are still needed for "
+               "completeness (or [] if nothing is missing).")
+        prompt = (f"Today: {qdate}\n\nREMAINING VERTEX CATALOG:\n{listing}"
+                  f"\n\nQUESTION: {question}\n\nAdditional vertex keys "
+                  "JSON array:")
+        extra = [k for k in reader._json_list(
+            await llm.complete(sys, prompt)) if k in cat]
+        keys = keys + extra[:100]
+    return await _answer_from_keys(model, llm, question, qdate,
+                                   _dedup(keys))
+
+
+async def v_big150(model, llm, question, qdate):
+    """Budget sweep: same two-stage with max_pick=150."""
+    keys = await reader.aretrieve(model, llm, question, qdate,
+                                  max_pick=150)
+    return await _answer_from_keys(model, llm, question, qdate, keys)
+
+
+async def v_mix(model, llm, question, qdate):
+    """Hybrid: pick50 + slot-prefix family expansion (all slots sharing
+    a head token with a picked slot join in)."""
+    cat = reader.vertex_catalog(model)
+    keys = await reader.aretrieve(model, llm, question, qdate)
+    heads = {_slot_of(k).split("_")[0] for k in keys}
+    extra = [k for k in cat if k not in set(keys)
+             and _slot_of(k).split("_")[0] in heads]
+    return await _answer_from_keys(model, llm, question, qdate,
+                                   _dedup(keys + extra))
+
+
 VARIANTS = {"base": v_base, "entity": v_entity, "twohop": v_twohop,
-            "pick10": v_pick10, "pick50": v_pick50, "kwfilter": v_kwfilter}
+            "pick10": v_pick10, "pick50": v_pick50, "kwfilter": v_kwfilter,
+            "fam": v_fam, "topic": v_topic, "recur": v_recur,
+            "big150": v_big150, "mix": v_mix}
 
 
 # ---------- driver ---------------------------------------------------------
