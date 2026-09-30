@@ -90,8 +90,12 @@ stated by a memory record. Work in two steps:
    "dance studio" does NOT establish "a store".
 
 Return ONLY JSON:
-{"atoms": [{"part": "...", "record": <record number or null>,
-            "quote": "<record words or empty>"}],
+{"atoms": [{"part": "...", "role": "who" | "event" | "detail",
+            "record": <record number or null>,
+            "quote": "<record words or empty>",
+            "answer_detail": "<detail atoms only: the exact noun
+              phrase the bound record supplies as the detail, in the
+              record's own words; empty if it supplies none>"}],
  "verdict": "SUPPORTED" | "SPLICED" | "ABSENT"}
 - SUPPORTED: every atomic part binds to a single record.
 - SPLICED: the parts exist only spread across different records or
@@ -165,21 +169,108 @@ async def aretrieve(model, llm, question: str, qdate: str,
     return keys
 
 
-def _numbered_records(model, keys: list[str]) -> str:
-    """One numbered record per edge — the unit premise atoms bind to."""
+def _numbered_records(model, keys: list[str]) -> tuple[str, dict]:
+    """One numbered record per edge — the unit premise atoms bind to.
+
+    Returns (listing text, n -> record text)."""
     hist = model.export()["asset"].get("hist", {})
-    lines, n = [], 0
+    lines, records, n = [], {}, 0
     for key in keys:
         for e in hist.get(key, []):
             val, day, kind = e[0], e[1], e[2]
             n += 1
             tag = "" if kind in ("statement", "update") else f"[{kind}]"
             lines.append(f"R{n} [{_label(key)}]: {val} @{_iso(day)}{tag}")
-    return "\n".join(lines) if lines else "(no records)"
+            records[n] = f"{_label(key)}: {val}"
+    return (("\n".join(lines) if lines else "(no records)"), records)
 
 
-async def _pverify(llm, question: str, qdate: str, listing: str) -> dict:
-    """Bind the question's premise atoms to single records."""
+_PV_ABSTRACT = {
+    "setback", "reason", "way", "type", "kind", "thing", "something",
+    "anything", "everything", "detail", "aspect", "category", "genre",
+    "instrument", "what", "how", "when", "where", "who", "event",
+    "experience", "moment", "activity", "stuff", "object", "item",
+    "plan", "process", "status", "progress", "feeling", "opinion",
+    "preference", "answer", "result", "outcome", "effect", "impact",
+    "issue", "problem", "topic", "subject", "role", "part", "area",
+    "field", "sort", "person", "people", "someone", "somebody",
+    "recent", "latest", "current", "first", "last", "best", "most",
+    "main", "own", "new", "old", "long", "much", "many",
+}
+
+
+def _stem(t: str) -> str:
+    if t.endswith("ies") and len(t) > 4:
+        return t[:-3] + "y"
+    for suf in ("es", "s"):
+        if t.endswith(suf) and len(t) > len(suf) + 2:
+            return t[: -len(suf)]
+    return t
+
+
+def _in_record(word: str, words: set) -> bool:
+    s = _stem(word)
+    if len(s) < 3:
+        return True
+    return any(w == s or (len(w) >= 3 and
+                          (w.startswith(s) or s.startswith(w)))
+               for w in words)
+
+
+def _pv_gate(verify: dict, records: dict) -> dict:
+    """Deterministic detail gate on top of the verifier's verdict.
+
+    Two hard checks the LLM verdict is not trusted with:
+    - an event atom and a detail atom bound to DIFFERENT records is a
+      splice, whatever the verifier concluded;
+    - a detail atom's claimed answer_detail must literally (word-form)
+      appear inside its bound record's text — abstract question-type
+      words ("setback", "instrument", "reason") are skipped since a
+      record narrating the event already carries their content.
+    """
+    atoms = verify.get("atoms") or []
+    rec_words = {}
+    for n, text in records.items():
+        rec_words[n] = {re.sub(r"[^a-z']", "", w)
+                        for w in text.lower().split()}
+    def owner(n):
+        return str(records.get(n, "")).split("·")[0].split(":")[0]
+    bound = {(a.get("record"), owner(a.get("record"))) for a in atoms
+             if isinstance(a, dict) and a.get("record")
+             and a.get("role") in ("event", "detail")}
+    bound = {b for b in bound if b[0] is not None}
+    owners = {o for _, o in bound}
+    if len(owners) > 1 and verify.get("verdict") == "SUPPORTED":
+        verify["verdict"] = "SPLICED"
+        verify["gate"] = "atoms-across-owners"
+    for a in atoms:
+        if not isinstance(a, dict):
+            continue
+        if a.get("role") != "detail" or not a.get("record"):
+            continue
+        det = str(a.get("answer_detail") or "").strip().lower()
+        toks = [re.sub(r"[^a-z']", "", t) for t in det.split()]
+        toks = [t for t in toks
+                if len(t) >= 3 and t not in _PV_ABSTRACT]
+        if not toks:
+            continue
+        if all(_in_record(t, rec_words.get(a["record"], set()))
+               for t in toks):
+            continue
+        hit = next((n for n, ws in rec_words.items()
+                    if all(_in_record(t, ws) for t in toks)), None)
+        if hit is not None:
+            a["record"], a["gate"] = hit, "rebound"
+        else:
+            a["record"], a["gate"] = None, "detail-not-in-record"
+            verify["verdict"] = "ABSENT"
+    return verify
+
+
+async def _pverify(llm, question: str, qdate: str, listing: str,
+                   records: dict) -> dict:
+    """Bind the question's premise atoms to single records, then run
+    the deterministic detail gate."""
     prompt = (f"Today: {qdate}\n\nMEMORY RECORDS:\n{listing}\n\n"
               f"QUESTION: {question}\n\nVerify the premise. JSON:")
     t = await llm.complete(PVERIFY_SYS, prompt)
@@ -190,8 +281,9 @@ async def _pverify(llm, question: str, qdate: str, listing: str) -> dict:
             data = json.loads(t[i:j + 1])
         except Exception:
             data = {}
-    return {"atoms": data.get("atoms") or [],
-            "verdict": str(data.get("verdict", "")).strip().upper()}
+    verify = {"atoms": data.get("atoms") or [],
+              "verdict": str(data.get("verdict", "")).strip().upper()}
+    return _pv_gate(verify, records)
 
 
 def _pv_abstain(verify: dict) -> str:
@@ -226,8 +318,8 @@ async def aanswer(model, llm, question: str, qdate: str,
     dg = render_vertices(model, keys)
     verify = None
     if premise_check:
-        verify = await _pverify(
-            llm, question, qdate, _numbered_records(model, keys))
+        listing, records = _numbered_records(model, keys)
+        verify = await _pverify(llm, question, qdate, listing, records)
         if verify["verdict"] in ("SPLICED", "ABSENT"):
             return {"response": _pv_abstain(verify), "selected": keys,
                     "digest": dg, "verify": verify}
