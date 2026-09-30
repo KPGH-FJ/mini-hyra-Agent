@@ -571,3 +571,55 @@ record VALUE — and leaves a cosmetic residue in `about` keys.**
   self-contained bullet would get both.
 - Extraction is non-deterministic: A_stock counts differ across runs
   (22/19/7 vs 21/15/11) — comparisons are within-run only.
+
+## Self-sufficiency deterministic post-check (diagnostic prototype)
+
+`selfcheck.py`: per-record lint — `no_subject`/`bare_fragment`
+(no name + no self-marker; +no verb = fragment), `temporal_unanchored`
+(temporal word without "(on …)"), `about_nonperson`, `generic_source`.
+Ran on post-bullet products: LoCoMo Arm C records + a fresh
+selfcontained-bullet re-extract of lab#1's 3 LME autopsy sessions
+(b5ef892d/e831120c/3a704032, raw turns from `data_ms25.json` on
+results/m4-decomp-ms; lab#1's own re-extract artifacts weren't
+pushed, so this is an independent re-run).
+
+**Residual violation rates (post-bullet):**
+
+| set | recs | clean | flags |
+|---|---|---|---|
+| LoCoMo s13/s17/s18 (arm C) | 46 | 43 (93.5%) | 2 about_nonperson, 1 temporal ("a while ago") |
+| LME b5ef892d (camping) | 111 | 104 (93.7%) | 7 temporal — mostly FP |
+| LME e831120c (movies) | 47 | 47 (100%) | 0 |
+| LME 3a704032 (plants, the catastrophic session) | 81 | 45 (55.6%) | 30 no_subject, 10 bare_fragment, 6 temporal |
+
+**True residuals vs FP decomposition** (per-flag manual audit):
+
+- TRUE residuals ≈ 5%: concentrated on 3a704032 self-records —
+  `basil_plant_location: "balcony"`, `snake_plant_origin: "got from
+  sister (on last month)"` (item lives in the KEY not the value —
+  L2 residue), `fern_pest_problem: "tiny moving dots crawling…"`,
+  `basil_soil_type: "general-purpose potting mix"`,
+  `snake_plant_status: "doing great…"`, plus 2 real unanchored
+  acquisitions ("bought from a nursery two weeks ago"). The
+  previously-catastrophic L2 session still leaks ~10 fragments.
+- FP class 1 — assistant imperatives (~30 flags): care-tip records
+  are subjectless *by genre* ("choose pot 1-2 sizes larger",
+  "mist 2-3 times per week") — `no_subject` should only fire on
+  `self|*` / named-person records; generic advice can't carry a
+  person referent. Recommend gating no_subject to self/named-src.
+- FP class 2 — month-word collisions: "may take a few weeks",
+  "every Saturday from June to October" in generic knowledge —
+  need case-sensitive months or capital-required match.
+- Edge — "a while ago": fuzzy temporal that cannot be anchored;
+  flag informative but shouldn't count as violation.
+
+**Verdict**: self-sufficiency bullet holds at ~95% true-clean; the
+residual is real but small and concentrated on the worst historical
+session (3a704032). selfcheck is deployable as a snapshot lint NOW;
+a repair pass (re-ask on flagged `self|*` records only, or
+deterministic merge-fragment-into-parent) would chase ~5% — worth it
+only if benchmark deltas justify; recommend lint-first, repair
+deferred. Tuning items: gate no_subject to self-records,
+case-sensitive months, allow-list fuzzy temporals.
+
+Files: `selfcheck.py`, `lme_autopsy_reextract_{qid}.json` (3 files).
