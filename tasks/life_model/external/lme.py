@@ -206,7 +206,8 @@ def run(args):
         try:
             resp = asyncio.run(
                 aanswer(model, llm_answer, q["question"],
-                        q["question_date"]))["response"]
+                        q["question_date"], premise_check=True))[
+                "response"]
         except Exception as e:
             resp = f"__answer_error__ {e}"
         fh.write(json.dumps({
