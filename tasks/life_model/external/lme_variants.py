@@ -507,6 +507,92 @@ async def v_closure(model, llm, question, qdate):
     return await _answer_from_keys(model, llm, question, qdate, keys)
 
 
+# ---------- source-aware variants (srcprior/splitsrc/tiered) ----------------
+
+def _src(key: str) -> str:
+    return key.split("|")[0]
+
+
+async def v_srcprior(model, llm, question, qdate):
+    """Partitioned catalog: user block listed in full first, assistant
+    block compressed to bare keys after it; pick budget unchanged."""
+    cat = reader.vertex_catalog(model)
+    if len(cat) <= 50:
+        return await _answer_from_keys(model, llm, question, qdate,
+                                       list(cat))
+    user = [k for k in cat if _src(k) == "self"]
+    asst = [k for k in cat if _src(k) != "self"]
+    listing = ("USER MEMORY (detailed):\n"
+               + "\n".join(f"{k}  ({cat[k][1]} entries)" for k in user)
+               + "\n\nASSISTANT MEMORY (key list only):\n"
+               + "\n".join(asst))
+    prompt = (f"Today: {qdate}\n\nVERTEX CATALOG:\n{listing}\n\n"
+              f"QUESTION: {question}\n\nRelevant vertex keys JSON array:")
+    picks = reader._json_list(await llm.complete(RETRIEVE_SYS, prompt))
+    keys = [k for k in picks if isinstance(k, str) and k in cat]
+    keys = keys[:50] if keys else list(cat)[:50]
+    heads = {k.split("|")[-1].split("_")[0] for k in keys}
+    keys += [k for k in cat if k not in set(keys)
+             and k.split("|")[-1].split("_")[0] in heads]
+    return await _answer_from_keys(model, llm, question, qdate, keys)
+
+
+async def v_splitsrc(model, llm, question, qdate):
+    """Source quota: after the base pick, top up from the user block until
+    >=60% of selected keys are user-source (as available)."""
+    cat = reader.vertex_catalog(model)
+    keys = await reader.aretrieve(model, llm, question, qdate)
+    n_user = sum(1 for k in keys if _src(k) == "self")
+    need = (0.6 * len(keys) - n_user) / 0.4
+    if need > 0:
+        seen = set(keys)
+        extra = [k for k in cat
+                 if _src(k) == "self" and k not in seen]
+        keys += extra[:int(need + 0.999)]
+    return await _answer_from_keys(model, llm, question, qdate, keys)
+
+
+_ASST_Q = re.compile(
+    r"\bassistant\b|chatbot|\brecommend|\bsuggest|\badvice\b", re.I)
+
+
+def _render_tiered(model, keys: list[str]) -> str:
+    hist = model.export()["asset"].get("hist", {})
+    lines = []
+    for key in keys:
+        edges = hist.get(key)
+        if not edges:
+            continue
+        lab = reader._label(key)
+        if _src(key) == "self":
+            parts = []
+            for ei, e in enumerate(edges, 1):
+                val, day, kind = e[0], e[1], e[2]
+                tag = "" if kind in ("statement", "update") else f"[{kind}]"
+                parts.append(f"#{ei} {val} @{reader._iso(day)}{tag}")
+            lines.append(f"- {lab}: " + " -> ".join(parts))
+        else:
+            val, day, kind = edges[0][0], edges[0][1], edges[0][2]
+            tag = "" if kind in ("statement", "update") else f"[{kind}]"
+            lines.append(f"- {lab}: ({len(edges)} entries) first: "
+                         f"{val} @{reader._iso(day)}{tag}")
+    return "\n".join(lines) if lines else "(nothing selected)"
+
+
+async def v_tiered(model, llm, question, qdate):
+    """Tiered digest: user vertices render every edge; assistant vertices
+    collapse to label + edge count + first edge — unless the question is
+    about the assistant itself."""
+    keys = await reader.aretrieve(model, llm, question, qdate)
+    if _ASST_Q.search(question):
+        return await _answer_from_keys(model, llm, question, qdate, keys)
+    dg = _render_tiered(model, keys)
+    prompt = (f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\n"
+              f"QUESTION: {question}\n\nAnswer:")
+    resp = (await llm.complete(ANSWER_SYS, prompt)).strip()
+    return {"response": resp, "selected": keys, "digest": dg}
+
+
 VARIANTS = {"base": v_base, "entity": v_entity, "twohop": v_twohop,
             "pick10": v_pick10, "pick50": v_pick50, "kwfilter": v_kwfilter,
             "fam": v_fam, "topic": v_topic, "recur": v_recur,
@@ -515,7 +601,9 @@ VARIANTS = {"base": v_base, "entity": v_entity, "twohop": v_twohop,
             "verify": v_verify, "code": v_code,
             "gate": v_gate, "tjoin": v_tjoin,
             "famcatalog": v_famcatalog, "budget": v_budget,
-            "closure": v_closure}
+            "closure": v_closure,
+            "srcprior": v_srcprior, "splitsrc": v_splitsrc,
+            "tiered": v_tiered}
 
 
 # ---------- driver ---------------------------------------------------------
