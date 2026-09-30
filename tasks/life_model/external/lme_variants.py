@@ -22,13 +22,20 @@ import json
 import os
 import re
 import sys
+import time as _time
 
-sys.path.insert(0, os.path.abspath(os.path.join(
-    os.path.dirname(__file__), "..", "..", "..")))
+# stack root override lets an ablation run against a shadow package
+# (e.g. results/oldstack with #41-era lifemodel) instead of the repo
+_STACK_ROOT = os.environ.get(
+    "LME_STACK_ROOT",
+    os.path.abspath(os.path.join(
+        os.path.dirname(__file__), "..", "..", "..")))
+sys.path.insert(0, _STACK_ROOT)
 from lifemodel.model import LifeModel  # noqa: E402
 from lifemodel.ingest_llm import LLMIngestor  # noqa: E402
 from lifemodel import reader  # noqa: E402
 from lme import GLMCompat, _ordinal  # noqa: E402
+from hyra.llm import OpenAICompatLLM  # noqa: E402
 
 RETRIEVE_SYS = reader.RETRIEVE_SYS
 ANSWER_SYS = reader.ANSWER_SYS
@@ -232,10 +239,226 @@ async def v_mix(model, llm, question, qdate):
                                    _dedup(keys + extra))
 
 
+# ---------- answer-side aggregation variants ------------------------------
+# Same retrieval (aretrieve -> digest) for every arm; only the answering
+# stage differs.
+
+ENUM_SYS = ("You are the evidence-extraction stage of a memory QA system. "
+            "Given the user's memory and question, list EVERY memory line "
+            "relevant to answering, verbatim, one per line. Include all "
+            "items of the same semantic family — completeness matters "
+            "more than brevity.")
+
+
+async def _digest_of(model, llm, question, qdate):
+    keys = await reader.aretrieve(model, llm, question, qdate)
+    return keys, reader.render_vertices(model, keys)
+
+
+async def v_twopass(model, llm, question, qdate):
+    """Two-pass: enumerate evidence lines verbatim, then answer from the
+    enumeration only — separates 'find everything' from 'compute right'."""
+    keys, dg = await _digest_of(model, llm, question, qdate)
+    ev = await llm.complete(
+        ENUM_SYS,
+        f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\nQUESTION: {question}\n\n"
+        "Relevant evidence lines:")
+    resp = (await llm.complete(
+        ANSWER_SYS,
+        f"Today's date: {qdate}\n\nEVIDENCE (verbatim from memory):\n{ev}\n\n"
+        f"QUESTION: {question}\n\nAnswer:")).strip()
+    return {"response": resp, "selected": keys, "digest": dg}
+
+
+_ROUTER_SYS = ("Classify the question into exactly one label: "
+               "count (how many / how often / total / list), "
+               "compare (which is more/earlier/first, before or after), "
+               "when (a date or time), other. Reply with the label only.")
+
+_COUNT_SYS = (ANSWER_SYS + "\n\nThis is a COUNTING question. Mandatory "
+              "format: first write one line per qualifying item "
+              "(value @date), then a final line with just the total.")
+
+_CMP_SYS = (ANSWER_SYS + "\n\nThis is a COMPARISON question. Mandatory "
+            "format: list each candidate with its date, state the "
+            "comparison explicitly, then the final answer.")
+
+_WHEN_SYS = (ANSWER_SYS + "\n\nThis is a DATE question. Mandatory "
+             "format: list the relevant dated events, then answer with "
+             "the resolved date.")
+
+_ROUTE_SYS = {"count": _COUNT_SYS, "compare": _CMP_SYS,
+              "when": _WHEN_SYS, "other": ANSWER_SYS}
+
+
+async def v_router(model, llm, question, qdate):
+    """Type-router: classify the question, then answer under a
+    type-specific format template."""
+    keys, dg = await _digest_of(model, llm, question, qdate)
+    label = (await llm.complete(_ROUTER_SYS,
+                                f"QUESTION: {question}")).strip().lower()
+    sys = _ROUTE_SYS.get(label, ANSWER_SYS)
+    resp = (await llm.complete(
+        sys, f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\n"
+             f"QUESTION: {question}\n\nAnswer:")).strip()
+    return {"response": resp, "selected": keys, "digest": dg}
+
+
+_VERIFY_SYS = ("You are the verification stage of a memory QA system. "
+               "Given the memory, the question, and a draft answer, "
+               "audit it: list the items the draft counted or relied on, "
+               "check the enumeration against the memory for omissions "
+               "and date/conflict mistakes, then output ONLY the final "
+               "answer (concise, no preamble).")
+
+
+async def v_verify(model, llm, question, qdate):
+    """Self-verify: draft answer -> audit enumeration/omissions -> final."""
+    keys, dg = await _digest_of(model, llm, question, qdate)
+    draft = (await llm.complete(
+        ANSWER_SYS,
+        f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\n"
+        f"QUESTION: {question}\n\nAnswer:")).strip()
+    resp = (await llm.complete(
+        _VERIFY_SYS,
+        f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\nQUESTION: {question}\n\n"
+        f"DRAFT ANSWER: {draft}\n\nAudit, then final answer:")).strip()
+    return {"response": resp, "selected": keys, "digest": dg}
+
+
+_EXTRACT_SYS = ("You are the extraction stage of a memory QA system. "
+                "Given the memory and question, output a JSON array of "
+                "candidate items: each element {\"value\": <short "
+                "value/name>, \"date\": \"YYYY-MM-DD\" (the event date if "
+                "given, else the said date)}. Include every plausibly "
+                "relevant item — dedupe by meaning. JSON array only.")
+
+
+async def v_code(model, llm, question, qdate):
+    """Code-assist: LLM extracts candidate (value,date) items as JSON;
+    Python deterministically dedupes/sorts/counts them; the final answer
+    is composed with the pre-computed table + count."""
+    keys, dg = await _digest_of(model, llm, question, qdate)
+    raw = reader._json_list(await llm.complete(
+        _EXTRACT_SYS,
+        f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\nQUESTION: {question}\n\n"
+        "Candidate items JSON array:"))
+    items, seen = [], set()
+    for it in raw:
+        if not isinstance(it, dict):
+            continue
+        v, d = str(it.get("value", "")).strip(), str(it.get("date", ""))
+        sig = (v.lower(), d)
+        if v and sig not in seen:
+            seen.add(sig)
+            items.append((d, v))
+    items.sort()
+    table = "\n".join(f"- {v} @{d}" for d, v in items) or "(none)"
+    resp = (await llm.complete(
+        ANSWER_SYS,
+        f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\nPRE-EXTRACTED "
+        f"CANDIDATES (deduped, sorted, deterministic count="
+        f"{len(items)}):\n{table}\n\nQUESTION: {question}\n\nAnswer:")
+            ).strip()
+    return {"response": resp, "selected": keys, "digest": dg}
+
+
+_AGG_RE = re.compile(
+    r"(how many|how often|how much|total|number of|list|first|last|"
+    r"most recent|earliest|latest|before|after|between|when|longer|"
+    r"longest|oldest|newest|ago|since)", re.I)
+
+
+async def v_gate(model, llm, question, qdate):
+    """Gated code-assist: the extract+candidate-table path only runs for
+    aggregation-flavored questions (keyword gate, favors recall); other
+    questions get a plain single-shot answer — saves the extra call."""
+    keys, dg = await _digest_of(model, llm, question, qdate)
+    if not _AGG_RE.search(question):
+        resp = (await llm.complete(
+            ANSWER_SYS,
+            f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\n"
+            f"QUESTION: {question}\n\nAnswer:")).strip()
+        return {"response": resp, "selected": keys, "digest": dg}
+    raw = reader._json_list(await llm.complete(
+        _EXTRACT_SYS,
+        f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\nQUESTION: {question}\n\n"
+        "Candidate items JSON array:"))
+    items, seen = [], set()
+    for it in raw:
+        if not isinstance(it, dict):
+            continue
+        v, d = str(it.get("value", "")).strip(), str(it.get("date", ""))
+        sig = (v.lower(), d)
+        if v and sig not in seen:
+            seen.add(sig)
+            items.append((d, v))
+    items.sort()
+    table = "\n".join(f"- {v} @{d}" for d, v in items) or "(none)"
+    resp = (await llm.complete(
+        ANSWER_SYS,
+        f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\nPRE-EXTRACTED "
+        f"CANDIDATES (deduped, sorted, deterministic count="
+        f"{len(items)}):\n{table}\n\nQUESTION: {question}\n\nAnswer:")
+            ).strip()
+    return {"response": resp, "selected": keys, "digest": dg}
+
+
+def _iso_or_none(d: str):
+    try:
+        return _dt.date.fromisoformat(d.strip()[:10])
+    except Exception:
+        return None
+
+
+async def v_tjoin(model, llm, question, qdate):
+    """Temporal-join: same extraction as code-assist, but Python also
+    computes deterministic time facts — per-item delta since previous
+    event and the overall earliest/latest/span — and feeds them to the
+    answer stage."""
+    keys, dg = await _digest_of(model, llm, question, qdate)
+    raw = reader._json_list(await llm.complete(
+        _EXTRACT_SYS,
+        f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\nQUESTION: {question}\n\n"
+        "Candidate items JSON array:"))
+    items, seen = [], set()
+    for it in raw:
+        if not isinstance(it, dict):
+            continue
+        v, d = str(it.get("value", "")).strip(), str(it.get("date", ""))
+        sig = (v.lower(), d)
+        if v and sig not in seen:
+            seen.add(sig)
+            items.append((d, v))
+    items.sort(key=lambda t: (_iso_or_none(t[0]) or _dt.date.min, t[1]))
+    lines, prev = [], None
+    for d, v in items:
+        dd = _iso_or_none(d)
+        delta = f" (+{(dd - prev).days}d since prev)" if dd and prev \
+            else ""
+        if dd:
+            prev = dd
+        lines.append(f"- {v} @{d}{delta}")
+    dated = [(_iso_or_none(d), v, d) for d, v in items if _iso_or_none(d)]
+    span = (f"earliest {dated[0][2]}, latest {dated[-1][2]}, "
+            f"span {(dated[-1][0] - dated[0][0]).days} days, "
+            f"n={len(items)}") if dated else f"n={len(items)}"
+    table = "\n".join(lines) or "(none)"
+    resp = (await llm.complete(
+        ANSWER_SYS,
+        f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\nPRE-EXTRACTED "
+        f"CANDIDATES (deduped, sorted; computed span: {span}):\n{table}\n\n"
+        f"QUESTION: {question}\n\nAnswer:")).strip()
+    return {"response": resp, "selected": keys, "digest": dg}
+
+
 VARIANTS = {"base": v_base, "entity": v_entity, "twohop": v_twohop,
             "pick10": v_pick10, "pick50": v_pick50, "kwfilter": v_kwfilter,
             "fam": v_fam, "topic": v_topic, "recur": v_recur,
-            "big150": v_big150, "mix": v_mix}
+            "big150": v_big150, "mix": v_mix,
+            "twopass": v_twopass, "router": v_router,
+            "verify": v_verify, "code": v_code,
+            "gate": v_gate, "tjoin": v_tjoin}
 
 
 # ---------- driver ---------------------------------------------------------
@@ -248,8 +471,32 @@ def run(args):
     data = json.load(open(args.data))
     llm_extract = GLMCompat(api_key=os.environ.get("GLM_API_KEY"),
                             extra_body={"thinking": {"type": "disabled"}})
-    llm_answer = GLMCompat(api_key=os.environ.get("GLM_API_KEY"),
-                           extra_body={"thinking": {"type": "enabled"}})
+    if args.answer_backend == "openrouter":
+        # one flag switches both clients — needed when the ingest cache
+        # must also be built without GLM
+        _or = dict(model=os.environ.get("OR_MODEL",
+                                        "stealth/space-bunny-alpha"),
+                   base_url="https://openrouter.ai/api/v1",
+                   api_key=os.environ.get("OR_API_KEY", ""),
+                   max_tokens=16384)
+        llm_extract = GLMCompat(
+            extra_body={"reasoning": {"effort": "low"}}, **_or)
+        llm_answer = GLMCompat(**_or)
+    elif args.answer_backend == "atria":
+        # SSE-streamed client required — Atria kills non-streamed calls
+        # in flight at ~5min; rejects reasoning/extra_body params (400)
+        _at = dict(model=os.environ.get("OPENAI_MODEL",
+                                        "Atria-Dawn-Preview"),
+                   base_url=os.environ.get(
+                       "OPENAI_BASE_URL", "https://api.atria-asi.ai/v1"),
+                   api_key=os.environ.get("OPENAI_API_KEY") or
+                   os.environ.get("ATRIA_API_KEY", ""),
+                   max_tokens=8192)
+        llm_extract = OpenAICompatLLM(**_at)
+        llm_answer = OpenAICompatLLM(**_at)
+    else:
+        llm_answer = GLMCompat(api_key=os.environ.get("GLM_API_KEY"),
+                               extra_body={"thinking": {"type": "enabled"}})
     names = args.variants.split(",") if args.variants else list(VARIANTS)
     for v in names:
         assert v in VARIANTS, v
@@ -262,7 +509,10 @@ def run(args):
         if os.path.exists(p):
             for line in open(p):
                 if line.strip():
-                    done[v].add(json.loads(line)["question_id"])
+                    r = json.loads(line)
+                    if not str(r.get("response", "")).startswith(
+                            "__answer_error__"):
+                        done[v].add(r["question_id"])
         fhs[v] = open(p, "a")
 
     counts = {}
@@ -275,53 +525,91 @@ def run(args):
         counts[q["question_type"]] = counts.get(q["question_type"], 0) + 1
         todo.append(q)
 
-    for i, q in enumerate(todo):
-        qid = q["question_id"]
-        mp = os.path.join(mdir, qid + ".json")
-        if os.path.exists(mp):
-            packed = json.load(open(mp))
-            exported, nrecs = packed["export"], packed["n_records"]
-        else:
-            model = LifeModel()
-            ing = LLMIngestor(llm_extract, day_of=_ordinal)
-            nrecs = 0
-            for date, sess in zip(q["haystack_dates"],
-                                  q["haystack_sessions"]):
-                try:
-                    nrecs += asyncio.run(
-                        ing.aingest_session(model, date, sess))
-                except Exception as e:
-                    print(f"[{qid}] extract fail @{date}: {e}",
-                          file=sys.stderr)
-            exported = model.export()
-            json.dump({"n_records": nrecs, "export": exported},
-                      open(mp, "w"))
-        for v in names:
-            if qid in done[v]:
+    todo_left = list(todo)
+    for _round in range(20):
+        if not todo_left:
+            break
+        if _round:
+            print(f"[round {_round}] {len(todo_left)} questions deferred",
+                  flush=True)
+            _time.sleep(180)
+        deferred = []
+        for i, q in enumerate(todo_left):
+            qid = q["question_id"]
+            if all(qid in done[v] for v in names):
                 continue
-            m2 = LifeModel()
-            m2.import_state(exported["asset"])
-            u0 = dict(llm_answer.usage)
-            out = None
+            mp = os.path.join(mdir, qid + ".json")
             try:
-                out = asyncio.run(
-                    VARIANTS[v](m2, llm_answer, q["question"],
-                                q["question_date"]))
-                resp = out["response"]
-            except Exception as e:  # noqa: BLE001
-                resp = f"__answer_error__ {e}"
-            u1 = dict(llm_answer.usage)
-            row = {"question_id": qid,
-                   "question_type": q["question_type"],
-                   "response": resp, "n_records": nrecs,
-                   "usage": _usage_delta(u0, u1),
-                   "selected": out.get("selected") if out else None,
-                   "digest_bytes": len(out.get("digest", "")) if out else 0}
-            fhs[v].write(json.dumps(row, ensure_ascii=False) + "\n")
-            fhs[v].flush()
-        print(f"[{i+1}/{len(todo)}] {qid} recs={nrecs} "
-              f"extract={llm_extract.usage} answer={llm_answer.usage}",
-              flush=True)
+                if os.path.exists(mp):
+                    packed = json.load(open(mp))
+                    exported, nrecs = packed["export"], packed["n_records"]
+                else:
+                    model = LifeModel()
+                    ing = LLMIngestor(llm_extract, day_of=_ordinal)
+                    nrecs = 0
+                    for date, sess in zip(q["haystack_dates"],
+                                          q["haystack_sessions"]):
+                        for _try in range(5):
+                            try:
+                                nrecs += asyncio.run(
+                                    ing.aingest_session(model, date, sess))
+                                break
+                            except Exception as e:
+                                if "429" in str(e) and _try < 4:
+                                    _time.sleep(30 * (_try + 1))
+                                    continue
+                                # never cache a partial model
+                                raise RuntimeError(
+                                    f"[{qid}] ingest aborted @{date}: {e}")
+                    exported = model.export()
+                    json.dump({"n_records": nrecs, "export": exported},
+                              open(mp, "w"))
+            except RuntimeError as e:
+                print(e, file=sys.stderr)
+                deferred.append(q)
+                continue
+            needs_retry = False
+            for v in names:
+                if qid in done[v]:
+                    continue
+                m2 = LifeModel()
+                m2.import_state(exported["asset"])
+                u0 = dict(llm_answer.usage)
+                out = None
+                try:
+                    for _try in range(5):
+                        try:
+                            out = asyncio.run(
+                                VARIANTS[v](m2, llm_answer, q["question"],
+                                            q["question_date"]))
+                            break
+                        except Exception as e:  # noqa: BLE001
+                            if "429" in str(e) and _try < 4:
+                                _time.sleep(30 * (_try + 1))
+                                continue
+                            raise
+                    resp = out["response"]
+                except Exception as e:  # noqa: BLE001
+                    resp = f"__answer_error__ {e}"
+                    needs_retry = True
+                u1 = dict(llm_answer.usage)
+                row = {"question_id": qid,
+                       "question_type": q["question_type"],
+                       "response": resp, "n_records": nrecs,
+                       "usage": _usage_delta(u0, u1),
+                       "selected": out.get("selected") if out else None,
+                       "digest_bytes": len(out.get("digest", ""))
+                       if out else 0}
+                fhs[v].write(json.dumps(row, ensure_ascii=False) + "\n")
+                fhs[v].flush()
+                if not resp.startswith("__answer_error__"):
+                    done[v].add(qid)
+            if needs_retry:
+                deferred.append(q)
+            print(f"[{i+1}/{len(todo_left)}] {qid} recs={nrecs} "
+                  f"extract={llm_extract.usage} answer={llm_answer.usage}",
+                  flush=True)
+        todo_left = deferred
     for fh in fhs.values():
         fh.close()
 
@@ -334,6 +622,8 @@ def main():
     r.add_argument("--per-type", type=int, default=12)
     r.add_argument("--out-dir", required=True)
     r.add_argument("--variants", default="")
+    r.add_argument("--answer-backend", default="glm",
+                   choices=["glm", "openrouter", "atria"])
     args = ap.parse_args()
     {"run": run}[args.cmd](args)
 

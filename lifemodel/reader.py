@@ -304,8 +304,17 @@ def _pv_abstain(verify: dict) -> str:
     return "Memory does not contain the presupposed fact, so it does not answer the question."
 
 
+_EXTRACT_SYS = ("You are the extraction stage of a memory QA system. "
+                "Given the memory and question, output a JSON array of "
+                "candidate items: each element {\"value\": <short "
+                "value/name>, \"date\": \"YYYY-MM-DD\" (the event date if "
+                "given, else the said date)}. Include every plausibly "
+                "relevant item — dedupe by meaning. JSON array only.")
+
+
 async def aanswer(model, llm, question: str, qdate: str,
-                  premise_check: bool = False) -> dict:
+                  premise_check: bool = False,
+                  assist: bool = False) -> dict:
     """Two-stage answer. Returns {response, selected_vertices, digest}.
 
     premise_check inserts a verification stage between retrieval and
@@ -313,6 +322,13 @@ async def aanswer(model, llm, question: str, qdate: str,
     question's presupposed atoms must each bind to ONE single record —
     a premise assembled across records (spliced) or absent from memory
     yields an explicit abstention instead of a bridged answer.
+
+    assist adds a candidate-extraction stage before answering: the
+    answerer receives a deterministically deduped/sorted/counted item
+    table alongside the raw digest. Measured to help weak answerers
+    (+16pp ms-25 on OR) but hurt strong ones (−44pp ms on the 150q
+    Atria A/B: dropped families, dedupe collisions, date misfilters) —
+    off by default, opt-in for weak backends.
     """
     keys = await aretrieve(model, llm, question, qdate)
     dg = render_vertices(model, keys)
@@ -323,7 +339,27 @@ async def aanswer(model, llm, question: str, qdate: str,
         if verify["verdict"] in ("SPLICED", "ABSENT"):
             return {"response": _pv_abstain(verify), "selected": keys,
                     "digest": dg, "verify": verify}
-    prompt = (f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\n"
+    assist_block = ""
+    if assist:
+        raw = _json_list(await llm.complete(
+            _EXTRACT_SYS,
+            f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\nQUESTION: "
+            f"{question}\n\nCandidate items JSON array:"))
+        items, seen = [], set()
+        for it in raw:
+            if not isinstance(it, dict):
+                continue
+            v, d = str(it.get("value", "")).strip(), str(it.get("date", ""))
+            sig = (v.lower(), d)
+            if v and sig not in seen:
+                seen.add(sig)
+                items.append((d, v))
+        items.sort()
+        table = "\n".join(f"- {v} @{d}" for d, v in items) or "(none)"
+        assist_block = (
+            "PRE-EXTRACTED CANDIDATES (deduped, sorted, deterministic "
+            f"count={len(items)}):\n{table}\n\n")
+    prompt = (f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\n{assist_block}"
               f"QUESTION: {question}\n\nAnswer:")
     resp = (await llm.complete(ANSWER_SYS, prompt)).strip()
     return {"response": resp, "selected": keys, "digest": dg,
