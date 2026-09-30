@@ -534,3 +534,40 @@ single-draw judge flip on abstain rows as noise until replicated 3×.
 
 Files: `recall_ab.py`, `recall_ab.json`, `info_abstain_probe.py`,
 `info_abstain.jsonl`.
+
+## Self-sufficiency bullet verification (lab#1 phase-1 text, cross-benchmark)
+
+Arm C: package `EXTRACT_SYS` + lab#1's SELF-CONTAINED RECORDS bullet
+verbatim ("named subject + complete fact + temporal anchor inline;
+no bare values; no split-date vertices"). Re-extracted conv-0
+s13/s17/s18 — record-form check only, no scoring
+(`selfcontained_ab.py`, `selfcontained_ab.json`).
+
+**Verdict: the bullet repairs the lesion where it matters — the
+record VALUE — and leaves a cosmetic residue in `about` keys.**
+
+| | A_stock (same-run control) | C_selfcontained |
+|---|---|---|
+| s13 recs / topic-about / pronoun-only | 21 / 0 / 0 | 22 / 0 / 0 |
+| s17 recs / topic-about / pronoun-only | 15 / 1 / 1 | 16 / 1 / **0** |
+| s18 recs / topic-about / pronoun-only | 11 / 0 / **4** | 8 / 1 / **0** |
+
+- The who-swap substrate is gone at value level: "Her son got into
+  an accident" → "**Melanie's** son got into an accident during the
+  family roadtrip"; "Her kids give her the strength" → "Melanie
+  wishes she were as resilient as her kids"; "Her family enjoyed the
+  Grand Canyon" → "Melanie's family went to the Grand Canyon…".
+  Zero pronoun-only values in all three sessions (vs 4 in A_stock).
+- Residual: `about` still emits topic nouns in 2 records
+  (`melanie|son|son_accident`, `melanie|buddy|friend_adoption`) —
+  the bullet constrains record *content*, not the `about` field,
+  exactly as predicted. Harmless in practice: the vertex owner is
+  still `melanie`, and the now-named value lets the verifier bind
+  "Caroline's son" correctly instead of freely.
+- vs. my SUBJECT bullet (Arm B): B additionally disciplines `about`
+  (0 topic-about). C covers the failure class; B is marginally
+  cleaner on key semantics. Either fixes the lesion; B⊂C on values,
+  C⊄B on `about` — a one-line `about` discipline note inside the
+  self-contained bullet would get both.
+- Extraction is non-deterministic: A_stock counts differ across runs
+  (22/19/7 vs 21/15/11) — comparisons are within-run only.
