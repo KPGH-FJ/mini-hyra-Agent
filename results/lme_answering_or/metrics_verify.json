@@ -1,0 +1,134 @@
+{
+  "n": 25,
+  "accuracy": 0.32,
+  "by_type": {
+    "multi-session": 0.32
+  },
+  "rows": [
+    {
+      "question_id": "0a995998",
+      "question_type": "multi-session",
+      "correct": false
+    },
+    {
+      "question_id": "6d550036",
+      "question_type": "multi-session",
+      "correct": false
+    },
+    {
+      "question_id": "gpt4_59c863d7",
+      "question_type": "multi-session",
+      "correct": false
+    },
+    {
+      "question_id": "b5ef892d",
+      "question_type": "multi-session",
+      "correct": false
+    },
+    {
+      "question_id": "e831120c",
+      "question_type": "multi-session",
+      "correct": false
+    },
+    {
+      "question_id": "3a704032",
+      "question_type": "multi-session",
+      "correct": false
+    },
+    {
+      "question_id": "gpt4_d84a3211",
+      "question_type": "multi-session",
+      "correct": true
+    },
+    {
+      "question_id": "aae3761f",
+      "question_type": "multi-session",
+      "correct": true
+    },
+    {
+      "question_id": "gpt4_f2262a51",
+      "question_type": "multi-session",
+      "correct": false
+    },
+    {
+      "question_id": "dd2973ad",
+      "question_type": "multi-session",
+      "correct": true
+    },
+    {
+      "question_id": "gpt4_a56e767c",
+      "question_type": "multi-session",
+      "correct": false
+    },
+    {
+      "question_id": "6cb6f249",
+      "question_type": "multi-session",
+      "correct": true
+    },
+    {
+      "question_id": "46a3abf7",
+      "question_type": "multi-session",
+      "correct": true
+    },
+    {
+      "question_id": "36b9f61e",
+      "question_type": "multi-session",
+      "correct": true
+    },
+    {
+      "question_id": "28dc39ac",
+      "question_type": "multi-session",
+      "correct": false
+    },
+    {
+      "question_id": "gpt4_2f8be40d",
+      "question_type": "multi-session",
+      "correct": false
+    },
+    {
+      "question_id": "2e6d26dc",
+      "question_type": "multi-session",
+      "correct": true
+    },
+    {
+      "question_id": "gpt4_15e38248",
+      "question_type": "multi-session",
+      "correct": false
+    },
+    {
+      "question_id": "80ec1f4f",
+      "question_type": "multi-session",
+      "correct": false
+    },
+    {
+      "question_id": "d23cf73b",
+      "question_type": "multi-session",
+      "correct": false
+    },
+    {
+      "question_id": "gpt4_7fce9456",
+      "question_type": "multi-session",
+      "correct": false
+    },
+    {
+      "question_id": "d682f1a2",
+      "question_type": "multi-session",
+      "correct": false
+    },
+    {
+      "question_id": "7024f17c",
+      "question_type": "multi-session",
+      "correct": false
+    },
+    {
+      "question_id": "c4a1ceb8",
+      "question_type": "multi-session",
+      "correct": true
+    },
+    {
+      "question_id": "88432d0a",
+      "question_type": "multi-session",
+      "correct": false
+    }
+  ]
+}

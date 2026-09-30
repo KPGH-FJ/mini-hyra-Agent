@@ -22,6 +22,7 @@ import json
 import os
 import re
 import sys
+import time as _time
 
 sys.path.insert(0, os.path.abspath(os.path.join(
     os.path.dirname(__file__), "..", "..", "..")))
@@ -232,10 +233,136 @@ async def v_mix(model, llm, question, qdate):
                                    _dedup(keys + extra))
 
 
+# ---------- answer-side aggregation variants ------------------------------
+# Same retrieval (aretrieve -> digest) for every arm; only the answering
+# stage differs.
+
+ENUM_SYS = ("You are the evidence-extraction stage of a memory QA system. "
+            "Given the user's memory and question, list EVERY memory line "
+            "relevant to answering, verbatim, one per line. Include all "
+            "items of the same semantic family — completeness matters "
+            "more than brevity.")
+
+
+async def _digest_of(model, llm, question, qdate):
+    keys = await reader.aretrieve(model, llm, question, qdate)
+    return keys, reader.render_vertices(model, keys)
+
+
+async def v_twopass(model, llm, question, qdate):
+    """Two-pass: enumerate evidence lines verbatim, then answer from the
+    enumeration only — separates 'find everything' from 'compute right'."""
+    keys, dg = await _digest_of(model, llm, question, qdate)
+    ev = await llm.complete(
+        ENUM_SYS,
+        f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\nQUESTION: {question}\n\n"
+        "Relevant evidence lines:")
+    resp = (await llm.complete(
+        ANSWER_SYS,
+        f"Today's date: {qdate}\n\nEVIDENCE (verbatim from memory):\n{ev}\n\n"
+        f"QUESTION: {question}\n\nAnswer:")).strip()
+    return {"response": resp, "selected": keys, "digest": dg}
+
+
+_ROUTER_SYS = ("Classify the question into exactly one label: "
+               "count (how many / how often / total / list), "
+               "compare (which is more/earlier/first, before or after), "
+               "when (a date or time), other. Reply with the label only.")
+
+_COUNT_SYS = (ANSWER_SYS + "\n\nThis is a COUNTING question. Mandatory "
+              "format: first write one line per qualifying item "
+              "(value @date), then a final line with just the total.")
+
+_CMP_SYS = (ANSWER_SYS + "\n\nThis is a COMPARISON question. Mandatory "
+            "format: list each candidate with its date, state the "
+            "comparison explicitly, then the final answer.")
+
+_WHEN_SYS = (ANSWER_SYS + "\n\nThis is a DATE question. Mandatory "
+             "format: list the relevant dated events, then answer with "
+             "the resolved date.")
+
+_ROUTE_SYS = {"count": _COUNT_SYS, "compare": _CMP_SYS,
+              "when": _WHEN_SYS, "other": ANSWER_SYS}
+
+
+async def v_router(model, llm, question, qdate):
+    """Type-router: classify the question, then answer under a
+    type-specific format template."""
+    keys, dg = await _digest_of(model, llm, question, qdate)
+    label = (await llm.complete(_ROUTER_SYS,
+                                f"QUESTION: {question}")).strip().lower()
+    sys = _ROUTE_SYS.get(label, ANSWER_SYS)
+    resp = (await llm.complete(
+        sys, f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\n"
+             f"QUESTION: {question}\n\nAnswer:")).strip()
+    return {"response": resp, "selected": keys, "digest": dg}
+
+
+_VERIFY_SYS = ("You are the verification stage of a memory QA system. "
+               "Given the memory, the question, and a draft answer, "
+               "audit it: list the items the draft counted or relied on, "
+               "check the enumeration against the memory for omissions "
+               "and date/conflict mistakes, then output ONLY the final "
+               "answer (concise, no preamble).")
+
+
+async def v_verify(model, llm, question, qdate):
+    """Self-verify: draft answer -> audit enumeration/omissions -> final."""
+    keys, dg = await _digest_of(model, llm, question, qdate)
+    draft = (await llm.complete(
+        ANSWER_SYS,
+        f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\n"
+        f"QUESTION: {question}\n\nAnswer:")).strip()
+    resp = (await llm.complete(
+        _VERIFY_SYS,
+        f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\nQUESTION: {question}\n\n"
+        f"DRAFT ANSWER: {draft}\n\nAudit, then final answer:")).strip()
+    return {"response": resp, "selected": keys, "digest": dg}
+
+
+_EXTRACT_SYS = ("You are the extraction stage of a memory QA system. "
+                "Given the memory and question, output a JSON array of "
+                "candidate items: each element {\"value\": <short "
+                "value/name>, \"date\": \"YYYY-MM-DD\" (the event date if "
+                "given, else the said date)}. Include every plausibly "
+                "relevant item — dedupe by meaning. JSON array only.")
+
+
+async def v_code(model, llm, question, qdate):
+    """Code-assist: LLM extracts candidate (value,date) items as JSON;
+    Python deterministically dedupes/sorts/counts them; the final answer
+    is composed with the pre-computed table + count."""
+    keys, dg = await _digest_of(model, llm, question, qdate)
+    raw = reader._json_list(await llm.complete(
+        _EXTRACT_SYS,
+        f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\nQUESTION: {question}\n\n"
+        "Candidate items JSON array:"))
+    items, seen = [], set()
+    for it in raw:
+        if not isinstance(it, dict):
+            continue
+        v, d = str(it.get("value", "")).strip(), str(it.get("date", ""))
+        sig = (v.lower(), d)
+        if v and sig not in seen:
+            seen.add(sig)
+            items.append((d, v))
+    items.sort()
+    table = "\n".join(f"- {v} @{d}" for d, v in items) or "(none)"
+    resp = (await llm.complete(
+        ANSWER_SYS,
+        f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\nPRE-EXTRACTED "
+        f"CANDIDATES (deduped, sorted, deterministic count="
+        f"{len(items)}):\n{table}\n\nQUESTION: {question}\n\nAnswer:")
+            ).strip()
+    return {"response": resp, "selected": keys, "digest": dg}
+
+
 VARIANTS = {"base": v_base, "entity": v_entity, "twohop": v_twohop,
             "pick10": v_pick10, "pick50": v_pick50, "kwfilter": v_kwfilter,
             "fam": v_fam, "topic": v_topic, "recur": v_recur,
-            "big150": v_big150, "mix": v_mix}
+            "big150": v_big150, "mix": v_mix,
+            "twopass": v_twopass, "router": v_router,
+            "verify": v_verify, "code": v_code}
 
 
 # ---------- driver ---------------------------------------------------------
@@ -248,8 +375,14 @@ def run(args):
     data = json.load(open(args.data))
     llm_extract = GLMCompat(api_key=os.environ.get("GLM_API_KEY"),
                             extra_body={"thinking": {"type": "disabled"}})
-    llm_answer = GLMCompat(api_key=os.environ.get("GLM_API_KEY"),
-                           extra_body={"thinking": {"type": "enabled"}})
+    if args.answer_backend == "openrouter":
+        llm_answer = GLMCompat(
+            model=os.environ.get("OR_MODEL", "stealth/space-bunny-alpha"),
+            base_url="https://openrouter.ai/api/v1",
+            api_key=os.environ.get("OR_API_KEY", ""), max_tokens=16384)
+    else:
+        llm_answer = GLMCompat(api_key=os.environ.get("GLM_API_KEY"),
+                               extra_body={"thinking": {"type": "enabled"}})
     names = args.variants.split(",") if args.variants else list(VARIANTS)
     for v in names:
         assert v in VARIANTS, v
@@ -304,9 +437,17 @@ def run(args):
             u0 = dict(llm_answer.usage)
             out = None
             try:
-                out = asyncio.run(
-                    VARIANTS[v](m2, llm_answer, q["question"],
-                                q["question_date"]))
+                for _try in range(5):
+                    try:
+                        out = asyncio.run(
+                            VARIANTS[v](m2, llm_answer, q["question"],
+                                        q["question_date"]))
+                        break
+                    except Exception as e:  # noqa: BLE001
+                        if "429" in str(e) and _try < 4:
+                            _time.sleep(30 * (_try + 1))
+                            continue
+                        raise
                 resp = out["response"]
             except Exception as e:  # noqa: BLE001
                 resp = f"__answer_error__ {e}"
@@ -334,6 +475,8 @@ def main():
     r.add_argument("--per-type", type=int, default=12)
     r.add_argument("--out-dir", required=True)
     r.add_argument("--variants", default="")
+    r.add_argument("--answer-backend", default="glm",
+                   choices=["glm", "openrouter"])
     args = ap.parse_args()
     {"run": run}[args.cmd](args)
 
