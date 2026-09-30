@@ -1,0 +1,345 @@
+==============================================================================
+8a2466db Q: Can you recommend some resources where I can learn more about video editing?
+RUBRIC: The user would prefer responses that suggest resources specifically tailored to Adobe Premiere Pro, especially those that delve into its advanced settings. They might not prefer general video editing resources or resources related to other video editing software.
+--- 57 records; merge maps: [{}]
+--- 13/57 recs touch pref terms:
+    {"id": "rp_0", "day": 738660, "source": "self", "kind": "statement", "slot": "video_editing_software", "value": "Adobe Premiere Pro", "about": null, "text": "I enjoy to use Adobe Premiere Pro", "_raw_slot": "video_editin
+    {"id": "rp_1", "day": 738660, "source": "self", "kind": "statement", "slot": "video_editing_interest", "value": "advanced settings", "about": null, "text": "trying to learn more about advanced settings", "_raw_slot": "vi
+    {"id": "rp_2", "day": 738660, "source": "self", "kind": "statement", "slot": "lumetri_color_panel_interest", "value": "Color Match feature", "about": null, "text": "want to know more about the Color Match feature", "_raw
+    {"id": "rp_3", "day": 738660, "source": "self", "kind": "statement", "slot": "lumetri_color_panel_interest", "value": "Creative panel", "about": null, "text": "want to know more about the Creative panel", "_raw_slot": "l
+    {"id": "rp_4", "day": 738660, "source": "self", "kind": "statement", "slot": "cinematic_look_interest", "value": "Curves panel", "about": null, "text": "tips on using Curves panel for cinematic look", "_raw_slot": "cinem
+    {"id": "rp_5", "day": 738660, "source": "self", "kind": "statement", "slot": "curves_panel_controls_interest", "value": "Toe and Shoulder controls", "about": null, "text": "want to know more about Toe and Shoulder contro
+    {"id": "rp_8", "day": 738660, "source": "self", "kind": "statement", "slot": "lumetri_color_panel_interest", "value": "Color Wheels", "about": null, "text": "how to use the Color Wheels", "_raw_slot": "lumetri_color_pane
+    {"id": "rp_24", "day": 738660, "source": "assistant", "kind": "statement", "slot": "creative_panel_section", "value": "Look", "about": null, "text": "Look section for pre-built looks", "_raw_slot": "creative_panel_sectio
+    {"id": "rp_33", "day": 738660, "source": "assistant", "kind": "statement", "slot": "cinematic_curve_technique", "value": "S-curve", "about": null, "text": "Create a gentle S-curve for cinematic look", "_raw_slot": "cinem
+    {"id": "rp_35", "day": 738660, "source": "assistant", "kind": "statement", "slot": "cinematic_curve_technique", "value": "add shoulder to curve", "about": null, "text": "Add shoulder to curve for filmic look", "_raw_slot
+    {"id": "rp_41", "day": 738660, "source": "assistant", "kind": "statement", "slot": "color_grading_workflow", "value": "establish base look with Creative Panel", "about": null, "text": "Establish base look with Creative P
+    {"id": "rp_42", "day": 738660, "source": "assistant", "kind": "statement", "slot": "color_grading_workflow", "value": "refine with Curves Panel", "about": null, "text": "Refine look with Curves Panel", "_raw_slot": "colo
+    {"id": "rp_43", "day": 738660, "source": "assistant", "kind": "statement", "slot": "color_grading_workflow", "value": "balance the look", "about": null, "text": "Balance the look with Histogram and Waveform", "_raw_slot"
+--- vertex catalog (21 vertices):
+    assistant|cinematic_curve_technique  (4)
+    assistant|color_grading_best_practice  (7)
+    assistant|color_grading_workflow  (5)
+    assistant|color_match_adjustment  (4)
+    assistant|color_match_feature  (1)
+    assistant|color_wheels_function  (1)
+    assistant|color_wheels_ranges  (1)
+    assistant|creative_panel_section  (6)
+    assistant|curves_panel_type  (3)
+    assistant|lumetri_vs_legacy  (2)
+    assistant|premiere_pro_feature  (9)
+    assistant|shoulder_control_effect  (2)
+    assistant|toe_control_effect  (2)
+    self|cinematic_look_interest  (1)
+    self|color_grading_approach  (1)
+    self|color_grading_practice  (1)
+    self|color_grading_skill_level  (1)
+    self|curves_panel_controls_interest  (1)
+    self|lumetri_color_panel_interest  (3)
+    self|video_editing_interest  (1)
+    self|video_editing_software  (1)
+--- retriever selected 21 vertices:
+     self|video_editing_software
+     self|video_editing_interest
+     self|lumetri_color_panel_interest
+     self|cinematic_look_interest
+     self|curves_panel_controls_interest
+     self|color_grading_approach
+     self|color_grading_skill_level
+     self|color_grading_practice
+     assistant|premiere_pro_feature
+     assistant|color_match_feature
+     assistant|color_match_adjustment
+     assistant|creative_panel_section
+     assistant|curves_panel_type
+     assistant|cinematic_curve_technique
+     assistant|toe_control_effect
+     assistant|shoulder_control_effect
+     assistant|color_grading_workflow
+     assistant|lumetri_vs_legacy
+     assistant|color_wheels_function
+     assistant|color_wheels_ranges
+     assistant|color_grading_best_practice
+--- digest shown to reader:
+- user·video_editing_software: #1 Adobe Premiere Pro @2023-05-20
+- user·video_editing_interest: #1 advanced settings @2023-05-20
+- user·lumetri_color_panel_interest: #1 Color Match feature @2023-05-20 -> #2 Creative panel @2023-05-20 -> #3 Color Wheels @2023-05-20
+- user·cinematic_look_interest: #1 Curves panel @2023-05-20
+- user·curves_panel_controls_interest: #1 Toe and Shoulder controls @2023-05-20
+- user·color_grading_approach: #1 Lumetri Color Panel @2023-05-20
+- user·color_grading_skill_level: #1 beginner @2023-05-20
+- user·color_grading_practice: #1 start with neutral grade @2023-05-20
+- assistant·premiere_pro_feature: #1 Timeline Panel @2023-05-20 -> #2 Render Cache @2023-05-20 -> #3 Lumetri Color Panel @2023-05-20 -> #4 Audio Advanced Settings @2023-05-20 -> #5 Effects and Transitions @2023-05-20 -> #6 Dynamic Link @2023-05-20 -> #7 Proxy Media @2023-05-20 -> #8 Multi-Camera Editing @2023-05-20 -> #9 Export Settings @2023-05-20
+- assistant·color_match_feature: #1 match color and tone @2023-05-20
+- assistant·color_match_adjustment: #1 color tone @2023-05-20 -> #2 skin tones @2023-05-20 -> #3 exposure @2023-05-20 -> #4 contrast @2023-05-20
+- assistant·creative_panel_section: #1 Look @2023-05-20 -> #2 Color @2023-05-20 -> #3 Tone @2023-05-20 -> #4 Vibrance @2023-05-20 -> #5 Saturation @2023-05-20 -> #6 Exposure @2023-05-20
+- assistant·curves_panel_type: #1 Luma Curve @2023-05-20 -> #2 Color Curve @2023-05-20 -> #3 Hue vs. Saturation Curve @2023-05-20
+- assistant·cinematic_curve_technique: #1 S-curve @2023-05-20 -> #2 adjust black levels @2023-05-20 -> #3 add shoulder to curve @2023-05-20 -> #4 enhance midtones @2023-05-20
+- assistant·toe_control_effect: #1 reduce contrast in shadows @2023-05-20 -> #2 increase contrast in shadows @2023-05-20
+- assistant·shoulder_control_effect: #1 reduce brightness in highlights @2023-05-20 -> #2 increase brightness in highlights @2023-05-20
+- assistant·color_grading_workflow: #1 establish base look with Creative Panel @2023-05-20 -> #2 refine with Curves Panel @2023-05-20 -> #3 balance the look @2023-05-20 -> #4 make local adjustments @2023-05-20 -> #5 fine-tune and refine @2023-05-20
+- assistant·lumetri_vs_legacy: #1 more advanced and intuitive @2023-05-20 -> #2 more traditional and technical @2023-05-20
+- assistant·color_wheels_function: #1 adjust hue, saturation, luminance @2023-05-20
+- assistant·color_wheels_ranges: #1 shadows, midtones, highlights @2023-05-20
+- assistant·color_grading_best_practice: #1 start wit
+--- reader answer:
+I don't have enough information to answer that.
+==============================================================================
+0edc2aef Q: Can you suggest a hotel for my upcoming trip to Miami?
+RUBRIC: The user would prefer suggestions of hotels in Miami that offer great views, possibly of the ocean or the city skyline, and have unique features such as a rooftop pool or a hot tub on the balcony. They may not prefer suggestions of basic or budget hotels without these features.
+--- 19 records; merge maps: [{}]
+--- 4/19 recs touch pref terms:
+    {"id": "rp_0", "day": 738667, "source": "self", "kind": "statement", "slot": "trip_destination", "value": "Seattle", "about": null, "text": "I'm planning a trip to Seattle", "_raw_slot": "trip_destination"}
+    {"id": "rp_1", "day": 738667, "source": "self", "kind": "statement", "slot": "hotel_preference", "value": "great view of the city", "about": null, "text": "need help finding a hotel with a great view", "_raw_slot": "hote
+    {"id": "rp_2", "day": 738667, "source": "self", "kind": "statement", "slot": "hotel_preference", "value": "unique features", "about": null, "text": "I also like hotels with unique features", "_raw_slot": "hotel_preferenc
+    {"id": "rp_6", "day": 738667, "source": "self", "kind": "statement", "slot": "hotel_amenity", "value": "room service breakfast", "about": null, "text": "I want to know more about the room service breakfast", "_raw_slot":
+--- vertex catalog (8 vertices):
+    assistant|hotel_amenity  (4)
+    assistant|hotel_package  (2)
+    self|dietary_restrictions  (1)
+    self|hotel_amenity  (4)
+    self|hotel_booking  (1)
+    self|hotel_package  (4)
+    self|hotel_preference  (2)
+    self|trip_destination  (1)
+--- retriever selected 8 vertices:
+     self|trip_destination
+     self|hotel_preference
+     self|hotel_amenity
+     self|dietary_restrictions
+     self|hotel_package
+     self|hotel_booking
+     assistant|hotel_amenity
+     assistant|hotel_package
+--- digest shown to reader:
+- user·trip_destination: #1 Seattle @2023-05-27
+- user·hotel_preference: #1 great view of the city @2023-05-27 -> #2 unique features @2023-05-27
+- user·hotel_amenity: #1 rooftop pool @2023-05-27 -> #2 hot tub on balcony @2023-05-27 -> #3 hot tub on balcony facing Space Needle @2023-05-27 -> #4 room service breakfast @2023-05-27
+- user·dietary_restrictions: #1 various dietary restrictions @2023-05-27
+- user·hotel_package: #1 room with hot tub on balcony and complimentary breakfast @2023-05-27 -> #2 room with hot tub on balcony facing Space Needle @2023-05-27 -> #3 Space Needle Romance Package @2023-05-27 -> #4 Space Needle Romance Package with fireplace @2023-05-27
+- user·hotel_booking: #1 Space Needle Romance Package at The Edgewater Hotel @2023-05-27
+- assistant·hotel_amenity: #1 hot tub on balcony with Space Needle view @2023-05-27 -> #2 room with fireplace @2023-05-27 -> #3 room service breakfast @2023-05-27 -> #4 dietary_options @2023-05-27
+- assistant·hotel_package: #1 Space Needle Romance Package @2023-05-27 -> #2 Space Needle Romance Package @2023-05-27
+--- reader answer:
+I don't have enough information to answer that.
+==============================================================================
+38146c39 Q: I've been feeling like my chocolate chip cookies need something extra. Any advice?
+RUBRIC: The user would prefer responses that build upon their previous experimentation with turbinado sugar, suggesting ingredients or techniques that complement its richer flavor. They might not prefer generic cookie-making advice or suggestions that don't take into account their existing use of turbinado sugar.
+--- 26 records; merge maps: [{}]
+--- 6/26 recs touch pref terms:
+    {"id": "rp_0", "day": 738668, "source": "self", "kind": "statement", "slot": "sugar_preference", "value": "turbinado sugar adds a richer flavor", "about": null, "text": "turbinado sugar adds a richer flavor", "_raw_slot"
+    {"id": "rp_1", "day": 738668, "source": "self", "kind": "statement", "slot": "sugar_type_preference", "value": "muscovado sugar for stronger, more intense flavor", "about": null, "text": "muscovado sugar for stronger fla
+    {"id": "rp_2", "day": 738668, "source": "self", "kind": "statement", "slot": "cake_interest", "value": "carrot cake", "about": null, "text": "interested in carrot cake recipe", "_raw_slot": "cake_interest"}
+    {"id": "rp_3", "day": 738668, "source": "self", "kind": "statement", "slot": "frosting_interest", "value": "cream cheese frosting", "about": null, "text": "interested in cream cheese frosting", "_raw_slot": "frosting_int
+    {"id": "rp_4", "day": 738668, "source": "self", "kind": "statement", "slot": "frosting_sugar_preference", "value": "muscovado sugar in cream cheese frosting", "about": null, "text": "using muscovado in cream cheese frost
+    {"id": "rp_5", "day": 738668, "source": "self", "kind": "statement", "slot": "nut_preference", "value": "walnuts, pecans, hazelnuts, almonds, pistachios", "about": null, "text": "asking about nuts for carrot cake", "_raw
+--- vertex catalog (26 vertices):
+    assistant|cake_types_for_turbinado  (1)
+    assistant|carrot_cake_complements  (1)
+    assistant|chocolate_pairing  (1)
+    assistant|citrus_pairing  (1)
+    assistant|coconut_pairing  (1)
+    assistant|coffee_pairing  (1)
+    assistant|cream_cheese_frosting_tip  (1)
+    assistant|demerara_comparison  (1)
+    assistant|dense_cake_pairing  (1)
+    assistant|dried_fruit_pairing  (1)
+    assistant|fruit_cake_pairing  (1)
+    assistant|ginger_pairing  (1)
+    assistant|muscovado_comparison  (1)
+    assistant|muscovado_frosting_recipe  (1)
+    assistant|muscovado_incorporation  (1)
+    assistant|nut_pairing  (1)
+    assistant|nut_pairing_carrot_cake  (1)
+    assistant|salt_pairing  (1)
+    assistant|spice_pairing  (1)
+    assistant|vanilla_pairing  (1)
+    self|cake_interest  (1)
+    self|frosting_interest  (1)
+    self|frosting_sugar_preference  (1)
+    self|nut_preference  (1)
+    self|sugar_preference  (1)
+    self|sugar_type_preference  (1)
+--- retriever selected 26 vertices:
+     self|sugar_preference
+     self|sugar_type_preference
+     self|cake_interest
+     self|frosting_interest
+     self|frosting_sugar_preference
+     self|nut_preference
+     assistant|spice_pairing
+     assistant|citrus_pairing
+     assistant|nut_pairing
+     assistant|coffee_pairing
+     assistant|vanilla_pairing
+     assistant|chocolate_pairing
+     assistant|dried_fruit_pairing
+     assistant|coconut_pairing
+     assistant|ginger_pairing
+     assistant|salt_pairing
+     assistant|cake_types_for_turbinado
+     assistant|fruit_cake_pairing
+     assistant|dense_cake_pairing
+     assistant|carrot_cake_complements
+     assistant|cream_cheese_frosting_tip
+     assistant|muscovado_comparison
+     assistant|demerara_comparison
+     assistant|muscovado_incorporation
+     assistant|muscovado_frosting_recipe
+     assistant|nut_pairing_carrot_cake
+--- digest shown to reader:
+- user·sugar_preference: #1 turbinado sugar adds a richer flavor @2023-05-28
+- user·sugar_type_preference: #1 muscovado sugar for stronger, more intense flavor @2023-05-28
+- user·cake_interest: #1 carrot cake @2023-05-28
+- user·frosting_interest: #1 cream cheese frosting @2023-05-28
+- user·frosting_sugar_preference: #1 muscovado sugar in cream cheese frosting @2023-05-28
+- user·nut_preference: #1 walnuts, pecans, hazelnuts, almonds, pistachios @2023-05-28
+- assistant·spice_pairing: #1 cinnamon, nutmeg, cardamom @2023-05-28
+- assistant·citrus_pairing: #1 oranges, lemons, limes @2023-05-28
+- assistant·nut_pairing: #1 almonds, pecans, hazelnuts @2023-05-28
+- assistant·coffee_pairing: #1 espresso or coffee @2023-05-28
+- assistant·vanilla_pairing: #1 vanilla @2023-05-28
+- assistant·chocolate_pairing: #1 cocoa powder or dark chocolate @2023-05-28
+- assistant·dried_fruit_pairing: #1 cranberries, cherries, apricots @2023-05-28
+- assistant·coconut_pairing: #1 coconut @2023-05-28
+- assistant·ginger_pairing: #1 ginger @2023-05-28
+- assistant·salt_pairing: #1 flaky sea salt or kosher salt @2023-05-28
+- assistant·cake_types_for_turbinado: #1 carrot cake, pound cake, coffee cake, gingerbread @2023-05-28
+- assistant·fruit_cake_pairing: #1 pineapple, peaches, berries @2023-05-28
+- assistant·dense_cake_pairing: #1 banana bread, zucchini bread @2023-05-28
+- assistant·carrot_cake_complements: #1 walnuts or pecans, spices, dried fruit, citrus zest @2023-05-28
+- assistant·cream_cheese_frosting_tip: #1 start with small amount of turbinado sugar @2023-05-28
+- assistant·muscovado_comparison: #1 stronger flavor, darker color, more moisture @2023-05-28
+- assistant·demerara_comparison: #1 milder flavor, larger crystals, less moisture @2023-05-28
+- assistant·muscovado_incorporation: #1 replace 1-2 tablespoons of granulated sugar @2023-05-28
+- assistant·muscovado_frosting_recipe: #1 8oz cream cheese, 1/2 cup butter, 1.5 cups powdered sugar, 2 tbsp muscovado @2023-05-28
+- assistant·nut_pairing_carrot_cake: #1 walnuts, pecans, hazelnuts, almonds, pistachios @2023-05-28
+--- reader answer:
+I don't have enough information to answer that.
+==============================================================================
+d6233ab6 Q: I've been feeling nostalgic lately. Do you think it would be a good idea to attend my high school reunion?
+RUBRIC: The user would prefer responses that draw upon their personal experiences and memories, specifically their positive high school experiences such as being part of the debate team and taking advanced placement courses. They would prefer suggestions that highlight the potential benefits of attending the reunion, such as reconnecting with old friends and revisiting favorite subjects like history and e
+--- 28 records; merge maps: [{}]
+--- 15/28 recs touch pref terms:
+    {"id": "rp_0", "day": 738662, "source": "self", "kind": "statement", "slot": "education_major_consideration", "value": "Economics", "about": null, "text": "considering majoring in Economics", "_raw_slot": "education_majo
+    {"id": "rp_4", "day": 738662, "source": "self", "kind": "statement", "slot": "career_interest", "value": "data scientist", "about": null, "text": "asking about salaries for data scientists", "_raw_slot": "career_interest
+    {"id": "rp_5", "day": 738662, "source": "self", "kind": "statement", "slot": "education_degree_consideration", "value": "Master's degree", "about": null, "text": "weighing the pros and cons of pursuing a Master's degree"
+    {"id": "rp_8", "day": 738662, "source": "self", "kind": "statement", "slot": "social_connections", "value": "high school friends", "about": null, "text": "a lot of old high school friends plan to work after university", 
+    {"id": "rp_14", "day": 738662, "source": "assistant", "kind": "statement", "slot": "course_recommendation", "value": "Andrew Ng's Machine Learning Course", "about": null, "text": "comprehensive course covering basics of 
+    {"id": "rp_15", "day": 738662, "source": "assistant", "kind": "statement", "slot": "course_recommendation", "value": "Deep Learning Specialization", "about": null, "text": "5-course specialization by Andrew Ng covering d
+    {"id": "rp_16", "day": 738662, "source": "assistant", "kind": "statement", "slot": "course_recommendation", "value": "Machine Learning with Python", "about": null, "text": "course covering machine learning concepts using
+    {"id": "rp_17", "day": 738662, "source": "assistant", "kind": "statement", "slot": "course_recommendation", "value": "Deep Learning with Python", "about": null, "text": "course covering deep learning concepts using Pytho
+    {"id": "rp_18", "day": 738662, "source": "assistant", "kind": "statement", "slot": "course_recommendation", "value": "Natural Language Processing with Deep Learning", "about": null, "text": "course covering NLP concepts 
+    {"id": "rp_19", "day": 738662, "source": "assistant", "kind": "statement", "slot": "certification_recommendation", "value": "Certified Machine Learning Engineer", "about": null, "text": "certification demonstrating skill
+    {"id": "rp_20", "day": 738662, "source": "assistant", "kind": "statement", "slot": "certification_recommendation", "value": "Certified Deep Learning Developer", "about": null, "text": "certification demonstrating skills 
+    {"id": "rp_21", "day": 738662, "source": "assistant", "kind": "statement", "slot": "certification_recommendation", "value": "Google Cloud Certified - Professional Machine Learning Engineer", "about": null, "text": "certi
+    {"id": "rp_22", "day": 738662, "source": "assistant", "kind": "statement", "slot": "learning_resource_recommendation", "value": "Kaggle Competitions", "about": null, "text": "participate in Kaggle competitions to practic
+    {"id": "rp_23", "day": 738662, "source": "assistant", "kind": "statement", "slot": "learning_resource_recommendation", "value": "TensorFlow and PyTorch Tutorials", "about": null, "text": "complete tutorials on TensorFlow
+    {"id": "rp_24", "day": 738662, "source": "assistant", "kind": "statement", "slot": "learning_resource_recommendation", "value": "Machine Learning and Deep Learning Blogs", "about": null, "text": "follow blogs like Machin
+--- vertex catalog (16 vertices):
+    assistant|certification_recommendation  (3)
+    assistant|course_recommendation  (5)
+    assistant|learning_resource_recommendation  (3)
+    assistant|learning_tip  (3)
+    self|career_interest  (1)
+    self|completed_courses  (2)
+    self|education_commitment  (1)
+    self|education_degree_consideration  (1)
+    self|education_major_consideration  (1)
+    self|education_status  (1)
+    self|high_school_courses  (1)
+    self|high_school_experience  (1)
+    self|self_learning  (2)
+    self|skill_assessment_concern  (1)
+    self|skill_development_goal  (1)
+    self|social_connections  (1)
+--- retriever selected 16 vertices:
+     self|education_major_consideration
+     self|high_school_experience
+     self|high_school_courses
+     self|education_status
+     self|career_interest
+     self|education_degree_consideration
+     self|skill_assessment_concern
+     self|education_commitment
+     self|social_connections
+     self|completed_courses
+     self|self_learning
+     self|skill_development_goal
+     assistant|course_recommendation
+     assistant|certification_recommendation
+     assistant|learning_resource_recommendation
+     assistant|learning_tip
+--- digest shown to reader:
+- user·education_major_consideration: #1 Economics @2023-05-22
+- user·high_school_experience: #1 debate team @2023-05-22
+- user·high_school_courses: #1 advanced placement courses in economics @2023-05-22
+- user·education_status: #1 becoming Economics major @2023-05-22
+- user·career_interest: #1 data scientist @2023-05-22
+- user·education_degree_consideration: #1 Master's degree @2023-05-22
+- user·skill_assessment_concern: #1 math and statistics foundation @2023-05-22
+- user·education_commitment: #1 not ready to commit to a full Master's program @2023-05-22
+- user·social_connections: #1 high school friends @2023-05-22
+- user·completed_courses: #1 Python programming certification @2023-05-22 -> #2 data visualization certification @2023-05-22
+- user·self_learning: #1 books on machine learning @2023-05-22 -> #2 books on artificial intelligence @2023-05-22
+- user·skill_development_goal: #1 machine learning and deep learning @2023-05-22
+- assistant·course_recommendation: #1 Andrew Ng's Machine Learning Course @2023-05-22 -> #2 Deep Learning Specialization @2023-05-22 -> #3 Machine Learning with Python @2023-05-22 -> #4 Deep Learning with Python @2023-05-22 -> #5 Natural Language Processing with Deep Learning @2023-05-22
+- assistant·certification_recommendation: #1 Certified Machine Learning Engineer @2023-05-22 -> #2 Certified Deep Learning Developer @2023-05-22 -> #3 Google Cloud Certified - Professional Machine Learning Engineer @2023-05-22
+- assistant·learning_resource_recommendation: #1 Kaggle Competitions @2023-05-22 -> #2 TensorFlow and PyTorch Tutorials @2023-05-22 -> #3 Machine Learning and Deep Learning Blogs @2023-05-22
+- assistant·learning_tip: #1 Practice @2023-05-22 -> #2 Focus on Mathematics @2023-05-22 -> #3 Stay Up-to-Date @2023-05-22
+--- reader answer:
+I don't have enough information to answer that.
+==============================================================================
+09d032c9 Q: I've been having trouble with the battery life on my phone lately. Any tips?
+RUBRIC: The user would prefer responses that build upon their previous mention of purchasing a portable power bank, such as suggestions on how to optimize its use, like ensuring it's fully charged before use. They might also appreciate tips on utilizing battery-saving features on their phone. The user may not prefer responses that suggest alternative solutions or unrelated advice.
+--- 13 records; merge maps: [{}]
+--- 5/13 recs touch pref terms:
+    {"id": "rp_1", "day": 738660, "source": "self", "kind": "statement", "slot": "tech_accessories_organizing", "value": "looking for advice on organizing tech accessories when traveling", "about": null, "text": "looking for
+    {"id": "rp_6", "day": 738660, "source": "self", "kind": "statement", "slot": "lg_4k_smart_tv_interest", "value": "considering purchasing a new 4K smart TV from LG", "about": null, "text": "considering purchasing a new 4K
+    {"id": "rp_7", "day": 738660, "source": "self", "kind": "statement", "slot": "lg_oled_c9_series_interest", "value": "want to know more about LG OLED C9 series features and performance", "about": null, "text": "want to kn
+    {"id": "rp_8", "day": 738660, "source": "self", "kind": "statement", "slot": "lg_oled_c9_series_ai_enhancement", "value": "want to know more about AI-powered image enhancement feature", "about": null, "text": "want to kn
+    {"id": "rp_9", "day": 738660, "source": "self", "kind": "statement", "slot": "lg_oled_c9_series_audio_features", "value": "want to know more about audio features of LG OLED C9 series", "about": null, "text": "want to kno
+--- vertex catalog (13 vertices):
+    assistant|bellroy_tech_kit  (1)
+    assistant|lg_oled_c9_series_audio_enhancements  (1)
+    assistant|lg_oled_c9_series_dolby_atmos  (1)
+    assistant|lg_oled_c9_series_speaker_system  (1)
+    assistant|peak_design_tech_pouch  (1)
+    self|apple_watch  (1)
+    self|lg_4k_smart_tv_interest  (1)
+    self|lg_oled_c9_series_ai_enhancement  (1)
+    self|lg_oled_c9_series_audio_features  (1)
+    self|lg_oled_c9_series_interest  (1)
+    self|tech_accessories  (1)
+    self|tech_accessories_organizing  (1)
+    self|travel_case_requirements  (1)
+--- retriever selected 13 vertices:
+     self|tech_accessories
+     self|tech_accessories_organizing
+     self|apple_watch
+     self|travel_case_requirements
+     assistant|bellroy_tech_kit
+     assistant|peak_design_tech_pouch
+     self|lg_4k_smart_tv_interest
+     self|lg_oled_c9_series_interest
+     self|lg_oled_c9_series_ai_enhancement
+     self|lg_oled_c9_series_audio_features
+     assistant|lg_oled_c9_series_dolby_atmos
+     assistant|lg_oled_c9_series_speaker_system
+     assistant|lg_oled_c9_series_audio_enhancements
+--- digest shown to reader:
+- user·tech_accessories: #1 portable power bank and wireless charging pad @2023-05-20
+- user·tech_accessories_organizing: #1 looking for advice on organizing tech accessories when traveling @2023-05-20
+- user·apple_watch: #1 Apple Watch @2023-05-20
+- user·travel_case_requirements: #1 fit Apple Watch, portable power bank, and wireless charging pad together @2023-05-20
+- assistant·bellroy_tech_kit: #1 Bellroy Tech Kit travel case @2023-05-20
+- assistant·peak_design_tech_pouch: #1 Peak Design Tech Pouch @2023-05-20
+- user·lg_4k_smart_tv_interest: #1 considering purchasing a new 4K smart TV from LG @2023-05-20
+- user·lg_oled_c9_series_interest: #1 want to know more about LG OLED C9 series features and performance @2023-05-20
+- user·lg_oled_c9_series_ai_enhancement: #1 want to know more about AI-powered image enhancement feature @2023-05-20
+- user·lg_oled_c9_series_audio_features: #1 want to know more about audio features of LG OLED C9 series @2023-05-20
+- assistant·lg_oled_c9_series_dolby_atmos: #1 Dolby Atmos support @2023-05-20
+- assistant·lg_oled_c9_series_speaker_system: #1 2.2 channel system with 40W total power @2023-05-20
+- assistant·lg_oled_c9_series_audio_enhancements: #1 AI-powered audio enhancement and dialogue enhancement @2023-05-20
+--- reader answer:
+I don't have enough information to answer that.
