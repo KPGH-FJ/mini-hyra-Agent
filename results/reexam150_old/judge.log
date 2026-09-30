@@ -1,0 +1,30 @@
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 3/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+{
+  "n": 150,
+  "accuracy": 0.8466666666666667,
+  "by_type": {
+    "temporal-reasoning": 0.92,
+    "multi-session": 0.72,
+    "knowledge-update": 0.96,
+    "single-session-preference": 0.84,
+    "single-session-assistant": 0.68,
+    "single-session-user": 0.96
+  }
+}
