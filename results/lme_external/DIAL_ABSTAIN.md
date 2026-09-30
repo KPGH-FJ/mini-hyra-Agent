@@ -335,3 +335,32 @@ rather than a fourth clause.
 Files: `presup_probe.py`, `presup_probe.jsonl`,
 `presup_probe_metrics_atria.json`; audit cost numbers in
 `attr_*` artifacts.
+
+---
+
+## Premise-verification prototype — mechanism beats the clause ceiling
+
+Reader-side stage (`aanswer(premise_check=True)`, `PVERIFY_SYS` +
+`_pverify`/`_numbered_records`/`_pv_abstain` in reader.py): decompose
+the question's presupposed atoms (who / event / asked-detail), each
+must bind to ONE single numbered record — cross-record assembly =
+SPLICED, no record = ABSENT, both abstain with an explicit
+"records contain A and B but not the combined claim" rationale.
+v2 rule: event atoms bind on same-event restatement; the asked-detail
+must appear in the bound record's own words (quote required — no
+synonym/category/world-knowledge bridge).
+
+**14-question probe, Atria, saved snapshots: 13/14**
+| kind | score | detail |
+|---|---|---|
+| lesions (must abstain) | 6/7 | q182 splice ABSENT; q156 bridge ABSENT (the case no clause ever caught — "no record of Melanie having an adoption process of her own"); q91 store→studio ABSENT (v2 entity-noun rule); q162 art-scope ABSENT; q166/q186 lexical ABSENT/SPLICED. Sole residual: **q95 trophy — the verifier itself bridged "won first place" → "trophy"**; needs a stricter detail check (e.g. two-pass or verbatim-grep gate), not wording. |
+| guards (must answer) | 5/5 | zero over-fire: q161 bowl / q184 guitar / q188 setback (v1 over-fired on paraphrase-gap — fixed by event-restatement rule) + q3 adoption-agencies + q10 4-years all answered. The 3 cat5-labeled guards carry gold=None — rows adjudicated against the transcript (answers verify). |
+| adv_ctrl (stay abstain) | 2/2 | c1_q79, c2_q152 |
+
+v1 → v2: +1 guard rescued (paraphrase-gap over-fire), +1 lesion caught
+(entity-noun store≠studio). Cost: +1 call/question (the verify stage;
+fail-open on parse failure) — same marginal economics as the ingest
+audit pass. Files: `pv_probe.py`, `pv_probe.jsonl` (+`_v1`),
+`pv_probe_metrics_atria.json`, `pv_probe_metrics_atria_adj.json`.
+Flagged open: gate-on-all-questions vs adversarial-only — no over-fire
+observed at n=14, so gate-all is viable at +1 call/q.

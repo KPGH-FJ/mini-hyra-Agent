@@ -1,0 +1,96 @@
+{
+  "arm": "merged+pverify",
+  "n": 14,
+  "acc": 0.7142857142857143,
+  "by_kind": {
+    "lesion": "6/7",
+    "guard": "2/5",
+    "adv_ctrl": "2/2"
+  },
+  "rows": [
+    {
+      "qid": "c0_q182",
+      "kind": "lesion",
+      "verdict": "ABSENT",
+      "correct": true
+    },
+    {
+      "qid": "c0_q156",
+      "kind": "lesion",
+      "verdict": "ABSENT",
+      "correct": true
+    },
+    {
+      "qid": "c0_q166",
+      "kind": "lesion",
+      "verdict": "ABSENT",
+      "correct": true
+    },
+    {
+      "qid": "c1_q91",
+      "kind": "lesion",
+      "verdict": "ABSENT",
+      "correct": true
+    },
+    {
+      "qid": "c1_q95",
+      "kind": "lesion",
+      "verdict": "SUPPORTED",
+      "correct": false
+    },
+    {
+      "qid": "c2_q162",
+      "kind": "lesion",
+      "verdict": "ABSENT",
+      "correct": true
+    },
+    {
+      "qid": "c2_q186",
+      "kind": "lesion",
+      "verdict": "SPLICED",
+      "correct": true
+    },
+    {
+      "qid": "c0_q161",
+      "kind": "guard",
+      "verdict": "SUPPORTED",
+      "correct": false
+    },
+    {
+      "qid": "c0_q184",
+      "kind": "guard",
+      "verdict": "SUPPORTED",
+      "correct": false
+    },
+    {
+      "qid": "c0_q188",
+      "kind": "guard",
+      "verdict": "SUPPORTED",
+      "correct": false
+    },
+    {
+      "qid": "c0_q3",
+      "kind": "guard",
+      "verdict": "SUPPORTED",
+      "correct": true
+    },
+    {
+      "qid": "c0_q10",
+      "kind": "guard",
+      "verdict": "SUPPORTED",
+      "correct": true
+    },
+    {
+      "qid": "c1_q79",
+      "kind": "adv_ctrl",
+      "verdict": "ABSENT",
+      "correct": true
+    },
+    {
+      "qid": "c2_q152",
+      "kind": "adv_ctrl",
+      "verdict": "ABSENT",
+      "correct": true
+    }
+  ]
+}
