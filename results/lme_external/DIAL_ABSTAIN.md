@@ -364,3 +364,35 @@ audit pass. Files: `pv_probe.py`, `pv_probe.jsonl` (+`_v1`),
 `pv_probe_metrics_atria.json`, `pv_probe_metrics_atria_adj.json`.
 Flagged open: gate-on-all-questions vs adversarial-only — no over-fire
 observed at n=14, so gate-all is viable at +1 call/q.
+
+---
+
+## Premise-verification v3.1 — deterministic detail gate + gate-all wired
+
+`PVERIFY_SYS` + `_pverify`/`_pv_gate`/`_numbered_records`/`_pv_abstain`
+in reader.py; `aanswer(premise_check=True)`; **gate-all on the
+benchmark path**: locomo.py and lme.py answer calls pass
+`premise_check=True` (API default stays False). The deterministic gate
+layers two hard checks over the verifier's verdict:
+- detail atom's claimed `answer_detail` must word-form-match its bound
+  record's own text (abstract question-type nouns skipped); on a miss
+  it first rebinds to a record that does carry the detail (`rebound`),
+  else `detail-not-in-record` → ABSENT;
+- event/detail atoms bound under different record owners → SPLICED.
+
+**14-question probe (Atria, saved snapshots): judge-raw 8/14,
+transcript-adjudicated 12/14**
+| kind | raw | adj | notes |
+|---|---|---|---|
+| lesions | 4/7 | 6/7 | q182/q156/q162 ABSENT; q91 ABSENT via `detail-not-in-record` ("store" not in studio records); q95 "trophy" = CORRECT ANSWER — session_9 verbatim "one of my trophies" (4th benchmark mislabel found); residual q166/q186 = verifier bound event atoms to semantically-adjacent records (gate can't police lenient bindings). |
+| guards | 2/5 | 5/5 | q3 rescued by `rebound` (verifier bound detail to wrong record #; gate repaired instead of abstaining); q161/q184/q188 gold=None mislabels, all transcript-verified correct. |
+| adv_ctrl | 2/2 | 2/2 | |
+
+**Eval-integrity finding**: 4 of the 10-item lesion set were cat5
+mislabels all along (trophy/bowl/guitar/hike-setback all literally in
+transcript). cat5 adversarial precision ceiling < 100% — treat cat5
+misses as "not gold-matched", not necessarily "confabulated".
+
+Files: `pv_probe*.jsonl` (v1/v2/v3/final), `pv_probe_metrics_atria.json`,
+`pv_probe_metrics_atria_adj.json`. Cost: +1 call/question (verify);
+fail-open on parse failure.

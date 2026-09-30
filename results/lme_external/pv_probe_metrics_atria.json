@@ -1,9 +1,9 @@
 {
   "arm": "merged+pverify",
   "n": 14,
-  "acc": 0.7142857142857143,
+  "acc": 0.5714285714285714,
   "by_kind": {
-    "lesion": "6/7",
+    "lesion": "4/7",
     "guard": "2/5",
     "adv_ctrl": "2/2"
   },
@@ -23,8 +23,8 @@
     {
       "qid": "c0_q166",
       "kind": "lesion",
-      "verdict": "ABSENT",
-      "correct": true
+      "verdict": "SUPPORTED",
+      "correct": false
     },
     {
       "qid": "c1_q91",
@@ -47,8 +47,8 @@
     {
       "qid": "c2_q186",
       "kind": "lesion",
-      "verdict": "SPLICED",
-      "correct": true
+      "verdict": "SUPPORTED",
+      "correct": false
     },
     {
       "qid": "c0_q161",
