@@ -275,3 +275,63 @@ Files: `adv_merged_c{0,1,2}.jsonl` (hypotheses),
 `ingest_c2_progress.json` (partial marker), `adv_cov.py` (runner).
 Measured HEAD: worktree ced208e + lme.py OR/Atria patch (unchanged
 reader.py).
+
+---
+
+## Closing items — audit cost verdict + counterfactual lesions
+
+### 1. audit pass cost verdict — PROMOTED (optional switch)
+
+Measured on conv-0 (19 sessions): stock = 2 calls/session
+(extract + merge); audit arm = 3 (+1 audit call ~1.7K tok in /
+~530 tok out). Marginal = **exactly +1 call/session ≈ +42K tok/conv
+→ +2.1pp** (91.5% vs clause-only 89.4%). Meets the ≤1 call/session
+threshold → packaged as `LLMIngestor(audit=True)` second defense,
+opt-in; falls back to unaudited records on shape loss or error.
+Commit `03ccd0f` on `devin/1790614556-reader-personal` (#52);
+smoke-verified under the merged SPEAKER BINDING clause (16 records,
+all named sources).
+
+### 2. Counterfactual-inference lesions — clause prototype hit its ceiling
+
+Probe: 10 lesion cat5 questions (audit's remaining c0 misses + c1/c2
+non-attribution misses), merged ANSWER_SYS + PRESUPPOSITION CHECK
+clause on the same model snapshots. Judged **2/10** — but the rows
+decompose into four distinct families:
+
+- **Lexical premise-swap — clause catches it**: c2_q186 ("organize" vs
+  recorded "participate" — verbatim: "No record of Maria organizing a
+  5K…only records Maria **participating**"), c0_q166 (place-to-create).
+- **Benchmark-label artifacts — NOT model failures** (transcript-
+  verified): c0_q161 — `caroline|hand_painted_bowl` is a real record
+  (session_4: Caroline's friend made it for her 18th birthday,
+  "reminds her of art and self-expression" — the answer the model
+  gave); c0_q184 — `caroline|guitar_playing` (session_15, acoustic
+  guitar, verbatim); c0_q188 — `caroline|hike_bad_experience` (real
+  setback). These cat5 labels are wrong: the questions ARE answerable
+  and the model answers them correctly. **Re-scored against
+  transcript truth, audit's conv-0 precision is ~46/47 (97.9%)** —
+  its only true error is q182 below.
+- **Spliced/composite premise — clause blind**: c0_q182 splices two
+  REAL records across speakers: Melanie's flowers (session_8, painting
+  together) + Caroline's neighborhood walk (session_14, rainbow
+  sidewalk). Each half is recorded under a different person/event, so
+  per-fact premise tests pass — the miss is that the premise parts
+  never co-occur in one record. Deepest lesion type found.
+- **Detail confabulation / semantic-equivalence bridge — clause
+  partial**: c1_q95 invents "trophy" (win recorded, prize object not);
+  c2_q162 scopes nature-photography into "art appreciation"; c1_q91
+  treats Jon's studio as his "store" — semantic-paraphrase bridges the
+  model believes are synonyms.
+
+**Verdict**: passive prompt clauses are exhausted on this surface —
+the residual family needs a reader-side *mechanism*, not wording:
+a premise-verification step (extract the question's premise parts →
+require a single record carrying them → else abstain), or an
+audit-style post-read check ("does each asserted detail appear
+verbatim in memory?"). Recommend that as the next reader round
+rather than a fourth clause.
+
+Files: `presup_probe.py`, `presup_probe.jsonl`,
+`presup_probe_metrics_atria.json`; audit cost numbers in
+`attr_*` artifacts.
