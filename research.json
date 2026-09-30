@@ -708,6 +708,25 @@
     "links": {
      "pr": "#52-#56 队列"
     }
+   },
+   {
+    "id": "v11",
+    "date": "2026-09-30",
+    "title": "150q 全栈 A/B + ms 崩塌根因闭环 + 自足性修复",
+    "setup": "lab#1: LME-150 old-stack vs new-stack 全 Atria 复测 → 归因臂链；lab#2: LoCoMo who-swap 记录形态验证 + selfcheck 确定性后检",
+    "findings": [
+     "A/B: old 84.7% vs new 78.0%（Atria），multi-session 72→28 崩塌（11题单向翻错）——新摄入 ~2.6× 记录数是嫌疑首因",
+     "归因链：检索/渲染层完全排除（2×2 定位 new ingest；crowding/dilution 三臂修复全 ≤+1 题）；v_consol 深合并单题翻转=首个因果信号",
+     "根因 = decompose 产出非自足记录：L1 属性剥离（'5 days'孤儿）/L2 主语剥离（物品活在他顶点）/L3 整事实丢弃（Utah行+排除项消失）/L4 顶点塌缩（48→7）",
+     "自足 bullet（SELF-CONTAINED RECORDS）阶段1：3 道解剖题 L1-L4 全清零、粒度恢复 7→61 顶点；LoCoMo 侧 who-swap 代词裸值清零——双基准形态验证",
+     "selfcheck 确定性后检：bullet 后残余 ~5%（L2 残型集中在最差 session 3a704032 55.6% clean）；误报类=assistant 祈使句/大小写月名碰撞/模糊时词白名单",
+     "答案侧机制的判题者依赖性：三段式候选表弱判题者（OR）+16pp，强判题者（Atria）−44pp——assist=True 已改 opt-in"
+    ],
+    "verdict": "ms 崩塌根因=摄入自足性，非检索非挤兑非稀释；bullet 已下沉 EXTRACT_SYS（PR #65）；ms-25 全量重摄入复测进行中（决定性分数验证）",
+    "links": {
+     "pr": "#59-#65",
+     "report": "results/reexam150/REPORT.md + results/lme_recorddiff/REPORT.md"
+    }
    }
   ]
  }
