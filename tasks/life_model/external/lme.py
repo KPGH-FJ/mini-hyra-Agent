@@ -119,7 +119,7 @@ def _make_llm(args, thinking=False, backend=None):
             base_url="https://openrouter.ai/api/v1",
             api_key=getattr(args, "api_key", None)
             or os.environ.get("OR_API_KEY", ""),
-            max_tokens=16384, extra_body=body)
+            max_tokens=8192, extra_body=body)
     return OpenAICompatLLM(model=args.model, base_url=args.base_url,
                            api_key=args.api_key, max_tokens=8192)
 
