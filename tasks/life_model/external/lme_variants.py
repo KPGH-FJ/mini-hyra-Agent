@@ -32,8 +32,24 @@ _STACK_ROOT = os.environ.get(
         os.path.dirname(__file__), "..", "..", "..")))
 sys.path.insert(0, _STACK_ROOT)
 from lifemodel.model import LifeModel  # noqa: E402
+from lifemodel import ingest_llm  # noqa: E402
 from lifemodel.ingest_llm import LLMIngestor  # noqa: E402
 from lifemodel import reader  # noqa: E402
+
+# LME_SELFCONTAIN=1 appends the self-containment bullet to the extract
+# system prompt — decompose must emit records that stand alone
+# (subject + event + temporal anchor inline; no orphaned
+# date/duration vertices; acquisition facts keep item+action+source+date).
+_SELFCONTAIN_BULLET = (
+    "- SELF-CONTAINED RECORDS: every record must stand alone — named "
+    "subject + complete fact + temporal anchor inline. Never emit bare "
+    "values (\"5 days\", \"peace lily\", \"last month\") without their "
+    "referent; keep dates and durations inside the fact record, never "
+    "split them into a separate vertex; acquisition/state-change facts "
+    "keep {item + action + source + date} in one record.\n")
+if os.environ.get("LME_SELFCONTAIN"):
+    ingest_llm.EXTRACT_SYS = (ingest_llm.EXTRACT_SYS.rstrip() + "\n"
+                              + _SELFCONTAIN_BULLET)
 from lme import GLMCompat, _ordinal  # noqa: E402
 from hyra.llm import OpenAICompatLLM  # noqa: E402
 
