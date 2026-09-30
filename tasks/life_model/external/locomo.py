@@ -125,8 +125,8 @@ def run(args):
         m = models[ci]
         try:
             resp = asyncio.run(aanswer(
-                m, llm_a, q["question"], "2023 (post-conversation)"))[
-                "response"]
+                m, llm_a, q["question"], "2023 (post-conversation)",
+                premise_check=True))["response"]
         except Exception as e:
             resp = f"(error: {e})"
         fout.write(json.dumps({
