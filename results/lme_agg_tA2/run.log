@@ -1,0 +1,54 @@
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 3/8): HTTP Error 429: Too Many Requests
+[1/13] f0853d11 recs=58 extract={'prompt_tokens': 8369, 'completion_tokens': 13342, 'calls': 3} answer={'prompt_tokens': 6463, 'completion_tokens': 2834, 'calls': 12}
+[2/13] gpt4_6ed717ea recs=73 extract={'prompt_tokens': 16544, 'completion_tokens': 22338, 'calls': 6} answer={'prompt_tokens': 16909, 'completion_tokens': 5133, 'calls': 24}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+truncated; retrying max_tokens=16384
+[3/13] gpt4_70e84552 recs=145 extract={'prompt_tokens': 26567, 'completion_tokens': 47020, 'calls': 10} answer={'prompt_tokens': 27623, 'completion_tokens': 7161, 'calls': 36}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+truncated; retrying max_tokens=16384
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+truncated; retrying max_tokens=16384
+[4/13] a3838d2b recs=233 extract={'prompt_tokens': 54204, 'completion_tokens': 89996, 'calls': 22} answer={'prompt_tokens': 47173, 'completion_tokens': 23279, 'calls': 49}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 3/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 4/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[5/13] gpt4_93159ced recs=101 extract={'prompt_tokens': 62251, 'completion_tokens': 98174, 'calls': 25} answer={'prompt_tokens': 53592, 'completion_tokens': 26354, 'calls': 61}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+truncated at cap; continuing (cont #1, 22018 chars so far)
+llm call failed (attempt 1/8): HTTP Error 502: Bad Gateway
+[6/13] gpt4_2d58bcd6 recs=35 extract={'prompt_tokens': 80231, 'completion_tokens': 109746, 'calls': 28} answer={'prompt_tokens': 66433, 'completion_tokens': 27921, 'calls': 69}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[7/13] gpt4_65aabe59 recs=102 extract={'prompt_tokens': 88806, 'completion_tokens': 123589, 'calls': 31} answer={'prompt_tokens': 73621, 'completion_tokens': 29991, 'calls': 81}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+truncated; retrying max_tokens=16384
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[8/13] 982b5123 recs=98 extract={'prompt_tokens': 96663, 'completion_tokens': 141624, 'calls': 35} answer={'prompt_tokens': 83453, 'completion_tokens': 36229, 'calls': 93}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[9/13] b9cfe692 recs=88 extract={'prompt_tokens': 106764, 'completion_tokens': 153620, 'calls': 40} answer={'prompt_tokens': 104557, 'completion_tokens': 38481, 'calls': 100}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+[10/13] gpt4_4edbafa2 recs=99 extract={'prompt_tokens': 115241, 'completion_tokens': 165216, 'calls': 43} answer={'prompt_tokens': 118976, 'completion_tokens': 41933, 'calls': 112}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[11/13] c8090214 recs=89 extract={'prompt_tokens': 122772, 'completion_tokens': 175530, 'calls': 46} answer={'prompt_tokens': 126872, 'completion_tokens': 43933, 'calls': 124}
+truncated at cap; continuing (cont #1, 14992 chars so far)
+[12/13] gpt4_483dd43c recs=144 extract={'prompt_tokens': 138409, 'completion_tokens': 191771, 'calls': 50} answer={'prompt_tokens': 162390, 'completion_tokens': 44951, 'calls': 132}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+[13/13] e4e14d04 recs=97 extract={'prompt_tokens': 145715, 'completion_tokens': 205008, 'calls': 53} answer={'prompt_tokens': 189074, 'completion_tokens': 48060, 'calls': 140}
