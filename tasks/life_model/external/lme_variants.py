@@ -452,13 +452,70 @@ async def v_tjoin(model, llm, question, qdate):
     return {"response": resp, "selected": keys, "digest": dg}
 
 
+# ---------- catalog-crowding repair variants -------------------------------
+
+async def v_famcatalog(model, llm, question, qdate):
+    """Catalog grouped into entity-family blocks: the LLM picks
+    families; every member vertex of a picked family enters the digest."""
+    cat = reader.vertex_catalog(model)
+    fams = {}
+    for k, (lab, n) in cat.items():
+        fams.setdefault(_entity_of(k), []).append(k)
+    if len(fams) <= 1:
+        return await _answer_from_keys(model, llm, question, qdate,
+                                       list(cat))
+    listing = "\n".join(
+        f"{f}  ({len(ks)} vertices, {sum(cat[k][1] for k in ks)} entries)"
+        for f, ks in fams.items())
+    prompt = (f"Today: {qdate}\n\nENTITY CATALOG:\n{listing}\n\n"
+              f"QUESTION: {question}\n\nRelevant entity names JSON array:")
+    picks = reader._json_list(await llm.complete(RETRIEVE_SYS, prompt))
+    fam_picks = [f for f in picks if isinstance(f, str) and f in fams]
+    if not fam_picks:
+        fam_picks = list(fams)
+    keys = _dedup([k for f in fam_picks for k in fams[f]])
+    return await _answer_from_keys(model, llm, question, qdate, keys)
+
+
+async def v_budget(model, llm, question, qdate):
+    """Adaptive budget: the LLM may pick up to min(len(cat), 50)
+    vertices — pure quantity, no family expansion."""
+    cat = reader.vertex_catalog(model)
+    budget = min(len(cat), 50)
+    if len(cat) <= budget:
+        return await _answer_from_keys(model, llm, question, qdate,
+                                       list(cat))
+    listing = "\n".join(
+        f"{k}  ({n} entries)" for k, (_, n) in cat.items())
+    prompt = (f"Today: {qdate}\n\nVERTEX CATALOG:\n{listing}\n\n"
+              f"QUESTION: {question}\n\nSelect up to {budget} relevant "
+              f"vertex keys. JSON array:")
+    picks = reader._json_list(await llm.complete(RETRIEVE_SYS, prompt))
+    keys = [k for k in picks if isinstance(k, str) and k in cat]
+    keys = keys[:budget] if keys else list(cat)[:budget]
+    return await _answer_from_keys(model, llm, question, qdate, keys)
+
+
+async def v_closure(model, llm, question, qdate):
+    """Same vertex pick as base; then auto-include every catalog vertex
+    sharing an `about` entity with a picked vertex."""
+    cat = reader.vertex_catalog(model)
+    keys = await reader.aretrieve(model, llm, question, qdate)
+    ents = {_entity_of(k) for k in keys}
+    keys += [k for k in cat if k not in set(keys)
+             and _entity_of(k) in ents]
+    return await _answer_from_keys(model, llm, question, qdate, keys)
+
+
 VARIANTS = {"base": v_base, "entity": v_entity, "twohop": v_twohop,
             "pick10": v_pick10, "pick50": v_pick50, "kwfilter": v_kwfilter,
             "fam": v_fam, "topic": v_topic, "recur": v_recur,
             "big150": v_big150, "mix": v_mix,
             "twopass": v_twopass, "router": v_router,
             "verify": v_verify, "code": v_code,
-            "gate": v_gate, "tjoin": v_tjoin}
+            "gate": v_gate, "tjoin": v_tjoin,
+            "famcatalog": v_famcatalog, "budget": v_budget,
+            "closure": v_closure}
 
 
 # ---------- driver ---------------------------------------------------------

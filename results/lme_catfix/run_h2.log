@@ -1,0 +1,16 @@
+stream cut mid-flight; resuming (cont #1, 0 chars so far)
+[1/12] 46a3abf7 recs=108 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 8956, 'completion_tokens': 4902, 'calls': 5}
+[2/12] 36b9f61e recs=61 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 17531, 'completion_tokens': 7184, 'calls': 10}
+[3/12] 28dc39ac recs=146 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 29685, 'completion_tokens': 16218, 'calls': 15}
+truncated; retrying max_tokens=16384
+stream cut mid-flight; resuming (cont #1, 0 chars so far)
+[4/12] gpt4_2f8be40d recs=75 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 40555, 'completion_tokens': 35735, 'calls': 21}
+[5/12] 2e6d26dc recs=133 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 49027, 'completion_tokens': 42312, 'calls': 29}
+[6/12] gpt4_15e38248 recs=142 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 57357, 'completion_tokens': 49790, 'calls': 37}
+[7/12] 88432d0a recs=106 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 66922, 'completion_tokens': 68903, 'calls': 45}
+[8/12] 80ec1f4f recs=104 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 76669, 'completion_tokens': 71227, 'calls': 50}
+[9/12] d23cf73b recs=137 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 88794, 'completion_tokens': 76203, 'calls': 58}
+truncated; retrying max_tokens=16384
+[10/12] gpt4_7fce9456 recs=114 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 102817, 'completion_tokens': 104208, 'calls': 67}
+[11/12] d682f1a2 recs=81 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 111260, 'completion_tokens': 106851, 'calls': 72}
+[12/12] 7024f17c recs=55 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 118766, 'completion_tokens': 108878, 'calls': 77}
