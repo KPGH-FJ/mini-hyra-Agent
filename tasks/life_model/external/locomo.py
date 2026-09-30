@@ -33,7 +33,7 @@ from lifemodel.ingest_llm import LLMIngestor  # noqa: E402
 from lifemodel.reader import aanswer  # noqa: E402
 
 CAT = {1: "multi-hop", 2: "temporal", 3: "single-hop",
-       4: "adversarial", 5: "open-domain"}
+       4: "open-domain", 5: "adversarial"}
 
 ABS = "I don't have enough information to answer that."
 
@@ -44,13 +44,26 @@ def sessions(conv: dict) -> list:
                    if k.startswith("session_")
                    and not k.endswith("_date_time")),
                   key=lambda k: int(k.split("_")[1]))
-    return [(conv.get(k + "_date_time", ""), conv[k]) for k in keys]
+    out = []
+    for k in keys:
+        label = conv.get(k + "_date_time", "")
+        try:  # '1:56 pm on 8 May, 2023' -> '2023-05-08' as resolution anchor
+            import datetime as dt
+            label = dt.date.fromordinal(_day_of(label)).isoformat()
+        except Exception:
+            pass
+        out.append((label, conv[k]))
+    return out
 
 
 def _day_of(date_label: str) -> int:
-    """LoCoMo dates like '1:56 pm on 8 May, 2023'. Ordinal or stable hash."""
+    """LoCoMo dates like '1:56 pm on 8 May, 2023' or ISO '2023-05-08'."""
     import datetime as dt
     import re
+    m = re.match(r"(\d{4})-(\d{2})-(\d{2})", date_label)
+    if m:
+        y, mo, d = m.groups()
+        return dt.date(int(y), int(mo), int(d)).toordinal()
     m = re.search(r"(\d{1,2})\s+(\w+),?\s+(\d{4})", date_label)
     if m:
         d, mon, y = m.groups()
@@ -146,7 +159,7 @@ def judge(args):
         g = gold.get(h["qid"])
         if not g:
             continue
-        is_abs = h["category"] == 4
+        is_abs = h["category"] == 5
         note = ("This question is UNANSWERABLE from the conversation; "
                 "yes only if the response abstains/doesn't invent. "
                 if is_abs else "")

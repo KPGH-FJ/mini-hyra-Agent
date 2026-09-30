@@ -31,10 +31,13 @@ corrected, [retraction] withdrawn, [hearsay] second-hand claim,
 
 Answer the user's question using ONLY this memory.
 - Resolve relative dates against today's date given below.
-- A value may carry ` (on YYYY-MM-DD)` — that is the EVENT's own date
-  (when the thing happened), while `@YYYY-MM-DD` after the value is the
-  date it was SAID. When a question asks when something happened,
-  prefer the (on ...) event date over the said-date.
+- A value may carry ` (on <date>)` — that is the EVENT's own date,
+  resolved to a day (YYYY-MM-DD) or kept verbatim when fuzzy
+  ("June 2023", "the week before X"), while `@YYYY-MM-DD` after the
+  value is the date it was SAID. When a question asks when something
+  happened, prefer the (on ...) event date over the said-date; answer
+  at the granularity the question deserves (a "June 2023" answer is
+  correct for a "June 2023" fact).
 - If several values exist over time, the LATEST non-retracted one is
   current.
 - COUNTING / AGGREGATION: for "how many", "how often", "total",
@@ -43,9 +46,57 @@ Answer the user's question using ONLY this memory.
   meaning (same fact stated twice = one), then count/compare. Write
   down the enumeration before answering — most aggregation errors come
   from answering off a partial list.
+- PERSONALIZATION: for preference/recommendation/opinion questions
+  ("would I like", "recommend", "do I prefer", "what should I"),
+  treat the memory as the user's PROFILE, not a lookup table. Infer
+  their taste from whatever entries exist (likes, dislikes, habits,
+  past choices) and give a personalized answer. A recommendation needs
+  no literal matching entry — related preferences are enough.
 - Abstain ONLY if nothing is remotely relevant; then say exactly:
   "I don't have enough information to answer that."
-- Answer concisely, no preamble."""
+- Answer concisely, no preamble.
+
+- EVIDENCE RULE: before asserting an answer, you must be able to point
+  to a specific memory entry (a value plus its date) that supports it.
+  If memory only supports adjacent facts — not the specific thing asked —
+  say exactly "Memory only records X; it does not answer Y."
+  Never present adjacent facts as the answer.
+- SUBJECT CHECK: each memory line names who it is about ("caroline
+  (per self)·slot" / "user·slot"). An answer may only attribute a fact
+  to the person its line names. If the question asks about person X but
+  the matching records are about person Y, say the records describe Y —
+  e.g. "the records describe Y's adoption process, not X's". Never
+  silently transfer one person's facts to another."""
+
+PVERIFY_SYS = """You are the premise-verification stage of a memory reader.
+
+A question is only answerable when the facts it PRESUPPOSES are each
+stated by a memory record. Work in two steps:
+
+1. Break the question's presupposed claim into atomic parts:
+   <who> + <what fact or event> + <the specific detail asked for>
+   (the noun or value that would form the answer — "trophy",
+   "store", "walk").
+2. For EACH atomic part find ONE single record (by number) and quote
+   the record's exact words for it. The same person/event described in
+   different words counts as a bind; assembling a part across
+   different records does NOT count — if the parts live in different
+   records or under different people, the premise is SPLICED.
+3. The asked-detail is the strict test: it must appear in the bound
+   record's own words — verbatim, or as content that directly IS the
+   detail (a record narrating the asked event states the detail as its
+   content). Never bridge it through a synonym, a broader category, or
+   world knowledge: "won first place" does NOT establish "a trophy",
+   "dance studio" does NOT establish "a store".
+
+Return ONLY JSON:
+{"atoms": [{"part": "...", "record": <record number or null>,
+            "quote": "<record words or empty>"}],
+ "verdict": "SUPPORTED" | "SPLICED" | "ABSENT"}
+- SUPPORTED: every atomic part binds to a single record.
+- SPLICED: the parts exist only spread across different records or
+  different people.
+- ABSENT: at least one part has no record at all."""
 
 
 def _iso(ordinal: int) -> str:
@@ -114,14 +165,77 @@ async def aretrieve(model, llm, question: str, qdate: str,
     return keys
 
 
-async def aanswer(model, llm, question: str, qdate: str) -> dict:
-    """Two-stage answer. Returns {response, selected_vertices, digest}."""
+def _numbered_records(model, keys: list[str]) -> str:
+    """One numbered record per edge — the unit premise atoms bind to."""
+    hist = model.export()["asset"].get("hist", {})
+    lines, n = [], 0
+    for key in keys:
+        for e in hist.get(key, []):
+            val, day, kind = e[0], e[1], e[2]
+            n += 1
+            tag = "" if kind in ("statement", "update") else f"[{kind}]"
+            lines.append(f"R{n} [{_label(key)}]: {val} @{_iso(day)}{tag}")
+    return "\n".join(lines) if lines else "(no records)"
+
+
+async def _pverify(llm, question: str, qdate: str, listing: str) -> dict:
+    """Bind the question's premise atoms to single records."""
+    prompt = (f"Today: {qdate}\n\nMEMORY RECORDS:\n{listing}\n\n"
+              f"QUESTION: {question}\n\nVerify the premise. JSON:")
+    t = await llm.complete(PVERIFY_SYS, prompt)
+    i, j = t.find("{"), t.rfind("}")
+    data = {}
+    if i >= 0 and j > i:
+        try:
+            data = json.loads(t[i:j + 1])
+        except Exception:
+            data = {}
+    return {"atoms": data.get("atoms") or [],
+            "verdict": str(data.get("verdict", "")).strip().upper()}
+
+
+def _pv_abstain(verify: dict) -> str:
+    atoms = verify.get("atoms") or []
+    found = [a["part"] for a in atoms
+             if isinstance(a, dict) and a.get("record") and a.get("part")]
+    missing = [a["part"] for a in atoms
+               if isinstance(a, dict) and not a.get("record")
+               and a.get("part")]
+    if verify.get("verdict") == "SPLICED" and found:
+        return ("Memory records the parts of that claim separately — "
+                + "; ".join(found)
+                + " — but no record combines them, so it does not "
+                  "answer the question.")
+    if missing:
+        return ("Memory has no record of " + "; ".join(missing)
+                + ", so it does not answer the question.")
+    return "Memory does not contain the presupposed fact, so it does not answer the question."
+
+
+async def aanswer(model, llm, question: str, qdate: str,
+                  premise_check: bool = False) -> dict:
+    """Two-stage answer. Returns {response, selected_vertices, digest}.
+
+    premise_check inserts a verification stage between retrieval and
+    answering for adversarial / composite-premise questions: the
+    question's presupposed atoms must each bind to ONE single record —
+    a premise assembled across records (spliced) or absent from memory
+    yields an explicit abstention instead of a bridged answer.
+    """
     keys = await aretrieve(model, llm, question, qdate)
     dg = render_vertices(model, keys)
+    verify = None
+    if premise_check:
+        verify = await _pverify(
+            llm, question, qdate, _numbered_records(model, keys))
+        if verify["verdict"] in ("SPLICED", "ABSENT"):
+            return {"response": _pv_abstain(verify), "selected": keys,
+                    "digest": dg, "verify": verify}
     prompt = (f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\n"
               f"QUESTION: {question}\n\nAnswer:")
     resp = (await llm.complete(ANSWER_SYS, prompt)).strip()
-    return {"response": resp, "selected": keys, "digest": dg}
+    return {"response": resp, "selected": keys, "digest": dg,
+            "verify": verify}
 
 
 def answer(model, llm, question: str, qdate: str) -> str:

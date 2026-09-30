@@ -24,18 +24,30 @@ import asyncio
 import json
 import re
 
-EXTRACT_SYS = """You extract memory records from a chat session between a user
-and an AI assistant. Extract EVERY piece of personal information the user
-reveals: facts, events, preferences, plans, possessions, relationships,
-experiences, opinions, problems they mention.
+EXTRACT_SYS = """You extract memory records from a chat session — either between a
+user and an AI assistant, or between named people whose speaker names
+prefix each utterance line as `Name:`. Extract EVERY piece of personal
+information the speakers reveal: facts, events, preferences, plans,
+possessions, relationships, experiences, opinions, problems they
+mention.
 Output a JSON array of records:
 {"slot": "snake_case_topic", "value": "what was said",
  "about": null or "person name", "kind": "statement",
  "source": "self", "text": "supporting quote <=20 words"}
-- about=null means the fact is about the user; about="name" for facts
-  about other people; things others said that the user relays ->
+- about=null means the fact is about the user (or about the utterance's
+  own speaker in a named-person chat); about="name" for facts about
+  other people; things a speaker relays that others said ->
   kind="hearsay".
-- ASSISTANT turns: also record the SUBSTANTIVE CONTENT the assistant
+- SPEAKER BINDING: when utterance lines carry a `Name:` speaker prefix
+  — a chat between named people, no AI assistant exists there; the
+  prefix may also sit inside an outer role tag like `USER: Name: ...`
+  — bind each record to the real name: source="<that name, lowercase>"
+  and about=null for the speaker themself, about="<person name>" for
+  facts about someone else. Never collapse named speakers into
+  source="self"/"user"/"assistant" — generic labels destroy
+  attribution downstream.
+- ASSISTANT turns (only when the session actually has an assistant
+  side): also record the SUBSTANTIVE CONTENT the assistant
   produced — names it invented, lists/tables/texts it generated,
   recommendations it gave -> source="assistant", kind="statement",
   about=null.
@@ -47,10 +59,13 @@ Output a JSON array of records:
 - kind="update" if it changes an earlier statement; "correction" /
   "retraction" for taking something back; "suggestion" for advice.
 - EVENT DATES: when the utterance says WHEN something happened or will
-  happen (absolute date or relative like "last Tuesday", "in March"),
-  append it to the value as ` (on YYYY-MM-DD)` resolved against the
-  session date. This is the event's own date, distinct from the session
-  date. Only append when a date is actually stated or implied.
+  happen, append it to the value as ` (on <date>)`. Resolve to
+  YYYY-MM-DD against the session date when a single day is identified
+  ("last Tuesday", "May 7th"); when the stated time is fuzzy or
+  relative to another event ("June 2023", "the week before my talk",
+  "next month"), keep it VERBATIM, e.g. ` (on June 2023)` — never drop
+  it and never invent a day. This is the event's own date, distinct
+  from the session date. Only append when a date is actually stated.
 - Keep slot names consistent; reuse names from the existing slot list
   when one covers the fact.
 Extract liberally — even small details count. Empty array only if truly
@@ -63,6 +78,21 @@ catalog name when they denote the same attribute/fact, or keep the new
 name when nothing fits. Merge aggressively across synonyms and phrasing
 variants (car_gps_issue -> car_problem), but do not merge distinct
 attributes. Return ONLY a JSON object {new_name: canonical_name}."""
+
+AUDIT_SYS = """You audit extracted memory records for speaker
+attribution. The session is a chat between named people; each
+utterance line is prefixed `Name:` with the speaker's real name.
+You get the session and a JSON array of records. Every record has
+"source" (who was credited), "about" (who the fact concerns), and
+"text" (a supporting quote). Generic sources like "self", "user" and
+"assistant" mean the extractor did not name the speaker.
+For EVERY record: locate the utterance its text/value came from and set
+source = that speaker's lowercase first name. Set about=null when the
+fact is about the speaker themself, or about="<person name>" when it
+concerns someone else. Fix kind="hearsay" when a speaker relays a third
+party's words. Do NOT add or drop records and do NOT change
+slot/value/text — fix attribution only. Keep the array order.
+Return ONLY the corrected JSON array of records."""
 
 _SLOT_TOKEN_RE = re.compile(r"[a-z0-9]+")
 
@@ -122,11 +152,42 @@ class LLMIngestor:
     (hyra.llm.OpenAICompatLLM, GLMCompat, ...).
     """
 
-    def __init__(self, llm, day_of=None):
+    def __init__(self, llm, day_of=None, audit=False):
         self.llm = llm
         # day_of(date_or_label) -> int day; default = caller supplies ints
         self.day_of = day_of or (lambda d: int(d))
+        # audit=True adds a per-session attribution re-check pass
+        # (+1 LLM call/session; named-person chats only)
+        self.audit = audit
         self.n_extracted = 0
+
+    async def _aaudit(self, turns: list, recs: list, ents: list) -> list:
+        """Re-align every record's source/about to the named utterance
+        speaker. On shape loss or error the unaudited records are kept."""
+        body = "\n".join(t["content"] for t in turns)
+        prompt = ("SESSION:\n" + body + "\n\nRECORDS:\n"
+                  + json.dumps(
+                      [{k: r[k] for k in
+                        ("slot", "value", "about", "kind", "source",
+                         "text")} for r in recs], ensure_ascii=False)
+                  + "\n\nCorrected records JSON array:")
+        try:
+            fixed = _json_list(
+                await self.llm.complete(AUDIT_SYS, prompt))
+        except Exception:
+            return recs
+        if len(fixed) != len(recs):
+            return recs
+        for r, f in zip(recs, fixed):
+            if not isinstance(f, dict):
+                continue
+            src = str(f.get("source", r["source"])).strip().lower()
+            if src:
+                r["source"] = src
+            ab = f.get("about", r.get("about"))
+            r["about"] = (_canon(str(ab), ents, thresh=0.4)
+                          if ab else None)
+        return recs
 
     def catalog(self, model) -> list[str]:
         """Existing slot names the extractor should reuse."""
@@ -180,6 +241,19 @@ class LLMIngestor:
                   "Records JSON array:")
         text = await self.llm.complete(EXTRACT_SYS, prompt)
         recs = _json_list(text)
+        # A substantive session yielding zero records is almost always a
+        # transient extraction failure, not an empty session — retry once
+        # with an explicit nudge.
+        if not recs and len(body) > 500:
+            nudge = ("\n\nYou returned an empty array before. Re-read the "
+                     "session carefully — there IS personal information "
+                     "here. List every fact, preference, plan, event, or "
+                     "assistant artifact, one record each.")
+            text = await self.llm.complete(
+                EXTRACT_SYS,
+                prompt[:-len("Records JSON array:")]
+                + nudge + "\n\nRecords JSON array:")
+            recs = _json_list(text)
         day = self.day_of(date_label)
         ents = self.entity_catalog(model) if model is not None else []
         raw_slots = [r["slot"] for r in recs
@@ -206,6 +280,8 @@ class LLMIngestor:
                 "text": str(r.get("text", ""))[:200],
             })
             self.n_extracted += 1
+        if self.audit and out:
+            out = await self._aaudit(turns, out, ents)
         return out
 
     def extract(self, date_label, turns: list, model=None) -> list:
