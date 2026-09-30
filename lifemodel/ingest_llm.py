@@ -79,6 +79,21 @@ name when nothing fits. Merge aggressively across synonyms and phrasing
 variants (car_gps_issue -> car_problem), but do not merge distinct
 attributes. Return ONLY a JSON object {new_name: canonical_name}."""
 
+AUDIT_SYS = """You audit extracted memory records for speaker
+attribution. The session is a chat between named people; each
+utterance line is prefixed `Name:` with the speaker's real name.
+You get the session and a JSON array of records. Every record has
+"source" (who was credited), "about" (who the fact concerns), and
+"text" (a supporting quote). Generic sources like "self", "user" and
+"assistant" mean the extractor did not name the speaker.
+For EVERY record: locate the utterance its text/value came from and set
+source = that speaker's lowercase first name. Set about=null when the
+fact is about the speaker themself, or about="<person name>" when it
+concerns someone else. Fix kind="hearsay" when a speaker relays a third
+party's words. Do NOT add or drop records and do NOT change
+slot/value/text — fix attribution only. Keep the array order.
+Return ONLY the corrected JSON array of records."""
+
 _SLOT_TOKEN_RE = re.compile(r"[a-z0-9]+")
 
 
@@ -137,11 +152,42 @@ class LLMIngestor:
     (hyra.llm.OpenAICompatLLM, GLMCompat, ...).
     """
 
-    def __init__(self, llm, day_of=None):
+    def __init__(self, llm, day_of=None, audit=False):
         self.llm = llm
         # day_of(date_or_label) -> int day; default = caller supplies ints
         self.day_of = day_of or (lambda d: int(d))
+        # audit=True adds a per-session attribution re-check pass
+        # (+1 LLM call/session; named-person chats only)
+        self.audit = audit
         self.n_extracted = 0
+
+    async def _aaudit(self, turns: list, recs: list, ents: list) -> list:
+        """Re-align every record's source/about to the named utterance
+        speaker. On shape loss or error the unaudited records are kept."""
+        body = "\n".join(t["content"] for t in turns)
+        prompt = ("SESSION:\n" + body + "\n\nRECORDS:\n"
+                  + json.dumps(
+                      [{k: r[k] for k in
+                        ("slot", "value", "about", "kind", "source",
+                         "text")} for r in recs], ensure_ascii=False)
+                  + "\n\nCorrected records JSON array:")
+        try:
+            fixed = _json_list(
+                await self.llm.complete(AUDIT_SYS, prompt))
+        except Exception:
+            return recs
+        if len(fixed) != len(recs):
+            return recs
+        for r, f in zip(recs, fixed):
+            if not isinstance(f, dict):
+                continue
+            src = str(f.get("source", r["source"])).strip().lower()
+            if src:
+                r["source"] = src
+            ab = f.get("about", r.get("about"))
+            r["about"] = (_canon(str(ab), ents, thresh=0.4)
+                          if ab else None)
+        return recs
 
     def catalog(self, model) -> list[str]:
         """Existing slot names the extractor should reuse."""
@@ -234,6 +280,8 @@ class LLMIngestor:
                 "text": str(r.get("text", ""))[:200],
             })
             self.n_extracted += 1
+        if self.audit and out:
+            out = await self._aaudit(turns, out, ents)
         return out
 
     def extract(self, date_label, turns: list, model=None) -> list:
