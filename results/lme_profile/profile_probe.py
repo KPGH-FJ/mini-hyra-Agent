@@ -49,11 +49,17 @@ Be direct: give the answer first (a number, a list, a fact), then one line of
 justification citing the profile facts used."""
 
 
-async def run_one(llm, model_path, q, out_dir):
+async def run_one(llm, model_path, q, out_dir, reuse=None):
     from lifemodel.profile import render_profile
     model = load_model(model_path)
     dump = memory_dump(model)
-    profile = await render_profile(model, llm)
+    profile = None
+    if reuse:
+        p = os.path.join(reuse, q["question_id"] + ".profile.md")
+        if os.path.exists(p):
+            profile = open(p).read()
+    if profile is None:
+        profile = await render_profile(model, llm)
     r = await reader.aanswer(model, llm, q["question"],
                              q["question_date"], profile=profile)
     answer = r["response"]
@@ -87,7 +93,9 @@ async def main():
     for i, item in enumerate(manifest):
         if item["q"]["question_id"] in done:
             continue
-        row = await run_one(llm, item["model"], item["q"], prof_dir)
+        reuse = item.get("reuse") or os.environ.get("PROFILE_REUSE_DIR")
+        row = await run_one(llm, item["model"], item["q"], prof_dir,
+                            reuse=reuse)
         fh.write(json.dumps(row) + "\n"); fh.flush()
         print(f"[{i+1}/{len(manifest)}] {row['question_id']} "
               f"v={row['n_vertices']} prof={row['profile_chars']}B "
