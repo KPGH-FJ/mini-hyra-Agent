@@ -424,6 +424,9 @@ _EXTRACT_SYS = ("You are the extraction stage of a memory QA system. "
 PROFILE_ANSWER_SYS = """You are the user's assistant with access to their
 persona profile. Answer the question using ONLY facts present in the
 profile. Today is {qdate}.
+For advice, opinion or recommendation questions, you MAY infer the user's
+taste directly from profile facts and stated preferences — a literal match
+is not required.
 If the profile does not contain the needed information, say so plainly.
 Be direct: give the answer first (a number, a list, a fact), then one
 line of justification citing the profile facts used."""
