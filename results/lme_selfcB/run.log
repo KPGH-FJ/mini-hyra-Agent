@@ -1,0 +1,26 @@
+llm call failed (attempt 1/8): HTTP Error 502: Bad Gateway
+[1/11] 36b9f61e recs=77 extract={'prompt_tokens': 12947, 'completion_tokens': 17283, 'calls': 5} answer={'prompt_tokens': 2220, 'completion_tokens': 1082, 'calls': 2}
+truncated; retrying max_tokens=16384
+truncated at cap; continuing (cont #1, 12210 chars so far)
+llm call failed (attempt 1/8): empty completion (finish_reason=stop, data_events=643)
+stream cut mid-flight; resuming (cont #1, 0 chars so far)
+[2/11] 28dc39ac recs=185 extract={'prompt_tokens': 48891, 'completion_tokens': 60925, 'calls': 16} answer={'prompt_tokens': 6935, 'completion_tokens': 1989, 'calls': 4}
+truncated at cap; continuing (cont #1, 20756 chars so far)
+[3/11] gpt4_2f8be40d recs=119 extract={'prompt_tokens': 73168, 'completion_tokens': 83905, 'calls': 22} answer={'prompt_tokens': 9323, 'completion_tokens': 4748, 'calls': 6}
+llm call failed (attempt 1/8): HTTP Error 502: Bad Gateway
+[4/11] 2e6d26dc recs=60 extract={'prompt_tokens': 87741, 'completion_tokens': 105362, 'calls': 29} answer={'prompt_tokens': 11491, 'completion_tokens': 12713, 'calls': 8}
+[5/11] gpt4_15e38248 recs=94 extract={'prompt_tokens': 101975, 'completion_tokens': 127930, 'calls': 36} answer={'prompt_tokens': 13629, 'completion_tokens': 15470, 'calls': 10}
+[6/11] 88432d0a recs=93 extract={'prompt_tokens': 119125, 'completion_tokens': 149714, 'calls': 43} answer={'prompt_tokens': 17462, 'completion_tokens': 17328, 'calls': 12}
+truncated; retrying max_tokens=16384
+stream cut mid-flight; resuming (cont #1, 0 chars so far)
+[7/11] 80ec1f4f recs=69 extract={'prompt_tokens': 129322, 'completion_tokens': 175719, 'calls': 49} answer={'prompt_tokens': 20366, 'completion_tokens': 19572, 'calls': 13}
+truncated at cap; continuing (cont #1, 4094 chars so far)
+truncated; retrying max_tokens=16384
+truncated; retrying max_tokens=32768
+stream cut mid-flight; resuming (cont #1, 0 chars so far)
+[8/11] d23cf73b recs=148 extract={'prompt_tokens': 160243, 'completion_tokens': 236129, 'calls': 60} answer={'prompt_tokens': 24009, 'completion_tokens': 22099, 'calls': 15}
+[9/11] gpt4_7fce9456 recs=125 extract={'prompt_tokens': 183033, 'completion_tokens': 256473, 'calls': 69} answer={'prompt_tokens': 26730, 'completion_tokens': 27886, 'calls': 17}
+truncated at cap; continuing (cont #1, 21272 chars so far)
+[10/11] d682f1a2 recs=126 extract={'prompt_tokens': 205923, 'completion_tokens': 282080, 'calls': 75} answer={'prompt_tokens': 28938, 'completion_tokens': 28847, 'calls': 19}
+truncated at cap; continuing (cont #1, 1277 chars so far)
+[11/11] 7024f17c recs=89 extract={'prompt_tokens': 223083, 'completion_tokens': 301851, 'calls': 81} answer={'prompt_tokens': 31978, 'completion_tokens': 33103, 'calls': 21}

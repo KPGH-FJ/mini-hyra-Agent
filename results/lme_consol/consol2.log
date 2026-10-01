@@ -1,0 +1,59 @@
+28dc39ac.json 146->138 ok
+2e6d26dc.json 133->52 ok
+36b9f61e.json 61->57 ok
+46a3abf7.json 108->104 ok
+llm call failed (attempt 1/8): empty completion (finish_reason=stop, data_events=2968)
+6d550036.json 210->205 ok
+truncated; retrying max_tokens=32768
+80ec1f4f.json 104->85 ok
+3a704032.json 71->29 ok
+88432d0a.json 106->66 ok
+7024f17c.json 55->54 ok
+b5ef892d.json 107->105 ok
+truncated at cap; continuing (cont #1, 3031 chars so far)
+6cb6f249.json 59->55 ok
+c4a1ceb8.json 88->84 ok
+aae3761f.json 87->42 ok
+d23cf73b.json 137->127 ok
+dd2973ad.json 79->68 ok
+llm call failed (attempt 1/8): empty completion (finish_reason=stop, data_events=131)
+llm call failed (attempt 1/8): empty completion (finish_reason=stop, data_events=111)
+llm call failed (attempt 1/8): empty completion (finish_reason=stop, data_events=966)
+d682f1a2.json 81->43 ok
+gpt4_2f8be40d.json 75->69 ok
+e831120c.json 82->32 ok
+gpt4_15e38248.json 142->100 ok
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+gpt4_59c863d7.json 102->78 ok
+gpt4_a56e767c.json 122->95 ok
+gpt4_7fce9456.json 114->80 ok
+truncated; retrying max_tokens=32768
+llm call failed (attempt 3/8): HTTP Error 429: Too Many Requests
+gpt4_f2262a51.json 87->76 ok
+gpt4_d84a3211.json 101->92 ok
+models=25 median recs 102 -> 78
+  0a995998 120->106 cached
+  28dc39ac 146->138 ok
+  2e6d26dc 133->52 ok
+  36b9f61e 61->57 ok
+  3a704032 71->29 ok
+  46a3abf7 108->104 ok
+  6cb6f249 59->55 ok
+  6d550036 210->205 ok
+  7024f17c 55->54 ok
+  80ec1f4f 104->85 ok
+  88432d0a 106->66 ok
+  aae3761f 87->42 ok
+  b5ef892d 107->105 ok
+  c4a1ceb8 88->84 ok
+  d23cf73b 137->127 ok
+  d682f1a2 81->43 ok
+  dd2973ad 79->68 ok
+  e831120c 82->32 ok
+  gpt4_15e38248 142->100 ok
+  gpt4_2f8be40d 75->69 ok
+  gpt4_59c863d7 102->78 ok
+  gpt4_7fce9456 114->80 ok
+  gpt4_a56e767c 122->95 ok
+  gpt4_d84a3211 101->92 ok
+  gpt4_f2262a51 87->76 ok

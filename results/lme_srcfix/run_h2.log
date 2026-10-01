@@ -1,0 +1,16 @@
+[1/12] 46a3abf7 recs=108 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 9153, 'completion_tokens': 6402, 'calls': 4}
+llm call failed (attempt 1/8): HTTP Error 502: Bad Gateway
+[2/12] 36b9f61e recs=61 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 17617, 'completion_tokens': 8463, 'calls': 8}
+[3/12] 28dc39ac recs=146 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 28942, 'completion_tokens': 12121, 'calls': 12}
+[4/12] gpt4_2f8be40d recs=75 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 37894, 'completion_tokens': 19368, 'calls': 16}
+truncated; retrying max_tokens=16384
+truncated; retrying max_tokens=16384
+[5/12] 2e6d26dc recs=133 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 47729, 'completion_tokens': 43576, 'calls': 26}
+[6/12] gpt4_15e38248 recs=142 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 55129, 'completion_tokens': 56411, 'calls': 34}
+[7/12] 88432d0a recs=106 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 64637, 'completion_tokens': 70290, 'calls': 42}
+[8/12] 80ec1f4f recs=104 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 73392, 'completion_tokens': 72866, 'calls': 46}
+[9/12] d23cf73b recs=137 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 82338, 'completion_tokens': 81339, 'calls': 54}
+truncated; retrying max_tokens=16384
+[10/12] gpt4_7fce9456 recs=114 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 91085, 'completion_tokens': 99391, 'calls': 63}
+[11/12] d682f1a2 recs=81 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 99947, 'completion_tokens': 102439, 'calls': 67}
+[12/12] 7024f17c recs=55 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 107976, 'completion_tokens': 104324, 'calls': 71}

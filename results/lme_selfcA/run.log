@@ -1,0 +1,16 @@
+[1/11] 0a995998 recs=51 extract={'prompt_tokens': 11269, 'completion_tokens': 13766, 'calls': 5} answer={'prompt_tokens': 2654, 'completion_tokens': 605, 'calls': 1}
+[2/11] 6d550036 recs=70 extract={'prompt_tokens': 29590, 'completion_tokens': 29641, 'calls': 12} answer={'prompt_tokens': 4280, 'completion_tokens': 1721, 'calls': 3}
+[3/11] gpt4_59c863d7 recs=93 extract={'prompt_tokens': 49665, 'completion_tokens': 51368, 'calls': 19} answer={'prompt_tokens': 7589, 'completion_tokens': 2430, 'calls': 4}
+[4/11] gpt4_d84a3211 recs=61 extract={'prompt_tokens': 65083, 'completion_tokens': 63162, 'calls': 26} answer={'prompt_tokens': 10471, 'completion_tokens': 2932, 'calls': 5}
+[5/11] aae3761f recs=68 extract={'prompt_tokens': 77731, 'completion_tokens': 73758, 'calls': 31} answer={'prompt_tokens': 12555, 'completion_tokens': 4165, 'calls': 7}
+[6/11] gpt4_f2262a51 recs=61 extract={'prompt_tokens': 90668, 'completion_tokens': 82700, 'calls': 36} answer={'prompt_tokens': 15528, 'completion_tokens': 4541, 'calls': 8}
+truncated; retrying max_tokens=16384
+truncated; retrying max_tokens=16384
+[7/11] dd2973ad recs=101 extract={'prompt_tokens': 105328, 'completion_tokens': 121514, 'calls': 41} answer={'prompt_tokens': 19689, 'completion_tokens': 5191, 'calls': 9}
+truncated; retrying max_tokens=16384
+[8/11] c4a1ceb8 recs=153 extract={'prompt_tokens': 126956, 'completion_tokens': 161003, 'calls': 49} answer={'prompt_tokens': 26285, 'completion_tokens': 9108, 'calls': 11}
+[9/11] gpt4_a56e767c recs=89 extract={'prompt_tokens': 140619, 'completion_tokens': 181011, 'calls': 54} answer={'prompt_tokens': 30304, 'completion_tokens': 9827, 'calls': 12}
+[10/11] 6cb6f249 recs=100 extract={'prompt_tokens': 149205, 'completion_tokens': 192116, 'calls': 57} answer={'prompt_tokens': 33941, 'completion_tokens': 10153, 'calls': 13}
+truncated; retrying max_tokens=16384
+truncated at cap; continuing (cont #1, 4274 chars so far)
+[11/11] 46a3abf7 recs=103 extract={'prompt_tokens': 169108, 'completion_tokens': 220945, 'calls': 64} answer={'prompt_tokens': 35875, 'completion_tokens': 16047, 'calls': 15}

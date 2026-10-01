@@ -1,0 +1,2412 @@
+{
+ "b5ef892d": {
+  "old": {
+   "self|shopping_hiking_boots": [
+    [
+     "Looking for new waterproof hiking boots good for multi-day backpacking trips",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|camping_trip_big_sur": [
+    [
+     "Went on a 3-day solo camping trip to Big Sur in early April 2023",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|hiking_boots_current_condition": [
+    [
+     "Current boots did okay on Big Sur trip but user feels they need something better",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|hiking_trip_yellowstone": [
+    [
+     "Hiked rocky and uneven trails in Yellowstone in March 2023",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|travel_plan_new_zealand": [
+    [
+     "Planning a 10-day trek in New Zealand in November 2023 on varying terrain including rocky trails",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|trip_gear_cooking": [
+    [
+     "Planning to bring a portable stove and cooking pot to prepare meals during the New Zealand trek",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|water_treatment_preference": [
+    [
+     "Prefers a water filter over purification tablets for the 10-day trek to avoid carrying many tablets",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|gear_consideration_sawyer_mini": [
+    [
+     "Considering the Sawyer Mini Water Filter for the trek",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|boot_recommendations": [
+    [
+     "Recommended waterproof backpacking boots: Merrell Moab 2 Mid Waterproof, Salomon Quest 4D 3 GTX, Keen Targhee II Mid WP, La Sportiva Raptor GTX, Hoka One One Speedgoat Mid 2 GTX",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|boot_recommendation_merrell_moab_2": [
+    [
+     "Advised that Merrell Moab 2 Mid Waterproof is excellent for rocky, uneven terrain (Vibram TC5+ outsole, aggressive tread, ankle support) and a good choice for the New Zealand trek",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|stove_recommendations": [
+    [
+     "Recommended lightweight wind-resistant stoves: MSR PocketRocket 2, Jetboil Flash Cooking System, Snow Peak LiteMax Stove, Coleman Classic Camp Stove; pots: MSR Titan Pot, Snow Peak Titanium Pot",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|water_filter_recommendations": [
+    [
+     "Recommended filters: Sawyer Mini, MSR TrailShot, LifeStraw FLux; tablets: AquaSafe, MSR AquaTabs, Potable Aqua; also UV purifiers like SteriPen",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|gear_endorsement_sawyer_mini": [
+    [
+     "Endorsed Sawyer Mini Water Filter as an excellent choice for the 10-day trek (2 oz, 0.1 micron filter, 100,000 gallon life) with caveats about slow flow rate and backwashing",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|travel_plan_moab": [
+    [
+     "User is planning a trip to Moab, Utah",
+     738639,
+     "statement"
+    ],
+    [
+     "Planning a trip to the Rocky Mountains in Colorado, looking for hiking trails and camping spots",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|utah_scenic_preference": [
+    [
+     "User has been loving scenic drives and hikes in Utah lately",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|utah_family_road_trip": [
+    [
+     "User had a 7-day family road trip to Utah in February",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|utah_trip_activities": [
+    [
+     "On the Utah trip the user did a lot of driving and hiking but no camping",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|off_roading_interest": [
+    [
+     "User is interested in off-roading and considers themselves a beginner",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|bike_rental_interest": [
+    [
+     "User is interested in bike rentals in Moab",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|national_parks_interest": [
+    [
+     "User is interested in visiting national parks near Moab",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|canyonlands_day_trip_plan": [
+    [
+     "User is thinking of visiting Canyonlands National Park's Island in the Sky District for a day trip",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|white_rim_road_interest": [
+    [
+     "User wants information about the White Rim Road and its permits",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|moab_attractions_recommendation": [
+    [
+     "Assistant recommended Arches National Park, Canyonlands National Park, Dead Horse Point State Park, and Downtown Moab as must-see attractions",
+     738639,
+     "suggestion"
+    ]
+   ],
+   "assistant|moab_trails_recommendation": [
+    [
+     "Assistant recommended Delicate Arch Trail, Chesler Park Trail, Fisher Towers Trail, Grandstaff Canyon Trail, and Slickrock Trail",
+     738639,
+     "suggestion"
+    ],
+    [
+     "Recommended 5 Colorado hiking trails: Garden of the Gods, Bear Lake Trail, The Colorado Trail, Maroon Bells Scenic Trail, Hanging Lake Trail",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|moab_scenic_drives_recommendation": [
+    [
+     "Assistant recommended La Sal Mountain Loop Road and Potash Road for scenic drives",
+     738639,
+     "suggestion"
+    ],
+    [
+     "Recommended scenic drives near Aspen: Maroon Creek Scenic Trail, Independence Pass, Castle Creek Road, Smuggler Mountain Road",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|moab_camping_tips": [
+    [
+     "Assistant gave camping tips for Moab: book in advance, choose sites with amenities, prepare for weather",
+     738639,
+     "suggestion"
+    ],
+    [
+     "Recommended 5 camping spots: Aspen Glen Campground, Moraine Park Campground, Maroon Lake Campground, Glenwood Canyon Campground, Cottonwood Lake Campground",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|moab_off_road_trails_recommendation": [
+    [
+     "Assistant recommended beginner off-roading trails: Hell's Revenge beginner route, Fins and Things, Moab Rim Trail, Kane Creek Canyon Road",
+     738639,
+     "suggestion"
+    ]
+   ],
+   "assistant|moab_bike_shops_recommendation": [
+    [
+     "Assistant recommended bike rental shops: Moab Bike Rentals, Poison Spider Bicycles, Chili Pepper Bike Shop, Moab Cyclery",
+     738639,
+     "suggestion"
+    ]
+   ],
+   "assistant|moab_beginner_bike_trails_recommendation": [
+    [
+     "Assistant recommended beginner bike trails: Bar M Trail, Klonzo Trails, Moab Brands Trails",
+     738639,
+     "suggestion"
+    ]
+   ],
+   "assistant|moab_best_time_recommendation": [
+    [
+     "Assistant said spring (Mar-May) and fall (Sep-Nov) are the best times to visit Moab; summer is peak season with heat and crowds",
+     738639,
+     "suggestion"
+    ]
+   ],
+   "assistant|moab_events_recommendation": [
+    [
+     "Assistant listed events: Easter Jeep Safari, Moab Off-Road, Arches-Canyonlands Science Festival, Moab Music Festival, Moab Folk Festival, Moab WinterFest",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|national_parks_day_trips_recommendation": [
+    [
+     "Assistant recommended day trips to Canyonlands Island in the Sky, Dead Horse Point State Park, and Hovenweep National Monument",
+     738639,
+     "suggestion"
+    ]
+   ],
+   "assistant|national_parks_short_trips_recommendation": [
+    [
+     "Assistant recommended shorter trips to Zion, Bryce Canyon, Mesa Verde, and Natural Bridges",
+     738639,
+     "suggestion"
+    ]
+   ],
+   "assistant|canyonlands_island_in_the_sky_info": [
+    [
+     "Assistant described Island in the Sky scenic drive (12 miles), White Rim Road, and hikes: White Rim Overlook, Grand View Point, Mesa Arch, Upheaval Dome",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|white_rim_road_info": [
+    [
+     "Assistant explained White Rim Road requires high-clearance vehicle and permits; typical trip takes 2-3 days",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|white_rim_road_itinerary": [
+    [
+     "Assistant suggested a 3-day White Rim Road itinerary with camps at Murphy Hogback and White Crack",
+     738639,
+     "suggestion"
+    ]
+   ],
+   "self|past_trip": [
+    [
+     "Went on a 5-day camping trip to Yellowstone National Park in March 2023 (last month) and loved it",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|hiking_interest": [
+    [
+     "Particularly interested in the Maroon Bells Scenic Trail",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|white_rim_road_itinerary": [
+    [
+     "Plans to hike Maroon Bells Scenic Trail on first day in Aspen, then explore town in the afternoon",
+     738639,
+     "statement"
+    ],
+    [
+     "Wants an early start on the hike to avoid crowds",
+     738639,
+     "statement"
+    ],
+    [
+     "Wants to explore Aspen's high-end boutiques and art galleries in the afternoon",
+     738639,
+     "statement"
+    ],
+    [
+     "Planning a rest day with a scenic drive around Aspen",
+     738639,
+     "statement"
+    ],
+    [
+     "Looking for casual, affordable lunch spots in Aspen after the hike",
+     738639,
+     "statement"
+    ],
+    [
+     "Looking for a coffee shop or cafe for quick breakfast/snack before the hike",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|trail_info": [
+    [
+     "Maroon Bells Scenic Trail is a 10-mile out-and-back hike, ~1,500 ft elevation gain, moderate to challenging, trail reaches 11,000 ft",
+     738639,
+     "statement"
+    ],
+    [
+     "Best time to hike Maroon Bells is late June to early October",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|restaurant_recommendation": [
+    [
+     "Recommended Aspen restaurants: The Little Nell (Element 47), Aspen Brewing Company, Pine Creek Cookhouse, Meat & Cheese, Aspen Saturday Market",
+     738639,
+     "statement"
+    ],
+    [
+     "Recommended casual affordable Aspen eats: Aspen Brewing Company, CP Burger, Meat & Cheese, Peach's Corner Cafe, Aspen Kitchen, Ajax Tavern",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|cafe_recommendation": [
+    [
+     "Recommended Aspen coffee/breakfast spots: Aspen Coffee Company, Peach's Corner Cafe, Spring Cafe, The Coffee Lab",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|safety_advice": [
+    [
+     "Advised bear spray is not typically necessary for Maroon Bells; take general bear country precautions",
+     738639,
+     "suggestion"
+    ],
+    [
+     "Recommended reserving a spot on the Maroon Bells Shuttle Bus (8:30am-5:00pm) due to limited trailhead parking",
+     738639,
+     "suggestion"
+    ]
+   ],
+   "assistant|shopping_hiking_boots": [
+    [
+     "Recommended Aspen shopping/art areas: Galena Street, Cooper Avenue, Mill Street, Hyman Avenue",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|art_gallery_recommendation": [
+    [
+     "Recommended Aspen art venues: Aspen Art Museum, Baldwin Gallery, Galerie Maximillian, Aspen Gallery",
+     738639,
+     "statement"
+    ]
+   ]
+  },
+  "new": {
+   "self|hiking_boot_preference": [
+    [
+     "waterproof boots good for multi-day backpacking trips",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|camping_experience": [
+    [
+     "3-day solo camping trip to Big Sur",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|camping_experience_date": [
+    [
+     "Big Sur camping trip (on 2023-04-01)",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|boot_performance": [
+    [
+     "current boots did okay but need better",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|hiking_boot_recommendation": [
+    [
+     "Merrell Moab 2 Mid Waterproof",
+     738639,
+     "statement"
+    ],
+    [
+     "Salomon Quest 4D 3 GTX",
+     738639,
+     "statement"
+    ],
+    [
+     "Keen Targhee II Mid WP",
+     738639,
+     "statement"
+    ],
+    [
+     "La Sportiva Raptor GTX",
+     738639,
+     "statement"
+    ],
+    [
+     "Hoka One One Speedgoat Mid 2 GTX",
+     738639,
+     "statement"
+    ],
+    [
+     "Merrell Moab 2 Mid Waterproof",
+     738639,
+     "statement"
+    ],
+    [
+     "Garden of the Gods",
+     738639,
+     "statement"
+    ],
+    [
+     "Bear Lake Trail",
+     738639,
+     "statement"
+    ],
+    [
+     "The Colorado Trail",
+     738639,
+     "statement"
+    ],
+    [
+     "Maroon Bells Scenic Trail",
+     738639,
+     "statement"
+    ],
+    [
+     "Hanging Lake Trail",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|hiking_boot_feature": [
+    [
+     "waterproof membrane",
+     738639,
+     "statement"
+    ],
+    [
+     "ankle support",
+     738639,
+     "statement"
+    ],
+    [
+     "breathability",
+     738639,
+     "statement"
+    ],
+    [
+     "weight",
+     738639,
+     "statement"
+    ],
+    [
+     "durability",
+     738639,
+     "statement"
+    ],
+    [
+     "Vibram TC5+ outsole",
+     738639,
+     "statement"
+    ],
+    [
+     "aggressive tread pattern",
+     738639,
+     "statement"
+    ],
+    [
+     "protection from rough terrain",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|hiking_terrain_experience": [
+    [
+     "rocky and uneven terrain in Yellowstone",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|hiking_terrain_experience_date": [
+    [
+     "Yellowstone hiking (on 2023-03-29)",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|hiking_boot_recommendation": [
+    [
+     "Merrell Moab 2 Mid Waterproof",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|trek_plan": [
+    [
+     "10-day trek in New Zealand",
+     738639,
+     "statement"
+    ],
+    [
+     "Rocky Mountains in Colorado",
+     738639,
+     "statement"
+    ],
+    [
+     "Yellowstone National Park",
+     738639,
+     "statement"
+    ],
+    [
+     "Maroon Bells Scenic Trail",
+     738639,
+     "statement"
+    ],
+    [
+     "exploring Aspen town",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|trek_plan_date": [
+    [
+     "New Zealand trek (on 2023-11-01)",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|trek_terrain": [
+    [
+     "varying terrain including rocky trails",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|trek_equipment": [
+    [
+     "portable stove and cooking pot",
+     738639,
+     "statement"
+    ],
+    [
+     "water filter or purification tablets",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|stove_requirement": [
+    [
+     "lightweight and compact",
+     738639,
+     "statement"
+    ],
+    [
+     "withstands windy conditions",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|stove_recommendation": [
+    [
+     "MSR PocketRocket 2",
+     738639,
+     "statement"
+    ],
+    [
+     "Jetboil Flash Cooking System",
+     738639,
+     "statement"
+    ],
+    [
+     "Snow Peak LiteMax Stove",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|stove_requirement": [
+    [
+     "wind resistance",
+     738639,
+     "statement"
+    ],
+    [
+     "fuel efficiency",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|pot_recommendation": [
+    [
+     "MSR Titan Pot",
+     738639,
+     "statement"
+    ],
+    [
+     "Snow Peak Titanium Pot",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|water_filter_requirement": [
+    [
+     "lightweight and compact",
+     738639,
+     "statement"
+    ],
+    [
+     "safe drinking water",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|water_filter_recommendation": [
+    [
+     "Sawyer Mini Water Filter",
+     738639,
+     "statement"
+    ],
+    [
+     "MSR TrailShot Water Filter",
+     738639,
+     "statement"
+    ],
+    [
+     "LifeStraw FLux Water Filter",
+     738639,
+     "statement"
+    ],
+    [
+     "Sawyer Mini Water Filter",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|purification_tablet_recommendation": [
+    [
+     "AquaSafe Water Purification Tablets",
+     738639,
+     "statement"
+    ],
+    [
+     "MSR AquaTabs Water Purification Tablets",
+     738639,
+     "statement"
+    ],
+    [
+     "Potable Aqua Water Purification Tablets",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|water_purifier_recommendation": [
+    [
+     "UV Light Purifiers",
+     738639,
+     "statement"
+    ],
+    [
+     "Water Treatment Drops",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|water_filter_preference": [
+    [
+     "water filter instead of purification tablets",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|water_filter_preference_reason": [
+    [
+     "don't want to carry a lot of tablets for 10-day trek",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|water_filter_recommendation": [
+    [
+     "Sawyer Mini Water Filter",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|water_filter_feature": [
+    [
+     "0.1 micron absolute filter",
+     738639,
+     "statement"
+    ],
+    [
+     "long-lasting",
+     738639,
+     "statement"
+    ],
+    [
+     "slow flow rate",
+     738639,
+     "statement"
+    ],
+    [
+     "requires regular backwashing",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|recent_trip_duration": [
+    [
+     "5 days",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|recent_trip_timeframe": [
+    [
+     "last month",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|hiking_interest": [
+    [
+     "Maroon Bells Scenic Trail",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|concern_about_crowds": [
+    [
+     "trail can be pretty crowded",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|preference_early_start": [
+    [
+     "get an early start",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|interest_bear_safety": [
+    [
+     "bear spray",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|interest_shopping": [
+    [
+     "high-end boutiques",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|interest_art": [
+    [
+     "art galleries",
+     738639,
+     "statement"
+    ]
+   ],
+   "self|interest_casual_dining": [
+    [
+     "casual, affordable options",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|camping_experience": [
+    [
+     "Aspen Glen Campground",
+     738639,
+     "statement"
+    ],
+    [
+     "Moraine Park Campground",
+     738639,
+     "statement"
+    ],
+    [
+     "Maroon Lake Campground",
+     738639,
+     "statement"
+    ],
+    [
+     "Glenwood Canyon Campground",
+     738639,
+     "statement"
+    ],
+    [
+     "Cottonwood Lake Campground",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|hiking_terrain_experience": [
+    [
+     "moderate to challenging",
+     738639,
+     "statement"
+    ],
+    [
+     "10 miles",
+     738639,
+     "statement"
+    ],
+    [
+     "1,500 feet",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|hiking_terrain_experience_date": [
+    [
+     "late June to early October",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|restaurant_recommendation": [
+    [
+     "The Little Nell",
+     738639,
+     "statement"
+    ],
+    [
+     "Aspen Brewing Company",
+     738639,
+     "statement"
+    ],
+    [
+     "Pine Creek Cookhouse",
+     738639,
+     "statement"
+    ],
+    [
+     "Meat & Cheese",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|market_recommendation": [
+    [
+     "Aspen Saturday Market",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|coffee_shop_recommendation": [
+    [
+     "Aspen Coffee Company",
+     738639,
+     "statement"
+    ],
+    [
+     "Peach's Corner Cafe",
+     738639,
+     "statement"
+    ],
+    [
+     "Spring Cafe",
+     738639,
+     "statement"
+    ],
+    [
+     "The Coffee Lab",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|scenic_drive_recommendation": [
+    [
+     "Maroon Creek Scenic Trail",
+     738639,
+     "statement"
+    ],
+    [
+     "Independence Pass",
+     738639,
+     "statement"
+    ],
+    [
+     "Castle Creek Road",
+     738639,
+     "statement"
+    ],
+    [
+     "Smuggler Mountain Road",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|shopping_area_recommendation": [
+    [
+     "Galena Street",
+     738639,
+     "statement"
+    ],
+    [
+     "Cooper Avenue",
+     738639,
+     "statement"
+    ],
+    [
+     "Mill Street",
+     738639,
+     "statement"
+    ],
+    [
+     "Hyman Avenue",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|art_gallery_recommendation": [
+    [
+     "Aspen Art Museum",
+     738639,
+     "statement"
+    ],
+    [
+     "Baldwin Gallery",
+     738639,
+     "statement"
+    ],
+    [
+     "Galerie Maximillian",
+     738639,
+     "statement"
+    ],
+    [
+     "Aspen Gallery",
+     738639,
+     "statement"
+    ]
+   ],
+   "assistant|casual_dining_recommendation": [
+    [
+     "Aspen Brewing Company",
+     738639,
+     "statement"
+    ],
+    [
+     "CP Burger",
+     738639,
+     "statement"
+    ],
+    [
+     "Meat & Cheese",
+     738639,
+     "statement"
+    ],
+    [
+     "Peach's Corner Cafe",
+     738639,
+     "statement"
+    ],
+    [
+     "Aspen Kitchen",
+     738639,
+     "statement"
+    ],
+    [
+     "Ajax Tavern",
+     738639,
+     "statement"
+    ]
+   ]
+  }
+ },
+ "e831120c": {
+  "old": {
+   "self|movie_watching_history": [
+    [
+     "Watched all 22 Marvel Cinematic Universe movies in two weeks during a movie binge",
+     738661,
+     "statement"
+    ],
+    [
+     "Watched all 9 main Star Wars saga films plus Rogue One and Solo",
+     738661,
+     "statement"
+    ],
+    [
+     "Watched Us (2019), Shazam! (2019), and A Quiet Place (2018)",
+     738661,
+     "statement"
+    ],
+    [
+     "Watched Spider-Man: Into the Spider-Verse, Crazy Rich Asians, 2001: A Space Odyssey, The Shawshank Redemption, and Jurassic Park",
+     738661,
+     "statement"
+    ],
+    [
+     "Recently watched Toy Story 4, Midsommar, and The Lion King (2019 remake)",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|movie_binges": [
+    [
+     "Has had several crazy movie binges lately",
+     738661,
+     "statement"
+    ],
+    [
+     "Completed a Star Wars marathon, watching all main saga films in about a week and a half",
+     738661,
+     "statement"
+    ],
+    [
+     "Watched all 22 MCU movies over about two weeks",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|movie_tracking_project": [
+    [
+     "Trying to organize movie watching history into a list or spreadsheet",
+     738661,
+     "statement"
+    ],
+    [
+     "User wants to keep track of all movies they've watched recently, organized in a list",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|spreadsheet_comfort": [
+    [
+     "Not super comfortable with spreadsheets",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|movie_tracker_columns": [
+    [
+     "Wants columns for movie type (sequel, remake, standalone) and platform (Amazon Prime, theaters)",
+     738661,
+     "statement"
+    ],
+    [
+     "Wants a column for the month watched to see what was watched each month",
+     738661,
+     "update"
+    ]
+   ],
+   "self|movie_collection_size": [
+    [
+     "Has a lot of movies to add to the spreadsheet",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|movie_list_location": [
+    [
+     "Has all movies written down in a note-taking app",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|data_entry_method": [
+    [
+     "Plans to use copy and paste from a list to enter movies into the spreadsheet",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|movie_tracker_template": [
+    [
+     "Suggested a movie tracking spreadsheet template with columns: Movie Title, Release Year, Watch Date, Rating, Notes, Franchise/Series, Genre, Type, Platform, Format, Re-watch, Month Watched; optional: Director, Cast, Runtime, Language",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|movie_tracking_app_recommendations": [
+    [
+     "Recommended movie tracking apps: Letterboxd, IMDb Watchlist, FilmAffinity, Cinema Clock",
+     738661,
+     "suggestion"
+    ],
+    [
+     "Assistant suggested three tracking formats: simple list, categorized list, or a movie log with year/genre/rating/notes",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|data_entry_methods": [
+    [
+     "Suggested four methods for bulk data entry: copy-paste from a list, formulas to auto-fill, online tools/APIs (IMDb API, Letterboxd export, spreadsheet add-ons), and breaking the task into chunks of 10-20 movies",
+     738661,
+     "suggestion"
+    ]
+   ],
+   "self|movie_tracker_template": [
+    [
+     "Prefers a simple list of movie titles over categorized lists or detailed logs",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|tv_shows_watched": [
+    [
+     "Watched the entire first season of Game of Thrones",
+     738661,
+     "statement"
+    ],
+    [
+     "Currently watching The Office, on season 5",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|movie_tracking_project": [
+    [
+     "Assistant compiled a 45-item movie list including Star Wars films, MCU films, and other titles",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|tv_show_list_created": [
+    [
+     "Assistant created a TV shows section listing Game of Thrones (Season 1) and The Office (Season 5)",
+     738661,
+     "statement"
+    ]
+   ]
+  },
+  "new": {
+   "self|movie_watching_history": [
+    [
+     "organizing movie watching history",
+     738661,
+     "statement"
+    ],
+    [
+     "simple list",
+     738661,
+     "statement"
+    ],
+    [
+     "Star Wars marathon",
+     738661,
+     "statement"
+    ],
+    [
+     "Rogue One",
+     738661,
+     "statement"
+    ],
+    [
+     "Solo",
+     738661,
+     "statement"
+    ],
+    [
+     "all MCU movies",
+     738661,
+     "statement"
+    ],
+    [
+     "two weeks",
+     738661,
+     "statement"
+    ],
+    [
+     "Us",
+     738661,
+     "statement"
+    ],
+    [
+     "Shazam!",
+     738661,
+     "statement"
+    ],
+    [
+     "A Quiet Place",
+     738661,
+     "statement"
+    ],
+    [
+     "Spider-Man: Into the Spider-Verse",
+     738661,
+     "statement"
+    ],
+    [
+     "Crazy Rich Asians",
+     738661,
+     "statement"
+    ],
+    [
+     "2001: A Space Odyssey",
+     738661,
+     "statement"
+    ],
+    [
+     "The Shawshank Redemption",
+     738661,
+     "statement"
+    ],
+    [
+     "Jurassic Park",
+     738661,
+     "statement"
+    ],
+    [
+     "Toy Story 4",
+     738661,
+     "statement"
+    ],
+    [
+     "Midsommar",
+     738661,
+     "statement"
+    ],
+    [
+     "The Lion King remake",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|movie_binge": [
+    [
+     "watched all 22 Marvel movies in two weeks",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|spreadsheet_option": [
+    [
+     "choosing spreadsheet for movie tracking",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|spreadsheet_comfort": [
+    [
+     "not super comfortable with spreadsheets",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|movie_type_column": [
+    [
+     "adding type column (sequel, remake, standalone)",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|watching_platform_column": [
+    [
+     "adding platform column (Amazon Prime, theaters)",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|month_watched_column": [
+    [
+     "adding month watched column",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|data_entry_method": [
+    [
+     "copy and paste from list",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|movie_list_format": [
+    [
+     "movies written in note-taking app",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|spreadsheet_template_movie_title": [
+    [
+     "Movie Title",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|spreadsheet_template_release_year": [
+    [
+     "Release Year",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|spreadsheet_template_watch_date": [
+    [
+     "Watch Date",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|spreadsheet_template_rating": [
+    [
+     "Rating",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|spreadsheet_template_notes": [
+    [
+     "Notes",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|spreadsheet_template_franchise": [
+    [
+     "Franchise/Series",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|spreadsheet_template_genre": [
+    [
+     "Genre",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|spreadsheet_template_type": [
+    [
+     "Type",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|spreadsheet_template_platform": [
+    [
+     "Platform",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|spreadsheet_template_format": [
+    [
+     "Format",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|spreadsheet_template_rewatch": [
+    [
+     "Re-watch",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|spreadsheet_template_month_watched": [
+    [
+     "Month Watched",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|copy_paste_method": [
+    [
+     "copy and paste from list",
+     738661,
+     "suggestion"
+    ]
+   ],
+   "assistant|auto_fill_formula": [
+    [
+     "use formula to auto-fill columns",
+     738661,
+     "suggestion"
+    ]
+   ],
+   "assistant|online_tools_apis": [
+    [
+     "use online tools or APIs",
+     738661,
+     "suggestion"
+    ]
+   ],
+   "assistant|break_into_chunks": [
+    [
+     "break data entry into chunks",
+     738661,
+     "suggestion"
+    ]
+   ],
+   "self|tv_show_watched": [
+    [
+     "Game of Thrones",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|tv_show_season_watched": [
+    [
+     "first season",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|tv_show_currently_watching": [
+    [
+     "The Office",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|tv_show_season_currently_watching": [
+    [
+     "season 5",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|movie_watching_history": [
+    [
+     "Star Wars: Episode I: The Phantom Menace",
+     738661,
+     "statement"
+    ],
+    [
+     "Star Wars: Episode II: Attack of the Clones",
+     738661,
+     "statement"
+    ],
+    [
+     "Star Wars: Episode III: Revenge of the Sith",
+     738661,
+     "statement"
+    ],
+    [
+     "Star Wars: Episode IV: A New Hope",
+     738661,
+     "statement"
+    ],
+    [
+     "Star Wars: Episode V: The Empire Strikes Back",
+     738661,
+     "statement"
+    ],
+    [
+     "Star Wars: Episode VI: Return of the Jedi",
+     738661,
+     "statement"
+    ],
+    [
+     "Star Wars: Episode VII: The Force Awakens",
+     738661,
+     "statement"
+    ],
+    [
+     "Star Wars: Episode VIII: The Last Jedi",
+     738661,
+     "statement"
+    ],
+    [
+     "Star Wars: Episode IX: The Rise of Skywalker",
+     738661,
+     "statement"
+    ],
+    [
+     "Rogue One: A Star Wars Story",
+     738661,
+     "statement"
+    ],
+    [
+     "Solo: A Star Wars Story",
+     738661,
+     "statement"
+    ],
+    [
+     "Iron Man",
+     738661,
+     "statement"
+    ],
+    [
+     "The Incredible Hulk",
+     738661,
+     "statement"
+    ],
+    [
+     "Iron Man 2",
+     738661,
+     "statement"
+    ],
+    [
+     "Thor",
+     738661,
+     "statement"
+    ],
+    [
+     "Captain America: The First Avenger",
+     738661,
+     "statement"
+    ],
+    [
+     "The Avengers",
+     738661,
+     "statement"
+    ],
+    [
+     "Iron Man 3",
+     738661,
+     "statement"
+    ],
+    [
+     "Thor: The Dark World",
+     738661,
+     "statement"
+    ],
+    [
+     "Captain America: The Winter Soldier",
+     738661,
+     "statement"
+    ],
+    [
+     "Guardians of the Galaxy",
+     738661,
+     "statement"
+    ],
+    [
+     "Avengers: Age of Ultron",
+     738661,
+     "statement"
+    ],
+    [
+     "Ant-Man",
+     738661,
+     "statement"
+    ],
+    [
+     "Captain America: Civil War",
+     738661,
+     "statement"
+    ],
+    [
+     "Doctor Strange",
+     738661,
+     "statement"
+    ],
+    [
+     "Guardians of the Galaxy Vol. 2",
+     738661,
+     "statement"
+    ],
+    [
+     "Spider-Man: Homecoming",
+     738661,
+     "statement"
+    ],
+    [
+     "Thor: Ragnarok",
+     738661,
+     "statement"
+    ],
+    [
+     "Black Panther",
+     738661,
+     "statement"
+    ],
+    [
+     "Avengers: Infinity War",
+     738661,
+     "statement"
+    ],
+    [
+     "Ant-Man and the Wasp",
+     738661,
+     "statement"
+    ],
+    [
+     "Captain Marvel",
+     738661,
+     "statement"
+    ],
+    [
+     "Avengers: Endgame",
+     738661,
+     "statement"
+    ],
+    [
+     "Spider-Man: Far From Home",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|tv_show_watched": [
+    [
+     "Game of Thrones",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|tv_show_currently_watching": [
+    [
+     "The Office",
+     738661,
+     "statement"
+    ]
+   ]
+  }
+ },
+ "3a704032": {
+  "old": {
+   "self|peace_lily_ownership": [
+    [
+     "User got a peace lily from a nursery two weeks ago",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|succulent_ownership": [
+    [
+     "User got a succulent from a nursery two weeks ago",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|peace_lily_leaf_loss": [
+    [
+     "Peace lily has been losing some leaves",
+     738661,
+     "statement"
+    ],
+    [
+     "Peace lily has been losing leaves since being brought home",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|fertilizer_mixture_use": [
+    [
+     "User waters plants with a mixture of water and fertilizer from the nursery",
+     738661,
+     "statement"
+    ],
+    [
+     "User has been using general-purpose fertilizer for snake plant and succulent",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|fern_misting_routine": [
+    [
+     "User mists fern every other day",
+     738661,
+     "statement"
+    ],
+    [
+     "User considering misting fern more frequently to prevent pests returning",
+     738663,
+     "statement"
+    ]
+   ],
+   "self|fern_ownership": [
+    [
+     "User owns a fern",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|plant_tracking_app_use": [
+    [
+     "User uses a plant tracking app for watering schedule and fertilization reminders",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|peace_lily_temperature_spot": [
+    [
+     "Peace lily kept at consistent 65-70°F (18-21°C)",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|rose_bush_ownership": [
+    [
+     "User owns a rose bush",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|rose_bush_pruning_history": [
+    [
+     "User pruned rose bush about a month ago; it's producing new buds",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|peace_lily_care_tips": [
+    [
+     "10 care tips: bright indirect light, water when dry, humidity, 65-80°F, balanced 20-20-20 fertilizer at half strength, well-draining mix, prune dead leaves, repot in spring/summer, pest control, monitor health",
+     738661,
+     "statement"
+    ],
+    [
+     "Advice on light, watering, humidity, temperature, fertilizer, pruning, pests, potting mix, acclimation for peace lily",
+     738661,
+     "suggestion"
+    ]
+   ],
+   "assistant|peace_lily_leaf_loss_normal": [
+    [
+     "Losing a few leaves is normal while plant adjusts to new environment",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|peace_lily_fertilizer_advice": [
+    [
+     "Balanced fertilizer (20-20-20) preferred; can continue nursery mixture, switch, or dilute to half strength",
+     738661,
+     "suggestion"
+    ]
+   ],
+   "assistant|peace_lily_misting_frequency": [
+    [
+     "Mist peace lily 1-2 times per week; more in dry environments; mist in morning",
+     738661,
+     "suggestion"
+    ]
+   ],
+   "assistant|peace_lily_watering_frequency": [
+    [
+     "Water every 7-10 days in spring/summer, every 10-14 days in fall/winter, when top 1-2 inches dry",
+     738661,
+     "suggestion"
+    ]
+   ],
+   "assistant|peace_lily_ideal_temperature": [
+    [
+     "Ideal 68-72°F (20-22°C); acceptable 65-75°F; avoid below 55°F or above 85°F",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|rose_bush_pruning_advice": [
+    [
+     "Deadhead anytime; light pruning to shape is fine now; extensive pruning wait until blooming season over",
+     738661,
+     "suggestion"
+    ]
+   ],
+   "assistant|succulent_care_advice": [
+    [
+     "Succulent has different care requirements; research specific species needs",
+     738661,
+     "suggestion"
+    ]
+   ],
+   "self|plants_owned": [
+    [
+     "User owns a peace lily",
+     738661,
+     "statement"
+    ],
+    [
+     "User owns a snake plant",
+     738661,
+     "statement"
+    ],
+    [
+     "User owns a succulent",
+     738661,
+     "statement"
+    ],
+    [
+     "User owns an orchid",
+     738661,
+     "statement"
+    ],
+    [
+     "User owns a fern",
+     738661,
+     "statement"
+    ],
+    [
+     "User owns African violets",
+     738661,
+     "statement"
+    ],
+    [
+     "User owns a spider plant",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|fertilizer_plan": [
+    [
+     "User plans to buy fertilizer for the orchid",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|humidifier_plan": [
+    [
+     "User is considering buying a humidifier for the plants, especially the fern",
+     738661,
+     "statement"
+    ],
+    [
+     "User wants a humidifier for the African violets",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|african_violet_problem": [
+    [
+     "African violets get crispy leaves when air is too dry",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|spider_plant_problem": [
+    [
+     "Spider plant's potting mix is getting old",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|repotting_plan": [
+    [
+     "User plans to repot the spider plant",
+     738661,
+     "statement"
+    ],
+    [
+     "User decided to wait before repotting snake plant until it clearly needs it",
+     738663,
+     "statement"
+    ]
+   ],
+   "assistant|snake_plant_fertilizer_recs": [
+    [
+     "Miracle-Gro Indoor Plant Food (20-20-20), Espoma Organic Indoor Plant Fertilizer (2-2-2), Schultz All Purpose Plant Food (20-20-20)",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|succulent_fertilizer_recs": [
+    [
+     "Miracle-Gro Cactus, Palm & Citrus Food (10-20-10), Espoma Organic Cactus! Fertilizer (5-2-6), Schultz Cactus and Succulent Food (10-20-10)",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|orchid_fertilizer_recs": [
+    [
+     "Miracle-Gro Orchid Food (30-10-10), Espoma Organic Orchid! Fertilizer (15-30-15), Schultz Orchid Food (20-20-20)",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|humidifier_recs": [
+    [
+     "Levoit LV600HH Hybrid, Honeywell HUL520W Mistmate, Deneve Minimal Aroma, Crane Drop Ultrasonic Cool Mist",
+     738661,
+     "statement"
+    ]
+   ],
+   "assistant|spider_plant_soil_recs": [
+    [
+     "Miracle-Gro Indoor Potting Mix, Black Kow All Purpose Potting Mix, E.B. Stone Organics Potting Mix, Pro-Mix All Purpose Potting Mix",
+     738661,
+     "statement"
+    ]
+   ],
+   "self|basil_plant_location": [
+    [
+     "User has a basil plant on their balcony",
+     738663,
+     "statement"
+    ]
+   ],
+   "self|basil_plant_health": [
+    [
+     "Basil plant struggling due to too much direct sunlight",
+     738663,
+     "statement"
+    ]
+   ],
+   "self|snake_plant_status": [
+    [
+     "Snake plant is doing great with current watering and fertilizer routine",
+     738663,
+     "statement"
+    ]
+   ],
+   "self|basil_soil_type": [
+    [
+     "User has been using general-purpose potting mix for basil",
+     738663,
+     "statement"
+    ]
+   ],
+   "self|snake_plant_origin": [
+    [
+     "User got the snake plant from their sister last month",
+     738663,
+     "statement"
+    ]
+   ],
+   "self|fern_pest_problem": [
+    [
+     "User's fern has tiny moving dots (pests) crawling on leaves and stems",
+     738663,
+     "statement"
+    ]
+   ],
+   "self|fern_pest_appearance": [
+    [
+     "Pests are tiny, moving dots crawling on leaves and stems",
+     738663,
+     "statement"
+    ]
+   ],
+   "self|fern_pest_treatment_plan": [
+    [
+     "User plans to try neem oil to get rid of fern pests",
+     738663,
+     "statement"
+    ]
+   ],
+   "self|neem_oil_opinion": [
+    [
+     "User has heard neem oil is gentle and effective for pest control",
+     738663,
+     "statement"
+    ]
+   ],
+   "self|user_sister": [
+    [
+     "User has a sister who gave them the snake plant",
+     738663,
+     "statement"
+    ]
+   ],
+   "assistant|basil_shade_care_advice": [
+    [
+     "Provided tips for basil in shadier spot: filtered sunlight, adjusted watering, humidity, sparse fertilizing, regular pruning, temperature monitoring",
+     738663,
+     "suggestion"
+    ]
+   ],
+   "assistant|basil_soil_advice": [
+    [
+     "Recommended well-draining soil with perlite/vermiculite, pH 6.0-7.0, organic matter, good aeration, and balanced fertilizer for basil",
+     738663,
+     "suggestion"
+    ]
+   ],
+   "assistant|basil_soil_mix_recipe": [
+    [
+     "DIY basil potting mix: 2 parts peat moss/coir, 1 part perlite/vermiculite, 1 part compost/worm castings, 1 part general potting soil",
+     738663,
+     "statement"
+    ]
+   ],
+   "assistant|repotting_plan": [
+    [
+     "Advised repotting only when root-bound, soil depleted, or significant growth; pot only 1-2 sizes larger; well-draining mix",
+     738663,
+     "suggestion"
+    ]
+   ],
+   "assistant|fern_pest_identification": [
+    [
+     "Suggested pests on fern are likely spider mites or springtails based on description",
+     738663,
+     "statement"
+    ]
+   ],
+   "assistant|fern_pest_control_advice": [
+    [
+     "Recommended neem oil, insecticidal soap, or horticultural oil; isolate plant, prune infested areas, improve air circulation",
+     738663,
+     "suggestion"
+    ]
+   ],
+   "assistant|fern_misting_routine": [
+    [
+     "Advised misting fern 2-3 times per week with distilled water in morning, avoiding crown, misting leaf undersides",
+     738663,
+     "suggestion"
+    ]
+   ],
+   "assistant|fern_humidity_preference": [
+    [
+     "Ferns thrive in 40-60% relative humidity",
+     738663,
+     "statement"
+    ]
+   ],
+   "assistant|basil_temperature_preference": [
+    [
+     "Basil prefers daytime temperatures between 65°F to 75°F (18°C to 24°C)",
+     738663,
+     "statement"
+    ]
+   ]
+  },
+  "new": {
+   "self|plant_ownership": [
+    [
+     "peace lily",
+     738661,
+     "statement"
+    ],
+    [
+     "succulent",
+     738661,
+     "statement"
+    ],
+    [
+     "fern",
+     738661,
+     "statement"
+    ],
+    [
+     "rose bush",
+     738661,
+     "statement"
+    ],
+    [
+     "doing great",
+     738663,
+     "statement"
+    ],
+    [
+     "last month",
+     738663,
+     "statement"
+    ]
+   ],
+   "self|plant_acquisition": [
+    [
+     "got from the nursery two weeks ago",
+     738661,
+     "statement"
+    ],
+    [
+     "nursery purchase",
+     738661,
+     "statement"
+    ],
+    [
+     "got from sister",
+     738663,
+     "statement"
+    ]
+   ],
+   "self|plant_health": [
+    [
+     "losing some leaves",
+     738661,
+     "statement"
+    ],
+    [
+     "normal leaf loss",
+     738661,
+     "statement"
+    ],
+    [
+     "producing new buds",
+     738661,
+     "statement"
+    ],
+    [
+     "too much direct sunlight",
+     738663,
+     "statement"
+    ],
+    [
+     "tiny, moving dots",
+     738663,
+     "statement"
+    ],
+    [
+     "on leaves and stems",
+     738663,
+     "statement"
+    ]
+   ],
+   "self|plant_care": [
+    [
+     "mixture of water and fertilizer",
+     738661,
+     "statement"
+    ],
+    [
+     "plant tracking app",
+     738661,
+     "statement"
+    ],
+    [
+     "watering schedule and fertilization reminders",
+     738661,
+     "statement"
+    ],
+    [
+     "helpful",
+     738661,
+     "statement"
+    ],
+    [
+     "watering frequency",
+     738661,
+     "statement"
+    ],
+    [
+     "pruned about a month ago",
+     738661,
+     "statement"
+    ],
+    [
+     "pruning again",
+     738661,
+     "statement"
+    ],
+    [
+     "wait until blooming season is over",
+     738661,
+     "statement"
+    ],
+    [
+     "current watering and fertilizer routine",
+     738663,
+     "statement"
+    ],
+    [
+     "wait before repotting",
+     738663,
+     "statement"
+    ],
+    [
+     "neem oil",
+     738663,
+     "statement"
+    ]
+   ],
+   "self|plant_environment": [
+    [
+     "65°F to 70°F (18°C to 21°C)",
+     738661,
+     "statement"
+    ],
+    [
+     "unsure about suitability",
+     738661,
+     "statement"
+    ],
+    [
+     "basil plant",
+     738663,
+     "statement"
+    ]
+   ],
+   "assistant|plant_care": [
+    [
+     "peace lily lighting",
+     738661,
+     "statement"
+    ],
+    [
+     "peace lily watering",
+     738661,
+     "statement"
+    ],
+    [
+     "peace lily humidity",
+     738661,
+     "statement"
+    ],
+    [
+     "peace lily temperature",
+     738661,
+     "statement"
+    ],
+    [
+     "peace lily fertilization",
+     738661,
+     "statement"
+    ],
+    [
+     "peace lily potting mix",
+     738661,
+     "statement"
+    ],
+    [
+     "peace lily pruning",
+     738661,
+     "statement"
+    ],
+    [
+     "peace lily repotting",
+     738661,
+     "statement"
+    ],
+    [
+     "peace lily pest control",
+     738661,
+     "statement"
+    ],
+    [
+     "succulent care",
+     738661,
+     "statement"
+    ],
+    [
+     "fertilizer type",
+     738661,
+     "statement"
+    ],
+    [
+     "fertilizer concentration",
+     738661,
+     "statement"
+    ],
+    [
+     "peace lily misting frequency",
+     738661,
+     "statement"
+    ],
+    [
+     "peace lily misting technique",
+     738661,
+     "statement"
+    ],
+    [
+     "peace lily watering frequency",
+     738661,
+     "statement"
+    ],
+    [
+     "peace lily ideal temperature",
+     738661,
+     "statement"
+    ],
+    [
+     "rose bush deadheading",
+     738661,
+     "statement"
+    ],
+    [
+     "rose bush light pruning",
+     738661,
+     "statement"
+    ],
+    [
+     "rose bush extensive pruning",
+     738661,
+     "statement"
+    ],
+    [
+     "partial shade",
+     738663,
+     "suggestion"
+    ],
+    [
+     "filtered sunlight",
+     738663,
+     "suggestion"
+    ],
+    [
+     "adjust watering schedule",
+     738663,
+     "suggestion"
+    ],
+    [
+     "maintain humidity",
+     738663,
+     "suggestion"
+    ],
+    [
+     "fertilize sparingly",
+     738663,
+     "suggestion"
+    ],
+    [
+     "prune regularly",
+     738663,
+     "suggestion"
+    ],
+    [
+     "monitor temperature",
+     738663,
+     "suggestion"
+    ],
+    [
+     "when root bound or soil depleted",
+     738663,
+     "suggestion"
+    ],
+    [
+     "pot 1-2 sizes larger",
+     738663,
+     "suggestion"
+    ],
+    [
+     "neem oil",
+     738663,
+     "suggestion"
+    ],
+    [
+     "mist 2-3 times a week",
+     738663,
+     "suggestion"
+    ],
+    [
+     "in the morning",
+     738663,
+     "suggestion"
+    ]
+   ],
+   "assistant|plant_environment": [
+    [
+     "well-draining soil",
+     738663,
+     "suggestion"
+    ],
+    [
+     "pH balance 6.0 to 7.0",
+     738663,
+     "suggestion"
+    ],
+    [
+     "organic matter rich",
+     738663,
+     "suggestion"
+    ],
+    [
+     "good aeration",
+     738663,
+     "suggestion"
+    ],
+    [
+     "2 parts peat moss or coconut coir",
+     738663,
+     "suggestion"
+    ],
+    [
+     "1 part perlite or vermiculite",
+     738663,
+     "suggestion"
+    ],
+    [
+     "1 part compost or worm castings",
+     738663,
+     "suggestion"
+    ],
+    [
+     "1 part general-purpose potting soil",
+     738663,
+     "suggestion"
+    ],
+    [
+     "well-draining potting mix",
+     738663,
+     "suggestion"
+    ],
+    [
+     "distilled or filtered water",
+     738663,
+     "suggestion"
+    ],
+    [
+     "40-60% relative humidity",
+     738663,
+     "suggestion"
+    ]
+   ]
+  }
+ }
+}
