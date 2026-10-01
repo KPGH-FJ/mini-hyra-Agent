@@ -1,0 +1,29 @@
+[1/25] 0a995998 recs=51 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 5326, 'completion_tokens': 2070, 'calls': 2}
+[2/25] 6d550036 recs=70 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 6926, 'completion_tokens': 8580, 'calls': 4}
+[3/25] gpt4_59c863d7 recs=93 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 13930, 'completion_tokens': 13854, 'calls': 6}
+[4/25] b5ef892d recs=140 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 18137, 'completion_tokens': 15804, 'calls': 9}
+[5/25] e831120c recs=40 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 22485, 'completion_tokens': 17613, 'calls': 11}
+truncated; retrying max_tokens=16384
+[6/25] 3a704032 recs=71 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 33214, 'completion_tokens': 33832, 'calls': 15}
+[7/25] gpt4_d84a3211 recs=61 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 39077, 'completion_tokens': 36880, 'calls': 17}
+stream cut mid-flight; resuming (cont #1, 0 chars so far)
+llm call failed (attempt 1/8): HTTP Error 502: Bad Gateway
+[8/25] aae3761f recs=68 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 42394, 'completion_tokens': 41829, 'calls': 20}
+[9/25] gpt4_f2262a51 recs=61 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 48452, 'completion_tokens': 44870, 'calls': 22}
+[10/25] dd2973ad recs=101 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 53057, 'completion_tokens': 46316, 'calls': 23}
+[11/25] c4a1ceb8 recs=153 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 62136, 'completion_tokens': 55502, 'calls': 26}
+[12/25] gpt4_a56e767c recs=89 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 70629, 'completion_tokens': 58984, 'calls': 28}
+[13/25] 6cb6f249 recs=100 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 78314, 'completion_tokens': 60309, 'calls': 30}
+[14/25] 46a3abf7 recs=103 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 81067, 'completion_tokens': 69949, 'calls': 33}
+llm call failed (attempt 1/8): empty completion (finish_reason=stop, data_events=116)
+[15/25] 36b9f61e recs=77 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 84765, 'completion_tokens': 72105, 'calls': 36}
+[16/25] 28dc39ac recs=185 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 94080, 'completion_tokens': 74038, 'calls': 39}
+[17/25] gpt4_2f8be40d recs=119 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 97058, 'completion_tokens': 82395, 'calls': 42}
+[18/25] 2e6d26dc recs=60 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 100575, 'completion_tokens': 86548, 'calls': 45}
+[19/25] gpt4_15e38248 recs=94 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 102827, 'completion_tokens': 92433, 'calls': 47}
+[20/25] 88432d0a recs=93 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 109098, 'completion_tokens': 96525, 'calls': 50}
+[21/25] 80ec1f4f recs=69 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 115116, 'completion_tokens': 99800, 'calls': 52}
+[22/25] d23cf73b recs=148 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 122196, 'completion_tokens': 105508, 'calls': 55}
+[23/25] gpt4_7fce9456 recs=125 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 126388, 'completion_tokens': 109596, 'calls': 58}
+[24/25] d682f1a2 recs=126 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 129442, 'completion_tokens': 112048, 'calls': 61}
+[25/25] 7024f17c recs=89 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 133081, 'completion_tokens': 119054, 'calls': 63}
