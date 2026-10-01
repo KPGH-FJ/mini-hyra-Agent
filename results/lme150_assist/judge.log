@@ -1,0 +1,12 @@
+stream cut mid-flight; resuming (cont #1, 0 chars so far)
+{
+  "n": 125,
+  "accuracy": 0.896,
+  "by_type": {
+    "temporal-reasoning": 0.96,
+    "knowledge-update": 1.0,
+    "single-session-preference": 0.8,
+    "single-session-assistant": 0.8,
+    "single-session-user": 0.92
+  }
+}
