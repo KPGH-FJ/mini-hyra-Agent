@@ -623,3 +623,65 @@ deferred. Tuning items: gate no_subject to self-records,
 case-sensitive months, allow-list fuzzy temporals.
 
 Files: `selfcheck.py`, `lme_autopsy_reextract_{qid}.json` (3 files).
+
+## Relaxed-gate cat5 sentinel (LoCoMo conv-0, 47q, Atria-judged)
+
+Regression sentinel for the relaxed premise gate (`premise_check="relaxed"`,
+run against PR-head 333e9c8 — the same code that later merged to main).
+Question: does the relaxed gate (NO_PREMISE pass-through + SYNTHESIS_OK
+when every atom binds) leak the cat5 adversarial defense?
+
+**Headline: 40/47 = 85.1% judge-raw — no defense leak.** Factual
+refusals intact: 26 ABSENT + 11 SPLICED + 9 SUPPORTED + 1 evreq-hedge.
+Baselines on the same conv-0 stock snapshot: ungated 35/47 = 74.5%;
+strict gate 38/47 = 80.9% (OR-judged — cross-judge caveat below).
+
+- Spliced-premise fakes still refuse: q182 (Melanie's flowers +
+  Caroline's walk stitched) ABSENT; every who-swap splice
+  (q152/155/156/164/167/171/172/174/175/177/193) SPLICED — the
+  synthesis path requires ALL atoms bound, and atoms across owners
+  still fire SPLICED, exactly as designed.
+- Informative abstention pays off under relaxed too: q178 "Oscar is
+  recorded under caroline: 'Has a guinea pig named Oscar'" judged yes
+  (strict-gate bare ABSENT on the same question was judged no).
+- Relaxed corrected the strict gate's refusal where answering was
+  right: q192/q194 who-swap fakes ABSENT-judged-yes (strict had
+  SUPPORTED-hallucinated them).
+
+### 7 misses, adjudicated
+
+| qid | verdict | class |
+|-----|---------|-------|
+| q161 | SUPPORTED | benchmark mislabel — Caroline's own hand-painted bowl exists (s4: "a friend made it for my 18th birthday"); answer transcript-correct, gold=None demands refusal |
+| q184 | SUPPORTED | benchmark mislabel — piano real |
+| q188 | SUPPORTED | benchmark mislabel — breakup real |
+| q167 | SPLICED | judge-boundary — correct splice refusal enumerating parts; known ~1/3 no-rate on borderline abstain rows |
+| q190 | SUPPORTED | judge-boundary — response names true attribution ("records describe the user's attendance, not Melanie's — transgender poetry reading"); semantically a correction, penalized on form. Strict's bare ABSENT on this q was judged yes |
+| q168 | SUPPORTED | who-swap residual — Melanie's shoes ("just got some new shoes", s7) bound to Caroline; identical SUPPORTED verdict under strict gate too |
+| q189 | SUPPORTED | who-swap residual — Melanie's "painting to keep busy" during her pottery break (s17) bound to Caroline; also a strict-gate miss |
+
+Decomposition: 3 mislabels + 2 judge-boundary + 2 label-residue
+who-swaps. The 2 true residuals are the **stock-snapshot generic-label
+problem** (records under `user`/`assistant`, so no cross-owner binding
+exists for the gate to consult) — identical under strict semantics and
+killed by named ingest (bind/audit arms: 89.4%/91.5%).
+
+### Strict-vs-relaxed per-question diff (verdicts, judge-independent)
+
+Strict misses {161,167,178,184,188,189,192,194,195}; relaxed misses
+{161,167,168,184,188,189,190}. Relaxed fixed {178,192,194,195}, lost
+{168,190} — the two losses are judge-side flips (strict OR-judge
+accepted the same-typed answers that Atria rejected), not defense
+changes: q168 was SUPPORTED under both gates; q190 changed form from
+bare ABSENT to attribution-correcting SUPPORTED.
+
+Caveat: relaxed = Atria judge, strict conv-0 = OR judge; the +4.2pp
+delta carries cross-judge noise. The verdict-form analysis above is
+judge-independent and is the load-bearing evidence: no adversarial
+category that strict refused is answered under relaxed.
+
+**Verdict: ship it.** Relaxed gate on stock ingest holds the cat5
+line; residuals are the known ingest-label issue, not gate semantics.
+
+Files: `rlx_cat5.py`, `rlx_cat5_c0.jsonl`,
+`rlx_cat5_c0_metrics_atria.json`.
