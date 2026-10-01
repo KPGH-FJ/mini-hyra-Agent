@@ -640,11 +640,11 @@
  "external": {
   "name": "LongMemEval（外部标准基准）",
   "desc": "业界记忆系统公开考卷：500 题 6 题型，对话→LLM 抽取→lifemodel→检索→LLM 答题→官方判分",
-  "current_score": "LME-150 83.3%（selfc·无gate·Atria判）·宽gate 81.3%·老栈 84.7%｜ms-25 60%→assist 68%｜LoCoMo cat5 84.8%（112题）·conv-0 89.4%",
-  "baseline": "34.7%(72题) → 45.3%(150题GLM) → 83.3%(150题Atria·selfc新栈) —— 判官换轨后口径为 Atria",
-  "strong": "knowledge-update 100% · 用户事实 88% · temporal 92%（宽gate下反超无gate）",
-  "weak": "multi-session 60-68%（聚合残尾 R1/R2）· assistant 题（产出物覆盖）· 对抗细节桥接（trophy→studio 型）",
-  "pipeline": "对话→LLMIngestor(selfc+两阶段归并+SPEAKER BINDING)→TemporalGraph→retrieve(顶点目录pick)→aanswer(premise_check=relaxed)→Atria/OR/GLM 判分",
+  "current_score": "LME-150 **86.0%**（nogate+assist·Atria判·反超老栈84.7）·宽gate 81.3%｜ms-25 候选栈68%｜profile通道150q 83.3%｜LoCoMo cat5 85.1%（rlx闸112题防线完整）",
+  "baseline": "34.7%(72题)→45.3%(150题GLM)→83.3%(selfc)→**86.0%(+assist)**——Atria判官口径；78→86 三轮修复闭环（selfc摄入+gate宽化+assist转正）",
+  "strong": "temporal 100%（profile通道唯一满分）· knowledge-update 92-100% · 用户事实 92% · cat5对抗防线85.1%",
+  "weak": "枚举聚合计数（跨通道顽固：检索欠取/画像概括/assist半救）· pref在profile通道−16pp（建议题过保守）· 画像>60顶点haystack衰减（.91→.74→.67）· 边界定义排除题",
+  "pipeline": "对话→LLMIngestor(selfc+两阶段归并+SPEAKER BINDING)→TemporalGraph→aanswer(LME:nogate+assist / LoCoMo:relaxed+assist)·profile.py via_profile通道·Atria判分",
   "rounds": [
    {
     "v": "v1",
@@ -758,6 +758,44 @@
     "verdict": "relaxed 已设为基准驱动默认（#67 合入）；ms 残尾组合矩阵收官中（relaxed×assist 格跑批）",
     "links": {
      "pr": "#66, #67"
+    }
+   },
+   {
+    "v": "v13 ms-25矩阵",
+    "score": "assist 68%",
+    "note": "nogate×assist候选栈：gate −8pp边际(ms无对抗面)；残尾R1答错4/R2欠取2/R3摄入2/G边界2"
+   },
+   {
+    "v": "v13 150q终局",
+    "score": "**86.0%**",
+    "note": "nogate+assist反超老栈84.7——三轮修复闭环：selfc摄入→gate宽化→assist转正(#73驱动定型)"
+   },
+   {
+    "v": "v13 cat5防线",
+    "score": "85.1%",
+    "note": "宽gate下LoCoMo对抗40/47：严闸拒过的宽闸零放行，组件绑定拒得住(#72)"
+   },
+   {
+    "v": "v13 profile@150q",
+    "score": "83.3%",
+    "note": "画像通道缩放实测：temporal100唯一满分/ms.68并列最优；pref−16pp出血；>60顶点.74/.67拐点=haystack非过度概括(#71)"
+   },
+   {
+    "id": "v13",
+    "date": "2026-10-01",
+    "title": "终局选型 + 画像通道缩放曲线：新栈 86.0% 反超老栈，profile=分型最优通道",
+    "setup": "lab#1: ms-25 2×2矩阵(gate×assist)+150q nogate×assist全卷+profile@150q缩放实测（render_profile进影子栈，~100顶点/记忆真压缩域）；lab#2: LoCoMo cat5宽gate防线复核112题",
+    "findings": [
+     "选型表(150q Atria)：strict48.7/relaxed81.3/nogate83.3/老栈84.7/**nogate+assist 86.0**——首个反超老栈的栈；assist在非-ms亦净增(temporal+8 ms+8 pref−4)",
+     "gate按基准分治：LME无对抗题gate纯开销走nogate；LoCoMo保relaxed防线——cat5 85.1%验证宽闸防线完整(#72)",
+     "ms残尾四分：R1作答错4/R2欠取2/R3摄入2/G边界定义排除2（新病灶类，两机制皆死）",
+     "profile@150q=83.3%但错误分布全异：temporal100唯一满分、ms并列最优、pref−16pp出血；单枪治R2欠取+G边界两类栈治不了的病",
+     "缩放拐点实锤：30-59顶点.91→60-99.74→100+.67，压缩比仅0.94→0.78——haystack效应非过度概括，修复=画像分域索引化",
+     "枚举聚合=跨通道最顽固病灶（ms 8错中4枚举）"
+    ],
+    "verdict": "驱动定型LME=nogate+assist/LoCoMo=relaxed+assist(#73)；画像下沉为aanswer(via_profile)通道(#74)；裁决=混合路由：画像管时序/聚合、检索管偏好/更新——oracle并集分析中，>90%则立项",
+    "links": {
+     "pr": "#71, #72, #73, #74"
     }
    }
   ]
