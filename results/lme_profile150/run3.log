@@ -1,0 +1,49 @@
+truncated; retrying max_tokens=16384
+[1/37] f0853d11 v=44 prof=11306B dump=11869B
+[2/37] 852ce960 v=53 prof=6435B dump=7494B
+[3/37] 2698e78f v=53 prof=6971B dump=7647B
+[4/37] 06f04340 v=14 prof=8425B dump=8000B
+[5/37] c4f10528 v=13 prof=4861B dump=4715B
+truncated; retrying max_tokens=16384
+[6/37] 8cf51dda v=7 prof=1145B dump=1240B
+[7/37] 58ef2f1c v=21 prof=4115B dump=4638B
+[8/37] 21436231 v=25 prof=3025B dump=3341B
+[9/37] gpt4_6ed717ea v=30 prof=4058B dump=4047B
+truncated at cap; continuing (cont #1, 5038 chars so far)
+[10/37] 945e3d21 v=77 prof=9740B dump=11160B
+truncated at cap; continuing (cont #1, 2857 chars so far)
+[11/37] b6019101 v=27 prof=7492B dump=9442B
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[12/37] 6b7dfb22 v=20 prof=6186B dump=5174B
+[13/37] 89527b6b v=6 prof=1327B dump=1294B
+[14/37] 1d4da289 v=3 prof=349B dump=459B
+[15/37] f8c5f88b v=23 prof=4210B dump=3320B
+[16/37] gpt4_76048e76 v=28 prof=4638B dump=4994B
+[17/37] gpt4_65aabe59 v=50 prof=8022B dump=9206B
+[18/37] 9ea5eabc v=56 prof=7776B dump=10734B
+[19/37] 8a2466db v=5 prof=855B dump=754B
+[20/37] 57f827a0 v=21 prof=3459B dump=2952B
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+[21/37] 1903aded v=16 prof=1245B dump=2314B
+[22/37] 70b3e69b v=24 prof=3884B dump=4702B
+[23/37] 726462e0 v=17 prof=1984B dump=1902B
+[24/37] gpt4_385a5000 v=22 prof=3359B dump=3344B
+truncated; retrying max_tokens=16384
+[25/37] gpt4_483dd43c v=67 prof=4980B dump=17670B
+truncated; retrying max_tokens=16384
+[26/37] 4d6b87c8 v=43 prof=15410B dump=16341B
+[27/37] 32260d93 v=0 prof=7B dump=18B
+[28/37] 1da05512 v=21 prof=2198B dump=2820B
+[29/37] cc539528 v=3 prof=950B dump=814B
+[30/37] 58bf7951 v=15 prof=3192B dump=2298B
+[31/37] dccbc061 v=25 prof=7242B dump=7101B
+[32/37] gpt4_59c863d7 v=36 prof=8434B dump=9249B
+[33/37] gpt4_d84a3211 v=43 prof=5511B dump=8079B
+truncated at cap; continuing (cont #1, 5565 chars so far)
+[34/37] c4a1ceb8 v=147 prof=20497B dump=26258B
+[35/37] 36b9f61e v=67 prof=10620B dump=11203B
+truncated; retrying max_tokens=16384
+[36/37] gpt4_15e38248 v=56 prof=9592B dump=11659B
+truncated at cap; continuing (cont #1, 732 chars so far)
+[37/37] gpt4_7fce9456 v=96 prof=16670B dump=18618B

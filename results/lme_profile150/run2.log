@@ -1,0 +1,47 @@
+truncated at cap; continuing (cont #1, 8524 chars so far)
+[1/37] 2a1811e2 v=83 prof=9974B dump=12033B
+[2/37] e4e14d04 v=20 prof=8166B dump=9278B
+truncated; retrying max_tokens=16384
+[3/37] 0f05491a v=41 prof=6817B dump=7863B
+[4/37] 195a1a1b v=39 prof=5162B dump=6224B
+[5/37] fca70973 v=53 prof=4208B dump=8154B
+[6/37] dc439ea3 v=6 prof=1600B dump=1623B
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[7/37] 1e043500 v=6 prof=736B dump=847B
+stream cut mid-flight; resuming (cont #1, 39 chars so far)
+[8/37] c8c3f81d v=20 prof=5650B dump=7294B
+[9/37] bbf86515 v=35 prof=6810B dump=9114B
+truncated at cap; continuing (cont #1, 1927 chars so far)
+[10/37] 6a1eabeb v=49 prof=6287B dump=7118B
+[11/37] 08e075c7 v=56 prof=9987B dump=8953B
+[12/37] afdc33df v=15 prof=3095B dump=2480B
+[13/37] b6025781 v=14 prof=4717B dump=6256B
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[14/37] 18dcd5a5 v=11 prof=3374B dump=2604B
+[15/37] c5e8278d v=17 prof=2452B dump=2379B
+[16/37] 8ebdbe50 v=26 prof=3903B dump=4520B
+[17/37] gpt4_70e84552 v=95 prof=12669B dump=16074B
+[18/37] d7c942c3 v=32 prof=5090B dump=5160B
+[19/37] 45dc21b6 v=41 prof=7404B dump=9794B
+[20/37] 1a1907b4 v=31 prof=4168B dump=4382B
+[21/37] e9327a54 v=9 prof=6275B dump=7254B
+[22/37] 8464fc84 v=23 prof=2873B dump=2894B
+[23/37] 5d3d2817 v=19 prof=2483B dump=3173B
+[24/37] gpt4_2312f94c v=31 prof=4885B dump=4630B
+truncated; retrying max_tokens=16384
+[25/37] 982b5123 v=44 prof=10012B dump=11330B
+[26/37] 07741c44 v=15 prof=5481B dump=5254B
+[27/37] 06878be2 v=25 prof=4114B dump=4449B
+[28/37] 95228167 v=13 prof=2451B dump=2480B
+[29/37] ceb54acb v=3 prof=1056B dump=1043B
+[30/37] 8752c811 v=0 prof=408B dump=18B
+[31/37] 94f70d80 v=12 prof=2110B dump=2475B
+truncated; retrying max_tokens=16384
+[32/37] 6d550036 v=58 prof=9446B dump=11487B
+[33/37] 3a704032 v=61 prof=10028B dump=10559B
+[34/37] dd2973ad v=43 prof=12530B dump=12324B
+[35/37] 46a3abf7 v=58 prof=13001B dump=13744B
+[36/37] 2e6d26dc v=55 prof=6553B dump=8733B
+stream cut mid-flight; resuming (cont #1, 0 chars so far)
+truncated at cap; continuing (cont #2, 16028 chars so far)
+[37/37] d23cf73b v=99 prof=16107B dump=19660B

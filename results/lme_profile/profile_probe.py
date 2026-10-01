@@ -4,8 +4,8 @@ Measures profile information loss vs full-memory answers.
 """
 import asyncio, json, os, sys, datetime as _dt
 
-sys.path.insert(0, "/home/ubuntu/m4-complete/results/mainstack")
 sys.path.insert(0, "/home/ubuntu/m4-complete")
+sys.path.insert(0, "/home/ubuntu/m4-complete/results/mainstack")
 from lifemodel import reader  # noqa: E402
 from hyra.llm import OpenAICompatLLM  # noqa: E402
 
@@ -50,15 +50,13 @@ justification citing the profile facts used."""
 
 
 async def run_one(llm, model_path, q, out_dir):
+    from lifemodel.profile import render_profile
     model = load_model(model_path)
     dump = memory_dump(model)
-    profile = await llm.complete(
-        PROFILE_SYS,
-        f"MEMORY RECORDS ({reader.vertex_catalog(model).__len__()} topics):\n"
-        + dump)
-    answer = await llm.complete(
-        ANSWER_SYS.format(qdate=q["question_date"]),
-        f"PROFILE:\n{profile}\n\nQUESTION: {q['question']}")
+    profile = await render_profile(model, llm)
+    r = await reader.aanswer(model, llm, q["question"],
+                             q["question_date"], profile=profile)
+    answer = r["response"]
     qid = q["question_id"]
     with open(os.path.join(out_dir, f"{qid}.profile.md"), "w") as f:
         f.write(profile)
