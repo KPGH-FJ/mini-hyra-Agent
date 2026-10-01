@@ -46,3 +46,32 @@ answer go wrong?
 4. R3: two small ingest fixes — date-resolution sanity (relative
    anchors resolved against the *question's* temporal context, not just
    session date) and intra-session dedup (same attempt twice).
+
+## assist=True rescue run on the 10 residual questions (round k+)
+
+Hypothesis tested: three-stage's error injection earlier may have come
+from broken ingest, not the candidate-table itself. Re-ran the 10
+misses on the clean selfc models (zero re-ingest), `aanswer(assist=True)`,
+Atria judge.
+
+**Result: 5/10 rescued, 0 regressions among them**
+
+- WIN: 80ec1f4f (2 museums incl. niece visit), c4a1ceb8 (3 citrus incl.
+  lemon), d23cf73b (4 cuisines incl. Ethiopian), d682f1a2 (3 services),
+  gpt4_2f8be40d (3 weddings — assist's extraction stage additionally
+  recovered an R2 under-pick: Jen&Tom vertices reached the table).
+- Still MISS: 0a995998 (2 vs 3, improved), 6d550036 (R2 under-pick
+  persists — table can't fix unpicked vertices), 88432d0a (overcount via
+  duplicate record persists — R3), dd2973ad (anchor misresolve — R3),
+  gpt4_7fce9456 (candidate table bound only 1 property — enumeration
+  regressed further but was already wrong).
+
+**Interpretation**: partially confirms "assist is ingest-quality-
+dependent, not judge-dependent": on clean ingest it rescued half the
+residual with no loss on those five. But the remaining failures are
+structural — R2 under-pick, R3 dup/anchor — not answer-side, so assist
+cannot be the single fix. Projected combined ceiling on this slice if
+assist were on: ~20/25 (80%), pending a full-slice run to confirm no
+flips lost on the 15 already-correct questions.
+
+Artifacts: `hyp_assist.jsonl`, `metrics_assist.json` (Atria 5/10).
