@@ -727,6 +727,23 @@
      "pr": "#59-#65",
      "report": "results/reexam150/REPORT.md + results/lme_recorddiff/REPORT.md"
     }
+   },
+   {
+    "id": "v12",
+    "date": "2026-10-01",
+    "title": "premise gate 语义演进：严→宽（relaxed）+ assist 翻案",
+    "setup": "lab#1: selfc 摄入 × gate 三方对照 150q 全 Atria + ms-25 assist 残尾复测；premise_check='relaxed' 由 lab 影子栈语义移植进 reader.py（PR #67）",
+    "findings": [
+     "三方对照：selfc+严gate 48.7% / +宽gate 81.3% / +无gate 83.3%（老栈 84.7）——严 gate −34.6pp 全砸在推理/建议题（temporal −60 pref −72 ms −56），事实前提型零损",
+     "宽 gate 语义：premise_expected=false→advisory/pref 放行；synthesis_needed=true→组件全绑定即可合成作答（组件不全仍 ABSENT）；事实防线（who/event 真绑定）保留",
+     "误杀率 44%→2.4%；temporal 题 relaxed .92 反超无 gate .88——绑定约束本身强制组件钉记录再算，净增益",
+     "assist 翻案：干净摄入下 ms-25 assist=68%（救 5/10 零翻车）——早前 −44pp 是烂摄入注入之误，非候选表之错；『答案侧机制强弱依赖判题者×摄入质量』双依赖确认",
+     "残余负数：relaxed 仍 −2pp vs 无 gate（定义边界题）；ms-25 relaxed-off 56% vs nogate-off 60%（小样本噪声带内）"
+    ],
+    "verdict": "relaxed 已设为基准驱动默认（#67 合入）；ms 残尾组合矩阵收官中（relaxed×assist 格跑批）",
+    "links": {
+     "pr": "#66, #67"
+    }
    }
   ]
  }
