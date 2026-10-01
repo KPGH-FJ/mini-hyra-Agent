@@ -94,6 +94,15 @@ async def v_assist(model, llm, question, qdate):
                                 assist=True)
 
 
+async def v_pvgr(model, llm, question, qdate):
+    """Relaxed premise gate (option B): advisory questions skip
+    verification (premise_expected=False); inferential questions may
+    answer by synthesis from bound components (synthesis_needed=True).
+    """
+    return await reader.aanswer(model, llm, question, qdate,
+                                premise_check="relaxed")
+
+
 async def v_pick50(model, llm, question, qdate):
     """Budget sweep: same two-stage with max_pick=50."""
     keys = await reader.aretrieve(model, llm, question, qdate, max_pick=50)
@@ -623,7 +632,7 @@ async def v_tiered(model, llm, question, qdate):
     return {"response": resp, "selected": keys, "digest": dg}
 
 
-VARIANTS = {"base": v_base, "pvg": v_pvg, "assist": v_assist, "entity": v_entity, "twohop": v_twohop,
+VARIANTS = {"base": v_base, "pvg": v_pvg, "pvgr": v_pvgr, "assist": v_assist, "entity": v_entity, "twohop": v_twohop,
             "pick10": v_pick10, "pick50": v_pick50, "kwfilter": v_kwfilter,
             "fam": v_fam, "topic": v_topic, "recur": v_recur,
             "big150": v_big150, "mix": v_mix,
