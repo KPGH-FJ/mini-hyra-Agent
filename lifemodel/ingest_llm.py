@@ -66,6 +66,14 @@ Output a JSON array of records:
   "next month"), keep it VERBATIM, e.g. ` (on June 2023)` — never drop
   it and never invent a day. This is the event's own date, distinct
   from the session date. Only append when a date is actually stated.
+- SELF-CONTAINED RECORDS: every record must stand alone — named
+  subject + complete fact + temporal anchor inline. Never emit bare
+  values ("5 days", "peace lily", "last month") without their
+  referent; resolve pronouns in the value to the named referent. Keep
+  dates and durations inside the fact record, never split them into a
+  separate vertex; acquisition/state-change facts keep {item + action
+  + source + date} in one record. `about` names a PERSON or is null —
+  never a topic noun.
 - Keep slot names consistent; reuse names from the existing slot list
   when one covers the fact.
 Extract liberally — even small details count. Empty array only if truly
