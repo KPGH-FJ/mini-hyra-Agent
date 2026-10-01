@@ -1,0 +1,32 @@
+[1/24] gpt4_2655b836 v=36 prof=5756B dump=7452B
+[2/24] 0bb5a684 v=33 prof=9188B dump=9450B
+truncated; retrying max_tokens=16384
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+[3/24] 2a1811e2 v=83 prof=10256B dump=12033B
+[4/24] f0853d11 v=44 prof=6506B dump=11869B
+[5/24] 852ce960 v=53 prof=6792B dump=7494B
+[6/24] 89941a93 v=65 prof=7590B dump=8980B
+[7/24] a1eacc2a v=27 prof=6522B dump=7076B
+truncated at cap; continuing (cont #1, 3617 chars so far)
+[8/24] 0f05491a v=41 prof=7446B dump=7863B
+[9/24] 75832dbd v=0 prof=262B dump=18B
+[10/24] 195a1a1b v=39 prof=5439B dump=6224B
+[11/24] 06f04340 v=14 prof=6990B dump=8000B
+[12/24] 38146c39 v=26 prof=3971B dump=4014B
+[13/24] c4f10528 v=13 prof=2284B dump=4715B
+[14/24] 6ae235be v=0 prof=331B dump=18B
+[15/24] f523d9fe v=10 prof=1313B dump=1585B
+[16/24] dc439ea3 v=6 prof=1637B dump=1623B
+truncated; retrying max_tokens=16384
+[17/24] e47becba v=17 prof=8769B dump=7793B
+[18/24] 1e043500 v=6 prof=705B dump=847B
+[19/24] 58ef2f1c v=21 prof=3631B dump=4638B
+[20/24] c960da58 v=21 prof=3811B dump=3264B
+[21/24] 0a995998 v=45 prof=6714B dump=7254B
+truncated; retrying max_tokens=16384
+[22/24] 6d550036 v=58 prof=9455B dump=11487B
+truncated at cap; continuing (cont #1, 3451 chars so far)
+[23/24] gpt4_59c863d7 v=36 prof=9044B dump=9249B
+truncated; retrying max_tokens=16384
+[24/24] b5ef892d v=128 prof=15549B dump=21833B
