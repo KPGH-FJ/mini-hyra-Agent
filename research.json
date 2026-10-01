@@ -640,11 +640,11 @@
  "external": {
   "name": "LongMemEval（外部标准基准）",
   "desc": "业界记忆系统公开考卷：500 题 6 题型，对话→LLM 抽取→lifemodel→检索→LLM 答题→官方判分",
-  "current_score": "LME 45.3%/40.0%（150题GLM口径）· LoCoMo 修复栈 66.7%（conv-0·OR口径,基线33.3%）· conv-1 57.4%",
-  "baseline": "34.7% → 41.7% → 150题扩样 40.0%/45.3%（噪声收敛后真实水位）",
-  "strong": "knowledge-update 80% · user ~70%（n=25/类）",
-  "weak": "adversarial 拒答精度 58%（放宽代价面·拨盘轮进行中）· GLM欠费停机→OR单后端",
-  "pipeline": "对话→LLM抽取(两阶段槽位归并·空抽取重试·逐格拆解·事件日期保留)→lifemodel→检索(目录≤50全渲染·否则LLM挑顶点+族扩展)→两段式作答(个性化条款·聚合枚举)→官方判分",
+  "current_score": "LME-150 83.3%（selfc·无gate·Atria判）·宽gate 81.3%·老栈 84.7%｜ms-25 60%→assist 68%｜LoCoMo cat5 84.8%（112题）·conv-0 89.4%",
+  "baseline": "34.7%(72题) → 45.3%(150题GLM) → 83.3%(150题Atria·selfc新栈) —— 判官换轨后口径为 Atria",
+  "strong": "knowledge-update 100% · 用户事实 88% · temporal 92%（宽gate下反超无gate）",
+  "weak": "multi-session 60-68%（聚合残尾 R1/R2）· assistant 题（产出物覆盖）· 对抗细节桥接（trophy→studio 型）",
+  "pipeline": "对话→LLMIngestor(selfc+两阶段归并+SPEAKER BINDING)→TemporalGraph→retrieve(顶点目录pick)→aanswer(premise_check=relaxed)→Atria/OR/GLM 判分",
   "rounds": [
    {
     "v": "v1",
@@ -726,6 +726,38 @@
     "links": {
      "pr": "#59-#65",
      "report": "results/reexam150/REPORT.md + results/lme_recorddiff/REPORT.md"
+    }
+   },
+   {
+    "v": "v10 150q复测",
+    "score": "old 84.7 vs new 78.0",
+    "note": "ms 崩塌 72→28 暴露 → 归因链排除检索/挤兑/稀释"
+   },
+   {
+    "v": "v11 selfc修复",
+    "score": "ms-25 28→60%",
+    "note": "SELF-CONTAINED RECORDS 条款(#65)：非自足记录根因修复，+32pp"
+   },
+   {
+    "v": "v12 宽gate",
+    "score": "81.3%",
+    "note": "premise relaxed：严48.7→宽81.3≈无gate 83.3，误杀率44%→2.4%，(#67)已设为默认"
+   },
+   {
+    "id": "v12",
+    "date": "2026-10-01",
+    "title": "premise gate 语义演进：严→宽（relaxed）+ assist 翻案",
+    "setup": "lab#1: selfc 摄入 × gate 三方对照 150q 全 Atria + ms-25 assist 残尾复测；premise_check='relaxed' 由 lab 影子栈语义移植进 reader.py（PR #67）",
+    "findings": [
+     "三方对照：selfc+严gate 48.7% / +宽gate 81.3% / +无gate 83.3%（老栈 84.7）——严 gate −34.6pp 全砸在推理/建议题（temporal −60 pref −72 ms −56），事实前提型零损",
+     "宽 gate 语义：premise_expected=false→advisory/pref 放行；synthesis_needed=true→组件全绑定即可合成作答（组件不全仍 ABSENT）；事实防线（who/event 真绑定）保留",
+     "误杀率 44%→2.4%；temporal 题 relaxed .92 反超无 gate .88——绑定约束本身强制组件钉记录再算，净增益",
+     "assist 翻案：干净摄入下 ms-25 assist=68%（救 5/10 零翻车）——早前 −44pp 是烂摄入注入之误，非候选表之错；『答案侧机制强弱依赖判题者×摄入质量』双依赖确认",
+     "残余负数：relaxed 仍 −2pp vs 无 gate（定义边界题）；ms-25 relaxed-off 56% vs nogate-off 60%（小样本噪声带内）"
+    ],
+    "verdict": "relaxed 已设为基准驱动默认（#67 合入）；ms 残尾组合矩阵收官中（relaxed×assist 格跑批）",
+    "links": {
+     "pr": "#66, #67"
     }
    }
   ]
