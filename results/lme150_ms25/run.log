@@ -1,0 +1,27 @@
+[1/25] 0a995998 recs=51 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 2496, 'completion_tokens': 5970, 'calls': 1}
+[2/25] 6d550036 recs=70 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 4096, 'completion_tokens': 9547, 'calls': 3}
+[3/25] gpt4_59c863d7 recs=93 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 7615, 'completion_tokens': 11410, 'calls': 4}
+[4/25] b5ef892d recs=140 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 10161, 'completion_tokens': 13774, 'calls': 6}
+[5/25] e831120c recs=40 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 14333, 'completion_tokens': 14859, 'calls': 8}
+[6/25] 3a704032 recs=71 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 17869, 'completion_tokens': 19406, 'calls': 10}
+[7/25] gpt4_d84a3211 recs=61 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 20674, 'completion_tokens': 20382, 'calls': 11}
+[8/25] aae3761f recs=68 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 22774, 'completion_tokens': 21336, 'calls': 13}
+[9/25] gpt4_f2262a51 recs=61 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 25683, 'completion_tokens': 21859, 'calls': 14}
+[10/25] dd2973ad recs=101 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 30112, 'completion_tokens': 23139, 'calls': 15}
+[11/25] c4a1ceb8 recs=153 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 35461, 'completion_tokens': 28641, 'calls': 17}
+[12/25] gpt4_a56e767c recs=89 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 39759, 'completion_tokens': 29288, 'calls': 18}
+[13/25] 6cb6f249 recs=100 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 43631, 'completion_tokens': 29845, 'calls': 19}
+[14/25] 46a3abf7 recs=103 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 45451, 'completion_tokens': 31563, 'calls': 21}
+[15/25] 36b9f61e recs=77 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 47304, 'completion_tokens': 38165, 'calls': 23}
+[16/25] 28dc39ac recs=185 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 52532, 'completion_tokens': 38983, 'calls': 25}
+[17/25] gpt4_2f8be40d recs=119 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 54780, 'completion_tokens': 40717, 'calls': 27}
+truncated; retrying max_tokens=16384
+stream cut mid-flight; resuming (cont #1, 0 chars so far)
+[18/25] 2e6d26dc recs=60 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 57675, 'completion_tokens': 51785, 'calls': 30}
+[19/25] gpt4_15e38248 recs=94 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 59690, 'completion_tokens': 54577, 'calls': 32}
+[20/25] 88432d0a recs=93 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 63195, 'completion_tokens': 59734, 'calls': 34}
+[21/25] 80ec1f4f recs=69 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 66133, 'completion_tokens': 61496, 'calls': 35}
+[22/25] d23cf73b recs=148 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 70478, 'completion_tokens': 64373, 'calls': 37}
+[23/25] gpt4_7fce9456 recs=125 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 73040, 'completion_tokens': 65861, 'calls': 39}
+[24/25] d682f1a2 recs=126 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 75067, 'completion_tokens': 66661, 'calls': 41}
+[25/25] 7024f17c recs=89 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 78003, 'completion_tokens': 67948, 'calls': 43}

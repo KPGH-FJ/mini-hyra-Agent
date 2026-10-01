@@ -1,0 +1,39 @@
+[1/31] gpt4_76048e76 recs=37 extract={'prompt_tokens': 7369, 'completion_tokens': 6607, 'calls': 3} answer={'prompt_tokens': 1956, 'completion_tokens': 1641, 'calls': 1}
+[2/31] 2c63a862 recs=35 extract={'prompt_tokens': 14787, 'completion_tokens': 11463, 'calls': 6} answer={'prompt_tokens': 4000, 'completion_tokens': 3499, 'calls': 2}
+llm call failed (attempt 1/8): HTTP Error 502: Bad Gateway
+truncated; retrying max_tokens=16384
+[3/31] gpt4_5dcc0aab recs=134 extract={'prompt_tokens': 35110, 'completion_tokens': 47163, 'calls': 16} answer={'prompt_tokens': 6496, 'completion_tokens': 4797, 'calls': 5}
+[4/31] gpt4_70e84552 recs=108 extract={'prompt_tokens': 44590, 'completion_tokens': 61285, 'calls': 19} answer={'prompt_tokens': 9294, 'completion_tokens': 5479, 'calls': 8}
+[5/31] gpt4_65aabe59 recs=66 extract={'prompt_tokens': 53608, 'completion_tokens': 74825, 'calls': 22} answer={'prompt_tokens': 12444, 'completion_tokens': 8639, 'calls': 9}
+[6/31] c8090214 recs=61 extract={'prompt_tokens': 61580, 'completion_tokens': 84580, 'calls': 25} answer={'prompt_tokens': 15598, 'completion_tokens': 13008, 'calls': 10}
+[7/31] 6aeb4375 recs=81 extract={'prompt_tokens': 68627, 'completion_tokens': 96678, 'calls': 28} answer={'prompt_tokens': 23392, 'completion_tokens': 13527, 'calls': 12}
+[8/31] d7c942c3 recs=39 extract={'prompt_tokens': 75603, 'completion_tokens': 103513, 'calls': 31} answer={'prompt_tokens': 27579, 'completion_tokens': 15248, 'calls': 14}
+truncated at cap; continuing (cont #1, 6393 chars so far)
+truncated; retrying max_tokens=16384
+[9/31] 9ea5eabc recs=89 extract={'prompt_tokens': 91084, 'completion_tokens': 131161, 'calls': 36} answer={'prompt_tokens': 31237, 'completion_tokens': 17250, 'calls': 17}
+[10/31] 031748ae recs=86 extract={'prompt_tokens': 98429, 'completion_tokens': 142674, 'calls': 39} answer={'prompt_tokens': 33855, 'completion_tokens': 22399, 'calls': 20}
+llm call failed (attempt 1/8): empty completion (finish_reason=stop, data_events=2374)
+[11/31] f9e8c073 recs=95 extract={'prompt_tokens': 107495, 'completion_tokens': 153256, 'calls': 42} answer={'prompt_tokens': 41598, 'completion_tokens': 23526, 'calls': 22}
+[12/31] 45dc21b6 recs=69 extract={'prompt_tokens': 115641, 'completion_tokens': 165389, 'calls': 45} answer={'prompt_tokens': 48245, 'completion_tokens': 24237, 'calls': 24}
+[13/31] 8a2466db recs=5 extract={'prompt_tokens': 121753, 'completion_tokens': 167329, 'calls': 46} answer={'prompt_tokens': 48906, 'completion_tokens': 26765, 'calls': 25}
+[14/31] 35a27287 recs=44 extract={'prompt_tokens': 126764, 'completion_tokens': 174495, 'calls': 47} answer={'prompt_tokens': 50968, 'completion_tokens': 27118, 'calls': 26}
+[15/31] caf03d32 recs=20 extract={'prompt_tokens': 132196, 'completion_tokens': 177067, 'calls': 48} answer={'prompt_tokens': 52438, 'completion_tokens': 28078, 'calls': 27}
+[16/31] 1a1907b4 recs=31 extract={'prompt_tokens': 136755, 'completion_tokens': 180665, 'calls': 49} answer={'prompt_tokens': 54215, 'completion_tokens': 30050, 'calls': 28}
+[17/31] 57f827a0 recs=21 extract={'prompt_tokens': 141010, 'completion_tokens': 184300, 'calls': 50} answer={'prompt_tokens': 55423, 'completion_tokens': 30620, 'calls': 29}
+[18/31] d6233ab6 recs=41 extract={'prompt_tokens': 144522, 'completion_tokens': 187962, 'calls': 51} answer={'prompt_tokens': 57317, 'completion_tokens': 31233, 'calls': 30}
+truncated; retrying max_tokens=16384
+[19/31] a89d7624 recs=46 extract={'prompt_tokens': 148243, 'completion_tokens': 192880, 'calls': 52} answer={'prompt_tokens': 61651, 'completion_tokens': 39975, 'calls': 32}
+[20/31] e9327a54 recs=60 extract={'prompt_tokens': 150993, 'completion_tokens': 198173, 'calls': 53} answer={'prompt_tokens': 66841, 'completion_tokens': 40879, 'calls': 34}
+[21/31] 1903aded recs=16 extract={'prompt_tokens': 151894, 'completion_tokens': 199430, 'calls': 54} answer={'prompt_tokens': 67894, 'completion_tokens': 41705, 'calls': 35}
+[22/31] fea54f57 recs=32 extract={'prompt_tokens': 154222, 'completion_tokens': 202163, 'calls': 55} answer={'prompt_tokens': 71557, 'completion_tokens': 42276, 'calls': 37}
+truncated; retrying max_tokens=16384
+[23/31] 488d3006 recs=13 extract={'prompt_tokens': 156271, 'completion_tokens': 203733, 'calls': 56} answer={'prompt_tokens': 73727, 'completion_tokens': 59442, 'calls': 39}
+[24/31] 8464fc84 recs=23 extract={'prompt_tokens': 158181, 'completion_tokens': 206528, 'calls': 57} answer={'prompt_tokens': 76561, 'completion_tokens': 63455, 'calls': 41}
+[25/31] 70b3e69b recs=24 extract={'prompt_tokens': 164164, 'completion_tokens': 214505, 'calls': 59} answer={'prompt_tokens': 80120, 'completion_tokens': 63955, 'calls': 43}
+truncated; retrying max_tokens=16384
+[26/31] 51a45a95 recs=29 extract={'prompt_tokens': 167236, 'completion_tokens': 217549, 'calls': 60} answer={'prompt_tokens': 83358, 'completion_tokens': 72850, 'calls': 45}
+[27/31] 6ade9755 recs=28 extract={'prompt_tokens': 169967, 'completion_tokens': 223120, 'calls': 61} answer={'prompt_tokens': 86517, 'completion_tokens': 73275, 'calls': 47}
+[28/31] 5d3d2817 recs=19 extract={'prompt_tokens': 174132, 'completion_tokens': 226388, 'calls': 62} answer={'prompt_tokens': 89165, 'completion_tokens': 73590, 'calls': 49}
+[29/31] 726462e0 recs=17 extract={'prompt_tokens': 178207, 'completion_tokens': 229177, 'calls': 63} answer={'prompt_tokens': 91329, 'completion_tokens': 74011, 'calls': 51}
+[30/31] af8d2e46 recs=23 extract={'prompt_tokens': 181737, 'completion_tokens': 231451, 'calls': 64} answer={'prompt_tokens': 94979, 'completion_tokens': 77337, 'calls': 53}
+[31/31] 6b168ec8 recs=17 extract={'prompt_tokens': 186009, 'completion_tokens': 234143, 'calls': 65} answer={'prompt_tokens': 97372, 'completion_tokens': 77644, 'calls': 55}

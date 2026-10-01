@@ -1,0 +1,10 @@
+stream cut mid-flight; resuming (cont #1, 0 chars so far)
+truncated; retrying max_tokens=16384
+stream cut mid-flight; resuming (cont #1, 0 chars so far)
+[8/13] aae3761f recs=87 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 10444, 'completion_tokens': 20537, 'calls': 6}
+[9/13] gpt4_f2262a51 recs=87 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 17906, 'completion_tokens': 22353, 'calls': 11}
+[10/13] dd2973ad recs=79 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 24511, 'completion_tokens': 23997, 'calls': 19}
+truncated; retrying max_tokens=16384
+[11/13] c4a1ceb8 recs=88 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 39333, 'completion_tokens': 43206, 'calls': 28}
+[12/13] gpt4_a56e767c recs=122 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 48977, 'completion_tokens': 45624, 'calls': 33}
+[13/13] 6cb6f249 recs=59 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 56050, 'completion_tokens': 46885, 'calls': 38}

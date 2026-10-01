@@ -1,0 +1,35 @@
+[1/31] gpt4_76048e76 recs=37 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 4229, 'completion_tokens': 1131, 'calls': 2}
+[2/31] 2c63a862 recs=35 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 8646, 'completion_tokens': 2007, 'calls': 4}
+[3/31] gpt4_5dcc0aab recs=134 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 11318, 'completion_tokens': 2710, 'calls': 7}
+[4/31] gpt4_70e84552 recs=108 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 14292, 'completion_tokens': 4010, 'calls': 10}
+[5/31] gpt4_65aabe59 recs=66 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 20874, 'completion_tokens': 5696, 'calls': 12}
+[6/31] c8090214 recs=61 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 27371, 'completion_tokens': 6847, 'calls': 14}
+[7/31] 6aeb4375 recs=81 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 35341, 'completion_tokens': 7429, 'calls': 16}
+[8/31] d7c942c3 recs=39 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 39704, 'completion_tokens': 8326, 'calls': 18}
+[9/31] 9ea5eabc recs=89 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 41993, 'completion_tokens': 10398, 'calls': 21}
+[10/31] 031748ae recs=86 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 45669, 'completion_tokens': 12280, 'calls': 24}
+[11/31] f9e8c073 recs=95 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 53588, 'completion_tokens': 17288, 'calls': 26}
+[12/31] 45dc21b6 recs=69 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 60411, 'completion_tokens': 17962, 'calls': 28}
+[13/31] 8a2466db recs=5 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 62117, 'completion_tokens': 18834, 'calls': 30}
+llm call failed (attempt 1/8): HTTP Error 502: Bad Gateway
+[14/31] 35a27287 recs=44 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 66415, 'completion_tokens': 19441, 'calls': 32}
+[15/31] caf03d32 recs=20 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 69739, 'completion_tokens': 21208, 'calls': 34}
+[16/31] 1a1907b4 recs=31 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 73677, 'completion_tokens': 22487, 'calls': 36}
+[17/31] 57f827a0 recs=21 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 76477, 'completion_tokens': 23432, 'calls': 38}
+[18/31] d6233ab6 recs=41 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 80498, 'completion_tokens': 24158, 'calls': 40}
+[19/31] a89d7624 recs=46 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 84972, 'completion_tokens': 25196, 'calls': 42}
+[20/31] e9327a54 recs=60 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 90338, 'completion_tokens': 25748, 'calls': 44}
+[21/31] 1903aded recs=16 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 92828, 'completion_tokens': 26679, 'calls': 46}
+[22/31] fea54f57 recs=32 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 96667, 'completion_tokens': 27401, 'calls': 48}
+truncated; retrying max_tokens=16384
+[23/31] 488d3006 recs=13 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 99189, 'completion_tokens': 39547, 'calls': 50}
+[24/31] 8464fc84 recs=23 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 102199, 'completion_tokens': 40205, 'calls': 52}
+[25/31] 70b3e69b recs=24 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 105934, 'completion_tokens': 40645, 'calls': 54}
+[26/31] 51a45a95 recs=29 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 107729, 'completion_tokens': 41558, 'calls': 55}
+[27/31] 6ade9755 recs=28 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 111064, 'completion_tokens': 42129, 'calls': 57}
+[28/31] 5d3d2817 recs=19 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 113888, 'completion_tokens': 42523, 'calls': 59}
+[29/31] 726462e0 recs=17 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 116228, 'completion_tokens': 42976, 'calls': 61}
+[30/31] af8d2e46 recs=23 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 120054, 'completion_tokens': 45494, 'calls': 63}
+llm call failed (attempt 1/8): HTTP Error 502: Bad Gateway
+llm call failed (attempt 2/8): HTTP Error 502: Bad Gateway
+[31/31] 6b168ec8 recs=17 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 122623, 'completion_tokens': 45816, 'calls': 65}

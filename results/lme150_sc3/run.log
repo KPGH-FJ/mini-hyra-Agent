@@ -1,0 +1,43 @@
+[1/31] gpt4_2312f94c recs=39 extract={'prompt_tokens': 7656, 'completion_tokens': 6018, 'calls': 3} answer={'prompt_tokens': 1905, 'completion_tokens': 1156, 'calls': 1}
+[2/31] gpt4_385a5000 recs=24 extract={'prompt_tokens': 14083, 'completion_tokens': 12881, 'calls': 6} answer={'prompt_tokens': 3391, 'completion_tokens': 6103, 'calls': 2}
+[3/31] gpt4_0b2f1d21 recs=72 extract={'prompt_tokens': 22738, 'completion_tokens': 21730, 'calls': 9} answer={'prompt_tokens': 9611, 'completion_tokens': 7522, 'calls': 4}
+[4/31] a3838d2b recs=143 extract={'prompt_tokens': 47356, 'completion_tokens': 51144, 'calls': 20} answer={'prompt_tokens': 12964, 'completion_tokens': 10081, 'calls': 6}
+[5/31] 982b5123 recs=83 extract={'prompt_tokens': 55274, 'completion_tokens': 64563, 'calls': 23} answer={'prompt_tokens': 16755, 'completion_tokens': 11874, 'calls': 7}
+truncated at cap; continuing (cont #1, 8163 chars so far)
+truncated; retrying max_tokens=16384
+[6/31] gpt4_483dd43c recs=134 extract={'prompt_tokens': 74018, 'completion_tokens': 99061, 'calls': 28} answer={'prompt_tokens': 18544, 'completion_tokens': 12938, 'calls': 9}
+[7/31] 830ce83f recs=48 extract={'prompt_tokens': 80997, 'completion_tokens': 109109, 'calls': 31} answer={'prompt_tokens': 23099, 'completion_tokens': 14661, 'calls': 11}
+truncated; retrying max_tokens=16384
+[8/31] 71315a70 recs=95 extract={'prompt_tokens': 91643, 'completion_tokens': 135632, 'calls': 35} answer={'prompt_tokens': 25949, 'completion_tokens': 15504, 'calls': 14}
+[9/31] 07741c44 recs=39 extract={'prompt_tokens': 99055, 'completion_tokens': 143773, 'calls': 38} answer={'prompt_tokens': 29983, 'completion_tokens': 15951, 'calls': 16}
+truncated at cap; continuing (cont #1, 6831 chars so far)
+llm call failed (attempt 1/8): empty completion (finish_reason=stop, data_events=1026)
+llm call failed (attempt 2/8): empty completion (finish_reason=stop, data_events=1018)
+llm call failed (attempt 3/8): empty completion (finish_reason=stop, data_events=1053)
+[10/31] 4d6b87c8 recs=99 extract={'prompt_tokens': 113150, 'completion_tokens': 162785, 'calls': 42} answer={'prompt_tokens': 39918, 'completion_tokens': 16529, 'calls': 18}
+[11/31] 41698283 recs=35 extract={'prompt_tokens': 122026, 'completion_tokens': 168553, 'calls': 45} answer={'prompt_tokens': 43768, 'completion_tokens': 18319, 'calls': 20}
+truncated; retrying max_tokens=16384
+[12/31] 5a4f22c0 recs=99 extract={'prompt_tokens': 133350, 'completion_tokens': 196978, 'calls': 49} answer={'prompt_tokens': 47638, 'completion_tokens': 18861, 'calls': 23}
+[13/31] 06878be2 recs=39 extract={'prompt_tokens': 138606, 'completion_tokens': 200358, 'calls': 50} answer={'prompt_tokens': 49545, 'completion_tokens': 26191, 'calls': 24}
+truncated at cap; continuing (cont #1, 1591 chars so far)
+truncated at cap; continuing (cont #1, 18172 chars so far)
+[14/31] 32260d93 recs=0 extract={'prompt_tokens': 161383, 'completion_tokens': 219907, 'calls': 54} answer={'prompt_tokens': 50019, 'completion_tokens': 27083, 'calls': 25}
+[15/31] 54026fce recs=12 extract={'prompt_tokens': 165097, 'completion_tokens': 222181, 'calls': 55} answer={'prompt_tokens': 50967, 'completion_tokens': 32544, 'calls': 26}
+truncated at cap; continuing (cont #1, 2558 chars so far)
+[16/31] 09d032c9 recs=49 extract={'prompt_tokens': 179709, 'completion_tokens': 233228, 'calls': 57} answer={'prompt_tokens': 53521, 'completion_tokens': 32915, 'calls': 27}
+[17/31] 95228167 recs=13 extract={'prompt_tokens': 183853, 'completion_tokens': 235710, 'calls': 58} answer={'prompt_tokens': 54674, 'completion_tokens': 33687, 'calls': 28}
+[18/31] 1da05512 recs=21 extract={'prompt_tokens': 188952, 'completion_tokens': 238387, 'calls': 59} answer={'prompt_tokens': 55998, 'completion_tokens': 34600, 'calls': 29}
+[19/31] 7161e7e2 recs=33 extract={'prompt_tokens': 191800, 'completion_tokens': 241643, 'calls': 60} answer={'prompt_tokens': 59356, 'completion_tokens': 35276, 'calls': 31}
+[20/31] 4c36ccef recs=16 extract={'prompt_tokens': 193251, 'completion_tokens': 243578, 'calls': 61} answer={'prompt_tokens': 61782, 'completion_tokens': 36639, 'calls': 33}
+[21/31] ceb54acb recs=7 extract={'prompt_tokens': 195288, 'completion_tokens': 246254, 'calls': 63} answer={'prompt_tokens': 62544, 'completion_tokens': 39466, 'calls': 34}
+[22/31] cc539528 recs=3 extract={'prompt_tokens': 197189, 'completion_tokens': 247205, 'calls': 64} answer={'prompt_tokens': 64102, 'completion_tokens': 41312, 'calls': 36}
+[23/31] 58470ed2 recs=13 extract={'prompt_tokens': 200960, 'completion_tokens': 251735, 'calls': 66} answer={'prompt_tokens': 65134, 'completion_tokens': 41627, 'calls': 37}
+[24/31] 8aef76bc recs=21 extract={'prompt_tokens': 202534, 'completion_tokens': 256581, 'calls': 67} answer={'prompt_tokens': 67814, 'completion_tokens': 42418, 'calls': 39}
+truncated at cap; continuing (cont #1, 2737 chars so far)
+[25/31] 8752c811 recs=0 extract={'prompt_tokens': 211096, 'completion_tokens': 273030, 'calls': 70} answer={'prompt_tokens': 68310, 'completion_tokens': 42570, 'calls': 40}
+[26/31] 58bf7951 recs=15 extract={'prompt_tokens': 213931, 'completion_tokens': 275615, 'calls': 71} answer={'prompt_tokens': 70620, 'completion_tokens': 43116, 'calls': 42}
+[27/31] 6f9b354f recs=26 extract={'prompt_tokens': 217841, 'completion_tokens': 278227, 'calls': 72} answer={'prompt_tokens': 73716, 'completion_tokens': 43443, 'calls': 44}
+[28/31] 7527f7e2 recs=29 extract={'prompt_tokens': 222125, 'completion_tokens': 281431, 'calls': 73} answer={'prompt_tokens': 76986, 'completion_tokens': 43830, 'calls': 46}
+[29/31] 94f70d80 recs=20 extract={'prompt_tokens': 225919, 'completion_tokens': 284126, 'calls': 74} answer={'prompt_tokens': 79468, 'completion_tokens': 44151, 'calls': 48}
+[30/31] dccbc061 recs=46 extract={'prompt_tokens': 231210, 'completion_tokens': 291742, 'calls': 75} answer={'prompt_tokens': 84152, 'completion_tokens': 44561, 'calls': 50}
+[31/31] 75499fd8 recs=42 extract={'prompt_tokens': 234967, 'completion_tokens': 297402, 'calls': 76} answer={'prompt_tokens': 87938, 'completion_tokens': 45022, 'calls': 52}

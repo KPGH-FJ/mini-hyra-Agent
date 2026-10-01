@@ -1,0 +1,28 @@
+[1/25] 0a995998 recs=51 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 2497, 'completion_tokens': 346, 'calls': 1}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[2/25] 6d550036 recs=60 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 4823, 'completion_tokens': 1761, 'calls': 3}
+[3/25] gpt4_59c863d7 recs=47 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 7368, 'completion_tokens': 5580, 'calls': 4}
+[4/25] b5ef892d recs=57 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 10326, 'completion_tokens': 6030, 'calls': 5}
+[5/25] e831120c recs=25 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 11852, 'completion_tokens': 6151, 'calls': 6}
+[6/25] 3a704032 recs=60 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 14616, 'completion_tokens': 7152, 'calls': 7}
+[7/25] gpt4_d84a3211 recs=55 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 17166, 'completion_tokens': 7754, 'calls': 8}
+[8/25] aae3761f recs=50 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 19768, 'completion_tokens': 8191, 'calls': 9}
+[9/25] gpt4_f2262a51 recs=45 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 22125, 'completion_tokens': 8523, 'calls': 10}
+[10/25] dd2973ad recs=32 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 24083, 'completion_tokens': 9785, 'calls': 11}
+[11/25] c4a1ceb8 recs=63 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 27563, 'completion_tokens': 12705, 'calls': 13}
+[12/25] gpt4_a56e767c recs=50 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 30099, 'completion_tokens': 13091, 'calls': 14}
+[13/25] 6cb6f249 recs=36 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 32014, 'completion_tokens': 13301, 'calls': 15}
+[14/25] 46a3abf7 recs=39 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 34007, 'completion_tokens': 13676, 'calls': 16}
+[15/25] 36b9f61e recs=47 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 36447, 'completion_tokens': 14143, 'calls': 17}
+[16/25] 28dc39ac recs=85 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 40123, 'completion_tokens': 14576, 'calls': 18}
+[17/25] gpt4_2f8be40d recs=68 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 42304, 'completion_tokens': 15190, 'calls': 20}
+[18/25] 2e6d26dc recs=48 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 44737, 'completion_tokens': 15666, 'calls': 21}
+[19/25] gpt4_15e38248 recs=62 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 47499, 'completion_tokens': 16698, 'calls': 22}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[20/25] 88432d0a recs=63 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 49596, 'completion_tokens': 17644, 'calls': 24}
+[21/25] 80ec1f4f recs=64 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 52390, 'completion_tokens': 18115, 'calls': 25}
+[22/25] d23cf73b recs=64 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 55413, 'completion_tokens': 20473, 'calls': 26}
+[23/25] gpt4_7fce9456 recs=78 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 57855, 'completion_tokens': 22116, 'calls': 28}
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[24/25] d682f1a2 recs=51 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 60424, 'completion_tokens': 22634, 'calls': 29}
+[25/25] 7024f17c recs=57 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 63129, 'completion_tokens': 23138, 'calls': 30}

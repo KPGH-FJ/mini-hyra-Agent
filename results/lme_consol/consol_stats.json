@@ -1,0 +1,1148 @@
+{
+ "per_model": [
+  [
+   "0a995998.json",
+   120,
+   106,
+   "cached"
+  ],
+  [
+   "28dc39ac.json",
+   146,
+   138,
+   "ok"
+  ],
+  [
+   "2e6d26dc.json",
+   133,
+   52,
+   "ok"
+  ],
+  [
+   "36b9f61e.json",
+   61,
+   57,
+   "ok"
+  ],
+  [
+   "3a704032.json",
+   71,
+   29,
+   "ok"
+  ],
+  [
+   "46a3abf7.json",
+   108,
+   104,
+   "ok"
+  ],
+  [
+   "6cb6f249.json",
+   59,
+   55,
+   "ok"
+  ],
+  [
+   "6d550036.json",
+   210,
+   205,
+   "ok"
+  ],
+  [
+   "7024f17c.json",
+   55,
+   54,
+   "ok"
+  ],
+  [
+   "80ec1f4f.json",
+   104,
+   85,
+   "ok"
+  ],
+  [
+   "88432d0a.json",
+   106,
+   66,
+   "ok"
+  ],
+  [
+   "aae3761f.json",
+   87,
+   42,
+   "ok"
+  ],
+  [
+   "b5ef892d.json",
+   107,
+   105,
+   "ok"
+  ],
+  [
+   "c4a1ceb8.json",
+   88,
+   84,
+   "ok"
+  ],
+  [
+   "d23cf73b.json",
+   137,
+   127,
+   "ok"
+  ],
+  [
+   "d682f1a2.json",
+   81,
+   43,
+   "ok"
+  ],
+  [
+   "dd2973ad.json",
+   79,
+   68,
+   "ok"
+  ],
+  [
+   "e831120c.json",
+   82,
+   32,
+   "ok"
+  ],
+  [
+   "gpt4_15e38248.json",
+   142,
+   100,
+   "ok"
+  ],
+  [
+   "gpt4_2f8be40d.json",
+   75,
+   69,
+   "ok"
+  ],
+  [
+   "gpt4_59c863d7.json",
+   102,
+   78,
+   "ok"
+  ],
+  [
+   "gpt4_7fce9456.json",
+   114,
+   80,
+   "ok"
+  ],
+  [
+   "gpt4_a56e767c.json",
+   122,
+   95,
+   "ok"
+  ],
+  [
+   "gpt4_d84a3211.json",
+   101,
+   92,
+   "ok"
+  ],
+  [
+   "gpt4_f2262a51.json",
+   87,
+   76,
+   "ok"
+  ]
+ ],
+ "examples": [
+  [
+   "28dc39ac.json",
+   "self|gaming_preferences",
+   [
+    [
+     "open-world games with engaging storylines",
+     738660,
+     "statement",
+     null,
+     "llm_738660_0_0"
+    ],
+    [
+     "The Last of Us Part II",
+     738665,
+     "statement",
+     null,
+     "llm_738665_0_23"
+    ],
+    [
+     "action-adventure games",
+     738666,
+     "statement",
+     null,
+     "llm_738666_0_58"
+    ],
+    [
+     "Hyper Light Drifter",
+     738668,
+     "statement",
+     null,
+     "llm_738668_0_75"
+    ],
+    [
+     "atmospheric soundtrack",
+     738668,
+     "statement",
+     null,
+     "llm_738668_2_77"
+    ],
+    [
+     "beautiful visuals",
+     738668,
+     "statement",
+     null,
+     "llm_738668_3_78"
+    ],
+    [
+     "Celeste",
+     738668,
+     "statement",
+     null,
+     "llm_738668_6_81"
+    ],
+    [
+     "The Last of Us Part II",
+     738668,
+     "statement",
+     null,
+     "llm_738668_9_84"
+    ],
+    [
+     "Assassin's Creed Odyssey",
+     738668,
+     "statement",
+     null,
+     "llm_738668_14_89"
+    ],
+    [
+     "indie games on Switch",
+     738668,
+     "statement",
+     null,
+     "llm_738668_0_101"
+    ]
+   ],
+   [
+    [
+     "open-world games with engaging storylines",
+     738660,
+     "statement"
+    ],
+    [
+     "The Last of Us Part II",
+     738668,
+     "statement"
+    ],
+    [
+     "action-adventure games",
+     738666,
+     "statement"
+    ],
+    [
+     "Hyper Light Drifter",
+     738668,
+     "statement"
+    ],
+    [
+     "atmospheric soundtrack",
+     738668,
+     "statement"
+    ],
+    [
+     "beautiful visuals",
+     738668,
+     "statement"
+    ],
+    [
+     "Celeste",
+     738668,
+     "statement"
+    ],
+    [
+     "Assassin's Creed Odyssey",
+     738668,
+     "statement"
+    ],
+    [
+     "indie games on Switch",
+     738668,
+     "statement"
+    ]
+   ]
+  ],
+  [
+   "28dc39ac.json",
+   "assistant|game_recommendation",
+   [
+    [
+     "The Witcher 3: Wild Hunt",
+     738660,
+     "statement",
+     null,
+     "llm_738660_4_4"
+    ],
+    [
+     "Red Dead Redemption 2",
+     738660,
+     "statement",
+     null,
+     "llm_738660_5_5"
+    ],
+    [
+     "Horizon Zero Dawn",
+     738660,
+     "statement",
+     null,
+     "llm_738660_6_6"
+    ],
+    [
+     "Far Cry 5",
+     738660,
+     "statement",
+     null,
+     "llm_738660_7_7"
+    ],
+    [
+     "Dragon Age: Inquisition",
+     738660,
+     "statement",
+     null,
+     "llm_738660_8_8"
+    ],
+    [
+     "Middle-earth: Shadow of Mordor",
+     738660,
+     "statement",
+     null,
+     "llm_738660_9_9"
+    ],
+    [
+     "Sea of Thieves",
+     738660,
+     "statement",
+     null,
+     "llm_738660_10_10"
+    ],
+    [
+     "What Remains of Edith Finch",
+     738665,
+     "statement",
+     null,
+     "llm_738665_10_33"
+    ],
+    [
+     "Firewatch",
+     738665,
+     "statement",
+     null,
+     "llm_738665_11_34"
+    ],
+    [
+     "Hyper Light Drifter",
+     738668,
+     "statement",
+     null,
+     "llm_738668_20_121"
+    ],
+    [
+     "Ori and the Blind Forest",
+     738668,
+     "statement",
+     null,
+     "llm_738668_21_122"
+    ],
+    [
+     "Spelunky",
+     738668,
+     "statement",
+     null,
+     "llm_738668_22_123"
+    ],
+    [
+     "Inside",
+     738668,
+     "statement",
+     null,
+     "llm_738668_23_124"
+    ],
+    [
+     "Guacamelee! 2",
+     738668,
+     "statement",
+     null,
+     "llm_738668_24_125"
+    ],
+    [
+     "The Messenger",
+     738668,
+     "statement",
+     null,
+     "llm_738668_25_126"
+    ],
+    [
+     "Cuphead",
+     738668,
+     "statement",
+     null,
+     "llm_738668_26_127"
+    ],
+    [
+     "Dead Cells",
+     738668,
+     "statement",
+     null,
+     "llm_738668_27_128"
+    ],
+    [
+     "Axiom Verge",
+     738668,
+     "statement",
+     null,
+     "llm_738668_28_129"
+    ],
+    [
+     "Salt and Sanctuary",
+     738668,
+     "statement",
+     null,
+     "llm_738668_29_130"
+    ],
+    [
+     "What Remains of Edith Finch",
+     738668,
+     "statement",
+     null,
+     "llm_738668_30_131"
+    ],
+    [
+     "Firewatch",
+     738668,
+     "statement",
+     null,
+     "llm_738668_31_132"
+    ],
+    [
+     "Gone Home",
+     738668,
+     "statement",
+     null,
+     "llm_738668_32_133"
+    ],
+    [
+     "The Witch's House MV",
+     738668,
+     "statement",
+     null,
+     "llm_738668_33_134"
+    ],
+    [
+     "The Pathless",
+     738668,
+     "statement",
+     null,
+     "llm_738668_34_135"
+    ],
+    [
+     "Rime",
+     738668,
+     "statement",
+     null,
+     "llm_738668_35_136"
+    ],
+    [
+     "The First Tree",
+     738668,
+     "statement",
+     null,
+     "llm_738668_36_137"
+    ],
+    [
+     "The Infectious Madness of Doctor Dekker",
+     738668,
+     "statement",
+     null,
+     "llm_738668_37_138"
+    ],
+    [
+     "Gone Home",
+     738668,
+     "statement",
+     null,
+     "llm_738668_38_139"
+    ],
+    [
+     "The Vanishing of Ethan Carter",
+     738668,
+     "statement",
+     null,
+     "llm_738668_39_140"
+    ],
+    [
+     "The Walking Telltale",
+     738668,
+     "statement",
+     null,
+     "llm_738668_40_141"
+    ],
+    [
+     "The Stanley Parable",
+     738668,
+     "statement",
+     null,
+     "llm_738668_41_142"
+    ],
+    [
+     "Night in the Woods",
+     738668,
+     "statement",
+     null,
+     "llm_738668_42_143"
+    ],
+    [
+     "The Silent Age",
+     738668,
+     "statement",
+     null,
+     "llm_738668_43_144"
+    ],
+    [
+     "The House in Fata Morgana",
+     738668,
+     "statement",
+     null,
+     "llm_738668_44_145"
+    ]
+   ],
+   [
+    [
+     "The Witcher 3: Wild Hunt",
+     738660,
+     "suggestion"
+    ],
+    [
+     "Red Dead Redemption 2",
+     738660,
+     "suggestion"
+    ],
+    [
+     "Horizon Zero Dawn",
+     738660,
+     "suggestion"
+    ],
+    [
+     "Far Cry 5",
+     738660,
+     "suggestion"
+    ],
+    [
+     "Dragon Age: Inquisition",
+     738660,
+     "suggestion"
+    ],
+    [
+     "Middle-earth: Shadow of Mordor",
+     738660,
+     "suggestion"
+    ],
+    [
+     "Sea of Thieves",
+     738660,
+     "suggestion"
+    ],
+    [
+     "What Remains of Edith Finch",
+     738668,
+     "suggestion"
+    ],
+    [
+     "Firewatch",
+     738668,
+     "suggestion"
+    ],
+    [
+     "Hyper Light Drifter",
+     738668,
+     "suggestion"
+    ],
+    [
+     "Ori and the Blind Forest",
+     738668,
+     "suggestion"
+    ],
+    [
+     "Spelunky",
+     738668,
+     "suggestion"
+    ],
+    [
+     "Inside",
+     738668,
+     "suggestion"
+    ],
+    [
+     "Guacamelee! 2",
+     738668,
+     "suggestion"
+    ],
+    [
+     "The Messenger",
+     738668,
+     "suggestion"
+    ],
+    [
+     "Cuphead",
+     738668,
+     "suggestion"
+    ],
+    [
+     "Dead Cells",
+     738668,
+     "suggestion"
+    ],
+    [
+     "Axiom Verge",
+     738668,
+     "suggestion"
+    ],
+    [
+     "Salt and Sanctuary",
+     738668,
+     "suggestion"
+    ],
+    [
+     "Gone Home",
+     738668,
+     "suggestion"
+    ],
+    [
+     "The Witch's House MV",
+     738668,
+     "suggestion"
+    ],
+    [
+     "The Pathless",
+     738668,
+     "suggestion"
+    ],
+    [
+     "Rime",
+     738668,
+     "suggestion"
+    ],
+    [
+     "The First Tree",
+     738668,
+     "suggestion"
+    ],
+    [
+     "The Infectious Madness of Doctor Dekker",
+     738668,
+     "suggestion"
+    ],
+    [
+     "The Vanishing of Ethan Carter",
+     738668,
+     "suggestion"
+    ],
+    [
+     "The Walking Telltale",
+     738668,
+     "suggestion"
+    ],
+    [
+     "The Stanley Parable",
+     738668,
+     "suggestion"
+    ],
+    [
+     "Night in the Woods",
+     738668,
+     "suggestion"
+    ],
+    [
+     "The Silent Age",
+     738668,
+     "suggestion"
+    ],
+    [
+     "The House in Fata Morgana",
+     738668,
+     "suggestion"
+    ]
+   ]
+  ],
+  [
+   "28dc39ac.json",
+   "self|game_interest",
+   [
+    [
+     "Red Dead Redemption 2",
+     738660,
+     "statement",
+     null,
+     "llm_738660_14_14"
+    ],
+    [
+     "Horizon Zero Dawn",
+     738660,
+     "statement",
+     null,
+     "llm_738660_15_15"
+    ],
+    [
+     "What Remains of Edith Finch",
+     738665,
+     "statement",
+     null,
+     "llm_738665_12_35"
+    ],
+    [
+     "Firewatch",
+     738665,
+     "statement",
+     null,
+     "llm_738665_13_36"
+    ],
+    [
+     "strong narratives",
+     738666,
+     "statement",
+     null,
+     "llm_738666_3_61"
+    ],
+    [
+     "storytelling and characters",
+     738666,
+     "statement",
+     null,
+     "llm_738666_4_62"
+    ],
+    [
+     "cinematic approach",
+     738666,
+     "statement",
+     null,
+     "llm_738666_5_63"
+    ],
+    [
+     "methodical and strategic combat",
+     738666,
+     "statement",
+     null,
+     "llm_738666_10_68"
+    ],
+    [
+     "Ori and the Blind Forest",
+     738668,
+     "statement",
+     null,
+     "llm_738668_4_79"
+    ],
+    [
+     "Gris",
+     738668,
+     "statement",
+     null,
+     "llm_738668_5_80"
+    ],
+    [
+     "Spelunky",
+     738668,
+     "statement",
+     null,
+     "llm_738668_7_82"
+    ],
+    [
+     "Cuphead",
+     738668,
+     "statement",
+     null,
+     "llm_738668_8_83"
+    ],
+    [
+     "God of War (2018)",
+     738668,
+     "statement",
+     null,
+     "llm_738668_12_87"
+    ],
+    [
+     "Horizon Zero Dawn",
+     738668,
+     "statement",
+     null,
+     "llm_738668_13_88"
+    ],
+    [
+     "Ori and the Blind Forest",
+     738668,
+     "statement",
+     null,
+     "llm_738668_4_105"
+    ],
+    [
+     "exploration and discovery",
+     738668,
+     "statement",
+     null,
+     "llm_738668_8_109"
+    ],
+    [
+     "What Remains of Edith Finch",
+     738668,
+     "statement",
+     null,
+     "llm_738668_11_112"
+    ],
+    [
+     "What Remains of Edith Finch",
+     738668,
+     "statement",
+     null,
+     "llm_738668_15_116"
+    ],
+    [
+     "replay value",
+     738668,
+     "statement",
+     null,
+     "llm_738668_17_118"
+    ],
+    [
+     "multiple endings",
+     738668,
+     "statement",
+     null,
+     "llm_738668_18_119"
+    ]
+   ],
+   [
+    [
+     "Red Dead Redemption 2",
+     738660,
+     "statement"
+    ],
+    [
+     "Horizon Zero Dawn",
+     738668,
+     "statement"
+    ],
+    [
+     "What Remains of Edith Finch",
+     738668,
+     "statement"
+    ],
+    [
+     "Firewatch",
+     738665,
+     "statement"
+    ],
+    [
+     "strong narratives",
+     738666,
+     "statement"
+    ],
+    [
+     "storytelling and characters",
+     738666,
+     "statement"
+    ],
+    [
+     "cinematic approach",
+     738666,
+     "statement"
+    ],
+    [
+     "methodical and strategic combat",
+     738666,
+     "statement"
+    ],
+    [
+     "Ori and the Blind Forest",
+     738668,
+     "statement"
+    ],
+    [
+     "Gris",
+     738668,
+     "statement"
+    ],
+    [
+     "Spelunky",
+     738668,
+     "statement"
+    ],
+    [
+     "Cuphead",
+     738668,
+     "statement"
+    ],
+    [
+     "God of War (2018)",
+     738668,
+     "statement"
+    ],
+    [
+     "exploration and discovery",
+     738668,
+     "statement"
+    ],
+    [
+     "replay value",
+     738668,
+     "statement"
+    ],
+    [
+     "multiple endings",
+     738668,
+     "statement"
+    ]
+   ]
+  ],
+  [
+   "2e6d26dc.json",
+   "self|family_members",
+   [
+    [
+     "twins Ava and Lily",
+     738653,
+     "statement",
+     null,
+     "llm_738653_1_1"
+    ],
+    [
+     "David",
+     738653,
+     "statement",
+     null,
+     "llm_738653_0_45"
+    ],
+    [
+     "Rachel",
+     738653,
+     "statement",
+     null,
+     "llm_738653_4_49"
+    ],
+    [
+     "Mike",
+     738653,
+     "statement",
+     null,
+     "llm_738653_7_52"
+    ],
+    [
+     "Emma",
+     738653,
+     "statement",
+     null,
+     "llm_738653_8_53"
+    ],
+    [
+     "aunt",
+     738653,
+     "statement",
+     null,
+     "llm_738653_11_56"
+    ],
+    [
+     "Sarah",
+     738653,
+     "statement",
+     null,
+     "llm_738653_15_60"
+    ]
+   ],
+   [
+    [
+     "aunt; David; Rachel; Mike; Emma; Sarah; twins Ava and Lily",
+     738653,
+     "statement"
+    ]
+   ]
+  ],
+  [
+   "2e6d26dc.json",
+   "self|gift_selection",
+   [
+    [
+     "twin baby carriers and diaper cake",
+     738653,
+     "statement",
+     null,
+     "llm_738653_3_3"
+    ],
+    [
+     "personalized blanket with names",
+     738653,
+     "statement",
+     null,
+     "llm_738653_4_4"
+    ],
+    [
+     "additional gifts for nursery and bath time",
+     738653,
+     "statement",
+     null,
+     "llm_738653_7_7"
+    ]
+   ],
+   [
+    [
+     "twin baby carriers and a diaper cake; a personalized blanket with names; additional nursery and bath-time gifts",
+     738653,
+     "statement"
+    ]
+   ]
+  ],
+  [
+   "2e6d26dc.json",
+   "self|preferred_store",
+   [
+    [
+     "Etsy",
+     738653,
+     "statement",
+     null,
+     "llm_738653_5_5"
+    ],
+    [
+     "Etsy and Zazzle",
+     738653,
+     "statement",
+     null,
+     "llm_738653_6_73"
+    ],
+    [
+     "filter by categories and check seller reviews",
+     738653,
+     "statement",
+     null,
+     "llm_738653_8_75"
+    ]
+   ],
+   [
+    [
+     "Etsy and Zazzle; filter by categories and check seller reviews",
+     738653,
+     "statement"
+    ]
+   ]
+  ],
+  [
+   "2e6d26dc.json",
+   "self|gift_preference",
+   [
+    [
+     "add birthdate or message to blanket",
+     738653,
+     "statement",
+     null,
+     "llm_738653_6_6"
+    ],
+    [
+     "include heartfelt card with message",
+     738653,
+     "statement",
+     null,
+     "llm_738653_8_8"
+    ],
+    [
+     "planning a baby gift for a friend's baby shower",
+     738653,
+     "statement",
+     null,
+     "llm_738653_0_67"
+    ],
+    [
+     "personalized blanket",
+     738653,
+     "statement",
+     null,
+     "llm_738653_1_68"
+    ],
+    [
+     "custom design with baby's name and initials",
+     738653,
+     "statement",
+     null,
+     "llm_738653_4_71"
+    ],
+    [
+     "neutral personalized baby blanket, custom baby blanket with initials",
+     738653,
+     "statement",
+     null,
+     "llm_738653_7_74"
+    ],
+    [
+     "save favorite designs to favorites",
+     738653,
+     "statement",
+     null,
+     "llm_738653_9_76"
+    ]
+   ],
+   [
+    [
+     "for a friend's baby shower, a neutral personalized baby blanket with the baby's name, initials, and birthdate or a special message; include a heartfelt card with a message; save favorite designs to favorites",
+     738653,
+     "statement"
+    ]
+   ]
+  ],
+  [
+   "2e6d26dc.json",
+   "assistant|baby_store_recommendation",
+   [
+    [
+     "Buy Buy Baby",
+     738653,
+     "statement",
+     null,
+     "llm_738653_9_9"
+    ],
+    [
+     "Amazon",
+     738653,
+     "statement",
+     null,
+     "llm_738653_10_10"
+    ],
+    [
+     "Baby Depot",
+     738653,
+     "statement",
+     null,
+     "llm_738653_11_11"
+    ],
+    [
+     "Target",
+     738653,
+     "statement",
+     null,
+     "llm_738653_12_12"
+    ],
+    [
+     "specialty baby boutiques",
+     738653,
+     "statement",
+     null,
+     "llm_738653_13_13"
+    ]
+   ],
+   [
+    [
+     "Buy Buy Baby, Amazon, Baby Depot, Target, and specialty baby boutiques",
+     738653,
+     "suggestion"
+    ]
+   ]
+  ]
+ ]
+}

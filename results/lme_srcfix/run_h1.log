@@ -1,0 +1,16 @@
+[1/13] 0a995998 recs=120 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 9715, 'completion_tokens': 4515, 'calls': 8}
+[2/13] 6d550036 recs=210 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 23008, 'completion_tokens': 16589, 'calls': 16}
+[3/13] gpt4_59c863d7 recs=102 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 32526, 'completion_tokens': 22740, 'calls': 20}
+[4/13] b5ef892d recs=107 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 42223, 'completion_tokens': 25525, 'calls': 24}
+[5/13] e831120c recs=82 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 50387, 'completion_tokens': 27494, 'calls': 28}
+truncated; retrying max_tokens=16384
+truncated; retrying max_tokens=32768
+[6/13] 3a704032 recs=71 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 59303, 'completion_tokens': 72781, 'calls': 34}
+[7/13] gpt4_d84a3211 recs=101 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 68510, 'completion_tokens': 74130, 'calls': 38}
+[8/13] aae3761f recs=87 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 76660, 'completion_tokens': 85737, 'calls': 42}
+[9/13] gpt4_f2262a51 recs=87 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 84300, 'completion_tokens': 87517, 'calls': 46}
+[10/13] dd2973ad recs=79 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 90739, 'completion_tokens': 89800, 'calls': 54}
+[11/13] c4a1ceb8 recs=88 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 103010, 'completion_tokens': 101443, 'calls': 62}
+[12/13] gpt4_a56e767c recs=122 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 112851, 'completion_tokens': 104312, 'calls': 66}
+llm call failed (attempt 1/8): empty completion (finish_reason=stop, data_events=22)
+[13/13] 6cb6f249 recs=59 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 120295, 'completion_tokens': 105332, 'calls': 70}
