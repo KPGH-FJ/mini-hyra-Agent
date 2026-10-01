@@ -1,0 +1,1048 @@
+{
+  "A_stock": {
+    "session_13": [
+      {
+        "id": "llm_738755_0_0",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "adoption_agency_application",
+        "value": "Caroline applied to adoption agencies as the first step towards becoming a mom (on this week)",
+        "about": null,
+        "text": "Guess what I did this week? I applied to adoption agencies!"
+      },
+      {
+        "id": "llm_738755_1_1",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "adoption_support_group",
+        "value": "Caroline attended an adoption advice/assistance group and got lots of help",
+        "about": null,
+        "text": "I got lots of help from this adoption advice/assistance group I attended."
+      },
+      {
+        "id": "llm_738755_2_2",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "adoption_feelings",
+        "value": "Caroline feels excited but nerve-wracked about adopting; parenting is a big responsibility",
+        "about": null,
+        "text": "Exciting but kinda nerve-wracking. Parenting's such a big responsibility."
+      },
+      {
+        "id": "llm_738755_3_3",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "pet_guinea_pig",
+        "value": "Caroline has a guinea pig named Oscar",
+        "about": null,
+        "text": "yup, I do- Oscar, my guinea pig."
+      },
+      {
+        "id": "llm_738755_4_4",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "oscar_favorite_food",
+        "value": "Oscar's favorite food is veggies",
+        "about": null,
+        "text": "Veggies are his fave!"
+      },
+      {
+        "id": "llm_738755_5_5",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "oscar_parsley",
+        "value": "Caroline shared a picture of Oscar eating parsley",
+        "about": null,
+        "text": "check out this pic of him eating parsley!"
+      },
+      {
+        "id": "llm_738755_6_6",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "horseback_riding_childhood",
+        "value": "Caroline used to go horseback riding with her dad as a kid, riding through the fields",
+        "about": null,
+        "text": "I used to go horseback riding with my dad when I was a kid"
+      },
+      {
+        "id": "llm_738755_7_7",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "love_for_horses",
+        "value": "Caroline has always had a love for horses",
+        "about": null,
+        "text": "I've always had a love for horses!"
+      },
+      {
+        "id": "llm_738755_8_8",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "art_practice",
+        "value": "Caroline loves creating art and painting; it's great for expressing herself",
+        "about": null,
+        "text": "Painting's great for expressing myself. I love creating art!"
+      },
+      {
+        "id": "llm_738755_9_9",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "self_portrait",
+        "value": "Caroline made a self-portrait (on last week)",
+        "about": null,
+        "text": "Here's a recent self-portrait I made last week."
+      },
+      {
+        "id": "llm_738755_10_10",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "painting_emotions",
+        "value": "Caroline felt liberated and empowered while painting her self-portrait",
+        "about": null,
+        "text": "I felt liberated and empowered doing it."
+      },
+      {
+        "id": "llm_738755_11_11",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "painting_therapeutic",
+        "value": "Painting helps Caroline explore her identity, be true to herself, and is therapeutic",
+        "about": null,
+        "text": "Painting helps me explore my identity and be true to myself."
+      },
+      {
+        "id": "llm_738755_12_12",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "lgbtq_advocacy",
+        "value": "Caroline promotes LGBTQ rights and wants to live authentically and help others do the same",
+        "about": null,
+        "text": "promoting LGBTQ rights and being true to myself. I want to live authentically"
+      },
+      {
+        "id": "llm_738755_13_13",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "supportive_people",
+        "value": "Having supportive people around gives Caroline a sense of freedom",
+        "about": null,
+        "text": "Art gives me a sense of freedom, but so does having supportive people around"
+      },
+      {
+        "id": "llm_738755_14_14",
+        "day": 738755,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "pet_cats",
+        "value": "Melanie has cats named Oliver and Bailey",
+        "about": null,
+        "text": "they're good- we got another cat named Bailey too."
+      },
+      {
+        "id": "llm_738755_15_15",
+        "day": 738755,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "oliver_hid_bone",
+        "value": "Oliver hid his bone in Melanie's slipper once",
+        "about": null,
+        "text": "He hid his bone in my slipper once!"
+      },
+      {
+        "id": "llm_738755_16_16",
+        "day": 738755,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "fed_horse_carrot",
+        "value": "Melanie once got to feed a horse a carrot",
+        "about": null,
+        "text": "when I got to feed a horse a carrot."
+      },
+      {
+        "id": "llm_738755_17_17",
+        "day": 738755,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "horse_painting",
+        "value": "Melanie did a horse painting recently",
+        "about": null,
+        "text": "Here's a photo of my horse painting I did recently."
+      },
+      {
+        "id": "llm_738755_18_18",
+        "day": 738755,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "painting_animals",
+        "value": "Melanie loves painting animals; she finds it peaceful and special",
+        "about": null,
+        "text": "I love to. It's peaceful and special."
+      },
+      {
+        "id": "llm_738755_19_19",
+        "day": 738755,
+        "source": "melanie",
+        "kind": "suggestion",
+        "slot": "adoption_feelings_validation",
+        "value": "Melanie said it's normal to feel both excited and nervous about a big decision",
+        "about": "caroline",
+        "text": "it's normal to be both excited and nervous with a big decision."
+      },
+      {
+        "id": "llm_738755_20_20",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "horse_painting_opinion",
+        "value": "Caroline thinks Melanie's horse painting is amazing, capturing the horse's grace and strength",
+        "about": "melanie",
+        "text": "that's amazing! Love all the details and how you got the horse's grace and strength."
+      },
+      {
+        "id": "llm_738755_21_21",
+        "day": 738755,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "self_portrait_opinion",
+        "value": "Melanie thinks the blue in Caroline's self-portrait is really powerful",
+        "about": "caroline",
+        "text": "The blue's really powerful, huh?"
+      }
+    ],
+    "session_17": [
+      {
+        "id": "llm_738806_0_22",
+        "day": 738806,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "adoption_mentor_contact",
+        "value": "Contacted her mentor for adoption advice",
+        "about": null,
+        "text": "I just contacted my mentor for adoption advice."
+      },
+      {
+        "id": "llm_738806_1_23",
+        "day": 738806,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "adoption_plan",
+        "value": "Ready to be a mom and adopt to share her love and family",
+        "about": null,
+        "text": "I'm ready to be a mom and share my love and family."
+      },
+      {
+        "id": "llm_738806_2_24",
+        "day": 738806,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "adoption_motivation",
+        "value": "Dreams of adopting to provide a safe, loving home for kids who need it",
+        "about": null,
+        "text": "It's been a dream to adopt and provide a safe, loving home for kids who need it."
+      },
+      {
+        "id": "llm_738806_3_25",
+        "day": 738806,
+        "source": "melanie",
+        "kind": "hearsay",
+        "slot": "friend_adoption",
+        "value": "Her buddy adopted and is now super happy with their new kid (on last year)",
+        "about": "friend",
+        "text": "a buddy of mine adopted last year... now they're super happy with their new kid"
+      },
+      {
+        "id": "llm_738806_4_26",
+        "day": 738806,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "adoption_consideration",
+        "value": "Considering adopting too after seeing her friend's experience",
+        "about": null,
+        "text": "Makes me feel like maybe I should do it too!"
+      },
+      {
+        "id": "llm_738806_5_27",
+        "day": 738806,
+        "source": "caroline",
+        "kind": "suggestion",
+        "slot": "adoption_getting_started_advice",
+        "value": "Advised doing research, finding an adoption agency or lawyer, gathering references, financial info and medical checks, and preparing emotionally for the wait",
+        "about": null,
+        "text": "Do your research and find an adoption agency or lawyer... Don't forget to prepare emotionally"
+      },
+      {
+        "id": "llm_738806_6_28",
+        "day": 738806,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "injury",
+        "value": "Got hurt and had to take a break from pottery (on last month)",
+        "about": null,
+        "text": "Last month I got hurt and had to take a break from pottery"
+      },
+      {
+        "id": "llm_738806_7_29",
+        "day": 738806,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "pottery_purpose",
+        "value": "Uses pottery for self-expression and peace",
+        "about": null,
+        "text": "pottery, which I use for self-expression and peace"
+      },
+      {
+        "id": "llm_738806_8_30",
+        "day": 738806,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "current_read",
+        "value": "Reading the book Caroline recommended a while ago",
+        "about": null,
+        "text": "Been reading that book you recommended a while ago"
+      },
+      {
+        "id": "llm_738806_9_31",
+        "day": 738806,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "painting_hobby",
+        "value": "Painting to keep busy while recovering",
+        "about": null,
+        "text": "painting to keep busy"
+      },
+      {
+        "id": "llm_738806_10_32",
+        "day": 738806,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "painting_sunset",
+        "value": "Painted a sunset-inspired painting; the colors make her feel calm (on last week)",
+        "about": null,
+        "text": "Here's one I did last week. It's inspired by the sunsets."
+      },
+      {
+        "id": "llm_738806_11_33",
+        "day": 738806,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "art_style_abstract",
+        "value": "Trying out abstract art recently; finds it freeing as a form of self-expression",
+        "about": null,
+        "text": "I've been trying out abstract stuff recently. It's kinda freeing"
+      },
+      {
+        "id": "llm_738806_12_34",
+        "day": 738806,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "painting_abstract_blue",
+        "value": "Painted an abstract painting with peaceful blue streaks to show tranquility; blue calms her",
+        "about": null,
+        "text": "I wanted a peaceful blue streaks to show tranquility. Blue calms me"
+      },
+      {
+        "id": "llm_738806_13_35",
+        "day": 738806,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "poetry_reading_attendance",
+        "value": "Went to a transgender poetry reading where transgender people shared their stories through poetry (on 2023-10-06)",
+        "about": null,
+        "text": "I went to a poetry reading last Fri - it was really powerful!"
+      },
+      {
+        "id": "llm_738806_14_36",
+        "day": 738806,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "poetry_reading_experience",
+        "value": "Found the reading powerful and empowering, a safe place for self-expression and celebrating identities",
+        "about": null,
+        "text": "it was a safe place for self-expression and it was really empowering"
+      },
+      {
+        "id": "llm_738806_15_37",
+        "day": 738806,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "poetry_reading_experience",
+        "value": "Has never been to a poetry reading",
+        "about": null,
+        "text": "Nope, never been to something like that."
+      },
+      {
+        "id": "llm_738806_16_38",
+        "day": 738806,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "event_posters_opinion",
+        "value": "Thought the posters at the poetry reading were great, full of pride and strength",
+        "about": null,
+        "text": "Those posters are great!"
+      },
+      {
+        "id": "llm_738806_17_39",
+        "day": 738806,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "art_inspiration",
+        "value": "Inspired by the poetry reading's energy, support and posters to make art",
+        "about": null,
+        "text": "The room was electric with energy and support!... It inspired me to make some art."
+      },
+      {
+        "id": "llm_738806_18_40",
+        "day": 738806,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "art_meaning",
+        "value": "Her art stands for freedom and being real, a nudge to stay true to herself and embrace her womanhood",
+        "about": null,
+        "text": "It stands for freedom and being real... embrace my womanhood."
+      }
+    ],
+    "session_18": [
+      {
+        "id": "llm_738813_0_41",
+        "day": 738813,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "roadtrip_accident",
+        "value": "Melanie's son got into an accident at the start of their family roadtrip; thankfully he was okay, though it was a terrifying experience (on this past weekend)",
+        "about": "melanie_s_son",
+        "text": "my son got into an accident. We were so lucky he was okay."
+      },
+      {
+        "id": "llm_738813_1_42",
+        "day": 738813,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "roadtrip_destination",
+        "value": "The family roadtrip included the Grand Canyon, which the kids enjoyed a lot",
+        "about": null,
+        "text": "Thankfully, they enjoyed the Grand Canyon a lot!"
+      },
+      {
+        "id": "llm_738813_2_43",
+        "day": 738813,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "kids_reaction_accident",
+        "value": "Her kids were scared after the accident but were reassured their brother would be OK; they are tough, resilient kids",
+        "about": "melanie_s_kids",
+        "text": "They were scared but we reassured them and explained their brother would be OK."
+      },
+      {
+        "id": "llm_738813_3_44",
+        "day": 738813,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "family_values",
+        "value": "Family is super important to Melanie; after the accident she reflects that life is precious and her family is her biggest motivation and support",
+        "about": null,
+        "text": "Family's super important to me... They're my biggest motivation and support."
+      },
+      {
+        "id": "llm_738813_4_45",
+        "day": 738813,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "resilience_self_view",
+        "value": "Melanie wishes she were as resilient as her kids; they give her the strength to keep going",
+        "about": null,
+        "text": "Wish I was that resilient too. But they give me the strength to keep going."
+      },
+      {
+        "id": "llm_738813_5_46",
+        "day": 738813,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "family_photo",
+        "value": "Melanie took a photo with her kids the day before; the kids loved it and it was a relaxing way to unwind after the road trip (on 2023-10-19)",
+        "about": null,
+        "text": "Yup, we just did it yesterday! The kids loved it and it was a nice way to relax"
+      },
+      {
+        "id": "llm_738813_6_47",
+        "day": 738813,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "camping_preference",
+        "value": "Melanie loves camping trips with her family; bonding over stories, campfires, birdsong and fresh air refreshes her soul and helps her reset",
+        "about": null,
+        "text": "I love camping trips with my fam, 'cause nature brings such peace and serenity."
+      }
+    ]
+  },
+  "B_subject": {
+    "session_13": [
+      {
+        "id": "llm_738755_0_0",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "adoption_application",
+        "value": "Caroline applied to adoption agencies as the first step towards becoming a mom (on this week)",
+        "about": null,
+        "text": "I applied to adoption agencies! It's a big decision, but I think I'm ready"
+      },
+      {
+        "id": "llm_738755_1_1",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "adoption_support_group",
+        "value": "Caroline attended an adoption advice/assistance group and got lots of help",
+        "about": null,
+        "text": "I got lots of help from this adoption advice/assistance group I attended"
+      },
+      {
+        "id": "llm_738755_2_2",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "parenting_feelings",
+        "value": "Caroline feels excited but nervous about parenting being a big responsibility",
+        "about": null,
+        "text": "Exciting but kinda nerve-wracking. Parenting's such a big responsibility"
+      },
+      {
+        "id": "llm_738755_3_3",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "pet_guinea_pig",
+        "value": "Caroline has a guinea pig named Oscar",
+        "about": null,
+        "text": "yup, I do- Oscar, my guinea pig. He's been great"
+      },
+      {
+        "id": "llm_738755_4_4",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "pet_diet",
+        "value": "Oscar's favorite food is vegetables, especially parsley",
+        "about": null,
+        "text": "check out this pic of him eating parsley! Veggies are his fave!"
+      },
+      {
+        "id": "llm_738755_5_5",
+        "day": 738755,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "pet_cat_new",
+        "value": "Melanie got another cat named Bailey",
+        "about": null,
+        "text": "we got another cat named Bailey too"
+      },
+      {
+        "id": "llm_738755_6_6",
+        "day": 738755,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "pet_cat",
+        "value": "Melanie has a cat named Oliver",
+        "about": null,
+        "text": "Here's a pic of Oliver"
+      },
+      {
+        "id": "llm_738755_7_7",
+        "day": 738755,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "pet_antics",
+        "value": "Oliver once hid his bone in Melanie's slipper",
+        "about": null,
+        "text": "He hid his bone in my slipper once!"
+      },
+      {
+        "id": "llm_738755_8_8",
+        "day": 738755,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "horse_encounter",
+        "value": "Melanie once got to feed a horse a carrot",
+        "about": null,
+        "text": "Almost as silly as when I got to feed a horse a carrot"
+      },
+      {
+        "id": "llm_738755_9_9",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "horseback_riding_childhood",
+        "value": "Caroline used to go horseback riding with her dad through the fields as a kid",
+        "about": null,
+        "text": "I used to go horseback riding with my dad when I was a kid"
+      },
+      {
+        "id": "llm_738755_10_10",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "love_for_horses",
+        "value": "Caroline has always had a love for horses",
+        "about": null,
+        "text": "I've always had a love for horses!"
+      },
+      {
+        "id": "llm_738755_11_11",
+        "day": 738755,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "horse_painting",
+        "value": "Melanie recently did a horse painting",
+        "about": null,
+        "text": "Here's a photo of my horse painting I did recently"
+      },
+      {
+        "id": "llm_738755_12_12",
+        "day": 738755,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "painting_subjects",
+        "value": "Melanie loves painting animals; she finds it peaceful and special",
+        "about": null,
+        "text": "Yeah, I love to. It's peaceful and special"
+      },
+      {
+        "id": "llm_738755_13_13",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "art_hobby",
+        "value": "Caroline loves creating art as a way to express herself",
+        "about": null,
+        "text": "Painting's great for expressing myself. I love creating art!"
+      },
+      {
+        "id": "llm_738755_14_14",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "self_portrait",
+        "value": "Caroline made a self-portrait (on last week)",
+        "about": null,
+        "text": "Here's a recent self-portrait I made last week"
+      },
+      {
+        "id": "llm_738755_15_15",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "art_emotions",
+        "value": "Caroline felt liberated and empowered while painting her self-portrait",
+        "about": null,
+        "text": "I felt liberated and empowered doing it"
+      },
+      {
+        "id": "llm_738755_16_16",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "art_therapy",
+        "value": "Painting helps Caroline explore her identity, be true to herself, and is therapeutic",
+        "about": null,
+        "text": "Painting helps me explore my identity and be true to myself. It's definitely therapeutic"
+      },
+      {
+        "id": "llm_738755_17_17",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "art_freedom",
+        "value": "Art gives Caroline a sense of freedom",
+        "about": null,
+        "text": "Art gives me a sense of freedom"
+      },
+      {
+        "id": "llm_738755_18_18",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "lgbtq_advocacy",
+        "value": "Caroline values promoting LGBTQ rights and living authentically",
+        "about": null,
+        "text": "promoting LGBTQ rights and being true to myself"
+      },
+      {
+        "id": "llm_738755_19_19",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "life_purpose",
+        "value": "Caroline wants to live authentically and help others do the same",
+        "about": null,
+        "text": "I want to live authentically and help others to do the same"
+      },
+      {
+        "id": "llm_738755_20_20",
+        "day": 738755,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "support_network",
+        "value": "Caroline finds freedom in having supportive people around her",
+        "about": null,
+        "text": "so does having supportive people around"
+      },
+      {
+        "id": "llm_738755_21_21",
+        "day": 738755,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "adoption_encouragement",
+        "value": "Melanie wishes Caroline the best on her adoption journey",
+        "about": null,
+        "text": "Wishing you the best on your adoption journey!"
+      },
+      {
+        "id": "llm_738755_22_22",
+        "day": 738755,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "friendship_support",
+        "value": "Melanie told Caroline she is here for her",
+        "about": null,
+        "text": "I'm here for you. Take care of yourself"
+      }
+    ],
+    "session_17": [
+      {
+        "id": "llm_738806_0_23",
+        "day": 738806,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "adoption_mentor_contact",
+        "value": "Caroline contacted her mentor for adoption advice",
+        "about": null,
+        "text": "I just contacted my mentor for adoption advice"
+      },
+      {
+        "id": "llm_738806_1_24",
+        "day": 738806,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "adoption_plan",
+        "value": "Caroline is ready to be a mom and wants to adopt",
+        "about": null,
+        "text": "I'm ready to be a mom"
+      },
+      {
+        "id": "llm_738806_2_25",
+        "day": 738806,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "adoption_motivation",
+        "value": "Caroline dreams of adopting to provide a safe, loving home for kids who need it",
+        "about": null,
+        "text": "It's been a dream to adopt and provide a safe, loving home"
+      },
+      {
+        "id": "llm_738806_3_26",
+        "day": 738806,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "adoption_help_offer",
+        "value": "Caroline offered to help Melanie with adoption in any way she can",
+        "about": "melanie",
+        "text": "I'd love to help in any way I can"
+      },
+      {
+        "id": "llm_738806_4_27",
+        "day": 738806,
+        "source": "caroline",
+        "kind": "suggestion",
+        "slot": "adoption_advice",
+        "value": "Caroline advised Melanie to research and find an adoption agency or lawyer",
+        "about": "melanie",
+        "text": "Do your research and find an adoption agency or lawyer"
+      },
+      {
+        "id": "llm_738806_5_28",
+        "day": 738806,
+        "source": "caroline",
+        "kind": "suggestion",
+        "slot": "adoption_documents",
+        "value": "Caroline advised gathering references, financial info and medical checks for adoption",
+        "about": "melanie",
+        "text": "Gather documents like references, financial info and medical checks"
+      },
+      {
+        "id": "llm_738806_6_29",
+        "day": 738806,
+        "source": "caroline",
+        "kind": "suggestion",
+        "slot": "adoption_emotional_prep",
+        "value": "Caroline advised preparing emotionally since the adoption wait can be hard",
+        "about": "melanie",
+        "text": "prepare emotionally, since the wait can be hard"
+      },
+      {
+        "id": "llm_738806_7_30",
+        "day": 738806,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "abstract_painting",
+        "value": "Caroline has been trying out abstract painting recently, finding it a freeing form of self-expression",
+        "about": null,
+        "text": "I've been trying out abstract stuff recently"
+      },
+      {
+        "id": "llm_738806_8_31",
+        "day": 738806,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "poetry_reading_attendance",
+        "value": "Caroline attended a transgender poetry reading (on 2023-10-06) and found it powerful and empowering",
+        "about": null,
+        "text": "I went to a poetry reading last Fri - it was really powerful"
+      },
+      {
+        "id": "llm_738806_9_32",
+        "day": 738806,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "poetry_reading_inspiration",
+        "value": "The pride and strength in the event posters inspired Caroline to make art",
+        "about": null,
+        "text": "The posters were amazing, so much pride and strength! It inspired me to make some art"
+      },
+      {
+        "id": "llm_738806_10_33",
+        "day": 738806,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "art_meaning",
+        "value": "Caroline's drawing stands for freedom and being real, a nudge to embrace her womanhood",
+        "about": null,
+        "text": "It stands for freedom and being real... embrace my womanhood"
+      },
+      {
+        "id": "llm_738806_11_34",
+        "day": 738806,
+        "source": "caroline",
+        "kind": "statement",
+        "slot": "self_expression_belief",
+        "value": "Caroline believes being herself is an ongoing adventure of learning and growing",
+        "about": null,
+        "text": "It's an ongoing adventure of learning and growing"
+      },
+      {
+        "id": "llm_738806_12_35",
+        "day": 738806,
+        "source": "melanie",
+        "kind": "hearsay",
+        "slot": "friend_adoption",
+        "value": "Melanie's buddy adopted (on 2022) and is happy with their new kid after a long process",
+        "about": "melanie_s_buddy",
+        "text": "a buddy of mine adopted last year... super happy with their new kid"
+      },
+      {
+        "id": "llm_738806_13_36",
+        "day": 738806,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "adoption_interest",
+        "value": "Melanie is considering adopting a child herself",
+        "about": null,
+        "text": "Makes me feel like maybe I should do it too"
+      },
+      {
+        "id": "llm_738806_14_37",
+        "day": 738806,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "adoption_prep_plan",
+        "value": "Melanie plans to research adoption and prepare herself emotionally",
+        "about": null,
+        "text": "Doing research and readying myself emotionally makes sense. I'll do that"
+      },
+      {
+        "id": "llm_738806_15_38",
+        "day": 738806,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "injury",
+        "value": "Melanie got hurt (on September 2023) and had to take a break from pottery",
+        "about": null,
+        "text": "Last month I got hurt and had to take a break from pottery"
+      },
+      {
+        "id": "llm_738806_16_39",
+        "day": 738806,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "recovery_status",
+        "value": "Melanie is doing okay after her injury",
+        "about": null,
+        "text": "It was tough, but I'm doing ok"
+      },
+      {
+        "id": "llm_738806_17_40",
+        "day": 738806,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "pottery_purpose",
+        "value": "Melanie uses pottery for self-expression and peace",
+        "about": null,
+        "text": "pottery, which I use for self-expression and peace"
+      },
+      {
+        "id": "llm_738806_18_41",
+        "day": 738806,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "reading",
+        "value": "Melanie is reading a book Caroline recommended a while ago",
+        "about": null,
+        "text": "Been reading that book you recommended a while ago"
+      },
+      {
+        "id": "llm_738806_19_42",
+        "day": 738806,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "painting",
+        "value": "Melanie painted a sunset-inspired painting (on last week) whose colors make her feel calm",
+        "about": null,
+        "text": "Here's one I did last week. It's inspired by the sunsets"
+      },
+      {
+        "id": "llm_738806_20_43",
+        "day": 738806,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "abstract_painting",
+        "value": "Melanie has also done an abstract painting with vibrant colors",
+        "about": null,
+        "text": "I've done an abstract painting too"
+      },
+      {
+        "id": "llm_738806_21_44",
+        "day": 738806,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "color_preference",
+        "value": "Melanie finds blue calming and used peaceful blue streaks to show tranquility in her painting",
+        "about": null,
+        "text": "Blue calms me, so I wanted the painting to have a serene vibe"
+      },
+      {
+        "id": "llm_738806_22_45",
+        "day": 738806,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "poetry_reading_experience",
+        "value": "Melanie has never been to a poetry reading",
+        "about": null,
+        "text": "Nope, never been to something like that"
+      },
+      {
+        "id": "llm_738806_23_46",
+        "day": 738806,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "life_philosophy",
+        "value": "Melanie believes life is about learning and exploring",
+        "about": null,
+        "text": "Life's about learning and exploring"
+      }
+    ],
+    "session_18": [
+      {
+        "id": "llm_738813_0_47",
+        "day": 738813,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "son_accident",
+        "value": "Melanie's son got into an accident during their family roadtrip; thankfully he was okay, though it was a scary experience (on this past weekend)",
+        "about": null,
+        "text": "my son got into an accident. We were so lucky he was okay."
+      },
+      {
+        "id": "llm_738813_1_48",
+        "day": 738813,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "family_roadtrip",
+        "value": "Melanie's family roadtrip got off to a bad start because of the accident (on this past weekend)",
+        "about": null,
+        "text": "our trip got off to a bad start. I was really scared when we got into the accident."
+      },
+      {
+        "id": "llm_738813_2_49",
+        "day": 738813,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "grand_canyon_visit",
+        "value": "Melanie's family visited and really enjoyed the Grand Canyon on their roadtrip",
+        "about": null,
+        "text": "Thankfully, they enjoyed the Grand Canyon a lot!"
+      },
+      {
+        "id": "llm_738813_3_50",
+        "day": 738813,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "kids_reaction_accident",
+        "value": "Melanie's kids were scared after the accident but were reassured that their brother would be okay; she calls them tough kids",
+        "about": null,
+        "text": "They were scared but we reassured them and explained their brother would be OK."
+      },
+      {
+        "id": "llm_738813_4_51",
+        "day": 738813,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "family_values",
+        "value": "The accident reminded Melanie that life is precious and to cherish her family; they mean the world to her",
+        "about": null,
+        "text": "that was a reminder that life is precious and to cherish our family."
+      },
+      {
+        "id": "llm_738813_5_52",
+        "day": 738813,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "camping_trip",
+        "value": "Melanie went camping with her family; the kids loved it and it was a relaxing way to unwind after the road trip (on 2023-10-19)",
+        "about": null,
+        "text": "we just did it yesterday! The kids loved it and it was a nice way to relax."
+      },
+      {
+        "id": "llm_738813_6_53",
+        "day": 738813,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "camping_preference",
+        "value": "Melanie loves camping trips with her family because nature brings her peace, serenity, and a chance to reset and recharge",
+        "about": null,
+        "text": "I love camping trips with my fam, 'cause nature brings such peace and serenity."
+      },
+      {
+        "id": "llm_738813_7_54",
+        "day": 738813,
+        "source": "melanie",
+        "kind": "statement",
+        "slot": "family_support",
+        "value": "Melanie's family is her biggest motivation, support, and strength to keep going",
+        "about": null,
+        "text": "They're my biggest motivation and support."
+      }
+    ]
+  }
+}

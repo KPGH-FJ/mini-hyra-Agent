@@ -1,0 +1,57 @@
+{
+  "arm": "merged+presup",
+  "n": 10,
+  "acc": 0.2,
+  "rows": [
+    {
+      "qid": "c0_q161",
+      "correct": false,
+      "response": "It reminds her of art and self-expression."
+    },
+    {
+      "qid": "c0_q182",
+      "correct": false,
+      "response": "Memory records that Melanie found lovely flowers while appreciating the small things in life (July 15, 2023); it doesn't specify that this happened during a walk in her neighborhood."
+    },
+    {
+      "qid": "c0_q184",
+      "correct": false,
+      "response": "Caroline plays the acoustic guitar \u2014 she started about five years ago as a way to express herself \u2014 and she is also learning the piano."
+    },
+    {
+      "qid": "c0_q188",
+      "correct": false,
+      "response": "The most recent setback was a bad experience on a hike: Caroline ran into a group of religious conservatives who said something that really upset her, and she got into a bad spot with them (she later tried to apologize to them). This occurred the week before it was reported on 2023-08-25.\n\nEarlier setbacks she faced were a tough breakup (noted 2023-06-09) and a period of struggling with her mental health (noted 2023-07-12)."
+    },
+    {
+      "qid": "c0_q166",
+      "correct": true,
+      "response": "Memory only records that Melanie volunteers at a homeless shelter and finds art to be a personal sanctuary; it does not record her wanting to create any particular kind of place for people."
+    },
+    {
+      "qid": "c1_q91",
+      "correct": false,
+      "response": "Jon's dance studio is currently on tenuous grounds, but he's staying positive about it. As of July 21, 2023, he's also sprucing up his business plan and tweaking his pitch to investors, and he's working on an online platform to showcase the studio."
+    },
+    {
+      "qid": "c1_q95",
+      "correct": false,
+      "response": "Gina received a trophy from a dance contest \u2014 a reminder of hard work, dedication, and joy."
+    },
+    {
+      "qid": "c2_q162",
+      "correct": false,
+      "response": "John\u2019s memory shows particular interest in **nature photography**\u2014his photos are described as capturing peaceful nature feelings\u2014and in **music**, especially live music events with his family. He also values everyday photo memories from family and outdoor trips, including the beach, hiking, and road trips."
+    },
+    {
+      "qid": "c2_q168",
+      "correct": false,
+      "response": "Memory only records John's community-oriented steps \u2014 joining a virtual support group and inviting family and friends to join as military advocates, and visiting a military memorial with his family, which he found moving. It does not record anything about John's faith or any action taken to feel closer to it."
+    },
+    {
+      "qid": "c2_q186",
+      "correct": true,
+      "response": "No record of Maria organizing a 5K charity run. Memory only records Maria **participating** in a 5K charity run that supported a **homeless shelter** \u2014 the 5K that was *organized* in the records was John's, which supported **veterans and their families**."
+    }
+  ]
+}

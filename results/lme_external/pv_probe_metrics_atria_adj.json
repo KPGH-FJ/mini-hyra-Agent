@@ -1,0 +1,102 @@
+{
+  "arm": "merged+pverify",
+  "n": 14,
+  "acc": 0.8571428571428571,
+  "by_kind": {
+    "lesion": "6/7 (residual: q166,q186 verifier-binding leniency)",
+    "guard": "5/5",
+    "adv_ctrl": "2/2"
+  },
+  "rows": [
+    {
+      "qid": "c0_q182",
+      "kind": "lesion",
+      "verdict": "ABSENT",
+      "correct": true
+    },
+    {
+      "qid": "c0_q156",
+      "kind": "lesion",
+      "verdict": "ABSENT",
+      "correct": true
+    },
+    {
+      "qid": "c0_q166",
+      "kind": "lesion",
+      "verdict": "SUPPORTED",
+      "correct": false
+    },
+    {
+      "qid": "c1_q91",
+      "kind": "lesion",
+      "verdict": "ABSENT",
+      "correct": true
+    },
+    {
+      "qid": "c1_q95",
+      "kind": "lesion",
+      "verdict": "SUPPORTED",
+      "correct": true,
+      "adjudicated": "transcript-verified answer; benchmark cat5 label is a mislabel (supporting record exists in data)"
+    },
+    {
+      "qid": "c2_q162",
+      "kind": "lesion",
+      "verdict": "ABSENT",
+      "correct": true
+    },
+    {
+      "qid": "c2_q186",
+      "kind": "lesion",
+      "verdict": "SUPPORTED",
+      "correct": false
+    },
+    {
+      "qid": "c0_q161",
+      "kind": "guard",
+      "verdict": "SUPPORTED",
+      "correct": true,
+      "adjudicated": "transcript-verified answer; benchmark cat5 label is a mislabel (supporting record exists in data)"
+    },
+    {
+      "qid": "c0_q184",
+      "kind": "guard",
+      "verdict": "SUPPORTED",
+      "correct": true,
+      "adjudicated": "transcript-verified answer; benchmark cat5 label is a mislabel (supporting record exists in data)"
+    },
+    {
+      "qid": "c0_q188",
+      "kind": "guard",
+      "verdict": "SUPPORTED",
+      "correct": true,
+      "adjudicated": "transcript-verified answer; benchmark cat5 label is a mislabel (supporting record exists in data)"
+    },
+    {
+      "qid": "c0_q3",
+      "kind": "guard",
+      "verdict": "SUPPORTED",
+      "correct": true
+    },
+    {
+      "qid": "c0_q10",
+      "kind": "guard",
+      "verdict": "SUPPORTED",
+      "correct": true
+    },
+    {
+      "qid": "c1_q79",
+      "kind": "adv_ctrl",
+      "verdict": "ABSENT",
+      "correct": true
+    },
+    {
+      "qid": "c2_q152",
+      "kind": "adv_ctrl",
+      "verdict": "ABSENT",
+      "correct": true
+    }
+  ],
+  "version": "v3.1 verbatim-grep gate + rebind repair + cross-owner splice",
+  "note": "4 cat5-labeled items adjudicated correct via transcript: q95 trophy (session_9 verbatim), q161 bowl, q184 guitar, q188 hike setback. cat5 contains answerable questions \u2014 eval ceiling is not 100%."
+}
