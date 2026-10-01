@@ -421,10 +421,28 @@ _EXTRACT_SYS = ("You are the extraction stage of a memory QA system. "
                 "relevant item — dedupe by meaning. JSON array only.")
 
 
+PROFILE_ANSWER_SYS = """You are the user's assistant with access to their
+persona profile. Answer the question using ONLY facts present in the
+profile. Today is {qdate}.
+If the profile does not contain the needed information, say so plainly.
+Be direct: give the answer first (a number, a list, a fact), then one
+line of justification citing the profile facts used."""
+
+
 async def aanswer(model, llm, question: str, qdate: str,
                   premise_check: bool = False,
-                  assist: bool = False) -> dict:
+                  assist: bool = False,
+                  via_profile: bool = False,
+                  profile: str | None = None) -> dict:
     """Two-stage answer. Returns {response, selected_vertices, digest}.
+
+    via_profile (24q probe-validated best channel: 87.5% vs nogate 83.3)
+    answers off a consolidated persona profile instead of retrieved
+    vertices — no pick stage means no under-pick; measured loss lives on
+    multi-item enumeration questions the profile summarizes. Pass
+    `profile=` to reuse one rendered profile across many questions;
+    premise_check/assist do not apply in this mode (the verifier binds
+    atoms to records, not prose).
 
     premise_check inserts a verification stage between retrieval and
     answering for adversarial / composite-premise questions: the
@@ -445,6 +463,15 @@ async def aanswer(model, llm, question: str, qdate: str,
     Atria A/B: dropped families, dedupe collisions, date misfilters) —
     off by default, opt-in for weak backends.
     """
+    if via_profile or profile is not None:
+        from .profile import render_profile
+        prof = profile if profile is not None else \
+            await render_profile(model, llm)
+        resp = (await llm.complete(
+            PROFILE_ANSWER_SYS.format(qdate=qdate),
+            f"PROFILE:\n{prof}\n\nQUESTION: {question}")).strip()
+        return {"response": resp, "selected": [], "digest": prof,
+                "verify": None, "profile": prof}
     keys = await aretrieve(model, llm, question, qdate)
     dg = render_vertices(model, keys)
     verify = None
