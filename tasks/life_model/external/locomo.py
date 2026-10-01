@@ -126,7 +126,7 @@ def run(args):
         try:
             resp = asyncio.run(aanswer(
                 m, llm_a, q["question"], "2023 (post-conversation)",
-                premise_check=True))["response"]
+                premise_check="relaxed"))["response"]
         except Exception as e:
             resp = f"(error: {e})"
         fout.write(json.dumps({

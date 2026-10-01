@@ -70,8 +70,18 @@ Answer the user's question using ONLY this memory.
 
 PVERIFY_SYS = """You are the premise-verification stage of a memory reader.
 
-A question is only answerable when the facts it PRESUPPOSES are each
-stated by a memory record. Work in two steps:
+First classify the question:
+- premise_expected=false for advisory/opinion/preference questions
+  ("what should I try", "recommend me", "would I like") — they ask
+  for a judgment, not a fact; there is no premise to verify.
+- synthesis_needed=true when the question asks to COMBINE or compute
+  over several facts ("how many days between X and Y", "how many X
+  in total", "which came first") — each component must still bind
+  to a record, but the combined answer is computed, not stored, so
+  parts living in different records is expected, not a splice.
+- Otherwise the question presupposes a single fact: verify it.
+
+For premise-bearing questions work in two steps:
 
 1. Break the question's presupposed claim into atomic parts:
    <who> + <what fact or event> + <the specific detail asked for>
@@ -90,7 +100,9 @@ stated by a memory record. Work in two steps:
    "dance studio" does NOT establish "a store".
 
 Return ONLY JSON:
-{"atoms": [{"part": "...", "role": "who" | "event" | "detail",
+{"premise_expected": true | false,
+ "synthesis_needed": true | false,
+ "atoms": [{"part": "...", "role": "who" | "event" | "detail",
             "record": <record number or null>,
             "quote": "<record words or empty>",
             "answer_detail": "<detail atoms only: the exact noun
@@ -99,7 +111,8 @@ Return ONLY JSON:
  "verdict": "SUPPORTED" | "SPLICED" | "ABSENT"}
 - SUPPORTED: every atomic part binds to a single record.
 - SPLICED: the parts exist only spread across different records or
-  different people.
+  different people (do NOT emit SPLICED when synthesis_needed — list
+  the bound components instead).
 - ABSENT: at least one part has no record at all."""
 
 
@@ -217,16 +230,19 @@ def _in_record(word: str, words: set) -> bool:
                for w in words)
 
 
-def _pv_gate(verify: dict, records: dict) -> dict:
+def _pv_gate(verify: dict, records: dict,
+             synthesis: bool = False) -> dict:
     """Deterministic detail gate on top of the verifier's verdict.
 
     Two hard checks the LLM verdict is not trusted with:
     - an event atom and a detail atom bound to DIFFERENT records is a
-      splice, whatever the verifier concluded;
+      splice, whatever the verifier concluded (waived when the
+      question legitimately asks to synthesize bound components);
     - a detail atom's claimed answer_detail must literally (word-form)
       appear inside its bound record's text — abstract question-type
       words ("setback", "instrument", "reason") are skipped since a
       record narrating the event already carries their content.
+      Waived under synthesis: the detail is computed, not stored.
     """
     atoms = verify.get("atoms") or []
     rec_words = {}
@@ -240,9 +256,12 @@ def _pv_gate(verify: dict, records: dict) -> dict:
              and a.get("role") in ("event", "detail")}
     bound = {b for b in bound if b[0] is not None}
     owners = {o for _, o in bound}
-    if len(owners) > 1 and verify.get("verdict") == "SUPPORTED":
+    if not synthesis and len(owners) > 1 \
+            and verify.get("verdict") == "SUPPORTED":
         verify["verdict"] = "SPLICED"
         verify["gate"] = "atoms-across-owners"
+    if synthesis:
+        return verify
     for a in atoms:
         if not isinstance(a, dict):
             continue
@@ -268,9 +287,18 @@ def _pv_gate(verify: dict, records: dict) -> dict:
 
 
 async def _pverify(llm, question: str, qdate: str, listing: str,
-                   records: dict) -> dict:
+                   records: dict, relaxed: bool = False) -> dict:
     """Bind the question's premise atoms to single records, then run
-    the deterministic detail gate."""
+    the deterministic detail gate.
+
+    relaxed=True relaxes what counts as a verified premise:
+    premise_expected=false (advisory) passes through as NO_PREMISE;
+    synthesis_needed=true passes as SYNTHESIS_OK only when every atom
+    bound to a record — the answer may then be computed from the bound
+    components. Factual defense is unchanged: an atom that binds to no
+    record still yields ABSENT, and a non-synthesis splice still
+    yields SPLICED.
+    """
     prompt = (f"Today: {qdate}\n\nMEMORY RECORDS:\n{listing}\n\n"
               f"QUESTION: {question}\n\nVerify the premise. JSON:")
     t = await llm.complete(PVERIFY_SYS, prompt)
@@ -282,7 +310,23 @@ async def _pverify(llm, question: str, qdate: str, listing: str,
         except Exception:
             data = {}
     verify = {"atoms": data.get("atoms") or [],
-              "verdict": str(data.get("verdict", "")).strip().upper()}
+              "verdict": str(data.get("verdict", "")).strip().upper(),
+              "premise_expected": data.get("premise_expected"),
+              "synthesis_needed": data.get("synthesis_needed")}
+    if relaxed:
+        if verify["premise_expected"] is False:
+            verify["verdict"] = "NO_PREMISE"
+            return verify
+        synthesis = verify["synthesis_needed"] is True
+        verify = _pv_gate(verify, records, synthesis=synthesis)
+        if synthesis:
+            atoms = [a for a in verify["atoms"]
+                     if isinstance(a, dict) and a.get("part")]
+            if atoms and all(a.get("record") for a in atoms):
+                verify["verdict"] = "SYNTHESIS_OK"
+            else:
+                verify["verdict"] = "ABSENT"
+        return verify
     return _pv_gate(verify, records)
 
 
@@ -387,6 +431,12 @@ async def aanswer(model, llm, question: str, qdate: str,
     question's presupposed atoms must each bind to ONE single record —
     a premise assembled across records (spliced) or absent from memory
     yields an explicit abstention instead of a bridged answer.
+    premise_check="relaxed" (150q-validated: strict gate cost −34.6pp
+    by killing inference/advisory questions whose premise is not
+    literally stored) also admits advisory questions
+    (premise_expected=false) and synthesis over fully-bound components
+    (synthesis_needed=true), while keeping the anti-splice / anti-
+    fabrication defense for factual premises.
 
     assist adds a candidate-extraction stage before answering: the
     answerer receives a deterministically deduped/sorted/counted item
@@ -400,7 +450,8 @@ async def aanswer(model, llm, question: str, qdate: str,
     verify = None
     if premise_check:
         listing, records = _numbered_records(model, keys)
-        verify = await _pverify(llm, question, qdate, listing, records)
+        verify = await _pverify(llm, question, qdate, listing, records,
+                                relaxed=(premise_check == "relaxed"))
         if verify["verdict"] in ("SPLICED", "ABSENT"):
             return {"response": _pv_abstain(verify, records,
                                             model=model),

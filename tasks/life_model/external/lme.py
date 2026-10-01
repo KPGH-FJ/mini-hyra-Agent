@@ -227,7 +227,7 @@ def run(args):
         try:
             resp = asyncio.run(
                 aanswer(model, llm_answer, q["question"],
-                        q["question_date"], premise_check=True))[
+                        q["question_date"], premise_check="relaxed"))[
                 "response"]
         except Exception as e:
             resp = f"__answer_error__ {e}"
