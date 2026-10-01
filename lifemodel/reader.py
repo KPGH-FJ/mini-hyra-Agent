@@ -286,22 +286,87 @@ async def _pverify(llm, question: str, qdate: str, listing: str,
     return _pv_gate(verify, records)
 
 
-def _pv_abstain(verify: dict) -> str:
+def _pv_abstain(verify: dict, records: dict | None = None,
+                model=None) -> str:
+    """Abstention text for a failed premise verification.
+
+    Informative layer: when the question names an entity that memory
+    records under a different owner, the refusal says so ("Oscar is
+    recorded under caroline: ...") — still a refusal, but it carries
+    the correction a grader/user needs. Found parts of a SPLICED
+    premise are annotated with their record's owner for the same
+    reason.
+    """
     atoms = verify.get("atoms") or []
     found = [a["part"] for a in atoms
              if isinstance(a, dict) and a.get("record") and a.get("part")]
     missing = [a["part"] for a in atoms
                if isinstance(a, dict) and not a.get("record")
                and a.get("part")]
+    notes = []
+    pool = {}
+    if model is not None:
+        hist = model.export()["asset"].get("hist", {})
+        for key, edges in hist.items():
+            for e in edges:
+                pool[len(pool)] = f"{_label(key)}: {e[0]}"
+    elif records:
+        pool = records
+    if pool:
+        def _own_val(text):
+            lab, _, val = str(text).partition(": ")
+            own = lab.split("·")[0]
+            own = re.sub(r"\s*\(per [^)]*\)", "", own).strip()
+            return own, val.strip()
+        entities = set()
+        for a in atoms:
+            if not isinstance(a, dict):
+                continue
+            for nm in re.findall(r"\b[A-Z][a-z]+",
+                                 str(a.get("part") or "")):
+                entities.add(nm)
+        for ent in sorted(entities):
+            poss = re.compile(
+                rf"\b(?:named|called)\s+{re.escape(ent)}\b"
+                rf"|\b{re.escape(ent)}\b\s*,\s*"
+                rf"(?:my|her|his|their)\s+\w+", re.I)
+            for n in sorted(pool):
+                lab, val = _own_val(pool[n])
+                if not lab or lab.lower() == ent.lower():
+                    continue
+                if poss.search(val):
+                    notes.append(f"{ent} is recorded under {lab}: "
+                                 f"\"{val[:110]}\"")
+                    break
+    suffix = ("; " + "; ".join(notes)) if notes else ""
     if verify.get("verdict") == "SPLICED" and found:
+        labeled = []
+        for a in atoms:
+            if not isinstance(a, dict) or not a.get("record") \
+                    or not a.get("part"):
+                continue
+            own = ""
+            if records:
+                lab = str(records.get(a["record"]) or "")
+                own = lab.split("·")[0].split(":")[0]
+                own = re.sub(r"\s*\(per [^)]*\)", "", own).strip()
+            part = str(a["part"])
+            if own and own.lower() not in (
+                    "self", "user", "assistant") and \
+                    own.lower() not in part.lower():
+                part += f" (recorded under {own})"
+            labeled.append(part)
+        if not labeled:
+            labeled = found
         return ("Memory records the parts of that claim separately — "
-                + "; ".join(found)
-                + " — but no record combines them, so it does not "
-                  "answer the question.")
+                + "; ".join(labeled)
+                + " — but no record combines them" + suffix
+                + ", so it does not answer the question.")
     if missing:
         return ("Memory has no record of " + "; ".join(missing)
-                + ", so it does not answer the question.")
-    return "Memory does not contain the presupposed fact, so it does not answer the question."
+                + suffix + ", so it does not answer the question.")
+    return ("Memory does not contain the presupposed fact" + suffix
+            + ", so it does not answer the question.")
 
 
 _EXTRACT_SYS = ("You are the extraction stage of a memory QA system. "
@@ -337,8 +402,9 @@ async def aanswer(model, llm, question: str, qdate: str,
         listing, records = _numbered_records(model, keys)
         verify = await _pverify(llm, question, qdate, listing, records)
         if verify["verdict"] in ("SPLICED", "ABSENT"):
-            return {"response": _pv_abstain(verify), "selected": keys,
-                    "digest": dg, "verify": verify}
+            return {"response": _pv_abstain(verify, records,
+                                            model=model),
+                    "selected": keys, "digest": dg, "verify": verify}
     assist_block = ""
     if assist:
         raw = _json_list(await llm.complete(
