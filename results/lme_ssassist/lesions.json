@@ -1,0 +1,26 @@
+{
+ "6ae235be": {
+  "cls": "A",
+  "why": "empty ingest stub (n_records=0)"
+ },
+ "8752c811": {
+  "cls": "A",
+  "why": "empty ingest stub (n_records=0)"
+ },
+ "58470ed2": {
+  "cls": "A",
+  "why": "Borges center/circumference verbatim quote dropped; only thematic essay structure kept"
+ },
+ "89527b6b": {
+  "cls": "A",
+  "why": "sibling-record inconsistency: 3/4 dinosaur chapters keep color, Plesiosaur record drops it"
+ },
+ "1d4da289": {
+  "cls": "A",
+  "why": "whole assistant turn yielded zero assistant|* records (model has 3 self|* only)"
+ },
+ "8aef76bc": {
+  "cls": "B",
+  "why": "Mod Podge record exists verbatim; profile generalized it away; assist arm reads it correctly"
+ }
+}
