@@ -628,7 +628,11 @@ function drawResearch(r){
      <b>${esc(t.title)}</b><div class="tt">${esc(t.text||'')}</div></div>`).join('');
   const ext=r.external;
   if(ext){document.getElementById('extPanel').style.display='block';
-    const rows=(ext.rounds||[]).map(w=>`<tr><td class="mono">${esc(w.v)}</td><td><b>${esc(w.score)}</b></td><td class="small">${esc(w.note||'')}</td></tr>`).join('');
+    const rows=(ext.rounds||[]).map(w=>{
+      const tag=w.v||w.id||'';
+      const sc=w.score||(w.verdict?'·结论':'');
+      const nt=w.note||(w.title?w.title+(w.verdict?' — '+w.verdict:''):'');
+      return `<tr><td class="mono">${esc(tag)}</td><td><b>${esc(sc)}</b></td><td class="small">${esc(nt)}</td></tr>`}).join('');
     document.getElementById('extBody').innerHTML=`
       <div class="small" style="margin-bottom:8px"><b>${esc(ext.name||'')}</b> — ${esc(ext.desc||'')}</div>
       <div class="roundcard" style="margin-bottom:8px">
