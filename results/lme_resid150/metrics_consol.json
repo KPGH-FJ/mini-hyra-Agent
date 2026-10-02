@@ -1,0 +1,62 @@
+{
+  "n": 10,
+  "accuracy": 0.7,
+  "by_type": {
+    "single-session-user": 0.5,
+    "single-session-preference": 0.75,
+    "temporal-reasoning": 1.0,
+    "multi-session": 0.5
+  },
+  "rows": [
+    {
+      "question_id": "51a45a95",
+      "question_type": "single-session-user",
+      "correct": false
+    },
+    {
+      "question_id": "0edc2aef",
+      "question_type": "single-session-preference",
+      "correct": false
+    },
+    {
+      "question_id": "505af2f5",
+      "question_type": "single-session-preference",
+      "correct": true
+    },
+    {
+      "question_id": "982b5123",
+      "question_type": "temporal-reasoning",
+      "correct": true
+    },
+    {
+      "question_id": "e47becba",
+      "question_type": "single-session-user",
+      "correct": true
+    },
+    {
+      "question_id": "6d550036",
+      "question_type": "multi-session",
+      "correct": true
+    },
+    {
+      "question_id": "35a27287",
+      "question_type": "single-session-preference",
+      "correct": true
+    },
+    {
+      "question_id": "dd2973ad",
+      "question_type": "multi-session",
+      "correct": false
+    },
+    {
+      "question_id": "gpt4_2655b836",
+      "question_type": "temporal-reasoning",
+      "correct": true
+    },
+    {
+      "question_id": "afdc33df",
+      "question_type": "single-session-preference",
+      "correct": true
+    }
+  ]
+}

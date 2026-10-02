@@ -1,0 +1,5 @@
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+truncated; retrying max_tokens=8192
+truncated; retrying max_tokens=8192
+truncated; retrying max_tokens=8192
