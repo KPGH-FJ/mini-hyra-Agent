@@ -68,3 +68,25 @@ aggregation-aware channel, not raw assist).
 
 Data: results/lme_verify150/{questions,models,profiles,answers_routeB,
 metrics_routeB,arm_log_*}; driver verify_ingest.py/route_answer.py.
+
+## Addendum — ms-25 forced-profile arm (answers-only, same models)
+
+| arm | score |
+|---|---|
+| routeB ms cell (assist at nv≥90) | 12/25 = .48 |
+| **ms always → profile** | **18/25 = .72** |
+
+nv bins (profile): <90 3/4 / 90-149 8/10 / **150+ 7/11** —
+profile beats assist even at 150+ vertices; the v≥90 threshold was
+mis-calibrated for the new density distribution, not protective.
+Flips vs routeB: +7/−1 (rescued 6d550036, gpt4_59c863d7,
+gpt4_f2262a51, aae3761f, gpt4_a56e767c, d23cf73b, 28dc39ac;
+lost d682f1a2).
+
+**Projected 150q with ms→profile always: 135/150 = 90.0%** — at the
+oracle-routing ceiling (90.7%).
+
+Verdict: ruleB simplifies to ms→profile unconditionally;
+_ROUTE_ENUM_MIN_VERTICES should be removed (one calibration knob
+fewer). verify ingest earns its keep once the threshold artifact is
+gone.
