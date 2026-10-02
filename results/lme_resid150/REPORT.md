@@ -89,3 +89,35 @@ The lesion was never "LLM can't count" — it is "LLM can't enumerate exhaustive
 **Verdict: do not land.** Fix for enumeration goes ingest-side (event-typed records) or accept ~5-question residual as the honest floor of this stack.
 
 Artifacts: `agg_answer.py`, `answers_agg{,_ms25}.jsonl`, `metrics_agg{,_ms25}.json`, `ms_ev/` (ms-25 evidence inputs).
+
+---
+
+# Addendum 2 — Ingest-side enumerable marking (scoped prototype)
+
+Per-session ENUM pass produces a structured countable-fact copy at ingest time (`enum_ingest.py`, ENUM_SYS → `{item,category,verb,date,detail}` rows, session-bounded ~10-20 turns → small clean tables of 6-31 rows/question). Answer side greps the marked rows → deterministic dedup/count → itemized+total answer (`enum_answer.py` reusing `dedup_count`/`ANSWER_SYS`).
+
+Test set: 8 enumeration lesions + 4 controls that the answer-side agg arm broke (6d550036, c4a1ceb8, gpt4_15e38248, gpt4_d84a3211).
+
+## Results
+
+**2/8 rescued, 1/4 controls broken — fails the preset bar (≥3/8 rescue AND zero collateral). ARCHIVED.**
+
+| | base | enum |
+|---|---|---|
+| Rescued | — | 982b5123 (5 months ✓), gpt4_7fce9456 (4 properties ✓) |
+| Still wrong | — | 0a995998 (still 2 vs 3 — sweater/return boundary), 88432d0a (window edge), 7024f17c (date-window semantics), d682f1a2 (Domino's category), gpt4_2f8be40d (co-ref kept separate rows), dd2973ad (honest no-record for 5-17) |
+| Controls held | — | 6d550036, c4a1ceb8, gpt4_15e38248 |
+| **Control broken** | — | gpt4_d84a3211 (money total — enum table lost an expense row) |
+
+## Diagnosis (why ingest-side also fails)
+
+- **Recall is still lossy even at session granularity** — the ENUM pass itself drops items (0a995998's third return item, gpt4_d84a3211's expense row); moving extraction earlier doesn't fix the fundamental enumeration-recall problem, it just changes where the miss happens.
+- **Co-reference survives as separate rows** — roommate/Emily city wedding both extracted verbatim per session; item-normalization can't merge cross-session referents.
+- **Fixed item schema can't express aggregate semantics** — money totals need amounts (not item rows), category boundaries ("does Domino's count as a delivery service") need judgment a grep can't supply, date-window semantics ("last week") stay interpretive.
+- Union across both arms: agg∪enum rescues 4 distinct lesions {d682f1a2, gpt4_7fce9456, dd2973ad, 982b5123} but each arm breaks different currently-correct answers — no single aggregation path is a net win.
+
+## Verdict — ARCHIVED as inherent ceiling
+
+**枚举计数是这栈在长记忆上的固有上限（~5 题残尾 ≈ 3.3pp of 150q）**: enumeration recall fails at every level we inject structure — flat answer (5 wrong), answer-side table (net −8pp), ingest-side marked table (net −1 incl. collateral). The residual lesion is not one mechanism's bug; it's the fundamental cost of asking LLM-side pipelines to be exhaustive over long personal histories. Recommend: accept as floor, OR if enumeration must improve, the lever is a *typed* ingest schema (records stored as events with verb/object/amount fields from the start — a representation change, not a bolt-on pass).
+
+Artifacts: `enum_ingest.py`, `enum_answer.py`, `enum_rows/` (12 sidecar tables), `answers_enum.jsonl`, `metrics_enum.json`, `enum_ev/`, `enum_qids.txt`.

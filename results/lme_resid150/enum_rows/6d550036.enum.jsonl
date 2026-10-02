@@ -1,0 +1,22 @@
+{"item": "case competition hosted by consulting firm", "category": "event", "verb": "attended", "date": null, "detail": "analyzed business case, presented to judges", "session_date": "2023/05/20 (Sat) 06:16"}
+{"item": "Tableau", "category": "service", "verb": "plans", "date": null, "detail": "starting with it for presentation dashboards", "session_date": "2023/05/20 (Sat) 06:16"}
+{"item": "Power BI", "category": "service", "verb": "plans", "date": null, "detail": "considered alongside Tableau", "session_date": "2023/05/20 (Sat) 06:16"}
+{"item": "poster presentation on social media influencers and consumer purchasing decisions", "category": "event", "verb": "did", "date": null, "detail": "presented at academic conference on consumer psychology", "session_date": "2023/05/30 (Tue) 02:38"}
+{"item": "Customer data clustering project", "category": "work", "verb": "did", "date": "2023-05-28", "detail": "analyzing customer data for trends and patterns", "session_date": "2023/05/28 (Sun) 17:25"}
+{"item": "Marketing Research class project", "category": "event", "verb": "did", "date": null, "detail": "led data analysis team; market analysis for product launch", "session_date": "2023/05/28 (Sun) 17:25"}
+{"item": "Elbow method", "category": "other", "verb": "plans", "date": "2023-05-28", "detail": "to determine optimal number of clusters", "session_date": "2023/05/28 (Sun) 17:25"}
+{"item": "Silhouette analysis", "category": "other", "verb": "plans", "date": "2023-05-28", "detail": "to determine optimal number of clusters", "session_date": "2023/05/28 (Sun) 17:25"}
+{"item": "Scatter plots", "category": "other", "verb": "plans", "date": "2023-05-28", "detail": "visualize customer feature relationships", "session_date": "2023/05/28 (Sun) 17:25"}
+{"item": "Heatmaps", "category": "other", "verb": "plans", "date": "2023-05-28", "detail": "visualize customer feature relationships", "session_date": "2023/05/28 (Sun) 17:25"}
+{"item": "PCA and t-SNE", "category": "other", "verb": "plans", "date": "2023-05-28", "detail": "dimensionality reduction for high-dimensional data", "session_date": "2023/05/28 (Sun) 17:25"}
+{"item": "Python", "category": "other", "verb": "used", "date": null, "detail": "for building predictive models", "session_date": "2023/05/24 (Wed) 09:36"}
+{"item": "R", "category": "other", "verb": "used", "date": null, "detail": "for building predictive models", "session_date": "2023/05/24 (Wed) 09:36"}
+{"item": "predictive models", "category": "other", "verb": "made", "date": null, "detail": "built with Python and R", "session_date": "2023/05/24 (Wed) 09:36"}
+{"item": "Data Mining class solo project", "category": "other", "verb": "did", "date": null, "detail": "solo class project on customer purchase data", "session_date": "2023/05/24 (Wed) 09:36"}
+{"item": "customer purchase data", "category": "other", "verb": "used", "date": null, "detail": "dataset for Data Mining project", "session_date": "2023/05/24 (Wed) 09:36"}
+{"item": "grouping and binning method", "category": "other", "verb": "plans", "date": null, "detail": "to handle high cardinality categoricals", "session_date": "2023/05/24 (Wed) 09:36"}
+{"item": "formal presentation", "category": "event", "verb": "plans", "date": null, "detail": "present findings to professor and classmates", "session_date": "2023/05/24 (Wed) 09:36"}
+{"item": "bar charts", "category": "other", "verb": "plans", "date": null, "detail": "visualizations for presentation", "session_date": "2023/05/24 (Wed) 09:36"}
+{"item": "scatter plots", "category": "other", "verb": "plans", "date": null, "detail": "visualizations for presentation", "session_date": "2023/05/24 (Wed) 09:36"}
+{"item": "heatmaps", "category": "other", "verb": "plans", "date": null, "detail": "visualizations for presentation", "session_date": "2023/05/24 (Wed) 09:36"}
+{"item": "interactive visualizations", "category": "other", "verb": "plans", "date": null, "detail": "let audience explore the data", "session_date": "2023/05/24 (Wed) 09:36"}
