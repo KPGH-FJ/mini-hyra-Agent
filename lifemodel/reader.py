@@ -432,12 +432,44 @@ Be direct: give the answer first (a number, a list, a fact), then one
 line of justification citing the profile facts used."""
 
 
+_ROUTE_PROFILE_TYPES = {"temporal", "ms", "pref"}
+_ROUTE_ENUM_MIN_VERTICES = 90
+
+
+def _qclass(question: str) -> str:
+    """Cheap question-type heuristic when the caller has no manifest type."""
+    q = question.lower()
+    if re.search(r"\b(how many|how much|number of|total|altogether|"
+                 r"combined|in all)\b", q):
+        return "ms"
+    if re.search(r"\b(when|what (date|day|month|year)|how long|since|"
+                 r"before|after|recently|first time|last time)\b", q):
+        return "temporal"
+    if re.search(r"\b(recommend|suggest|advice|should i|favorite|"
+                 r"favourite|would i|what would|best .{0,24}for me|"
+                 r"prefer)\b", q):
+        return "pref"
+    return "other"
+
+
 async def aanswer(model, llm, question: str, qdate: str,
                   premise_check: bool = False,
                   assist: bool = False,
                   via_profile: bool = False,
-                  profile: str | None = None) -> dict:
+                  profile: str | None = None,
+                  route: str | None = None,
+                  qtype: str | None = None) -> dict:
     """Two-stage answer. Returns {response, selected_vertices, digest}.
+
+    route="ruleB" (150q-validated: 88.0% vs best single channel 86.7,
+    oracle union 90.7) picks the answering channel per question:
+    temporal/ms/pref questions go to the profile channel, the rest to
+    retrieval+assist — except enumerative questions on large models
+    (>=90 vertices) which stay on retrieval because the profile
+    summarizes counts away. `qtype` supplies the manifest type when the
+    caller knows it; otherwise a keyword heuristic classifies. When set,
+    route overrides via_profile/assist; premise_check still applies on
+    the retrieval channel.
 
     via_profile (24q probe-validated best channel: 87.5% vs nogate 83.3)
     answers off a consolidated persona profile instead of retrieved
@@ -466,7 +498,15 @@ async def aanswer(model, llm, question: str, qdate: str,
     Atria A/B: dropped families, dedupe collisions, date misfilters) —
     off by default, opt-in for weak backends.
     """
-    if via_profile or profile is not None:
+    if route == "ruleB":
+        qt = (qtype or _qclass(question)).lower()
+        on_profile = qt in _ROUTE_PROFILE_TYPES and not (
+            qt == "ms"
+            and len(vertex_catalog(model)) >= _ROUTE_ENUM_MIN_VERTICES)
+        via_profile, assist = on_profile, not on_profile
+    elif route:
+        raise ValueError(f"unknown route policy: {route!r}")
+    if via_profile or (profile is not None and route is None):
         from .profile import render_profile
         prof = profile if profile is not None else \
             await render_profile(model, llm)
