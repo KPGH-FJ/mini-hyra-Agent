@@ -497,11 +497,14 @@ async def aanswer(model, llm, question: str, qdate: str,
     (synthesis_needed=true), while keeping the anti-splice / anti-
     fabrication defense for factual premises.
     premise_check="grounded" (LoCoMo-10 measured: cat3 +10.4pp vs
-    relaxed, cat5 sentinel 85.7% vs 92.0% — cost confined to confident
-    inference tails) additionally admits grounded inference: when atoms
-    are unbound but the question's entities have bound records, the
+    relaxed, cat5 sentinel 88.4% vs 92.0% — residual cost confined to
+    confident inference tails the entailment clause still lets
+    through) additionally admits grounded inference: when atoms are
+    unbound but the question's entities have bound records, the
     answerer states the fact is unrecorded and infers from the bound
-    records instead of abstaining outright.
+    records instead of abstaining outright; concrete inferred values
+    are allowed only when a bound record's content directly entails
+    them.
 
     assist adds a candidate-extraction stage before answering: the
     answerer receives a deterministically deduped/sorted/counted item
@@ -569,8 +572,13 @@ async def aanswer(model, llm, question: str, qdate: str,
             f"{missing or 'the asked fact'}. Answer by grounded "
             "inference from the records above: state plainly that the "
             "specific fact is not recorded, then give the best-"
-            "supported inference; never present an inference as a "
-            "recorded fact.\n\n")
+            "supported inference. You may state a concrete inferred "
+            "value ONLY when it follows directly from content in a "
+            "bound record (e.g. a named place or entity in a record "
+            "determines the answer); never supply a name, place, date, "
+            "count or object the records give no basis for — abstain "
+            "instead. Never present an inference as a recorded "
+            "fact.\n\n")
     prompt = (f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\n{assist_block}"
               f"{ground_block}QUESTION: {question}\n\nAnswer:")
     resp = (await llm.complete(ANSWER_SYS, prompt)).strip()
