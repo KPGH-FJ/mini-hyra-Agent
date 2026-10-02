@@ -439,15 +439,16 @@ _ROUTE_ENUM_MIN_VERTICES = 90
 def _qclass(question: str) -> str:
     """Cheap question-type heuristic when the caller has no manifest type."""
     q = question.lower()
+    if re.search(r"\bhow many (days?|weeks?|months?|years?|hours?)\b"
+                 r"|\b(when|what (date|day|month|year)|how long|since|"
+                 r"before|after|recently|first time|last time)\b", q):
+        return "temporal"
     if re.search(r"\b(how many|how much|number of|total|altogether|"
                  r"combined|in all)\b", q):
         return "ms"
-    if re.search(r"\b(when|what (date|day|month|year)|how long|since|"
-                 r"before|after|recently|first time|last time)\b", q):
-        return "temporal"
-    if re.search(r"\b(recommend|suggest|advice|should i|favorite|"
-                 r"favourite|would i|what would|best .{0,24}for me|"
-                 r"prefer)\b", q):
+    if re.search(r"\b(recommend|suggest|advice|should i|would i|"
+                 r"what would|best .{0,24}for me|ideas? for|"
+                 r"help me (choose|pick|decide))\b", q):
         return "pref"
     return "other"
 
