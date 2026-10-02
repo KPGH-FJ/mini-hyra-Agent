@@ -287,7 +287,8 @@ def _pv_gate(verify: dict, records: dict,
 
 
 async def _pverify(llm, question: str, qdate: str, listing: str,
-                   records: dict, relaxed: bool = False) -> dict:
+                   records: dict, relaxed: bool = False,
+                   grounded: bool = False) -> dict:
     """Bind the question's premise atoms to single records, then run
     the deterministic detail gate.
 
@@ -326,6 +327,11 @@ async def _pverify(llm, question: str, qdate: str, listing: str,
                 verify["verdict"] = "SYNTHESIS_OK"
             else:
                 verify["verdict"] = "ABSENT"
+        if grounded and verify["verdict"] == "ABSENT":
+            atoms = verify.get("atoms") or []
+            if any(isinstance(a, dict) and a.get("record")
+                   for a in atoms):
+                verify["verdict"] = "GROUNDED_OK"
         return verify
     return _pv_gate(verify, records)
 
@@ -490,6 +496,12 @@ async def aanswer(model, llm, question: str, qdate: str,
     (premise_expected=false) and synthesis over fully-bound components
     (synthesis_needed=true), while keeping the anti-splice / anti-
     fabrication defense for factual premises.
+    premise_check="grounded" (LoCoMo-10 measured: cat3 +10.4pp vs
+    relaxed, cat5 sentinel 85.7% vs 92.0% — cost confined to confident
+    inference tails) additionally admits grounded inference: when atoms
+    are unbound but the question's entities have bound records, the
+    answerer states the fact is unrecorded and infers from the bound
+    records instead of abstaining outright.
 
     assist adds a candidate-extraction stage before answering: the
     answerer receives a deterministically deduped/sorted/counted item
@@ -519,7 +531,9 @@ async def aanswer(model, llm, question: str, qdate: str,
     if premise_check:
         listing, records = _numbered_records(model, keys)
         verify = await _pverify(llm, question, qdate, listing, records,
-                                relaxed=(premise_check == "relaxed"))
+                                relaxed=(premise_check in
+                                         ("relaxed", "grounded")),
+                                grounded=(premise_check == "grounded"))
         if verify["verdict"] in ("SPLICED", "ABSENT"):
             return {"response": _pv_abstain(verify, records,
                                             model=model),
@@ -544,8 +558,21 @@ async def aanswer(model, llm, question: str, qdate: str,
         assist_block = (
             "PRE-EXTRACTED CANDIDATES (deduped, sorted, deterministic "
             f"count={len(items)}):\n{table}\n\n")
+    ground_block = ""
+    if verify and verify.get("verdict") == "GROUNDED_OK":
+        missing = "; ".join(
+            str(a["part"]) for a in verify.get("atoms") or []
+            if isinstance(a, dict) and not a.get("record")
+            and a.get("part"))
+        ground_block = (
+            "PREMISE NOTE: memory has no record of "
+            f"{missing or 'the asked fact'}. Answer by grounded "
+            "inference from the records above: state plainly that the "
+            "specific fact is not recorded, then give the best-"
+            "supported inference; never present an inference as a "
+            "recorded fact.\n\n")
     prompt = (f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\n{assist_block}"
-              f"QUESTION: {question}\n\nAnswer:")
+              f"{ground_block}QUESTION: {question}\n\nAnswer:")
     resp = (await llm.complete(ANSWER_SYS, prompt)).strip()
     return {"response": resp, "selected": keys, "digest": dg,
             "verify": verify}
