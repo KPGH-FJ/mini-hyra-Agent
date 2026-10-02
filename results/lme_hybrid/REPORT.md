@@ -97,9 +97,80 @@ and roughly halves the assist-only pref cells in the fingerprint table
 (35a27287/d6233ab6 confirmed rescued; caf03d32/95228167 were wrong in
 both runs' outputs and stay wrong).
 
+## Task 3 — channel-routing prototype (150q, all arms vs oracle 90.7%)
+
+With the pref fix in place the per-arm bases move to **profile 129/150
+(86.0%)** and **nogate+assist 130/150 (86.7%)**; oracle union rises to
+**136/150 = 90.7%**. All routes below are pure joins of judged results —
+no new answers rendered (the 150 profiles were rendered under a
+PROFILE_SYS verified byte-identical to main's #74 copy).
+
+| route | score | vs oracle |
+|---|---|---|
+| profile alone | 129 (86.0%) | −7 |
+| assist alone (stack champion) | 130 (86.7%) | −6 |
+| **route_rule** (temporal/ms→profile; rest→assist) | **131 (87.3%)** | −5 |
+| route_vmod (rule + ss-user/ku→profile when v≤70) | 129 (86.0%) | −7 |
+| **route_ruleB** (rule + pref→profile, post-fix) | **132 (88.0%)** | −4 |
+| route_llm (per-question LLM classifier) | 131 (87.3%) | −5 |
+| oracle union | 136 (90.7%) | — |
+
+**route_vmod is refuted.** The "≤70v → profile" modulation sends
+ss-user/ku small memories to profile, but assist's two ku wins
+(6a1eabeb v49, 9ea5eabc v56) sit inside that window — the arm is
+net-negative (−2 vs rule). Vertex count alone does not separate
+update-recall coverage.
+
+**route_ruleB** — routing pref to profile is justified by task 2: the
+advisory clause made profile pref 21/25 > assist 20/25. 132/150 =
+**88.0%**, at the project bar, with zero LLM cost.
+
+**route_llm** (Atria classifier seeing question + type + memory size,
+150 calls) scores identically to route_rule (87.3%): it correctly
+catches the two big-model enumerations rule misses (d23cf73b v99,
+c4a1ceb8 v147 → assist, both won) but loses the two structural ms wins
+(6d550036 v58, gpt4_15e38248 v56 — profile-only wins that need a
+codebook the question text can't reveal: retrieval under-pick and
+gate-boundary, not visible to a text classifier) plus 8aef76bc
+ss-assist. An LLM router pays latency/cost to reach parity with a rule.
+
+### Per-type, route_ruleB
+
+temporal 25/25 · ku 25/25 · ss-user 24/25 · pref 21/25 ·
+ss-assist 20/25 · ms 17/25
+
+### Residual misroutes (routed arm wrong, other arm right — ruleB)
+
+| qid | type | v | chosen | winner | cause |
+|---|---|---|---|---|---|
+| caf03d32 | pref | 20 | profile | assist | advisory signal too thin to infer |
+| 95228167 | pref | 13 | profile | assist | same |
+| d23cf73b | ms | 99 | profile | assist | enumeration, profile summarizes list |
+| c4a1ceb8 | ms | 147 | profile | assist | enumeration, largest model |
+
+An enumeration-detector inside the profile route ("list all / how many
+different" + v≥~90 → assist) would reclaim the two ms cells — that's
+the next rule increment if routing is funded. The two pref cells have
+no deterministic signal (v13/v20, same type as profile's wins).
+
+### Oracle floor (14 questions both arms miss)
+
+- 4 empty-model ingest stubs (v0 — data, not routing)
+- 6 ms: 88432d0a (R3 dup count), 0a995998 + gpt4_2f8be40d +
+  gpt4_7fce9456 (enumeration), 7024f17c (G-boundary), dd2973ad
+  (R3 anchor)
+- 3 ss-assist (58470ed2, 89527b6b, 1d4da289 — dead zone for both arms)
+- 1 ss-user (51a45a95)
+
+Routing cannot beat 90.7% on this join; ~9pp is arm-independent
+(ingest stubs, ingest residuals, enumeration, boundary semantics).
+
 ## Artifacts
 
 - `results/lme_pref_fix/` — manifest (25 pref questions), hyp jsonl,
   `metrics_pref25.json`, answer-side prompt already carrying the clause.
 - `results/mainstack/lifemodel/reader.py` — PROFILE_ANSWER_SYS advisory
   clause (shadow stack only; lands upstream on #74's file if accepted).
+- `results/lme_hybrid/` — `route_join.json` (per-question arm
+  correctness + vertex counts), `route_llm.py`, `route_choices.jsonl`
+  (classifier picks), this report.
