@@ -1,0 +1,47 @@
+0a995998 79 ok
+e831120c 39 ok
+6d550036 148 ok
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 3/8): HTTP Error 429: Too Many Requests
+b5ef892d 189 ok
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 3/8): HTTP Error 429: Too Many Requests
+gpt4_d84a3211 128 ok
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 3/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 4/8): HTTP Error 429: Too Many Requests
+gpt4_59c863d7 159 ok
+gpt4_f2262a51 117 ok
+3a704032 138 ok
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 3/8): HTTP Error 429: Too Many Requests
+aae3761f 195 ok
+c4a1ceb8 194 ok
+36b9f61e 85 ok
+dd2973ad 123 ok
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 3/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 4/8): HTTP Error 429: Too Many Requests
+6cb6f249 114 ok
+gpt4_a56e767c 95 ok
+2e6d26dc 81 ok
+46a3abf7 141 ok
+stream cut mid-flight; resuming (cont #1, 0 chars so far)
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+gpt4_15e38248 163 ok
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 3/8): HTTP Error 429: Too Many Requests
+80ec1f4f 126 ok
+88432d0a 157 ok
+d23cf73b 203 ok
+gpt4_2f8be40d 193 ok
+28dc39ac 245 ok
+d682f1a2 191 ok
+gpt4_7fce9456 144 ok
