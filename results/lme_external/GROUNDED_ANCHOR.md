@@ -44,12 +44,32 @@ Same GROUNDED_OK gate; only the PREMISE NOTE tail text varies.
 | v3 (entailment-gated) | "concrete value ONLY when it follows directly from a bound record; no basis → abstain" | **44 = 45.8% (+10.4pp)** | **99 = 88.4%** |
 
 - **v2 overshoots**: forbidding concrete values reverts legitimate named inferences to hedged non-answers — v1→v2 cat3 losses are exactly the L1 external-fill rescues (c8_q57 Lake Tahoe→state withheld; c7_q75 cat-card-game name withheld; c4_q28 composer; c4_q32 Universal→state; c7_q36/c7_q40/c0_q81/c2_q39 hedged). cat5 fully recovers to baseline 92.0% but cat3 drops below the +8pp bar.
-- **v3 passes both bars**: +10.4pp ≥ +8pp and 88.4% ≥ 88% (not 90+). cat3 ties v1 — entailment clause preserves the external-fill rescues (c6_q30 Toronto→Canada asserted and won). cat5 residual leak is the same confident-tail shape — the model rationalizes a record basis that doesn't entail the value (c0_q186 "**Sara Bareilles**" as "best-supported inference"; c0_q156, c0_q190, c2_q162, c2_q167 similar; 5 of 8 v2→v3 regressions are this pattern). cat5 v3 losses vs v2: 8, wins: 3.
-- **Noise caveat**: single-draw Atria judge flips run ±2–3 questions per arm; 88.4% sits within noise of the 88% line. Recommend 3× judge replication on the ~12 boundary rows before treating v3-vs-v2 cat5 delta as final.
+- **v3 (single-draw)**: +10.4pp ≥ +8pp and 88.4% ≥ 88%. cat3 ties v1 — entailment clause preserves the external-fill rescues (c6_q30 Toronto→Canada asserted and won). cat5 residual leak is the same confident-tail shape — the model rationalizes a record basis that doesn't entail the value (c0_q186 "**Sara Bareilles**" as "best-supported inference"; c0_q156, c0_q190, c2_q162, c2_q167 similar; 5 of 8 v2→v3 regressions are this pattern). cat5 v3 losses vs v2: 8, wins: 3. (Superseded by the 3× re-judge below: v3 final = 87.5%.)
 - Data: `grnd2_*` / `grnd3_*` jsonl (each 208 rows: cat3 96 + cat5 112), same `grounded_arm.py` driver with `ARM_TAG` output prefix. c2_q185 marked answer-failed (truncated-retry loop).
 
 ### Dial frontier — what the three points say
 The tail contract is a real operating-point dial between cat3 rescue and cat5 defense: unconstrained +10.4/85.7 → entailment-gated +10.4/88.4 → no-values +6.3/92.0. v3 dominates v1 (same cat3, +2.7pp defense); v2 buys +3.6pp more defense for −4.1pp cat3. Pick v3 as the shippable default; v2 is the option if cat5 ≥90 is ever required.
+
+### 3× majority-vote re-judge (boundary 23q: all v3 losses + arm flips) — FINAL
+Per-row 3 independent Atria judge draws, majority replaces the single draw (`v3_judge3x.json`, `v3_judge3x.py`):
+
+| arm | single-draw | majority-corrected |
+|---|---|---|
+| v3 | 99/112 = 88.4% | **98/112 = 87.5%** (c2_q154 flips negative) |
+| v2 | 103/112 = 92.0% | **104/112 = 92.9%** (c0_q173 flips positive) |
+
+**v3 = 87.5% — 0.5pp below the ≥88% acceptance line, above the <85% switch line: lands in the gap zone.**
+
+Per-question loss-type decomposition (majority-corrected):
+
+| v3 loss (14) | type |
+|---|---|
+| c0_q156, c0_q186, c2_q154 | **true confident-tail leak** — inference tail asserts a concrete unrecorded value (Sara Bareilles etc.) |
+| c0_q173, c0_q190, c2_q162, c2_q167 | **judge-boundary generic-tail** — response says "no record" + hedged inference, judge counts as answered-wrong |
+| c0_q161, c0_q184, c0_q188, c0_q195, c1_q95, c2_q186 | **SUPPORTED direct-answer on known mislabel cluster** (bowl/guitar/hike/trophy/5K — transcript-verified prior rounds) |
+| c0_q167 | SPLICED refusal phrasing scored wrong |
+
+v2 losses (8): same mislabel cluster 6 + c0_q166 + c1_q91. So the v3−v2 5.4pp gap decomposes to ~3 real fabrication leaks + ~4–5 rows where **any inference content in the tail gets scored as answering** — judge strictness on inference presence, not fabricated values. Both arms share the 6-question benchmark-mislabel loss floor.
 
 ## Arm T — anchor resolution: net negative as implemented
 Wins 23 / losses 31. The loss mechanism is **granularity overshoot**: coarse phrases got day-precision dates the text never claimed — "(on last month)" said in October resolves to a specific September *day*, so "when did X" answers fabricate (or collide with) a wrong day, and some atoms then fail binding. 23 wins are real (absolute dates unblock computations, e.g. the c8_q71 joint win), but the naive -30d/-7d map is wrong for month/week phrases.
@@ -60,6 +80,6 @@ Wins 23 / losses 31. The loss mechanism is **granularity overshoot**: coarse phr
 `grnd_cat3_c{0..9}.jsonl` (96), `grnd_cat5_c{0..2}.jsonl` (112), `anch_cat2_c{0..9}.jsonl` (321), driver `grounded_arm.py` — all per-question rows carry verdict + response + judge outcome. Infra: ~34 congestion ERROR rows swept once; residuals counted.
 
 ## Bottom line
-- **Grounded gate**: ship v3 for review — +10.4pp cat3 AND 88.4% cat5 sentinel, meets both acceptance bars; residual cat5 cost is confined to confident inference tails that rationalize a record basis (candidate future hardening: verifier-side entailment check instead of prompt contract).
+- **Grounded gate**: v3 = +10.4pp cat3 / 87.5% cat5 after 3× majority re-judge — 0.5pp under the 88% acceptance line. Residual gap vs v2 (92.9%) is ~3 real fabrication leaks + ~5 judge-boundary rows (any inference content scored as answering) + a shared 6q benchmark-mislabel floor. Operating-point decision (v3 best cat3 vs v2 best defense) flagged to the PI.
 - **Anchor resolver**: correct lesion, wrong granularity — needs v2 before merging; L3 lesions provably fixable (c8_q71).
 - cat3 45.8% still trails other categories; residual = benchmark external-fill (~L1) and open-ended judge strictness (~L4) — see CAT3_AUTOPSY.md.
