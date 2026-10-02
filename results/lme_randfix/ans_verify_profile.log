@@ -1,0 +1,37 @@
+verify profile 6ae235be ok
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 3/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 4/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 3/8): HTTP Error 429: Too Many Requests
+verify profile f523d9fe ok
+verify profile c4f10528 ok
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 3/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+verify profile 89527b6b ok
+verify profile 71a3fd6b ok
+verify profile 0e5e2d1a ok
+verify profile 8cf51dda ok
+verify profile dc439ea3 ok
+verify profile 18dcd5a5 ok
+verify profile 7e00a6cb ok
+verify profile 1d4da289 ok
+verify profile 2bf43736 ok
+verify profile 488d3006 ok
+verify profile fea54f57 ok
+verify profile 1903aded ok
+verify profile 8464fc84 ok
+verify profile e9327a54 ok
+verify profile ceb54acb ok
+verify profile 7161e7e2 ok
+verify profile 70b3e69b ok
+verify profile 8aef76bc ok
+verify profile 4c36ccef ok
+verify profile 58470ed2 ok
+verify profile cc539528 ok
+verify profile 8752c811 ok
