@@ -433,7 +433,6 @@ line of justification citing the profile facts used."""
 
 
 _ROUTE_PROFILE_TYPES = {"temporal", "ms", "pref"}
-_ROUTE_ENUM_MIN_VERTICES = 90
 
 
 def _qclass(question: str) -> str:
@@ -462,14 +461,14 @@ async def aanswer(model, llm, question: str, qdate: str,
                   qtype: str | None = None) -> dict:
     """Two-stage answer. Returns {response, selected_vertices, digest}.
 
-    route="ruleB" (150q-validated: 88.0% vs best single channel 86.7,
-    oracle union 90.7) picks the answering channel per question:
-    temporal/ms/pref questions go to the profile channel, the rest to
-    retrieval+assist — except enumerative questions on large models
-    (>=90 vertices) which stay on retrieval because the profile
-    summarizes counts away. `qtype` supplies the manifest type when the
-    caller knows it; otherwise a keyword heuristic classifies. When set,
-    route overrides via_profile/assist; premise_check still applies on
+    route="ruleB" (150q-validated: 88.0% vs best single channel 86.7;
+    with verify-dense models, routing ms unconditionally to profile
+    scores .72 vs .48 routed — projected 90.0%, oracle union 90.7)
+    picks the answering channel per question: temporal/ms/pref
+    questions go to the profile channel, the rest to retrieval+assist.
+    `qtype` supplies the manifest type when the caller knows it;
+    otherwise a keyword heuristic classifies. When set, route
+    overrides via_profile/assist; premise_check still applies on
     the retrieval channel.
 
     via_profile (24q probe-validated best channel: 87.5% vs nogate 83.3)
@@ -501,9 +500,7 @@ async def aanswer(model, llm, question: str, qdate: str,
     """
     if route == "ruleB":
         qt = (qtype or _qclass(question)).lower()
-        on_profile = qt in _ROUTE_PROFILE_TYPES and not (
-            qt == "ms"
-            and len(vertex_catalog(model)) >= _ROUTE_ENUM_MIN_VERTICES)
+        on_profile = qt in _ROUTE_PROFILE_TYPES
         via_profile, assist = on_profile, not on_profile
     elif route:
         raise ValueError(f"unknown route policy: {route!r}")
