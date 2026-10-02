@@ -126,6 +126,13 @@ def _make_llm(args, thinking=False, backend=None):
 
 # ---------- date helpers ---------------------------------------------------
 
+_LME_ROUTE_QTYPE = {
+    "temporal-reasoning": "temporal",
+    "multi-session": "ms",
+    "single-session-preference": "pref",
+}
+
+
 def _parse_date(s: str) -> _dt.date:
     # "2023/04/10 (Mon) 23:07"
     return _dt.datetime.strptime(s.split(" (")[0], "%Y/%m/%d").date()
@@ -227,8 +234,9 @@ def run(args):
         try:
             resp = asyncio.run(
                 aanswer(model, llm_answer, q["question"],
-                        q["question_date"], assist=True))[
-                "response"]
+                        q["question_date"], route="ruleB",
+                        qtype=_LME_ROUTE_QTYPE.get(q["question_type"],
+                                                 "other")))["response"]
         except Exception as e:
             resp = f"__answer_error__ {e}"
         fh.write(json.dumps({
