@@ -47,32 +47,36 @@ def summarize(sec):
 
 
 async def run_item(llm, m, out_dir):
+    arms = os.environ.get("ARMS", "sec_pick,sec_all").split(",")
     prof = open(m['profile_path']).read()
     secs = split_sections(prof)
-    roster = []
-    for i, s in enumerate(secs):
-        t, nb, ents = summarize(s)
-        roster.append(f"[{i}] {t} — {nb} bullets — e.g. {'; '.join(ents)}")
-    pick_raw = (await llm.complete(
-        PICK_SYS,
-        "SECTIONS:\n" + "\n".join(roster) + f"\n\nQUESTION: {m['question']}")).strip()
-    mraw = re.search(r'\[[\d,\s]*\]', pick_raw)
-    try:
-        idxs = [int(x) for x in json.loads(mraw.group(0))][:3] if mraw else list(range(len(secs)))
-    except Exception:
-        idxs = list(range(len(secs)))
-    idxs = [i for i in idxs if 0 <= i < len(secs)] or list(range(len(secs)))
-    picked = "\n\n".join(secs[i] for i in idxs)
-    r_pick = (await llm.complete(
-        PROFILE_ANSWER_SYS.format(qdate=m['qdate']),
-        f"PROFILE SECTIONS:\n{picked}\n\nQUESTION: {m['question']}")).strip()
-    allsecs = "\n\n".join(secs)
-    r_all = (await llm.complete(
-        PROFILE_ANSWER_SYS.format(qdate=m['qdate']),
-        f"PROFILE SECTIONS:\n{allsecs}\n\nQUESTION: {m['question']}")).strip()
-    return {"qid": m['qid'], "n_sections": len(secs), "picked": idxs,
-            "pick_raw": pick_raw[:80],
-            "sec_pick": r_pick, "sec_all": r_all}
+    row = {"qid": m['qid'], "n_sections": len(secs)}
+    if "sec_pick" in arms:
+        roster = []
+        for i, s in enumerate(secs):
+            t, nb, ents = summarize(s)
+            roster.append(f"[{i}] {t} — {nb} bullets — e.g. {'; '.join(ents)}")
+        pick_raw = (await llm.complete(
+            PICK_SYS,
+            "SECTIONS:\n" + "\n".join(roster) + f"\n\nQUESTION: {m['question']}")).strip()
+        mraw = re.search(r'\[[\d,\s]*\]', pick_raw)
+        try:
+            idxs = [int(x) for x in json.loads(mraw.group(0))][:3] if mraw else list(range(len(secs)))
+        except Exception:
+            idxs = list(range(len(secs)))
+        idxs = [i for i in idxs if 0 <= i < len(secs)] or list(range(len(secs)))
+        picked = "\n\n".join(secs[i] for i in idxs)
+        row["picked"] = idxs
+        row["pick_raw"] = pick_raw[:80]
+        row["sec_pick"] = (await llm.complete(
+            PROFILE_ANSWER_SYS.format(qdate=m['qdate']),
+            f"PROFILE SECTIONS:\n{picked}\n\nQUESTION: {m['question']}")).strip()
+    if "sec_all" in arms:
+        allsecs = "\n\n".join(secs)
+        row["sec_all"] = (await llm.complete(
+            PROFILE_ANSWER_SYS.format(qdate=m['qdate']),
+            f"PROFILE SECTIONS:\n{allsecs}\n\nQUESTION: {m['question']}")).strip()
+    return row
 
 
 async def main():
@@ -91,7 +95,7 @@ async def main():
         row = await run_item(llm, m, None)
         fh.write(json.dumps(row) + "\n")
         fh.flush()
-        print(m['qid'], 'secs', row['n_sections'], 'picked', row['picked'], flush=True)
+        print(m['qid'], 'secs', row['n_sections'], 'picked', row.get('picked'), flush=True)
 
     await asyncio.gather(*(one(m) for m in manifest))
 

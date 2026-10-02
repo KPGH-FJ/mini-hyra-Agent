@@ -64,3 +64,26 @@ the section marker. Affected questions rerun; numbers above are clean.
 `results/lme_secpick/` — manifest.json (22 items), secpick.py,
 hyp_both.jsonl (pick roster + both answers), hyp_sec_pick.jsonl /
 hyp_sec_all.jsonl, metrics_sec_pick.json / metrics_sec_all.json.
+
+## Addendum — sec_all@150q full-slice: REFUTED
+
+Reran sec_all on all 150 questions (advisory-clause prompt, same cached
+profiles, Atria judge): **121/150 (80.7%) vs flat 129/150 (86.0%) — −8
+net. The ≥60v +2 was small-sample noise.**
+
+Flips +3/−11. Losses concentrate on small memories (<60v: 8 of 11) —
+sectioned framing primes section-bounded reasoning and reverts pref to
+over-conservatism (4 pref losses at v12-23, incl. 35a27287/0edc2aef/
+09d032c9 which the advisory clause had just rescued); it also broke both
+structural ms wins (gpt4_15e38248, 6d550036) and d682f1a2 (100v).
+Wins: caf03d32, 8aef76bc, d23cf73b.
+
+By vertex bin (sec_all vs flat): <30v 66/70 · 30-59v 39/43 · 60-99v
+15/14 · 100+v 1/2 — only the 60-99v bin kept the gain.
+
+**Do not ship** the sectioned frame; flat profile answering stands.
+The per-bin story also narrows the real haystack claim: flat profile's
+losses are not presentation-fixable at either granularity tested
+(section-select loses facts, section-framing distorts small models).
+
+metrics: `results/lme_secall150/metrics_secall150.json`
