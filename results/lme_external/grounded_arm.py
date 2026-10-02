@@ -51,7 +51,11 @@ async def run_scope(convs, ci, scope, llm, out_dir):
     gate = "grounded" if scope in ("cat3", "cat5") else "relaxed"
     cat = {"cat3": 3, "cat5": 5, "cat2fix": 2}[scope]
     m = load_model(out_dir, ci, resolve)
-    out_path = os.path.join(out_dir, f"{scope == 'cat2fix' and 'anch' or 'grnd'}_{scope.rstrip('fix')}_c{ci}.jsonl")
+    tag = os.environ.get("ARM_TAG", "")
+    out_path = os.path.join(
+        out_dir,
+        f"{scope == 'cat2fix' and 'anch' or 'grnd'}{tag}_"
+        f"{scope.rstrip('fix')}_c{ci}.jsonl")
     done = set()
     if os.path.exists(out_path):
         done = {json.loads(l)["qid"] for l in open(out_path)}
