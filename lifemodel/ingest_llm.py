@@ -102,6 +102,19 @@ party's words. Do NOT add or drop records and do NOT change
 slot/value/text — fix attribution only. Keep the array order.
 Return ONLY the corrected JSON array of records."""
 
+YIELD_SYS = """You extract the ASSISTANT side of a chat session that a
+previous pass already covered for the user. Capture ONLY the
+assistant's substantive contributions — things it produced,
+recommended, suggested, designed, explained, or stated about itself.
+Each record: {"slot": short_snake_name, "value": the content —
+verifiable details, named entities, numbers, quoted phrases —
+"about": whom it concerns (null if the assistant itself), "kind":
+"statement", "source": "assistant", "text": "<=160 char quote or
+summary"}.
+Decompose artifacts (tables, plans, lists, drafts) row by row — one
+record per row/item. Keep quotable phrases verbatim inside value.
+Return ONLY a JSON array of records."""
+
 _SLOT_TOKEN_RE = re.compile(r"[a-z0-9]+")
 
 
@@ -160,13 +173,18 @@ class LLMIngestor:
     (hyra.llm.OpenAICompatLLM, GLMCompat, ...).
     """
 
-    def __init__(self, llm, day_of=None, audit=False):
+    def __init__(self, llm, day_of=None, audit=False,
+                 yield_guard=True):
         self.llm = llm
         # day_of(date_or_label) -> int day; default = caller supplies ints
         self.day_of = day_of or (lambda d: int(d))
         # audit=True adds a per-session attribution re-check pass
         # (+1 LLM call/session; named-person chats only)
         self.audit = audit
+        # yield_guard rescues the silent whole-side loss: a session that
+        # HAS assistant turns but produced zero assistant-sourced records
+        # gets one focused re-extract (+1 call, only when it fires).
+        self.yield_guard = yield_guard
         self.n_extracted = 0
 
     async def _aaudit(self, turns: list, recs: list, ents: list) -> list:
@@ -262,6 +280,19 @@ class LLMIngestor:
                 prompt[:-len("Records JSON array:")]
                 + nudge + "\n\nRecords JSON array:")
             recs = _json_list(text)
+        if self.yield_guard and recs:
+            asst_chars = sum(len(t["content"]) for t in turns
+                             if t.get("role") == "assistant")
+            asst_recs = [r for r in recs if isinstance(r, dict)
+                         and str(r.get("source", "")).strip().lower()
+                         == "assistant"]
+            if asst_chars >= 200 and not asst_recs:
+                recs = recs + [r for r in _json_list(
+                    await self.llm.complete(
+                        YIELD_SYS,
+                        f"Session date: {date_label}\n\n{body}\n\n"
+                        "Assistant items JSON array:"))
+                    if isinstance(r, dict)]
         day = self.day_of(date_label)
         ents = self.entity_catalog(model) if model is not None else []
         raw_slots = [r["slot"] for r in recs
