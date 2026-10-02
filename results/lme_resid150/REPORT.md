@@ -121,3 +121,78 @@ Test set: 8 enumeration lesions + 4 controls that the answer-side agg arm broke 
 **枚举计数是这栈在长记忆上的固有上限（~5 题残尾 ≈ 3.3pp of 150q）**: enumeration recall fails at every level we inject structure — flat answer (5 wrong), answer-side table (net −8pp), ingest-side marked table (net −1 incl. collateral). The residual lesion is not one mechanism's bug; it's the fundamental cost of asking LLM-side pipelines to be exhaustive over long personal histories. Recommend: accept as floor, OR if enumeration must improve, the lever is a *typed* ingest schema (records stored as events with verb/object/amount fields from the start — a representation change, not a bolt-on pass).
 
 Artifacts: `enum_ingest.py`, `enum_answer.py`, `enum_rows/` (12 sidecar tables), `answers_enum.jsonl`, `metrics_enum.json`, `enum_ev/`, `enum_qids.txt`.
+
+---
+
+# Addendum 3 — Meta-judgment + temporal-composition arm (prompt layer)
+
+One `META_SYS` system prompt (`consol_answer.py`): (a) meta-judgment clause — weigh evidence before refusing; grounded extrapolation beats abstention when signals imply a direction; (b) temporal-composition clause — resolve relative dates to absolute, then compose intervals arithmetically (N months in advance of event M months ago = N+M).
+
+Test: 5 lesions (refusals 0edc2aef/35a27287/51a45a95 + temporal 982b5123/dd2973ad) + 5 currently-correct controls (pref×2, temporal, ss-user, ms).
+
+## Results — 2/5 rescued, 0/5 collateral. Below the ≥3/5 land bar but provably safe.
+
+| lesion | out | note |
+|---|---|---|
+| 35a27287 | **RESCUED** | inferred language-exchange cultural events from Spanish/French interest — meta clause worked |
+| 982b5123 | **RESCUED** | composed 3-months-in-advance + 2-months-ago trip = 5 months — temporal clause worked |
+| 0edc2aef | no | correctly reports only Seattle trip on file; no Miami signal to extrapolate — honest |
+| 51a45a95 | no | still won't chain Cartwheel→Target; honest underdetermination, not over-caution |
+| dd2973ad | no | computed 5-17 correctly; gold wants 5-24 2AM — underdetermined gold intent, not clause-fixable |
+
+Controls 5/5 held (505af2f5, afdc33df, gpt4_2655b836, e47becba, 6d550036 — incl. hedged-but-correct "2 projects clearly" on 6d550036).
+
+**Assessment:** the two clauses each rescue exactly their design target and break nothing — landable as a zero-cost prompt refinement if desired (net +2 on residual), but the residual 3 refusal failures are honest underdetermination (gold assumes an inference the evidence doesn't force), which no reader-side clause can fix without hallucination risk. Recommendation: land the clauses opportunistically (they're free and each earned its keep), accept the 3 as floor noise.
+
+Artifacts: `consol_answer.py`, `answers_consol.jsonl`, `metrics_consol.json`, `consol_ev/`.
+
+---
+
+# M2 — Typed-event record representation (design draft, no code)
+
+## Motivation
+
+Three consecutive refutations all root in flat-text records: answer-side aggregation (net −8pp), ingest-side enum marking (2/8 + collateral), haystack/profile-section variants. Enumeration, temporal composition, and cross-session co-reference all fail because the record substrate is unstructured prose — every downstream consumer re-derives structure from text, lossily and inconsistently.
+
+## Schema
+
+```python
+# Typed record (stored on TemporalGraph vertex/edge payload)
+{
+  "verb": "bought|viewed|attended|made|used|spent|lent|returned|plans|owns|...",
+  "object": "canonical item name",        # entity-id or normalized string
+  "quantity": 30, "unit": "minutes|USD|count|...",
+  "actor": "user|assistant|<named entity>",
+  "when_abs": "2023-05-20",               # resolved at ingest via session date
+  "when_rel": "last Wednesday",           # verbatim, kept for audit
+  "modifiers": {"location": ..., "with": ..., "source": ...},
+  "provenance": "session_id:turn_idx",    # citable
+  "text": "the original sentence <=25w"   # human-readable fallback
+}
+```
+
+## Where it lives
+
+- `TemporalGraph.hist[slot] → [typed_record, ts, kind, about, rid]` — same edge structure, richer payload (backwards compatible: `text` field renders like today's value for non-typed consumers).
+- Ingest emits typed records directly (extractor already produces structured JSON — the schema just becomes first-class); VERIFY_SYS audit unchanged.
+- Profile render consumes typed records (grouping by verb/entity is free).
+
+## What it buys deterministically
+
+- **Enumeration**: `SELECT object WHERE verb IN (bought,viewed,...) AND when_abs IN window` — counting is a grep, not a recall task. Fixes the ~5-question enumeration floor honestly.
+- **Temporal composition**: all anchors absolute at write time; intervals are arithmetic on fields.
+- **Co-reference**: `object` normalized to entity ids at ingest (aliases table exists — `asset.aliases`); same entity → same id, no cross-session dup frames.
+- **Retrieval**: typed edges index by verb/object/entity — pick=50 becomes field-filtered, not semantic guessing.
+
+## Migration path for 150q
+
+1. Re-ingest 150 models with typed extractor (drop-in: same LLM, stricter schema) — verify+yield_guard stay.
+2. Backfill option: sidecar typed tables (the `enum_rows/` prototype is a weak version — a *typed* pass with verb/quantity fields), no model rewrite.
+3. Answer side: enumeration → deterministic ops on typed edges; everything else → existing channels reading `text` fallback.
+
+## Risks / open questions
+
+- Schema-fill reliability moves the recall problem one level down (missing `object` normalization = same co-ref bug); mitigation: verbatim `text` + provenance always kept, typed fields additive.
+- Verb taxonomy coverage — open-ended lives need an extensible verb set + `other` escape, or the schema itself becomes the loss.
+- Cost: typed extraction is a slightly bigger ingest prompt; verify pass already exists to audit coverage.
+- Non-enumerative questions get near-zero benefit — the payoff is concentrated in the ~3-5pp residual + making profile render/retrieval structurally cheaper.
