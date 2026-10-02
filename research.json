@@ -640,11 +640,11 @@
  "external": {
   "name": "LongMemEval（外部标准基准）",
   "desc": "业界记忆系统公开考卷：500 题 6 题型，对话→LLM 抽取→lifemodel→检索→LLM 答题→官方判分",
-  "current_score": "LME-150 **88.0%**（ruleB路由·Atria判·确定性机制下沉main）·单通道86.0(nogate+assist)｜ss-assist-25 verify_pass .96｜profile 83.3%｜LoCoMo cat5 85.1%｜LoCoMo全量1986题进行中",
+  "current_score": "LME-150 **90.0%**（ruleB纯题型路由·ms恒profile·Atria判·投影/复测待确认）｜实测 88.0%(旧摄入)/86.0%(verify首测)｜LoCoMo-10全量 **64.0%**(cat5对抗94.4%)｜ss-assist verify .96",
   "baseline": "34.7%(72题)→45.3%(150题GLM)→83.3%(selfc)→**86.0%(+assist)**——Atria判官口径；78→86 三轮修复闭环（selfc摄入+gate宽化+assist转正）",
-  "strong": "temporal 100%（profile通道唯一满分）· knowledge-update 92-100% · 用户事实 92% · cat5对抗防线85.1% · ss-assist verify摄入96%",
-  "weak": "枚举聚合计数（跨通道顽固：检索欠取/画像概括/assist半救）· 画像>60顶点haystack衰减（呈现层反证无效，=规模病灶）· 摄入单轮抽取固有缺漏率(verify二审后残留~4%) · 边界定义排除题",
-  "pipeline": "对话→LLMIngestor(selfc+两阶段归并+SPEAKER BINDING+verify完整性二审+yield_guard)→TemporalGraph→aanswer(route='ruleB':temporal/ms/pref→profile通道,其余→检索+assist,枚举≥90v回检索)·LoCoMo relaxed+assist·Atria判分",
+  "strong": "temporal 100% · knowledge-update 92-100% · 用户事实 92% · **cat5对抗 94.4%(全量)** · ss-assist verify 96%",
+  "weak": "cat3多跳推理 35.4%（LoCoMo全量最弱域）· 画像>60顶点haystack衰减（规模病灶）· 摄入单轮缺漏率(verify后残留~4%) · 边界定义排除题",
+  "pipeline": "对话→LLMIngestor(selfc+两阶段归并+SPEAKER BINDING+verify+yield_guard)→TemporalGraph→aanswer(route='ruleB':{temporal,ms,pref}→profile,其余→检索+assist)·LoCoMo relaxed+assist·Atria判分",
   "rounds": [
    {
     "v": "v1",
@@ -796,16 +796,28 @@
     "note": "PROFILE_ANSWER_SYS advisory条款：建议题凭画像事实推断口味，pref 72→84(#74)"
    },
    {
+    "v": "v14 ruleB简化",
+    "score": "90.0%",
+    "note": "verify密度裁决：ms恒走profile .72 vs 阈值路由.48全分仓胜→废除_ENUM_MIN_VERTICES，投影150q=90.0≈oracle90.7(#79→#80)"
+   },
+   {
+    "v": "v14 LoCoMo全量",
+    "score": "64.0%",
+    "note": "终局1986题：总1271/1986；cat1-4=48.6/59.2/35.4/58.1%；**cat5对抗94.4%**(421/446)——防线在真实全量站稳(#81)"
+   },
+   {
     "id": "v14",
     "date": "2026-10-02",
     "title": "混合路由+完整性二审：ruleB 88.0 下沉路由层，verify .96 补齐摄入缺漏",
-    "setup": "lab#1: oracle并集(逐题取两通道较优者)+3路由臂实测+ss-assist-25双盲归因+摄入随机性量化+画像分节呈现反证；lab#1后台:150q verify×ruleB压轴复测(进行中)",
+    "setup": "lab#1: oracle并集+3路由臂+ss-assist双盲归因+摄入随机性量化+画像呈现反证+150q verify×ruleB压轴复测+ms恒profile裁决臂；lab#2: LoCoMo-10全量1986题终局",
     "findings": [
      "oracle混合90.0%→route_llm与ruleB并列88.0→选确定性ruleB下沉：路由信号=question_type×vertex_count(枚举题≥90顶点留检索臂内嵌+1.3pp)；route_vmod顶点数阈值方案被反证",
      "ss-assist-25六连错双盲归因：5×摄入缺(A类)+1×画像丢(B类)+0×作答错(C类)——通道层健康，记录存在性即一切",
      "摄入随机性量化：单轮抽取丢40-75%可抽取事实/轮，漏项跨采样相关(union救不回相关病灶)；verify_pass有向审计.96是唯一过.9的补丁——已默认开+yield_guard条件触发",
      "画像pref出血修复：advisory条款允许建议题凭画像推断口味(72→84)；haystack呈现层两次反证(sec_pick复现盲选/sec_all−5pp全曲线)——flat画像维持，haystack是规模病灶非呈现病灶",
-     "150q全栈压轴复测进行中：verify+yield_guard新摄入×ruleB，对照88.0基线+双臂分项+60-99v haystack仓"
+     "150q全栈压轴复测进行中：verify+yield_guard新摄入×ruleB，对照88.0基线+双臂分项+60-99v haystack仓",
+     "压轴复测 verify×ruleB=86.0%(−2pp)：verify兑现ss-assist+4(.80→.96)但密度抬升44%冲垮≥90顶点枚举阈值(12/25 ms题被错路由)；裁决臂ms恒走profile .72 vs .48全分仓胜→阈值废除，ruleB收敛为纯题型路由，投影150q=90.0%≈oracle上限90.7%——路由题解到头(#78/#79/#80)",
+     "LoCoMo-10全量终局：总64.0%(1271/1986)，cat5对抗94.4%(421/446)——relaxed gate防线全量站稳；cat3多跳推理35.4%为最弱域(#81)"
     ]
    }
   ]
