@@ -1,0 +1,48 @@
+[1/38] gpt4_2655b836 v=36 prof=5522B dump=7452B
+[2/38] gpt4_93159ced v=35 prof=3795B dump=6702B
+[3/38] 89941a93 v=65 prof=6301B dump=8980B
+truncated at cap; continuing (cont #1, 3121 chars so far)
+llm call failed (attempt 1/8): empty completion (finish_reason=stop, data_events=410)
+[4/38] 6071bd76 v=46 prof=7700B dump=9020B
+[5/38] 38146c39 v=26 prof=3423B dump=4014B
+[6/38] 6ae235be v=0 prof=329B dump=18B
+[7/38] 71a3fd6b v=12 prof=1824B dump=1873B
+[8/38] c960da58 v=21 prof=2814B dump=3264B
+truncated at cap; continuing (cont #1, 3898 chars so far)
+llm call failed (attempt 1/8): empty completion (finish_reason=stop, data_events=1078)
+[9/38] gpt4_2487a7cb v=33 prof=12400B dump=12193B
+[10/38] gpt4_2d58bcd6 v=21 prof=5887B dump=11741B
+[11/38] ce6d2d27 v=63 prof=7187B dump=9907B
+[12/38] e493bb7c v=28 prof=5420B dump=5358B
+truncated; retrying max_tokens=16384
+[13/38] d24813b1 v=27 prof=5718B dump=7304B
+[14/38] 7e00a6cb v=3 prof=2813B dump=2132B
+[15/38] 2bf43736 v=9 prof=3055B dump=3003B
+[16/38] 3b6f954b v=24 prof=3698B dump=4186B
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[17/38] 2c63a862 v=28 prof=4660B dump=5282B
+truncated at cap; continuing (cont #1, 4855 chars so far)
+[18/38] c8090214 v=32 prof=8371B dump=8510B
+[19/38] 031748ae v=75 prof=10379B dump=12771B
+[20/38] 35a27287 v=17 prof=5637B dump=6000B
+[21/38] d6233ab6 v=22 prof=4789B dump=5099B
+[22/38] fea54f57 v=16 prof=3852B dump=4649B
+[23/38] 51a45a95 v=29 prof=3425B dump=4754B
+[24/38] af8d2e46 v=23 prof=4833B dump=4818B
+[25/38] gpt4_0b2f1d21 v=34 prof=7518B dump=8674B
+[26/38] 830ce83f v=27 prof=5657B dump=6097B
+[27/38] 41698283 v=28 prof=3980B dump=4460B
+[28/38] 54026fce v=12 prof=1734B dump=2129B
+[29/38] 7161e7e2 v=33 prof=2744B dump=3287B
+[30/38] 58470ed2 v=13 prof=1848B dump=2051B
+[31/38] 6f9b354f v=26 prof=3947B dump=3636B
+[32/38] 75499fd8 v=20 prof=4807B dump=4569B
+[33/38] b5ef892d v=128 prof=14895B dump=21833B
+[34/38] aae3761f v=56 prof=9140B dump=9896B
+[35/38] gpt4_a56e767c v=22 prof=6601B dump=13584B
+truncated; retrying max_tokens=16384
+[36/38] 28dc39ac v=57 prof=16215B dump=21482B
+truncated at cap; continuing (cont #1, 8959 chars so far)
+[37/38] 88432d0a v=81 prof=10481B dump=13249B
+truncated at cap; continuing (cont #1, 4445 chars so far)
+[38/38] d682f1a2 v=100 prof=15983B dump=18650B

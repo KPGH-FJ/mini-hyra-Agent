@@ -1,0 +1,2 @@
+llm call failed (attempt 1/8): HTTP Error 502: Bad Gateway
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests

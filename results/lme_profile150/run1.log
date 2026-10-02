@@ -1,0 +1,45 @@
+[1/38] 0bb5a684 v=33 prof=6417B dump=9450B
+truncated at cap; continuing (cont #1, 3394 chars so far)
+[2/38] b9cfe692 v=31 prof=10058B dump=10492B
+[3/38] a1eacc2a v=27 prof=6634B dump=7076B
+[4/38] 75832dbd v=0 prof=380B dump=18B
+[5/38] 505af2f5 v=26 prof=3563B dump=4187B
+[6/38] f523d9fe v=10 prof=1375B dump=1585B
+[7/38] e47becba v=17 prof=5064B dump=7793B
+[8/38] 66f24dbb v=10 prof=1849B dump=1418B
+[9/38] 08f4fc43 v=40 prof=6290B dump=7085B
+truncated; retrying max_tokens=16384
+[10/38] gpt4_4edbafa2 v=32 prof=13164B dump=15734B
+[11/38] 184da446 v=42 prof=9205B dump=13356B
+[12/38] 0edc2aef v=17 prof=6739B dump=6866B
+[13/38] 75f70248 v=32 prof=4226B dump=5253B
+[14/38] 0e5e2d1a v=11 prof=2148B dump=2268B
+[15/38] 118b2229 v=13 prof=3361B dump=3363B
+[16/38] ad7109d1 v=67 prof=6995B dump=9299B
+truncated; retrying max_tokens=16384
+[17/38] gpt4_5dcc0aab v=65 prof=11897B dump=17347B
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+[18/38] 6aeb4375 v=33 prof=5845B dump=11342B
+[19/38] f9e8c073 v=46 prof=10780B dump=12365B
+[20/38] caf03d32 v=20 prof=3483B dump=3748B
+[21/38] a89d7624 v=14 prof=4754B dump=5574B
+[22/38] 488d3006 v=13 prof=2517B dump=2105B
+[23/38] 6ade9755 v=16 prof=4051B dump=3856B
+[24/38] 6b168ec8 v=9 prof=2546B dump=2196B
+[25/38] a3838d2b v=97 prof=12712B dump=20254B
+[26/38] 71315a70 v=88 prof=13571B dump=14907B
+llm call failed (attempt 1/8): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/8): HTTP Error 429: Too Many Requests
+[27/38] 5a4f22c0 v=63 prof=8821B dump=14126B
+[28/38] 09d032c9 v=23 prof=6652B dump=6303B
+[29/38] 4c36ccef v=5 prof=3157B dump=2335B
+[30/38] 8aef76bc v=21 prof=2513B dump=2839B
+[31/38] 7527f7e2 v=29 prof=3730B dump=3986B
+[32/38] 0a995998 v=45 prof=6014B dump=7254B
+[33/38] e831120c v=38 prof=4421B dump=5385B
+[34/38] gpt4_f2262a51 v=45 prof=6484B dump=9121B
+[35/38] 6cb6f249 v=42 prof=9982B dump=11221B
+[36/38] gpt4_2f8be40d v=99 prof=11971B dump=16228B
+[37/38] 80ec1f4f v=32 prof=5446B dump=8676B
+truncated at cap; continuing (cont #1, 5415 chars so far)
+[38/38] 7024f17c v=61 prof=9096B dump=9836B

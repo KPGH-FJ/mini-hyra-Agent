@@ -1,0 +1,34 @@
+{
+  "n": 5,
+  "accuracy": 1.0,
+  "by_type": {
+    "single-session-assistant": 1.0
+  },
+  "rows": [
+    {
+      "question_id": "1d4da289",
+      "question_type": "single-session-assistant",
+      "correct": true
+    },
+    {
+      "question_id": "58470ed2",
+      "question_type": "single-session-assistant",
+      "correct": true
+    },
+    {
+      "question_id": "6ae235be",
+      "question_type": "single-session-assistant",
+      "correct": true
+    },
+    {
+      "question_id": "8752c811",
+      "question_type": "single-session-assistant",
+      "correct": true
+    },
+    {
+      "question_id": "89527b6b",
+      "question_type": "single-session-assistant",
+      "correct": true
+    }
+  ]
+}
