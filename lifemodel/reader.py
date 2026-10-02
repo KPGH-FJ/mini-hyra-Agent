@@ -496,15 +496,16 @@ async def aanswer(model, llm, question: str, qdate: str,
     (premise_expected=false) and synthesis over fully-bound components
     (synthesis_needed=true), while keeping the anti-splice / anti-
     fabrication defense for factual premises.
-    premise_check="grounded" (LoCoMo-10 measured: cat3 +10.4pp vs
-    relaxed, cat5 sentinel 88.4% vs 92.0% — residual cost confined to
-    confident inference tails the entailment clause still lets
-    through) additionally admits grounded inference: when atoms are
-    unbound but the question's entities have bound records, the
-    answerer states the fact is unrecorded and infers from the bound
-    records instead of abstaining outright; concrete inferred values
-    are allowed only when a bound record's content directly entails
-    them.
+    premise_check="grounded" (LoCoMo-10 measured, 3x majority-judged:
+    cat3 +6.3pp and cat5 sentinel 92.9% vs 92.0% baseline — defense
+    fully preserved; an entailment-gated variant allowing concrete
+    inferred values reached cat3 +10.4pp but only 87.5% cat5, a net
+    loss of ~17 questions across both axes) additionally admits
+    grounded inference: when atoms are unbound but the question's
+    entities have bound records, the answerer states the fact is
+    unrecorded and infers only from bound records instead of
+    abstaining outright, never asserting a concrete value for the
+    missing slot.
 
     assist adds a candidate-extraction stage before answering: the
     answerer receives a deterministically deduped/sorted/counted item
@@ -572,13 +573,12 @@ async def aanswer(model, llm, question: str, qdate: str,
             f"{missing or 'the asked fact'}. Answer by grounded "
             "inference from the records above: state plainly that the "
             "specific fact is not recorded, then give the best-"
-            "supported inference. You may state a concrete inferred "
-            "value ONLY when it follows directly from content in a "
-            "bound record (e.g. a named place or entity in a record "
-            "determines the answer); never supply a name, place, date, "
-            "count or object the records give no basis for — abstain "
-            "instead. Never present an inference as a recorded "
-            "fact.\n\n")
+            "supported inference — but NEVER assert a concrete value "
+            "for the missing slot (no invented names, places, dates, "
+            "counts or objects); qualify every inference to what the "
+            "bound records actually support, or abstain if nothing "
+            "supports an answer. Never present an inference as a "
+            "recorded fact.\n\n")
     prompt = (f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\n{assist_block}"
               f"{ground_block}QUESTION: {question}\n\nAnswer:")
     resp = (await llm.complete(ANSWER_SYS, prompt)).strip()
