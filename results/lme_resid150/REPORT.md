@@ -66,4 +66,26 @@ Scope: all 15 judged-wrong questions from the verify150 batch — routeB non-ms 
 
 ## Reproduce
 
-Evidence bundles: `/tmp/resid_ev/*.json` (15 files; question, gold, our response, all records, rendered profile, channel/nv). Classification script + lesion table: `lesions.json` in this dir.
+Evidence bundles: `evidence/` (15 files; question, gold, our response, all records, rendered profile, channel/nv). Lesion table: `lesions.json`.
+
+---
+
+# Addendum — Deterministic aggregation arm (answers-only)
+
+Two-stage arm: LLM extracts a candidate-item table (`{item,date,evidence}` rows) → program dedups/sorts/counts → LLM answers itemized+total (`agg_answer.py`). Tested on all 15 residuals, then ms-25 full slice.
+
+## Results
+
+**Residual-15: rescued 5/15** — d682f1a2 (3 services incl. Domino's), gpt4_7fce9456 (4 properties excluding target), dd2973ad (2AM temporal join), 8aef76bc + 38146c39 (judge-variance flips, not mechanism). On the 8 enumeration lesions specifically: **3/8 rescued**. Still fails where the lesion is in stage-1 extraction itself: 0a995998 (still emitted 2 candidates — sweater never made the table), 88432d0a (window interpretation unchanged), 7024f17c (boundary unchanged), gpt4_2f8be40d (deduped correctly then over-refused: "only 1 wedding confirmed"), 982b5123 (temporal arithmetic — table doesn't compose offsets). On non-enumeration questions the table format is harmful: 0edc2aef produced 0 candidates → hard refusal; advisory questions get no purchase from an item table.
+
+**ms-25 full slice: .64 (16/25) vs profile baseline .72 — net −2, REFUTED.**
+
+Flips +2/−4. Rescued: dd2973ad, gpt4_7fce9456. Broke: 6d550036 (project count), c4a1ceb8 (citrus types), gpt4_15e38248 (furniture), gpt4_d84a3211 (money total) — **all four were "how many" questions profile already answered correctly**. Even narrow enumeration-gating doesn't save it: the regressions ARE enumeration questions.
+
+## Diagnosis
+
+The lesion was never "LLM can't count" — it is "LLM can't enumerate exhaustively over a 100-250-record list". Deterministic counting formalizes stage-1's misses instead of fixing them; the bottleneck is upstream extraction recall, which has the same haystack instability as plain answering plus new failure modes (over-literal matching, non-item questions forced into item tables). An answer-side aggregation layer cannot fix an upstream recall problem — the enumerable structure would have to be marked at ingest time (typed enumerable fields/events) rather than reconstructed at answer time.
+
+**Verdict: do not land.** Fix for enumeration goes ingest-side (event-typed records) or accept ~5-question residual as the honest floor of this stack.
+
+Artifacts: `agg_answer.py`, `answers_agg{,_ms25}.jsonl`, `metrics_agg{,_ms25}.json`, `ms_ev/` (ms-25 evidence inputs).

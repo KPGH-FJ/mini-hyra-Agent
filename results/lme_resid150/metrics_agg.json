@@ -1,0 +1,88 @@
+{
+  "n": 15,
+  "accuracy": 0.3333333333333333,
+  "by_type": {
+    "single-session-preference": 0.25,
+    "single-session-user": 0.0,
+    "multi-session": 0.42857142857142855,
+    "single-session-assistant": 1.0,
+    "temporal-reasoning": 0.0
+  },
+  "rows": [
+    {
+      "question_id": "0edc2aef",
+      "question_type": "single-session-preference",
+      "correct": false
+    },
+    {
+      "question_id": "3b6f954b",
+      "question_type": "single-session-user",
+      "correct": false
+    },
+    {
+      "question_id": "35a27287",
+      "question_type": "single-session-preference",
+      "correct": false
+    },
+    {
+      "question_id": "0a995998",
+      "question_type": "multi-session",
+      "correct": false
+    },
+    {
+      "question_id": "09d032c9",
+      "question_type": "single-session-preference",
+      "correct": false
+    },
+    {
+      "question_id": "51a45a95",
+      "question_type": "single-session-user",
+      "correct": false
+    },
+    {
+      "question_id": "8aef76bc",
+      "question_type": "single-session-assistant",
+      "correct": true
+    },
+    {
+      "question_id": "7024f17c",
+      "question_type": "multi-session",
+      "correct": false
+    },
+    {
+      "question_id": "d682f1a2",
+      "question_type": "multi-session",
+      "correct": true
+    },
+    {
+      "question_id": "gpt4_2f8be40d",
+      "question_type": "multi-session",
+      "correct": false
+    },
+    {
+      "question_id": "dd2973ad",
+      "question_type": "multi-session",
+      "correct": true
+    },
+    {
+      "question_id": "38146c39",
+      "question_type": "single-session-preference",
+      "correct": true
+    },
+    {
+      "question_id": "gpt4_7fce9456",
+      "question_type": "multi-session",
+      "correct": true
+    },
+    {
+      "question_id": "88432d0a",
+      "question_type": "multi-session",
+      "correct": false
+    },
+    {
+      "question_id": "982b5123",
+      "question_type": "temporal-reasoning",
+      "correct": false
+    }
+  ]
+}
