@@ -102,6 +102,31 @@ party's words. Do NOT add or drop records and do NOT change
 slot/value/text — fix attribution only. Keep the array order.
 Return ONLY the corrected JSON array of records."""
 
+YIELD_SYS = """You extract the ASSISTANT side of a chat session that a
+previous pass already covered for the user. Capture ONLY the
+assistant's substantive contributions — things it produced,
+recommended, suggested, designed, explained, or stated about itself.
+Each record: {"slot": short_snake_name, "value": the content —
+verifiable details, named entities, numbers, quoted phrases —
+"about": whom it concerns (null if the assistant itself), "kind":
+"statement", "source": "assistant", "text": "<=160 char quote or
+summary"}.
+Decompose artifacts (tables, plans, lists, drafts) row by row — one
+record per row/item. Keep quotable phrases verbatim inside value.
+Return ONLY a JSON array of records."""
+
+VERIFY_SYS = """You audit extraction completeness for a chat session.
+You get the session and the records already extracted from it. Re-read
+the session line by line and emit ONLY records for facts that are NOT
+yet captured: skipped attributes, entities, numbers, quoted phrases,
+process/step descriptions, image descriptions, and assistant-produced
+content (recommendations, artifact rows, advice).
+Each record: {"slot": short_snake_name, "value": the content,
+"about": whom it concerns, "kind": "statement", "source": who said
+it, "text": "<=160 char quote or summary"}.
+Do NOT re-emit anything already extracted. Return ONLY a JSON array of
+the MISSED records (empty array if nothing was missed)."""
+
 _SLOT_TOKEN_RE = re.compile(r"[a-z0-9]+")
 
 
@@ -160,13 +185,24 @@ class LLMIngestor:
     (hyra.llm.OpenAICompatLLM, GLMCompat, ...).
     """
 
-    def __init__(self, llm, day_of=None, audit=False):
+    def __init__(self, llm, day_of=None, audit=False,
+                 yield_guard=True, verify=True):
         self.llm = llm
         # day_of(date_or_label) -> int day; default = caller supplies ints
         self.day_of = day_of or (lambda d: int(d))
         # audit=True adds a per-session attribution re-check pass
         # (+1 LLM call/session; named-person chats only)
         self.audit = audit
+        # yield_guard rescues the silent whole-side loss: a session that
+        # HAS assistant turns but produced zero assistant-sourced records
+        # gets one focused re-extract (+1 call, only when it fires).
+        self.yield_guard = yield_guard
+        # verify adds a per-session completeness audit (+1 call/session):
+        # single-round extraction stochastically drops ~40-75% of
+        # extractable facts, and the misses correlate across resamples —
+        # a directed "what did you miss" pass beats re-sampling
+        # (ss-assist lesions: .96 vs .88 union / .80 flat, lab-verified).
+        self.verify = verify
         self.n_extracted = 0
 
     async def _aaudit(self, turns: list, recs: list, ents: list) -> list:
@@ -262,6 +298,28 @@ class LLMIngestor:
                 prompt[:-len("Records JSON array:")]
                 + nudge + "\n\nRecords JSON array:")
             recs = _json_list(text)
+        if self.yield_guard and recs:
+            asst_chars = sum(len(t["content"]) for t in turns
+                             if t.get("role") == "assistant")
+            asst_recs = [r for r in recs if isinstance(r, dict)
+                         and str(r.get("source", "")).strip().lower()
+                         == "assistant"]
+            if asst_chars >= 200 and not asst_recs:
+                recs = recs + [r for r in _json_list(
+                    await self.llm.complete(
+                        YIELD_SYS,
+                        f"Session date: {date_label}\n\n{body}\n\n"
+                        "Assistant items JSON array:"))
+                    if isinstance(r, dict)]
+        if self.verify and recs:
+            recs = recs + [r for r in _json_list(
+                await self.llm.complete(
+                    VERIFY_SYS,
+                    f"Session date: {date_label}\n\nSESSION:\n{body}\n\n"
+                    "ALREADY EXTRACTED:\n"
+                    + json.dumps(recs, ensure_ascii=False)
+                    + "\n\nMissed records JSON array:"))
+                if isinstance(r, dict)]
         day = self.day_of(date_label)
         ents = self.entity_catalog(model) if model is not None else []
         raw_slots = [r["slot"] for r in recs
