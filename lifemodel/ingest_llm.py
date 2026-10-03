@@ -204,6 +204,10 @@ class LLMIngestor:
         # (ss-assist lesions: .96 vs .88 union / .80 flat, lab-verified).
         self.verify = verify
         self.n_extracted = 0
+        # telemetry: guard/verify fire rates feed cost calibration
+        self.stats = {"sessions": 0, "empty_retries": 0,
+                      "yield_guard_fires": 0, "yield_recs": 0,
+                      "verify_fires": 0, "verify_recs": 0}
 
     async def _aaudit(self, turns: list, recs: list, ents: list) -> list:
         """Re-align every record's source/about to the named utterance
@@ -288,7 +292,9 @@ class LLMIngestor:
         # A substantive session yielding zero records is almost always a
         # transient extraction failure, not an empty session — retry once
         # with an explicit nudge.
+        self.stats["sessions"] += 1
         if not recs and len(body) > 500:
+            self.stats["empty_retries"] += 1
             nudge = ("\n\nYou returned an empty array before. Re-read the "
                      "session carefully — there IS personal information "
                      "here. List every fact, preference, plan, event, or "
@@ -305,14 +311,17 @@ class LLMIngestor:
                          and str(r.get("source", "")).strip().lower()
                          == "assistant"]
             if asst_chars >= 200 and not asst_recs:
-                recs = recs + [r for r in _json_list(
+                extra = [r for r in _json_list(
                     await self.llm.complete(
                         YIELD_SYS,
                         f"Session date: {date_label}\n\n{body}\n\n"
                         "Assistant items JSON array:"))
                     if isinstance(r, dict)]
+                self.stats["yield_guard_fires"] += 1
+                self.stats["yield_recs"] += len(extra)
+                recs = recs + extra
         if self.verify and recs:
-            recs = recs + [r for r in _json_list(
+            missed = [r for r in _json_list(
                 await self.llm.complete(
                     VERIFY_SYS,
                     f"Session date: {date_label}\n\nSESSION:\n{body}\n\n"
@@ -320,6 +329,10 @@ class LLMIngestor:
                     + json.dumps(recs, ensure_ascii=False)
                     + "\n\nMissed records JSON array:"))
                 if isinstance(r, dict)]
+            if missed:
+                self.stats["verify_fires"] += 1
+                self.stats["verify_recs"] += len(missed)
+                recs = recs + missed
         day = self.day_of(date_label)
         ents = self.entity_catalog(model) if model is not None else []
         raw_slots = [r["slot"] for r in recs
