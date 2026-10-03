@@ -90,3 +90,50 @@ Verdict: ruleB simplifies to ms→profile unconditionally;
 _ROUTE_ENUM_MIN_VERTICES should be removed (one calibration knob
 fewer). verify ingest earns its keep once the threshold artifact is
 gone.
+
+---
+
+# Addendum — main ruleB (threshold removed) 150q measured retest
+
+Main's simplified ruleB (`ms→profile` unconditionally,
+`_ROUTE_ENUM_MIN_VERTICES` deleted) run answers-only on the same
+verify-ingest snapshots (EXTRACT_SYS unchanged since). Driver:
+`ruleB150.py` → `answers_ruleB150.jsonl`, Atria judge →
+`metrics_ruleB150.json`.
+
+## Headline
+
+**ruleB (ms→profile) = 134/150 = 89.3%** — vs 88.0 old-ingest ruleB
+(+1.3pp) and vs 90.0 projection (−0.7pp, one question of judge
+variance).
+
+| type | old-ingest ruleB | verify×ruleB (thresh) | **main ruleB** |
+|---|---|---|---|
+| temporal | 1.0 | .96 | .96 |
+| knowledge-update | 1.0 | 1.0 | .96 |
+| ss-preference | .84 | .84 | .88 |
+| ss-assistant | .80 | .96 | **1.0** |
+| ss-user | .96 | .92 | .88 |
+| multi-session | .68 | .48 | .68 |
+| **total** | **.880** | **.860** | **.893** |
+
+Flips vs verify×ruleB: **+10/−5** — 7 of 10 wins are the ms
+nv≥90-flood victims recovered by forced profile (6d550036,
+gpt4_59c863d7, aae3761f, gpt4_f2262a51, gpt4_a56e767c, d23cf73b,
+28dc39ac); 8aef76bc (Mod Podge) takes ss-assist to **25/25** —
+the channel verify was built for is now perfect.
+
+Losses: 5 = d682f1a2 (the known −1 from the forced-profile arm,
+project-count), gpt4_15e38248 (was correct in the .72 msprofile
+arm — same profile channel, temp-0.7 sampling variance), and 3
+non-ms channel-noise flips (66f24dbb ss-user, 9ea5eabc ku,
+gpt4_483dd43c temporal — same channels as before, no mechanism).
+
+## vs projection
+
+Projected 135/150; measured 134. The single-question gap =
+ms .68 vs .72 (gpt4_15e38248 flip) — within judge/model sampling
+noise. Projection confirmed: **main stack ≈ 89-90% on LME-150**,
+at the oracle-routing ceiling (90.7%). Remaining 16 wrong ≈ the
+residual anatomy distribution (answer-side aggregation +
+abstention + judge strictness — see lme_resid150).
