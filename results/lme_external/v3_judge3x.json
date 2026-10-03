@@ -1,0 +1,416 @@
+{
+ "v3:c0_q156": {
+  "draws": [
+   false,
+   false,
+   false
+  ],
+  "majority": false,
+  "orig": false
+ },
+ "v3:c0_q159": {
+  "draws": [
+   true,
+   true,
+   true
+  ],
+  "majority": true,
+  "orig": true
+ },
+ "v3:c0_q161": {
+  "draws": [
+   false,
+   false,
+   false
+  ],
+  "majority": false,
+  "orig": false
+ },
+ "v3:c0_q166": {
+  "draws": [
+   true,
+   true,
+   true
+  ],
+  "majority": true,
+  "orig": true
+ },
+ "v3:c0_q167": {
+  "draws": [
+   false,
+   true,
+   false
+  ],
+  "majority": false,
+  "orig": false
+ },
+ "v3:c0_q173": {
+  "draws": [
+   false,
+   false,
+   false
+  ],
+  "majority": false,
+  "orig": false
+ },
+ "v3:c0_q184": {
+  "draws": [
+   false,
+   false,
+   false
+  ],
+  "majority": false,
+  "orig": false
+ },
+ "v3:c0_q186": {
+  "draws": [
+   false,
+   false,
+   false
+  ],
+  "majority": false,
+  "orig": false
+ },
+ "v3:c0_q188": {
+  "draws": [
+   false,
+   false,
+   false
+  ],
+  "majority": false,
+  "orig": false
+ },
+ "v3:c0_q190": {
+  "draws": [
+   false,
+   true,
+   false
+  ],
+  "majority": false,
+  "orig": false
+ },
+ "v3:c0_q195": {
+  "draws": [
+   false,
+   false,
+   false
+  ],
+  "majority": false,
+  "orig": false
+ },
+ "v3:c1_q91": {
+  "draws": [
+   true,
+   true,
+   true
+  ],
+  "majority": true,
+  "orig": true
+ },
+ "v3:c1_q95": {
+  "draws": [
+   false,
+   false,
+   false
+  ],
+  "majority": false,
+  "orig": false
+ },
+ "v3:c1_q96": {
+  "draws": [
+   true,
+   true,
+   true
+  ],
+  "majority": true,
+  "orig": true
+ },
+ "v3:c1_q97": {
+  "draws": [
+   true,
+   true,
+   true
+  ],
+  "majority": true,
+  "orig": true
+ },
+ "v3:c1_q99": {
+  "draws": [
+   true,
+   true,
+   true
+  ],
+  "majority": true,
+  "orig": true
+ },
+ "v3:c2_q154": {
+  "draws": [
+   true,
+   false,
+   false
+  ],
+  "majority": false,
+  "orig": true
+ },
+ "v3:c2_q161": {
+  "draws": [
+   true,
+   true,
+   true
+  ],
+  "majority": true,
+  "orig": true
+ },
+ "v3:c2_q162": {
+  "draws": [
+   false,
+   false,
+   false
+  ],
+  "majority": false,
+  "orig": false
+ },
+ "v3:c2_q167": {
+  "draws": [
+   false,
+   false,
+   true
+  ],
+  "majority": false,
+  "orig": false
+ },
+ "v3:c2_q179": {
+  "draws": [
+   true,
+   true,
+   true
+  ],
+  "majority": true,
+  "orig": true
+ },
+ "v3:c2_q181": {
+  "draws": [
+   true,
+   true,
+   true
+  ],
+  "majority": true,
+  "orig": true
+ },
+ "v3:c2_q186": {
+  "draws": [
+   false,
+   false,
+   false
+  ],
+  "majority": false,
+  "orig": false
+ },
+ "v2:c0_q156": {
+  "draws": [
+   true,
+   true,
+   true
+  ],
+  "majority": true,
+  "orig": true
+ },
+ "v2:c0_q159": {
+  "draws": [
+   true,
+   true,
+   true
+  ],
+  "majority": true,
+  "orig": true
+ },
+ "v2:c0_q161": {
+  "draws": [
+   false,
+   false,
+   false
+  ],
+  "majority": false,
+  "orig": false
+ },
+ "v2:c0_q166": {
+  "draws": [
+   false,
+   false,
+   false
+  ],
+  "majority": false,
+  "orig": false
+ },
+ "v2:c0_q167": {
+  "draws": [
+   false,
+   false,
+   false
+  ],
+  "majority": false,
+  "orig": false
+ },
+ "v2:c0_q173": {
+  "draws": [
+   true,
+   false,
+   true
+  ],
+  "majority": true,
+  "orig": false
+ },
+ "v2:c0_q184": {
+  "draws": [
+   false,
+   false,
+   false
+  ],
+  "majority": false,
+  "orig": false
+ },
+ "v2:c0_q186": {
+  "draws": [
+   true,
+   true,
+   true
+  ],
+  "majority": true,
+  "orig": true
+ },
+ "v2:c0_q188": {
+  "draws": [
+   false,
+   false,
+   false
+  ],
+  "majority": false,
+  "orig": false
+ },
+ "v2:c0_q190": {
+  "draws": [
+   true,
+   true,
+   true
+  ],
+  "majority": true,
+  "orig": true
+ },
+ "v2:c0_q195": {
+  "draws": [
+   true,
+   true,
+   true
+  ],
+  "majority": true,
+  "orig": true
+ },
+ "v2:c1_q91": {
+  "draws": [
+   false,
+   true,
+   false
+  ],
+  "majority": false,
+  "orig": false
+ },
+ "v2:c1_q95": {
+  "draws": [
+   false,
+   false,
+   false
+  ],
+  "majority": false,
+  "orig": false
+ },
+ "v2:c1_q96": {
+  "draws": [
+   true,
+   true,
+   true
+  ],
+  "majority": true,
+  "orig": true
+ },
+ "v2:c1_q97": {
+  "draws": [
+   true,
+   true,
+   true
+  ],
+  "majority": true,
+  "orig": true
+ },
+ "v2:c1_q99": {
+  "draws": [
+   true,
+   true,
+   true
+  ],
+  "majority": true,
+  "orig": true
+ },
+ "v2:c2_q154": {
+  "draws": [
+   true,
+   true,
+   true
+  ],
+  "majority": true,
+  "orig": true
+ },
+ "v2:c2_q161": {
+  "draws": [
+   true,
+   true,
+   true
+  ],
+  "majority": true,
+  "orig": true
+ },
+ "v2:c2_q162": {
+  "draws": [
+   true,
+   true,
+   true
+  ],
+  "majority": true,
+  "orig": true
+ },
+ "v2:c2_q167": {
+  "draws": [
+   true,
+   true,
+   true
+  ],
+  "majority": true,
+  "orig": true
+ },
+ "v2:c2_q179": {
+  "draws": [
+   true,
+   true,
+   true
+  ],
+  "majority": true,
+  "orig": true
+ },
+ "v2:c2_q181": {
+  "draws": [
+   true,
+   true,
+   true
+  ],
+  "majority": true,
+  "orig": true
+ },
+ "v2:c2_q186": {
+  "draws": [
+   false,
+   false,
+   false
+  ],
+  "majority": false,
+  "orig": false
+ }
+}
