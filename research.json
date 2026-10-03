@@ -308,7 +308,7 @@
   "verdict": "双轨推进 · 内部满分 + 外部爬坡",
   "round": "外考攻坚期 · LME-150 90.0%(ruleB) / LoCoMo-10 64.0%(cat5 94.4→92.9 grounded闸)",
   "leader": "LifeStream 197/197 满分 · LME-150 90.0%",
-  "best_evolved": "ruleB 纯题型路由（ms恒profile·投影90.0≈oracle90.7）",
+  "best_evolved": "ruleB 纯题型路由（ms恒profile·实测89.3%站上oracle90.7门口）",
   "remaining": "LME残尾~10%：枚举~5题=表征层上限 · 判官噪声~4 · grounded闸v2已定稿",
   "goal": "下一研究决策点",
   "goal_desc": "待拍板：① M2 typed-record 表征层进化轮（设计稿在#83报告）② GLM 充值恢复双后端 ③ v3.5 verifier硬蕴含核/锚v2粒度对齐（backlog）",
@@ -640,7 +640,7 @@
  "external": {
   "name": "LongMemEval（外部标准基准）",
   "desc": "业界记忆系统公开考卷：500 题 6 题型，对话→LLM 抽取→lifemodel→检索→LLM 答题→官方判分",
-  "current_score": "LME-150 **90.0%**（ruleB纯题型路由·ms恒profile·Atria判·投影/复测待确认）｜实测 88.0%(旧摄入)/86.0%(verify首测)｜LoCoMo-10全量 **64.0%**(cat5对抗94.4%)｜ss-assist verify .96",
+  "current_score": "LME-150 **89.3% 实测**（134/150·ruleB简化路由·Atria判·=投影90.0噪声内）｜实测 88.0%(旧摄入)/86.0%(verify首测)｜LoCoMo-10全量 **64.0%**(cat5对抗94.4%)｜ss-assist verify .96",
   "baseline": "34.7%(72题)→45.3%(150题GLM)→83.3%(selfc)→**86.0%(+assist)**——Atria判官口径；78→86 三轮修复闭环（selfc摄入+gate宽化+assist转正）",
   "strong": "temporal 100% · knowledge-update 92-100% · 用户事实 92% · **cat5对抗 94.4%(全量)** · ss-assist verify 96%",
   "weak": "cat3多跳推理 35.4%（LoCoMo全量最弱域）· 画像>60顶点haystack衰减（规模病灶）· 摄入单轮缺漏率(verify后残留~4%) · 边界定义排除题",
