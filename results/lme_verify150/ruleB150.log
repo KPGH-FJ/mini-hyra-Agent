@@ -1,0 +1,16 @@
+truncated; retrying max_tokens=16384
+truncated at cap; continuing (cont #1, 3060 chars so far)
+truncated; retrying max_tokens=16384
+truncated; retrying max_tokens=16384
+truncated at cap; continuing (cont #1, 1798 chars so far)
+truncated; retrying max_tokens=16384
+truncated; retrying max_tokens=16384
+truncated at cap; continuing (cont #1, 1942 chars so far)
+llm call failed (attempt 1/8): HTTP Error 502: Bad Gateway
+truncated; retrying max_tokens=16384
+truncated; retrying max_tokens=16384
+truncated at cap; continuing (cont #1, 12334 chars so far)
+truncated; retrying max_tokens=16384
+truncated at cap; continuing (cont #2, 64972 chars so far)
+truncated at cap; continuing (cont #1, 4956 chars so far)
+truncated; retrying max_tokens=16384
