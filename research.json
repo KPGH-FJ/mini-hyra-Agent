@@ -1,830 +1,831 @@
 {
- "title": "LifeModel System",
- "tagline": "个人记忆体：授权记录流 → 一份可演化、可删除、可复用的理解资产",
- "modules": [
-  {
-   "id": "M1",
-   "name": "摄入 Ingest",
-   "role": "原始记录 → 规范化事件",
-   "impl": "normalize(): authoritative + 别名解析 + day-序",
-   "status": "done",
-   "score": 158.911,
-   "note": "run_v5 收官 s0095=158.911：时态边 journal + 过滤式摄入；journal 架构被纯净室独立复现（收敛吸引子）",
-   "plain": "原始信息先进来分类：是事实、纠正、传闻还是建议——决定该不该写、写成什么"
-  },
-  {
-   "id": "M2",
-   "name": "表征 Store",
-   "role": "事件 → 理解资产本体",
-   "impl": "TemporalGraph 时态图 (v1)",
-   "status": "done",
-   "score": 96.9954,
-   "note": "P3 r1 获胜家族已回灌：按(主体,槽位)时态边，max-from 查值；5×数据量下探针成本持平（3→5KB）",
-   "plain": "每条信息按“谁说的+关于谁+什么属性”挂到时态图上，像按时间排版的账本"
-  },
-  {
-   "id": "M3",
-   "name": "更新 Update",
-   "role": "新信息如何传导",
-   "impl": "TMS 前提维护 (v2)：drv/rsv 注册表 + _prune 不动点",
-   "status": "done",
-   "score": 111.99,
-   "note": "P3 r2 获胜：supports→premises 解析，每次写后级联失效；forget/纠错传导",
-   "plain": "纠正/删除/撤回进来时，顺藤摸瓜把依赖它的派生事实一起清理掉"
-  },
-  {
-   "id": "M4",
-   "name": "使用 Serve",
-   "role": "探针 → 回答/视图",
-   "impl": "probe-type router + live_bundle 视图 + rvid 引用",
-   "status": "done",
-   "score": 128.97,
-   "note": "M4 语义沉淀 serve router；NL 查询面验证通过；新增时态聚合/前提引用/认知分级路由",
-   "plain": "收到问题去查记忆，按题型组装答案——当前值、历史回溯、证据引用"
-  },
-  {
-   "id": "M5",
-   "name": "控制 Control",
-   "role": "correct / forget / export / revoke",
-   "impl": "journal + 级联清除 + revoke_purpose + forget_range 回滚 + 作用域导出 state(scope)",
-   "status": "done",
-   "score": 159.97,
-   "note": "s0045=140.90：同意域视图撤回 + journal 嵌资产 —— 与本体机制收敛一致",
-   "plain": "管隐私操作：忘了谁、撤了哪个用途、导出哪部分，还能回滚"
-  }
- ],
- "stages": [
-  {
-   "id": "P0",
-   "name": "框架+接口定稿",
-   "status": "done",
-   "desc": "五模块分解，接口冻结"
-  },
-  {
-   "id": "P1",
-   "name": "五模块文献调研",
-   "status": "done",
-   "desc": "m1–m5 纪要入库，4 条接口增量冻结"
-  },
-  {
-   "id": "P2",
-   "name": "v0 骨架 + 评测器",
-   "status": "done",
-   "desc": "lifemodel 包；LifeStream v2（as_of/subject/cascade 探针）"
-  },
-  {
-   "id": "P3",
-   "name": "逐模块进化",
-   "status": "current",
-   "desc": "每轮只开一个模块实现空间，全链路总分裁决",
-   "rounds": [
+  "title": "LifeModel System",
+  "tagline": "个人记忆体：授权记录流 → 一份可演化、可删除、可复用的理解资产",
+  "modules": [
     {
-     "id": "r1",
-     "module": "M2 表征",
-     "status": "done",
-     "result": "获胜家族 = 按(主体,槽位)时态历史；lifemodel v1 = 96.9954 反超全部基线与进化冠军 s0001"
+      "id": "M1",
+      "name": "摄入 Ingest",
+      "role": "原始记录 → 规范化事件",
+      "impl": "normalize(): authoritative + 别名解析 + day-序",
+      "status": "done",
+      "score": 158.911,
+      "note": "run_v5 收官 s0095=158.911：时态边 journal + 过滤式摄入；journal 架构被纯净室独立复现（收敛吸引子）",
+      "plain": "原始信息先进来分类：是事实、纠正、传闻还是建议——决定该不该写、写成什么"
     },
     {
-     "id": "r2",
-     "module": "M3 更新",
-     "status": "done",
-     "result": "获胜 = TMS 前提维护（与事件溯源同质量 112/112，读成本 ~320x 低）；已回灌 lifemodel，22 个 seed 全满分"
+      "id": "M2",
+      "name": "表征 Store",
+      "role": "事件 → 理解资产本体",
+      "impl": "TemporalGraph 时态图 (v1)",
+      "status": "done",
+      "score": 96.9954,
+      "note": "P3 r1 获胜家族已回灌：按(主体,槽位)时态边，max-from 查值；5×数据量下探针成本持平（3→5KB）",
+      "plain": "每条信息按“谁说的+关于谁+什么属性”挂到时态图上，像按时间排版的账本"
     },
     {
-     "id": "r3",
-     "module": "M4 使用",
-     "status": "done",
-     "result": "v4 考题上线（unans/purpose/budget/prov2+密度x4）；serve router 直接沉淀系统，未开实验室轮"
+      "id": "M3",
+      "name": "更新 Update",
+      "role": "新信息如何传导",
+      "impl": "TMS 前提维护 (v2)：drv/rsv 注册表 + _prune 不动点",
+      "status": "done",
+      "score": 111.99,
+      "note": "P3 r2 获胜：supports→premises 解析，每次写后级联失效；forget/纠错传导",
+      "plain": "纠正/删除/撤回进来时，顺藤摸瓜把依赖它的派生事实一起清理掉"
     },
     {
-     "id": "r4",
-     "module": "M1 摄入",
-     "status": "done",
-     "result": "run_v5 打满 100 提交收官：冠军 s0095=158.911，赢在 serve 过滤（探针成本 63KB，同质量便宜 52×）；深史题型仍全 0"
+      "id": "M4",
+      "name": "使用 Serve",
+      "role": "探针 → 回答/视图",
+      "impl": "probe-type router + live_bundle 视图 + rvid 引用",
+      "status": "done",
+      "score": 128.97,
+      "note": "M4 语义沉淀 serve router；NL 查询面验证通过；新增时态聚合/前提引用/认知分级路由",
+      "plain": "收到问题去查记忆，按题型组装答案——当前值、历史回溯、证据引用"
     },
     {
-     "id": "r5",
-     "module": "M5 控制",
-     "status": "done",
-     "desc": "v7.x 考题：revoked/forget_range 回滚/ops×4/部分导出/drvprov/duration/nchange/conf",
-     "result": "获胜 s0045=140.90 measured：consent-scoped 视图撤回 + journal 嵌入资产 + 前提不动点级联 —— 机制与 lifemodel v1 已折叠实现一致（收敛信号）"
-    },
-    {
-     "id": "r6",
-     "module": "M4 使用面",
-     "status": "done",
-     "desc": "serve 面专攻（partial/duration/drvprov/isconf/subject/ops/conf + 深史族）；lab run_v7 W2 在跑",
-     "result": "run_v7 W2 收官 s0040=156.942（+11）：subject/drvprov 破零、探针成本 16KB→2KB；duration/window/before 仍 0"
+      "id": "M5",
+      "name": "控制 Control",
+      "role": "correct / forget / export / revoke",
+      "impl": "journal + 级联清除 + revoke_purpose + forget_range 回滚 + 作用域导出 state(scope)",
+      "status": "done",
+      "score": 159.97,
+      "note": "s0045=140.90：同意域视图撤回 + journal 嵌资产 —— 与本体机制收敛一致",
+      "plain": "管隐私操作：忘了谁、撤了哪个用途、导出哪部分，还能回滚"
     }
-   ]
-  },
-  {
-   "id": "P4",
-   "name": "真实授权数据验证",
-   "status": "todo",
-   "desc": "需单独授权（brief §83）"
-  }
- ],
- "experiment": {
-  "bench": "LifeStream v9 · 90天流 ~205条/seed · 全压强 + 双实体 + 因果操作序 + 冲突侦测 + 历史推理（首值/序/联/absent/窗/跨实体比较）+ 派生复活语义",
-  "probes": "≈195–199（随 v9→v9.1 演进）",
-  "types": [
-   "state",
-   "stale",
-   "prov",
-   "subject",
-   "as_of",
-   "cascade",
-   "derive",
-   "retract",
-   "transfer",
-   "unans",
-   "purpose",
-   "budget",
-   "prov2",
-   "revoked",
-   "ops",
-   "partial",
-   "drvprov",
-   "duration",
-   "nchange",
-   "conf",
-   "isconf",
-   "first",
-   "order",
-   "join",
-   "absent",
-   "window",
-   "xcmp"
   ],
-  "score": "quality − 0.002·KB(asset) − 0.0002·KB(probe) − 0.0002·tokens",
-  "table": [
-   [
-    "lifemodel v1",
-    "TemporalGraph+TMS+serve router+scoped export（系统本体，实体别名读侧聚合+isconf+v9历史推理+派生复活）",
-    195.0,
-    195
-   ],
-   [
-    "s0095 (run_v5·W4 冠军)",
-    "进化解：时态边 journal + 过滤式 serve（探针 63.2KB，同质量比 s0084 便宜 52×）；深史族仍全 0",
-    158.911,
-    197
-   ],
-   [
-    "s0084 (run_v5·W4)",
-    "进化解：时态边 journal + serve 成本工程（v9.1 下 transfer/subject/ops/nchange 近满分，深史族仍 0）——journal 架构被独立纯净室复现，证为收敛吸引子",
-    158.1995,
-    197
-   ],
-   [
-    "s0009 (run_v7·M4)",
-    "进化解：逐型 serve 处理器——8 族满分(first/order/absent/nchange/isconf/xcmp/budget/prov2)，剩余缺口 duration/drvprov/join/window/before",
-    145.959,
-    197
-   ],
-   [
-    "s0096 (run_v7·W4)",
-    "进化解：深史族破零 3/4——window/before/nchange 满分、duration .545；join 仍 0、drvprov 退回 0",
-    166.958,
-    168
-   ],
-   [
-    "s0040 (run_v7·W2)",
-    "进化解：serve 逐型处理器收敛——subject/transfer 满分、drvprov 首破零、探针 2.1KB；深史族 duration/window/before 仍 0",
-    156.942,
-    197
-   ],
-   [
-    "tms",
-    "前提维护基线（内置；range-forget 回滚重建+scoped state；实体探测+isconf+v9历史推理 −14 诚实缺口）",
-    181.0,
-    195
-   ],
-   [
-    "esr",
-    "事件溯源重放基线（day排序+scoped state；实体探测+isconf+v9历史推理 −13 诚实缺口）",
-    182.0,
-    195
-   ],
-   [
-    "raw",
-    "全存（基线；乱序+回滚+无作用域导出三重损失）",
-    107.5,
-    195
-   ],
-   [
-    "ledger",
-    "LWW 平表（基线；乱序+回滚重伤）",
-    87.0,
-    195
-   ],
-   [
-    "rag",
-    "关键词检索（基线）",
-    66.0,
-    195
-   ],
-   [
-    "flat",
-    "平表+全量倾倒 serve（M4 缺乏族）",
-    58.5,
-    195
-   ]
-  ]
- },
- "infra": {
-  "llm_transport": "SSE 流式（1969c09）：Atria 网关按在飞时长掐非流式 ~5min；max_tokens 硬上限=65536（实测>65536→400），断流 ~10min→StreamCutError 续传（6eb5177）"
- },
- "notes": [
-  "v9: 派生复活语义落地（store._drv_log+_rebuild_drv）+出题端期望按 read_day 重算 + must_not 排 live 值——20种子 3941 探针全绿",
-  {
-   "ts": "2026-09-25T20:45Z",
-   "text": "storm模式(566探针)验证效率筛选器：lm 522.08(满分+22KB), tms 515.07, esr -1972(12MB重放), raw -3713(20MB)。规模+风暴下排序不变且成本差被放大——架构声明成立。"
-  },
-  {
-   "ts": "2026-09-25T20:45Z",
-   "text": "harness升级(6eb5177)：SSE断流续传——无[DONE]/finish即截断时以assistant-partial续写拼接(至多4次)，消除~10min流断杀手；真Atria冒烟通过"
-  },
-  {
-   "ts": "2026-09-25T21:15Z",
-   "text": "v9覆盖扩至100种子(~19.5k探针全绿)+density×5复测183/193全绿+契约30条+语义17条；scoped导出泄漏修复(drv_log/pending_drv/rday域外值不再随文档泄漏)"
-  },
-  {
-   "ts": "2026-09-25T21:50Z",
-   "text": "v9.1: before探针族（跨槽位时序排序——两槽各自当前值生效日比较）已上线出题端+serve+契约第31条；lm 31/31合规，全部基线诚实全灭"
-  },
-  "P3 r6/run_v7（M4 serve 专攻）收官：s0009=145.959@quality146.00 —— serve 播种生效（8 族 0→1.0），仍差前沿 ~49 分，全在 duration/drvprov/join/window/before 深史题。死亡集中在一个可修 bug：token 阶梯超 Atria 硬上限 65536 → 13/15 死；已修（clamp 65536, PR#18）。",
-  "run_v5 W4 窗口收官：s0084=158.20@v9.1（质量159，+10 破平台）——journal/时态边设计被纯净室独立复现（s0064≈148），证为搜索吸引子。剩余 ~23-27 分缺口全部在深史 serve 题（duration/drvprov/join/window/before）+ conf/isconf/partial。infra：input 超窗 400 由 prompt 无界拼接引起，已加 60000 字 base 预算（PR#18）。"
- ],
- "timeline": [
-  {
-   "when": "P1 · 文献调研",
-   "title": "五个模块的问题大类，前人都研究过",
-   "text": "摄入=数据血缘（谁说的、可信吗）；表征=双时态库；更新=真值维护系统 TMS；使用=RAG 检索回答；控制=级联真删除。没有现成的 LifeModel，但每个零件都有成熟答案。"
-  },
-  {
-   "when": "P2 · 骨架落地",
-   "title": "v0 系统跑通",
-   "text": "五模块+冻结接口，77 题全对。从此只换模块实现，不改接口——谁的改动出问题能立刻定位。"
-  },
-  {
-   "when": "P3 r1 · M2 表征",
-   "title": "记忆按（谁说，什么事）记时态流水账",
-   "text": "四种不同实现全部 97/97 满分——这个表征方向被验证到底。系统升级 v1，反超所有参照。"
-  },
-  {
-   "when": "P3 r2 · M3 更新",
-   "title": "删一条记录，靠它推出的结论自动死",
-   "text": "获胜机制=TMS 前提维护：每条派生结论记住自己的依据，依据被删就级联失效。纠错（说错了）和变化（真变了）区分开。"
-  },
-  {
-   "when": "P3 r5 · M5 控制",
-   "title": "撤回用途=数据还在、视图拒绝",
-   "text": "consent 域视图：数据本体不删，但该用途下的回答被切断；操作日志嵌进资产本体，导出导入后审计不丢。"
-  },
-  {
-   "when": "P3 r4 · M1 摄入",
-   "title": "进化最优 158.9，赢在 serve 过滤",
-   "text": "冠军把探针成本压到 63KB（便宜 52×）。副产物：完全不同的起点独立进化出同一种 journal 架构——证明这个设计是搜索空间的收敛吸引子，不是运气。"
-  },
-  {
-   "when": "持续 · 评测器演化",
-   "title": "考题从 v2 升到 v9.1，~197 题/种子",
-   "text": "每轮进化前考题先加压：时态回溯、传闻归属、删除传导、导出导入、深史推理（先后/窗口/缺席/跨人比较）。系统本体仍 195 满分领跑，进化解在追。"
-  },
-  {
-   "when": "方法结论",
-   "title": "逐模块进化→折叠回系统→开下一轮",
-   "text": "整个研究系统：lifemodel 包（被研究对象）+ LifeStream 考题（裁判）+ 双层循环（我定方向、实验室批量进化）。当前主攻：深史 serve 题型。"
-  },
-  {
-   "when": "r6·W3",
-   "title": "积累型 EB 困住探索；context agent 饿死 bug 现形",
-   "text": "run_v7 W3 收官：s0040=156.94 守擂，存活率 92%。深史族在积累型 EB 上没破零——对照 run_v8 新 EB 开局即破零，说明 EB 积累偏向会困住探索；同时挖出 context agent JSON 解析饿死的真 bug（每轮回退纯 exploit），已修复合入。"
-  }
- ],
- "current": {
-  "verdict": "双轨推进 · 内部满分 + 外部爬坡",
-  "round": "外考攻坚期 · LME-150 90.0%(ruleB) / LoCoMo-10 64.0%(cat5 94.4→92.9 grounded闸)",
-  "leader": "LifeStream 197/197 满分 · LME-150 90.0%",
-  "best_evolved": "ruleB 纯题型路由（ms恒profile·实测89.3%站上oracle90.7门口）",
-  "remaining": "LME残尾~10%：枚举~5题=表征层上限 · 判官噪声~4 · grounded闸v2已定稿",
-  "goal": "下一研究决策点",
-  "goal_desc": "待拍板：① M2 typed-record 表征层进化轮（设计稿在#83报告）② GLM 充值恢复双后端 ③ v3.5 verifier硬蕴含核/锚v2粒度对齐（backlog）",
-  "opponent": "系统 195.0 · 最强进化解 158.9",
-  "opponent_desc": "进化解每摸到一类深史题 +1~3 分",
-  "progress": "实验中 —— 深史专攻 + context-agent 修复生效窗",
-  "window": "lab#1 run_v8 心跳保活 · lab#2 W4 带格式契约跑",
-  "approach": "给进化喂统一历史边遍历的基底",
-  "approach_desc": "(subject,slot,read_day)→存活写入段有序边；每个深史题型只是薄折叠。已派发两端。",
-  "progress_pct": null
- },
- "glossary": [
-  [
-   "探针/题",
-   "一道考题；得分 = 答对题数 − 实现成本"
+  "stages": [
+    {
+      "id": "P0",
+      "name": "框架+接口定稿",
+      "status": "done",
+      "desc": "五模块分解，接口冻结"
+    },
+    {
+      "id": "P1",
+      "name": "五模块文献调研",
+      "status": "done",
+      "desc": "m1–m5 纪要入库，4 条接口增量冻结"
+    },
+    {
+      "id": "P2",
+      "name": "v0 骨架 + 评测器",
+      "status": "done",
+      "desc": "lifemodel 包；LifeStream v2（as_of/subject/cascade 探针）"
+    },
+    {
+      "id": "P3",
+      "name": "逐模块进化",
+      "status": "current",
+      "desc": "每轮只开一个模块实现空间，全链路总分裁决",
+      "rounds": [
+        {
+          "id": "r1",
+          "module": "M2 表征",
+          "status": "done",
+          "result": "获胜家族 = 按(主体,槽位)时态历史；lifemodel v1 = 96.9954 反超全部基线与进化冠军 s0001"
+        },
+        {
+          "id": "r2",
+          "module": "M3 更新",
+          "status": "done",
+          "result": "获胜 = TMS 前提维护（与事件溯源同质量 112/112，读成本 ~320x 低）；已回灌 lifemodel，22 个 seed 全满分"
+        },
+        {
+          "id": "r3",
+          "module": "M4 使用",
+          "status": "done",
+          "result": "v4 考题上线（unans/purpose/budget/prov2+密度x4）；serve router 直接沉淀系统，未开实验室轮"
+        },
+        {
+          "id": "r4",
+          "module": "M1 摄入",
+          "status": "done",
+          "result": "run_v5 打满 100 提交收官：冠军 s0095=158.911，赢在 serve 过滤（探针成本 63KB，同质量便宜 52×）；深史题型仍全 0"
+        },
+        {
+          "id": "r5",
+          "module": "M5 控制",
+          "status": "done",
+          "desc": "v7.x 考题：revoked/forget_range 回滚/ops×4/部分导出/drvprov/duration/nchange/conf",
+          "result": "获胜 s0045=140.90 measured：consent-scoped 视图撤回 + journal 嵌入资产 + 前提不动点级联 —— 机制与 lifemodel v1 已折叠实现一致（收敛信号）"
+        },
+        {
+          "id": "r6",
+          "module": "M4 使用面",
+          "status": "done",
+          "desc": "serve 面专攻（partial/duration/drvprov/isconf/subject/ops/conf + 深史族）；lab run_v7 W2 在跑",
+          "result": "run_v7 W2 收官 s0040=156.942（+11）：subject/drvprov 破零、探针成本 16KB→2KB；duration/window/before 仍 0"
+        }
+      ]
+    },
+    {
+      "id": "P4",
+      "name": "真实授权数据验证",
+      "status": "todo",
+      "desc": "需单独授权（brief §83）"
+    }
   ],
-  [
-   "深史题",
-   "要翻很久以前的历史才能答的题"
-  ],
-  [
-   "进化解",
-   "Hyra 自动进化产出的候选实现（s00xx）"
-  ],
-  [
-   "基线",
-   "手写的经典做法，当参照物"
-  ],
-  [
-   "lifemodel v1",
-   "我们系统本体的当前版本"
-  ],
-  [
-   "run_vN",
-   "一轮进化实验"
-  ]
- ],
- "probeinfo": {
-  "current": "问当前值——最新有效答案",
-  "stale": "拿过期值当诱饵，考拒绝旧值",
-  "corr 纠错": "用户说'之前说错了'后的新值",
-  "hearsay 传闻": "别人口中的值不能进本人档案",
-  "as_of 回溯": "'当时（第 N 天）值是多少'",
-  "cascade 级联删除": "删前提后，派生结论必须消失",
-  "transfer 打包": "一批相关事实的约束打包查询",
-  "revoked 撤回": "撤回用途后：数据留着但拒绝回答",
-  "forget_range 回滚": "抹掉某几天的写，值退回旧值",
-  "partial 部分导出": "只导出指定槽位的文档，不许带出域外值",
-  "ops 操作审计": "'你删过/改过什么'必须从日志答出",
-  "drvprov 派生溯源": "派生值要能说出'我从哪条前提推来'",
-  "duration 时长": "'这个状态持续了多久'",
-  "first 首次": "'第一次出现是什么时候'",
-  "order 先后": "'A 是在 B 之前变的吗'",
-  "absent 缺席": "'这段时间里没有这件事吗'",
-  "window 窗口": "'某窗口内的值是什么'",
-  "before 早于": "'X 比现在更早变成这样吗'",
-  "xcmp 跨人比较": "'我和另一个人谁先/谁的值更…'",
-  "nchange 变更次数": "'这个槽位改过几次'",
-  "conf 置信": "矛盾信息下给出置信度",
-  "isconf 是否矛盾": "'这些说法矛盾吗'",
-  "subject 归属": "'这是谁说的/关于谁的'"
- },
- "gap": {
-  "rows": [
-   [
-    "基础问答",
-    "current"
-   ],
-   [
-    "基础问答",
-    "stale"
-   ],
-   [
-    "基础问答",
-    "corr 纠错"
-   ],
-   [
-    "基础问答",
-    "hearsay 传闻"
-   ],
-   [
-    "基础问答",
-    "as_of 回溯"
-   ],
-   [
-    "基础问答",
-    "cascade 级联删除"
-   ],
-   [
-    "基础问答",
-    "transfer 打包"
-   ],
-   [
-    "控制面",
-    "revoked 撤回"
-   ],
-   [
-    "控制面",
-    "forget_range 回滚"
-   ],
-   [
-    "控制面",
-    "partial 部分导出"
-   ],
-   [
-    "控制面",
-    "ops 操作审计"
-   ],
-   [
-    "控制面",
-    "drvprov 派生溯源"
-   ],
-   [
-    "深史推理",
-    "duration 时长"
-   ],
-   [
-    "深史推理",
-    "first 首次"
-   ],
-   [
-    "深史推理",
-    "order 先后"
-   ],
-   [
-    "深史推理",
-    "absent 缺席"
-   ],
-   [
-    "深史推理",
-    "window 窗口"
-   ],
-   [
-    "深史推理",
-    "before 早于"
-   ],
-   [
-    "深史推理",
-    "xcmp 跨人比较"
-   ],
-   [
-    "深史推理",
-    "nchange 变更次数"
-   ],
-   [
-    "冲突侦测",
-    "conf 置信"
-   ],
-   [
-    "冲突侦测",
-    "isconf 是否矛盾"
-   ],
-   [
-    "冲突侦测",
-    "subject 归属"
-   ]
-  ],
-  "cols": [
-   "lifemodel v1",
-   "s0096",
-   "s0095",
-   "esr",
-   "tms"
-  ],
-  "vals": {
-   "current": [
-    1,
-    0.868,
-    0.974,
-    1,
-    1
-   ],
-   "stale": [
-    1,
-    0.778,
-    0.963,
-    1,
-    1
-   ],
-   "corr 纠错": [
-    1,
-    1,
-    1,
-    1,
-    1
-   ],
-   "hearsay 传闻": [
-    1,
-    1,
-    1,
-    1,
-    1
-   ],
-   "as_of 回溯": [
-    1,
-    1,
-    1,
-    1,
-    1
-   ],
-   "cascade 级联删除": [
-    1,
-    1,
-    1,
-    1,
-    1
-   ],
-   "transfer 打包": [
-    1,
-    1,
-    1,
-    1,
-    1
-   ],
-   "revoked 撤回": [
-    1,
-    1,
-    1,
-    1,
-    1
-   ],
-   "forget_range 回滚": [
-    1,
-    1,
-    1,
-    1,
-    1
-   ],
-   "partial 部分导出": [
-    1,
-    0.667,
-    0,
-    1,
-    1
-   ],
-   "ops 操作审计": [
-    1,
-    0.6,
-    0.6,
-    0.8,
-    0.8
-   ],
-   "drvprov 派生溯源": [
-    1,
-    0,
-    0,
-    1,
-    1
-   ],
-   "duration 时长": [
-    1,
-    0.545,
-    0,
-    1,
-    1
-   ],
-   "first 首次": [
-    1,
-    1,
-    0.5,
-    0.5,
-    0.5
-   ],
-   "order 先后": [
-    1,
-    1,
-    0,
-    0,
-    0
-   ],
-   "absent 缺席": [
-    1,
-    1,
-    0,
-    0,
-    0
-   ],
-   "window 窗口": [
-    1,
-    1,
-    0,
-    0,
-    0
-   ],
-   "before 早于": [
-    1,
-    1,
-    0,
-    0,
-    0
-   ],
-   "xcmp 跨人比较": [
-    1,
-    1,
-    0,
-    0,
-    0
-   ],
-   "nchange 变更次数": [
-    1,
-    1,
-    1,
-    1,
-    1
-   ],
-   "conf 置信": [
-    1,
-    0.429,
-    0.429,
-    1,
-    0.857
-   ],
-   "isconf 是否矛盾": [
-    1,
-    1,
-    0,
-    0,
-    0
-   ],
-   "subject 归属": [
-    1,
-    1,
-    0.938,
-    0.938,
-    0.938
-   ]
-  }
- },
- "external": {
-  "name": "LongMemEval（外部标准基准）",
-  "desc": "业界记忆系统公开考卷：500 题 6 题型，对话→LLM 抽取→lifemodel→检索→LLM 答题→官方判分",
-  "current_score": "LME-150 **89.3% 实测**（134/150·ruleB简化路由·Atria判·=投影90.0噪声内）｜实测 88.0%(旧摄入)/86.0%(verify首测)｜LoCoMo-10全量 **64.0%**(cat5对抗94.4%)｜ss-assist verify .96",
-  "baseline": "34.7%(72题)→45.3%(150题GLM)→83.3%(selfc)→**86.0%(+assist)**——Atria判官口径；78→86 三轮修复闭环（selfc摄入+gate宽化+assist转正）",
-  "strong": "temporal 100% · knowledge-update 92-100% · 用户事实 92% · **cat5对抗 94.4%(全量)** · ss-assist verify 96%",
-  "weak": "cat3多跳推理 35.4%（LoCoMo全量最弱域）· 画像>60顶点haystack衰减（规模病灶）· 摄入单轮缺漏率(verify后残留~4%) · 边界定义排除题",
-  "pipeline": "对话→LLMIngestor(selfc+两阶段归并+SPEAKER BINDING+verify+yield_guard)→TemporalGraph→aanswer(route='ruleB':{temporal,ms,pref}→profile,其余→检索+assist)·LoCoMo relaxed+assist·Atria判分",
-  "rounds": [
-   {
-    "v": "v1",
-    "score": "34.7%",
-    "note": "首考（72题）"
-   },
-   {
-    "v": "v4",
-    "score": "41.7/45.8%",
-    "note": "机制下沉进包"
-   },
-   {
-    "v": "v5·150题",
-    "score": "40.0/45.3%",
-    "note": "扩样收敛：multi-session 24% 是真短板；assistant 4%"
-   },
-   {
-    "v": "LoCoMo 冒烟",
-    "score": "53.3%",
-    "note": "15题：multi-hop 100%，temporal 0%（事件日期缺陷→#47）"
-   },
-   {
-    "id": "v6",
-    "name": "解剖→修复闭环",
-    "date": "2026-09-28",
-    "result": "preference 25题: GLM 20→32% / OR 48→60%（H1个性化条款验证）；assistant 4%根因修复（助手产出物逐格拆解）；LoCoMo 类别语义纠正后基线 56%（adversarial 100%·open-domain 80%·multi-hop 60%·temporal 0%）",
-    "conclusion": "读者把记忆当检索表而非用户画像是 preference 主失分；空抽取静默丢 25% 题→重试机制；模糊事件日期（June 2023）曾被全量丢弃→verbatim 保留"
-   },
-   {
-    "id": "v7",
-    "name": "检索完备性对照（lab#1）",
-    "date": "2026-09-28",
-    "result": "multi-session 25题: mix 20% > base 16% > fam/topic/recur/big150 12%；7 道大目录题全臂≤1/7 含全量渲染",
-    "conclusion": "完备性路线证伪——摊开全部记忆照样错，瓶颈在作答端聚合推理而非召回；族扩展作为零成本保险落地(+12% token)"
-   },
-   {
-    "id": "v8",
-    "name": "修复栈双基准验证（lab#2）",
-    "date": "2026-09-29",
-    "result": "LoCoMo conv-0 33.3%→66.7%(+33.4pp)·拒答率60%→15%·temporal 0%→58%·conv-1未见会话57.4%",
-    "conclusion": "个性化+模糊日期+重试+拆解的修复栈在副考独立验证；代价面：adversarial 75→58%（3题放宽后编造貌似有据答案）→拒答精度拨盘轮接续"
-   },
-   {
-    "id": "v9",
-    "name": "作答端聚合对照（lab#1）",
-    "date": "2026-09-28",
-    "result": "ms-25 OR口径：code-assist 40% > verify 32% > router 28% > base/twopass 24%",
-    "conclusion": "确定性聚合表（LLM抽候选→Python去重排序计数→带count=N作答）是真机制，+16pp且死区题救回；aanswer 已三段式落地"
-   },
-   {
-    "id": "v10",
-    "date": "2026-09-29",
-    "title": "temporal-25 全 Atria 对照 + SUBJECT CHECK 条款验证",
-    "setup": "lab#1: temporal 题型 25 题×4臂(base/code/gate/tjoin) 全链 Atria; lab#2: 正式 SUBJECT CHECK 条款 9顶点探针 + merged 臂 22 题跑批中",
-    "findings": [
-     "temporal-25: base 100% / tjoin 96% / code+gate 92% —— 日期机算臂无增量，当前栈(模糊日期保留+ISO锚点+三段式)已吃透该切片，tjoin 不落地",
-     "SUBJECT CHECK 条款探针 5/5：q156 型主语偷换题正确拒答，4 个对照无过杀",
-     "额度新瓶颈：OR 日池 1000 再次烧穿(双 lab 共用)，工作面转 Atria 后 Atria key 又成共享瓶颈"
+  "experiment": {
+    "bench": "LifeStream v9 · 90天流 ~205条/seed · 全压强 + 双实体 + 因果操作序 + 冲突侦测 + 历史推理（首值/序/联/absent/窗/跨实体比较）+ 派生复活语义",
+    "probes": "≈195–199（随 v9→v9.1 演进）",
+    "types": [
+      "state",
+      "stale",
+      "prov",
+      "subject",
+      "as_of",
+      "cascade",
+      "derive",
+      "retract",
+      "transfer",
+      "unans",
+      "purpose",
+      "budget",
+      "prov2",
+      "revoked",
+      "ops",
+      "partial",
+      "drvprov",
+      "duration",
+      "nchange",
+      "conf",
+      "isconf",
+      "first",
+      "order",
+      "join",
+      "absent",
+      "window",
+      "xcmp"
     ],
-    "verdict": "作答端聚合修复栈对 temporal 已饱和；adv 合并栈验证进行中",
-    "links": {
-     "pr": "#52-#56 队列"
-    }
-   },
-   {
-    "id": "v11",
-    "date": "2026-09-30",
-    "title": "150q 全栈 A/B + ms 崩塌根因闭环 + 自足性修复",
-    "setup": "lab#1: LME-150 old-stack vs new-stack 全 Atria 复测 → 归因臂链；lab#2: LoCoMo who-swap 记录形态验证 + selfcheck 确定性后检",
-    "findings": [
-     "A/B: old 84.7% vs new 78.0%（Atria），multi-session 72→28 崩塌（11题单向翻错）——新摄入 ~2.6× 记录数是嫌疑首因",
-     "归因链：检索/渲染层完全排除（2×2 定位 new ingest；crowding/dilution 三臂修复全 ≤+1 题）；v_consol 深合并单题翻转=首个因果信号",
-     "根因 = decompose 产出非自足记录：L1 属性剥离（'5 days'孤儿）/L2 主语剥离（物品活在他顶点）/L3 整事实丢弃（Utah行+排除项消失）/L4 顶点塌缩（48→7）",
-     "自足 bullet（SELF-CONTAINED RECORDS）阶段1：3 道解剖题 L1-L4 全清零、粒度恢复 7→61 顶点；LoCoMo 侧 who-swap 代词裸值清零——双基准形态验证",
-     "selfcheck 确定性后检：bullet 后残余 ~5%（L2 残型集中在最差 session 3a704032 55.6% clean）；误报类=assistant 祈使句/大小写月名碰撞/模糊时词白名单",
-     "答案侧机制的判题者依赖性：三段式候选表弱判题者（OR）+16pp，强判题者（Atria）−44pp——assist=True 已改 opt-in"
-    ],
-    "verdict": "ms 崩塌根因=摄入自足性，非检索非挤兑非稀释；bullet 已下沉 EXTRACT_SYS（PR #65）；ms-25 全量重摄入复测进行中（决定性分数验证）",
-    "links": {
-     "pr": "#59-#65",
-     "report": "results/reexam150/REPORT.md + results/lme_recorddiff/REPORT.md"
-    }
-   },
-   {
-    "v": "v10 150q复测",
-    "score": "old 84.7 vs new 78.0",
-    "note": "ms 崩塌 72→28 暴露 → 归因链排除检索/挤兑/稀释"
-   },
-   {
-    "v": "v11 selfc修复",
-    "score": "ms-25 28→60%",
-    "note": "SELF-CONTAINED RECORDS 条款(#65)：非自足记录根因修复，+32pp"
-   },
-   {
-    "v": "v12 宽gate",
-    "score": "81.3%",
-    "note": "premise relaxed：严48.7→宽81.3≈无gate 83.3，误杀率44%→2.4%，(#67)已设为默认"
-   },
-   {
-    "id": "v12",
-    "date": "2026-10-01",
-    "title": "premise gate 语义演进：严→宽（relaxed）+ assist 翻案",
-    "setup": "lab#1: selfc 摄入 × gate 三方对照 150q 全 Atria + ms-25 assist 残尾复测；premise_check='relaxed' 由 lab 影子栈语义移植进 reader.py（PR #67）",
-    "findings": [
-     "三方对照：selfc+严gate 48.7% / +宽gate 81.3% / +无gate 83.3%（老栈 84.7）——严 gate −34.6pp 全砸在推理/建议题（temporal −60 pref −72 ms −56），事实前提型零损",
-     "宽 gate 语义：premise_expected=false→advisory/pref 放行；synthesis_needed=true→组件全绑定即可合成作答（组件不全仍 ABSENT）；事实防线（who/event 真绑定）保留",
-     "误杀率 44%→2.4%；temporal 题 relaxed .92 反超无 gate .88——绑定约束本身强制组件钉记录再算，净增益",
-     "assist 翻案：干净摄入下 ms-25 assist=68%（救 5/10 零翻车）——早前 −44pp 是烂摄入注入之误，非候选表之错；『答案侧机制强弱依赖判题者×摄入质量』双依赖确认",
-     "残余负数：relaxed 仍 −2pp vs 无 gate（定义边界题）；ms-25 relaxed-off 56% vs nogate-off 60%（小样本噪声带内）"
-    ],
-    "verdict": "relaxed 已设为基准驱动默认（#67 合入）；ms 残尾组合矩阵收官中（relaxed×assist 格跑批）",
-    "links": {
-     "pr": "#66, #67"
-    }
-   },
-   {
-    "v": "v13 ms-25矩阵",
-    "score": "assist 68%",
-    "note": "nogate×assist候选栈：gate −8pp边际(ms无对抗面)；残尾R1答错4/R2欠取2/R3摄入2/G边界2"
-   },
-   {
-    "v": "v13 150q终局",
-    "score": "**86.0%**",
-    "note": "nogate+assist反超老栈84.7——三轮修复闭环：selfc摄入→gate宽化→assist转正(#73驱动定型)"
-   },
-   {
-    "v": "v13 cat5防线",
-    "score": "85.1%",
-    "note": "宽gate下LoCoMo对抗40/47：严闸拒过的宽闸零放行，组件绑定拒得住(#72)"
-   },
-   {
-    "v": "v13 profile@150q",
-    "score": "83.3%",
-    "note": "画像通道缩放实测：temporal100唯一满分/ms.68并列最优；pref−16pp出血；>60顶点.74/.67拐点=haystack非过度概括(#71)"
-   },
-   {
-    "v": "v14 ruleB路由",
-    "score": "88.0%",
-    "note": "确定性路由下沉aanswer(route='ruleB')：temporal/ms/pref→画像，其余→检索+assist，枚举题≥90顶点回检索；oracle 90.0→实测88.0，内嵌ms+1.3pp(#74)"
-   },
-   {
-    "v": "v14 verify摄入",
-    "score": "96%",
-    "note": "VERIFY_SYS完整性二审进ingest_llm(默认开)：ss-assist-25 verify_pass.96>union2.88>flat.80；单轮抽取随机丢40-75%可抽取事实且跨采样相关(#76)"
-   },
-   {
-    "v": "v14 pref出血修复",
-    "score": "84%",
-    "note": "PROFILE_ANSWER_SYS advisory条款：建议题凭画像事实推断口味，pref 72→84(#74)"
-   },
-   {
-    "v": "v14 ruleB简化",
-    "score": "90.0%",
-    "note": "verify密度裁决：ms恒走profile .72 vs 阈值路由.48全分仓胜→废除_ENUM_MIN_VERTICES，投影150q=90.0≈oracle90.7(#79→#80)"
-   },
-   {
-    "v": "v14 LoCoMo全量",
-    "score": "64.0%",
-    "note": "终局1986题：总1271/1986；cat1-4=48.6/59.2/35.4/58.1%；**cat5对抗94.4%**(421/446)——防线在真实全量站稳(#81)"
-   },
-   {
-    "v": "v14 grounded闸",
-    "score": "+6.3pp/92.9%",
-    "note": "LoCoMo cat3推断题放行（GROUNDED_OK档）：三臂表盘v1+10.4/85.7→v3蕴含+10.4/87.5→v2全禁具名值+6.3/92.9；算术定v2（实测208题切片：v3 cat3+4/cat5−6=净−2；cat3全量仅96题已全覆盖不可外推，cat5切片外推非实测不采信——friedmangael复核）(#84/#85)"
-   },
-   {
-    "id": "v14",
-    "date": "2026-10-02",
-    "title": "混合路由+完整性二审：ruleB 88.0 下沉路由层，verify .96 补齐摄入缺漏",
-    "setup": "lab#1: oracle并集+3路由臂+ss-assist双盲归因+摄入随机性量化+画像呈现反证+150q verify×ruleB压轴复测+ms恒profile裁决臂；lab#2: LoCoMo-10全量1986题终局",
-    "findings": [
-     "oracle混合90.0%→route_llm与ruleB并列88.0→选确定性ruleB下沉：路由信号=question_type×vertex_count(枚举题≥90顶点留检索臂内嵌+1.3pp)；route_vmod顶点数阈值方案被反证",
-     "ss-assist-25六连错双盲归因：5×摄入缺(A类)+1×画像丢(B类)+0×作答错(C类)——通道层健康，记录存在性即一切",
-     "摄入随机性量化：单轮抽取丢40-75%可抽取事实/轮，漏项跨采样相关(union救不回相关病灶)；verify_pass有向审计.96是唯一过.9的补丁——已默认开+yield_guard条件触发",
-     "画像pref出血修复：advisory条款允许建议题凭画像推断口味(72→84)；haystack呈现层两次反证(sec_pick复现盲选/sec_all−5pp全曲线)——flat画像维持，haystack是规模病灶非呈现病灶",
-     "150q全栈压轴复测进行中：verify+yield_guard新摄入×ruleB，对照88.0基线+双臂分项+60-99v haystack仓",
-     "压轴复测 verify×ruleB=86.0%(−2pp)：verify兑现ss-assist+4(.80→.96)但密度抬升44%冲垮≥90顶点枚举阈值(12/25 ms题被错路由)；裁决臂ms恒走profile .72 vs .48全分仓胜→阈值废除，ruleB收敛为纯题型路由，投影150q=90.0%≈oracle上限90.7%——路由题解到头(#78/#79/#80)",
-     "LoCoMo-10全量终局：总64.0%(1271/1986)，cat5对抗94.4%(421/446)——relaxed gate防线全量站稳；cat3多跳推理35.4%为最弱域(#81)"
+    "score": "quality − 0.002·KB(asset) − 0.0002·KB(probe) − 0.0002·tokens",
+    "table": [
+      [
+        "lifemodel v1",
+        "TemporalGraph+TMS+serve router+scoped export（系统本体，实体别名读侧聚合+isconf+v9历史推理+派生复活）",
+        195.0,
+        195
+      ],
+      [
+        "s0095 (run_v5·W4 冠军)",
+        "进化解：时态边 journal + 过滤式 serve（探针 63.2KB，同质量比 s0084 便宜 52×）；深史族仍全 0",
+        158.911,
+        197
+      ],
+      [
+        "s0084 (run_v5·W4)",
+        "进化解：时态边 journal + serve 成本工程（v9.1 下 transfer/subject/ops/nchange 近满分，深史族仍 0）——journal 架构被独立纯净室复现，证为收敛吸引子",
+        158.1995,
+        197
+      ],
+      [
+        "s0009 (run_v7·M4)",
+        "进化解：逐型 serve 处理器——8 族满分(first/order/absent/nchange/isconf/xcmp/budget/prov2)，剩余缺口 duration/drvprov/join/window/before",
+        145.959,
+        197
+      ],
+      [
+        "s0096 (run_v7·W4)",
+        "进化解：深史族破零 3/4——window/before/nchange 满分、duration .545；join 仍 0、drvprov 退回 0",
+        166.958,
+        168
+      ],
+      [
+        "s0040 (run_v7·W2)",
+        "进化解：serve 逐型处理器收敛——subject/transfer 满分、drvprov 首破零、探针 2.1KB；深史族 duration/window/before 仍 0",
+        156.942,
+        197
+      ],
+      [
+        "tms",
+        "前提维护基线（内置；range-forget 回滚重建+scoped state；实体探测+isconf+v9历史推理 −14 诚实缺口）",
+        181.0,
+        195
+      ],
+      [
+        "esr",
+        "事件溯源重放基线（day排序+scoped state；实体探测+isconf+v9历史推理 −13 诚实缺口）",
+        182.0,
+        195
+      ],
+      [
+        "raw",
+        "全存（基线；乱序+回滚+无作用域导出三重损失）",
+        107.5,
+        195
+      ],
+      [
+        "ledger",
+        "LWW 平表（基线；乱序+回滚重伤）",
+        87.0,
+        195
+      ],
+      [
+        "rag",
+        "关键词检索（基线）",
+        66.0,
+        195
+      ],
+      [
+        "flat",
+        "平表+全量倾倒 serve（M4 缺乏族）",
+        58.5,
+        195
+      ]
     ]
-   }
-  ]
- }
+  },
+  "infra": {
+    "llm_transport": "SSE 流式（1969c09）：Atria 网关按在飞时长掐非流式 ~5min；max_tokens 硬上限=65536（实测>65536→400），断流 ~10min→StreamCutError 续传（6eb5177）"
+  },
+  "notes": [
+    "v9: 派生复活语义落地（store._drv_log+_rebuild_drv）+出题端期望按 read_day 重算 + must_not 排 live 值——20种子 3941 探针全绿",
+    {
+      "ts": "2026-09-25T20:45Z",
+      "text": "storm模式(566探针)验证效率筛选器：lm 522.08(满分+22KB), tms 515.07, esr -1972(12MB重放), raw -3713(20MB)。规模+风暴下排序不变且成本差被放大——架构声明成立。"
+    },
+    {
+      "ts": "2026-09-25T20:45Z",
+      "text": "harness升级(6eb5177)：SSE断流续传——无[DONE]/finish即截断时以assistant-partial续写拼接(至多4次)，消除~10min流断杀手；真Atria冒烟通过"
+    },
+    {
+      "ts": "2026-09-25T21:15Z",
+      "text": "v9覆盖扩至100种子(~19.5k探针全绿)+density×5复测183/193全绿+契约30条+语义17条；scoped导出泄漏修复(drv_log/pending_drv/rday域外值不再随文档泄漏)"
+    },
+    {
+      "ts": "2026-09-25T21:50Z",
+      "text": "v9.1: before探针族（跨槽位时序排序——两槽各自当前值生效日比较）已上线出题端+serve+契约第31条；lm 31/31合规，全部基线诚实全灭"
+    },
+    "P3 r6/run_v7（M4 serve 专攻）收官：s0009=145.959@quality146.00 —— serve 播种生效（8 族 0→1.0），仍差前沿 ~49 分，全在 duration/drvprov/join/window/before 深史题。死亡集中在一个可修 bug：token 阶梯超 Atria 硬上限 65536 → 13/15 死；已修（clamp 65536, PR#18）。",
+    "run_v5 W4 窗口收官：s0084=158.20@v9.1（质量159，+10 破平台）——journal/时态边设计被纯净室独立复现（s0064≈148），证为搜索吸引子。剩余 ~23-27 分缺口全部在深史 serve 题（duration/drvprov/join/window/before）+ conf/isconf/partial。infra：input 超窗 400 由 prompt 无界拼接引起，已加 60000 字 base 预算（PR#18）。"
+  ],
+  "timeline": [
+    {
+      "when": "P1 · 文献调研",
+      "title": "五个模块的问题大类，前人都研究过",
+      "text": "摄入=数据血缘（谁说的、可信吗）；表征=双时态库；更新=真值维护系统 TMS；使用=RAG 检索回答；控制=级联真删除。没有现成的 LifeModel，但每个零件都有成熟答案。"
+    },
+    {
+      "when": "P2 · 骨架落地",
+      "title": "v0 系统跑通",
+      "text": "五模块+冻结接口，77 题全对。从此只换模块实现，不改接口——谁的改动出问题能立刻定位。"
+    },
+    {
+      "when": "P3 r1 · M2 表征",
+      "title": "记忆按（谁说，什么事）记时态流水账",
+      "text": "四种不同实现全部 97/97 满分——这个表征方向被验证到底。系统升级 v1，反超所有参照。"
+    },
+    {
+      "when": "P3 r2 · M3 更新",
+      "title": "删一条记录，靠它推出的结论自动死",
+      "text": "获胜机制=TMS 前提维护：每条派生结论记住自己的依据，依据被删就级联失效。纠错（说错了）和变化（真变了）区分开。"
+    },
+    {
+      "when": "P3 r5 · M5 控制",
+      "title": "撤回用途=数据还在、视图拒绝",
+      "text": "consent 域视图：数据本体不删，但该用途下的回答被切断；操作日志嵌进资产本体，导出导入后审计不丢。"
+    },
+    {
+      "when": "P3 r4 · M1 摄入",
+      "title": "进化最优 158.9，赢在 serve 过滤",
+      "text": "冠军把探针成本压到 63KB（便宜 52×）。副产物：完全不同的起点独立进化出同一种 journal 架构——证明这个设计是搜索空间的收敛吸引子，不是运气。"
+    },
+    {
+      "when": "持续 · 评测器演化",
+      "title": "考题从 v2 升到 v9.1，~197 题/种子",
+      "text": "每轮进化前考题先加压：时态回溯、传闻归属、删除传导、导出导入、深史推理（先后/窗口/缺席/跨人比较）。系统本体仍 195 满分领跑，进化解在追。"
+    },
+    {
+      "when": "方法结论",
+      "title": "逐模块进化→折叠回系统→开下一轮",
+      "text": "整个研究系统：lifemodel 包（被研究对象）+ LifeStream 考题（裁判）+ 双层循环（我定方向、实验室批量进化）。当前主攻：深史 serve 题型。"
+    },
+    {
+      "when": "r6·W3",
+      "title": "积累型 EB 困住探索；context agent 饿死 bug 现形",
+      "text": "run_v7 W3 收官：s0040=156.94 守擂，存活率 92%。深史族在积累型 EB 上没破零——对照 run_v8 新 EB 开局即破零，说明 EB 积累偏向会困住探索；同时挖出 context agent JSON 解析饿死的真 bug（每轮回退纯 exploit），已修复合入。"
+    }
+  ],
+  "current": {
+    "verdict": "双轨推进 · 内部满分 + 外部爬坡",
+    "round": "外考攻坚期 · LME-150 90.0%(ruleB) / LoCoMo-10 64.0%(cat5 94.4→92.9 grounded闸)",
+    "leader": "LifeStream 197/197 满分 · LME-150 90.0%",
+    "best_evolved": "ruleB 纯题型路由（ms恒profile·实测89.3%站上oracle90.7门口）",
+    "remaining": "LME残尾~10%：枚举~5题=表征层上限 · 判官噪声~4 · grounded闸v2已定稿",
+    "goal": "下一研究决策点",
+    "goal_desc": "待拍板：① M2 typed-record 表征层进化轮（设计稿在#83报告）② GLM 充值恢复双后端 ③ v3.5 verifier硬蕴含核/锚v2粒度对齐（backlog）",
+    "opponent": "系统 195.0 · 最强进化解 158.9",
+    "opponent_desc": "进化解每摸到一类深史题 +1~3 分",
+    "progress": "实验中 —— 深史专攻 + context-agent 修复生效窗",
+    "window": "lab#1 run_v8 心跳保活 · lab#2 W4 带格式契约跑",
+    "approach": "给进化喂统一历史边遍历的基底",
+    "approach_desc": "(subject,slot,read_day)→存活写入段有序边；每个深史题型只是薄折叠。已派发两端。",
+    "progress_pct": null
+  },
+  "glossary": [
+    [
+      "探针/题",
+      "一道考题；得分 = 答对题数 − 实现成本"
+    ],
+    [
+      "深史题",
+      "要翻很久以前的历史才能答的题"
+    ],
+    [
+      "进化解",
+      "Hyra 自动进化产出的候选实现（s00xx）"
+    ],
+    [
+      "基线",
+      "手写的经典做法，当参照物"
+    ],
+    [
+      "lifemodel v1",
+      "我们系统本体的当前版本"
+    ],
+    [
+      "run_vN",
+      "一轮进化实验"
+    ]
+  ],
+  "probeinfo": {
+    "current": "问当前值——最新有效答案",
+    "stale": "拿过期值当诱饵，考拒绝旧值",
+    "corr 纠错": "用户说'之前说错了'后的新值",
+    "hearsay 传闻": "别人口中的值不能进本人档案",
+    "as_of 回溯": "'当时（第 N 天）值是多少'",
+    "cascade 级联删除": "删前提后，派生结论必须消失",
+    "transfer 打包": "一批相关事实的约束打包查询",
+    "revoked 撤回": "撤回用途后：数据留着但拒绝回答",
+    "forget_range 回滚": "抹掉某几天的写，值退回旧值",
+    "partial 部分导出": "只导出指定槽位的文档，不许带出域外值",
+    "ops 操作审计": "'你删过/改过什么'必须从日志答出",
+    "drvprov 派生溯源": "派生值要能说出'我从哪条前提推来'",
+    "duration 时长": "'这个状态持续了多久'",
+    "first 首次": "'第一次出现是什么时候'",
+    "order 先后": "'A 是在 B 之前变的吗'",
+    "absent 缺席": "'这段时间里没有这件事吗'",
+    "window 窗口": "'某窗口内的值是什么'",
+    "before 早于": "'X 比现在更早变成这样吗'",
+    "xcmp 跨人比较": "'我和另一个人谁先/谁的值更…'",
+    "nchange 变更次数": "'这个槽位改过几次'",
+    "conf 置信": "矛盾信息下给出置信度",
+    "isconf 是否矛盾": "'这些说法矛盾吗'",
+    "subject 归属": "'这是谁说的/关于谁的'"
+  },
+  "gap": {
+    "rows": [
+      [
+        "基础问答",
+        "current"
+      ],
+      [
+        "基础问答",
+        "stale"
+      ],
+      [
+        "基础问答",
+        "corr 纠错"
+      ],
+      [
+        "基础问答",
+        "hearsay 传闻"
+      ],
+      [
+        "基础问答",
+        "as_of 回溯"
+      ],
+      [
+        "基础问答",
+        "cascade 级联删除"
+      ],
+      [
+        "基础问答",
+        "transfer 打包"
+      ],
+      [
+        "控制面",
+        "revoked 撤回"
+      ],
+      [
+        "控制面",
+        "forget_range 回滚"
+      ],
+      [
+        "控制面",
+        "partial 部分导出"
+      ],
+      [
+        "控制面",
+        "ops 操作审计"
+      ],
+      [
+        "控制面",
+        "drvprov 派生溯源"
+      ],
+      [
+        "深史推理",
+        "duration 时长"
+      ],
+      [
+        "深史推理",
+        "first 首次"
+      ],
+      [
+        "深史推理",
+        "order 先后"
+      ],
+      [
+        "深史推理",
+        "absent 缺席"
+      ],
+      [
+        "深史推理",
+        "window 窗口"
+      ],
+      [
+        "深史推理",
+        "before 早于"
+      ],
+      [
+        "深史推理",
+        "xcmp 跨人比较"
+      ],
+      [
+        "深史推理",
+        "nchange 变更次数"
+      ],
+      [
+        "冲突侦测",
+        "conf 置信"
+      ],
+      [
+        "冲突侦测",
+        "isconf 是否矛盾"
+      ],
+      [
+        "冲突侦测",
+        "subject 归属"
+      ]
+    ],
+    "cols": [
+      "lifemodel v1",
+      "s0096",
+      "s0095",
+      "esr",
+      "tms"
+    ],
+    "vals": {
+      "current": [
+        1,
+        0.868,
+        0.974,
+        1,
+        1
+      ],
+      "stale": [
+        1,
+        0.778,
+        0.963,
+        1,
+        1
+      ],
+      "corr 纠错": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "hearsay 传闻": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "as_of 回溯": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "cascade 级联删除": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "transfer 打包": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "revoked 撤回": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "forget_range 回滚": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "partial 部分导出": [
+        1,
+        0.667,
+        0,
+        1,
+        1
+      ],
+      "ops 操作审计": [
+        1,
+        0.6,
+        0.6,
+        0.8,
+        0.8
+      ],
+      "drvprov 派生溯源": [
+        1,
+        0,
+        0,
+        1,
+        1
+      ],
+      "duration 时长": [
+        1,
+        0.545,
+        0,
+        1,
+        1
+      ],
+      "first 首次": [
+        1,
+        1,
+        0.5,
+        0.5,
+        0.5
+      ],
+      "order 先后": [
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "absent 缺席": [
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "window 窗口": [
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "before 早于": [
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "xcmp 跨人比较": [
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "nchange 变更次数": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "conf 置信": [
+        1,
+        0.429,
+        0.429,
+        1,
+        0.857
+      ],
+      "isconf 是否矛盾": [
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "subject 归属": [
+        1,
+        1,
+        0.938,
+        0.938,
+        0.938
+      ]
+    }
+  },
+  "external": {
+    "name": "LongMemEval（外部标准基准）",
+    "desc": "业界记忆系统公开考卷：500 题 6 题型，对话→LLM 抽取→lifemodel→检索→LLM 答题→官方判分",
+    "current_score": "LME-150 **89.3% 实测**（134/150·ruleB简化路由·Atria判·=投影90.0噪声内）｜实测 88.0%(旧摄入)/86.0%(verify首测)｜LoCoMo-10全量 **64.0%**(cat5对抗94.4%)｜ss-assist verify .96",
+    "baseline": "34.7%(72题)→45.3%(150题GLM)→83.3%(selfc)→**86.0%(+assist)**——Atria判官口径；78→86 三轮修复闭环（selfc摄入+gate宽化+assist转正）",
+    "strong": "temporal 100% · knowledge-update 92-100% · 用户事实 92% · **cat5对抗 94.4%(全量)** · ss-assist verify 96%",
+    "weak": "cat3多跳推理 35.4%（LoCoMo全量最弱域）· 画像>60顶点haystack衰减（规模病灶）· 摄入单轮缺漏率(verify后残留~4%) · 边界定义排除题",
+    "pipeline": "对话→LLMIngestor(selfc+两阶段归并+SPEAKER BINDING+verify+yield_guard)→TemporalGraph→aanswer(route='ruleB':{temporal,ms,pref}→profile,其余→检索+assist)·LoCoMo relaxed+assist·Atria判分",
+    "rounds": [
+      {
+        "v": "v1",
+        "score": "34.7%",
+        "note": "首考（72题）"
+      },
+      {
+        "v": "v4",
+        "score": "41.7/45.8%",
+        "note": "机制下沉进包"
+      },
+      {
+        "v": "v5·150题",
+        "score": "40.0/45.3%",
+        "note": "扩样收敛：multi-session 24% 是真短板；assistant 4%"
+      },
+      {
+        "v": "LoCoMo 冒烟",
+        "score": "53.3%",
+        "note": "15题：multi-hop 100%，temporal 0%（事件日期缺陷→#47）"
+      },
+      {
+        "id": "v6",
+        "name": "解剖→修复闭环",
+        "date": "2026-09-28",
+        "result": "preference 25题: GLM 20→32% / OR 48→60%（H1个性化条款验证）；assistant 4%根因修复（助手产出物逐格拆解）；LoCoMo 类别语义纠正后基线 56%（adversarial 100%·open-domain 80%·multi-hop 60%·temporal 0%）",
+        "conclusion": "读者把记忆当检索表而非用户画像是 preference 主失分；空抽取静默丢 25% 题→重试机制；模糊事件日期（June 2023）曾被全量丢弃→verbatim 保留"
+      },
+      {
+        "id": "v7",
+        "name": "检索完备性对照（lab#1）",
+        "date": "2026-09-28",
+        "result": "multi-session 25题: mix 20% > base 16% > fam/topic/recur/big150 12%；7 道大目录题全臂≤1/7 含全量渲染",
+        "conclusion": "完备性路线证伪——摊开全部记忆照样错，瓶颈在作答端聚合推理而非召回；族扩展作为零成本保险落地(+12% token)"
+      },
+      {
+        "id": "v8",
+        "name": "修复栈双基准验证（lab#2）",
+        "date": "2026-09-29",
+        "result": "LoCoMo conv-0 33.3%→66.7%(+33.4pp)·拒答率60%→15%·temporal 0%→58%·conv-1未见会话57.4%",
+        "conclusion": "个性化+模糊日期+重试+拆解的修复栈在副考独立验证；代价面：adversarial 75→58%（3题放宽后编造貌似有据答案）→拒答精度拨盘轮接续"
+      },
+      {
+        "id": "v9",
+        "name": "作答端聚合对照（lab#1）",
+        "date": "2026-09-28",
+        "result": "ms-25 OR口径：code-assist 40% > verify 32% > router 28% > base/twopass 24%",
+        "conclusion": "确定性聚合表（LLM抽候选→Python去重排序计数→带count=N作答）是真机制，+16pp且死区题救回；aanswer 已三段式落地"
+      },
+      {
+        "id": "v10",
+        "date": "2026-09-29",
+        "title": "temporal-25 全 Atria 对照 + SUBJECT CHECK 条款验证",
+        "setup": "lab#1: temporal 题型 25 题×4臂(base/code/gate/tjoin) 全链 Atria; lab#2: 正式 SUBJECT CHECK 条款 9顶点探针 + merged 臂 22 题跑批中",
+        "findings": [
+          "temporal-25: base 100% / tjoin 96% / code+gate 92% —— 日期机算臂无增量，当前栈(模糊日期保留+ISO锚点+三段式)已吃透该切片，tjoin 不落地",
+          "SUBJECT CHECK 条款探针 5/5：q156 型主语偷换题正确拒答，4 个对照无过杀",
+          "额度新瓶颈：OR 日池 1000 再次烧穿(双 lab 共用)，工作面转 Atria 后 Atria key 又成共享瓶颈"
+        ],
+        "verdict": "作答端聚合修复栈对 temporal 已饱和；adv 合并栈验证进行中",
+        "links": {
+          "pr": "#52-#56 队列"
+        }
+      },
+      {
+        "id": "v11",
+        "date": "2026-09-30",
+        "title": "150q 全栈 A/B + ms 崩塌根因闭环 + 自足性修复",
+        "setup": "lab#1: LME-150 old-stack vs new-stack 全 Atria 复测 → 归因臂链；lab#2: LoCoMo who-swap 记录形态验证 + selfcheck 确定性后检",
+        "findings": [
+          "A/B: old 84.7% vs new 78.0%（Atria），multi-session 72→28 崩塌（11题单向翻错）——新摄入 ~2.6× 记录数是嫌疑首因",
+          "归因链：检索/渲染层完全排除（2×2 定位 new ingest；crowding/dilution 三臂修复全 ≤+1 题）；v_consol 深合并单题翻转=首个因果信号",
+          "根因 = decompose 产出非自足记录：L1 属性剥离（'5 days'孤儿）/L2 主语剥离（物品活在他顶点）/L3 整事实丢弃（Utah行+排除项消失）/L4 顶点塌缩（48→7）",
+          "自足 bullet（SELF-CONTAINED RECORDS）阶段1：3 道解剖题 L1-L4 全清零、粒度恢复 7→61 顶点；LoCoMo 侧 who-swap 代词裸值清零——双基准形态验证",
+          "selfcheck 确定性后检：bullet 后残余 ~5%（L2 残型集中在最差 session 3a704032 55.6% clean）；误报类=assistant 祈使句/大小写月名碰撞/模糊时词白名单",
+          "答案侧机制的判题者依赖性：三段式候选表弱判题者（OR）+16pp，强判题者（Atria）−44pp——assist=True 已改 opt-in"
+        ],
+        "verdict": "ms 崩塌根因=摄入自足性，非检索非挤兑非稀释；bullet 已下沉 EXTRACT_SYS（PR #65）；ms-25 全量重摄入复测进行中（决定性分数验证）",
+        "links": {
+          "pr": "#59-#65",
+          "report": "results/reexam150/REPORT.md + results/lme_recorddiff/REPORT.md"
+        }
+      },
+      {
+        "v": "v10 150q复测",
+        "score": "old 84.7 vs new 78.0",
+        "note": "ms 崩塌 72→28 暴露 → 归因链排除检索/挤兑/稀释"
+      },
+      {
+        "v": "v11 selfc修复",
+        "score": "ms-25 28→60%",
+        "note": "SELF-CONTAINED RECORDS 条款(#65)：非自足记录根因修复，+32pp"
+      },
+      {
+        "v": "v12 宽gate",
+        "score": "81.3%",
+        "note": "premise relaxed：严48.7→宽81.3≈无gate 83.3，误杀率44%→2.4%，(#67)已设为默认"
+      },
+      {
+        "id": "v12",
+        "date": "2026-10-01",
+        "title": "premise gate 语义演进：严→宽（relaxed）+ assist 翻案",
+        "setup": "lab#1: selfc 摄入 × gate 三方对照 150q 全 Atria + ms-25 assist 残尾复测；premise_check='relaxed' 由 lab 影子栈语义移植进 reader.py（PR #67）",
+        "findings": [
+          "三方对照：selfc+严gate 48.7% / +宽gate 81.3% / +无gate 83.3%（老栈 84.7）——严 gate −34.6pp 全砸在推理/建议题（temporal −60 pref −72 ms −56），事实前提型零损",
+          "宽 gate 语义：premise_expected=false→advisory/pref 放行；synthesis_needed=true→组件全绑定即可合成作答（组件不全仍 ABSENT）；事实防线（who/event 真绑定）保留",
+          "误杀率 44%→2.4%；temporal 题 relaxed .92 反超无 gate .88——绑定约束本身强制组件钉记录再算，净增益",
+          "assist 翻案：干净摄入下 ms-25 assist=68%（救 5/10 零翻车）——早前 −44pp 是烂摄入注入之误，非候选表之错；『答案侧机制强弱依赖判题者×摄入质量』双依赖确认",
+          "残余负数：relaxed 仍 −2pp vs 无 gate（定义边界题）；ms-25 relaxed-off 56% vs nogate-off 60%（小样本噪声带内）"
+        ],
+        "verdict": "relaxed 已设为基准驱动默认（#67 合入）；ms 残尾组合矩阵收官中（relaxed×assist 格跑批）",
+        "links": {
+          "pr": "#66, #67"
+        }
+      },
+      {
+        "v": "v13 ms-25矩阵",
+        "score": "assist 68%",
+        "note": "nogate×assist候选栈：gate −8pp边际(ms无对抗面)；残尾R1答错4/R2欠取2/R3摄入2/G边界2"
+      },
+      {
+        "v": "v13 150q终局",
+        "score": "**86.0%**",
+        "note": "nogate+assist反超老栈84.7——三轮修复闭环：selfc摄入→gate宽化→assist转正(#73驱动定型)"
+      },
+      {
+        "v": "v13 cat5防线",
+        "score": "85.1%",
+        "note": "宽gate下LoCoMo对抗40/47：严闸拒过的宽闸零放行，组件绑定拒得住(#72)"
+      },
+      {
+        "v": "v13 profile@150q",
+        "score": "83.3%",
+        "note": "画像通道缩放实测：temporal100唯一满分/ms.68并列最优；pref−16pp出血；>60顶点.74/.67拐点=haystack非过度概括(#71)"
+      },
+      {
+        "v": "v14 ruleB路由",
+        "score": "88.0%",
+        "note": "确定性路由下沉aanswer(route='ruleB')：temporal/ms/pref→画像，其余→检索+assist，枚举题≥90顶点回检索；oracle 90.0→实测88.0，内嵌ms+1.3pp(#74)"
+      },
+      {
+        "v": "v14 verify摄入",
+        "score": "96%",
+        "note": "VERIFY_SYS完整性二审进ingest_llm(默认开)：ss-assist-25 verify_pass.96>union2.88>flat.80；单轮抽取随机丢40-75%可抽取事实且跨采样相关(#76)"
+      },
+      {
+        "v": "v14 pref出血修复",
+        "score": "84%",
+        "note": "PROFILE_ANSWER_SYS advisory条款：建议题凭画像事实推断口味，pref 72→84(#74)"
+      },
+      {
+        "v": "v14 ruleB简化",
+        "score": "90.0%",
+        "note": "verify密度裁决：ms恒走profile .72 vs 阈值路由.48全分仓胜→废除_ENUM_MIN_VERTICES，投影150q=90.0≈oracle90.7(#79→#80)"
+      },
+      {
+        "v": "v14 LoCoMo全量",
+        "score": "64.0%",
+        "note": "终局1986题：总1271/1986；cat1-4=48.6/59.2/35.4/58.1%；**cat5对抗94.4%**(421/446)——防线在真实全量站稳(#81)"
+      },
+      {
+        "v": "v14 grounded闸",
+        "score": "+6.3pp/92.9%",
+        "note": "LoCoMo cat3推断题放行（GROUNDED_OK档）：三臂表盘v1+10.4/85.7→v3蕴含+10.4/87.5→v2全禁具名值+6.3/92.9；算术定v2（实测208题切片：v3 cat3+4/cat5−6=净−2；cat3全量仅96题已全覆盖不可外推，cat5切片外推非实测不采信——friedmangael复核）(#84/#85)"
+      },
+      {
+        "id": "v14",
+        "date": "2026-10-02",
+        "title": "混合路由+完整性二审：ruleB 88.0 下沉路由层，verify .96 补齐摄入缺漏",
+        "setup": "lab#1: oracle并集+3路由臂+ss-assist双盲归因+摄入随机性量化+画像呈现反证+150q verify×ruleB压轴复测+ms恒profile裁决臂；lab#2: LoCoMo-10全量1986题终局",
+        "findings": [
+          "oracle混合90.0%→route_llm与ruleB并列88.0→选确定性ruleB下沉：路由信号=question_type×vertex_count(枚举题≥90顶点留检索臂内嵌+1.3pp)；route_vmod顶点数阈值方案被反证",
+          "ss-assist-25六连错双盲归因：5×摄入缺(A类)+1×画像丢(B类)+0×作答错(C类)——通道层健康，记录存在性即一切",
+          "摄入随机性量化：单轮抽取丢40-75%可抽取事实/轮，漏项跨采样相关(union救不回相关病灶)；verify_pass有向审计.96是唯一过.9的补丁——已默认开+yield_guard条件触发",
+          "画像pref出血修复：advisory条款允许建议题凭画像推断口味(72→84)；haystack呈现层两次反证(sec_pick复现盲选/sec_all−5pp全曲线)——flat画像维持，haystack是规模病灶非呈现病灶",
+          "150q全栈压轴复测进行中：verify+yield_guard新摄入×ruleB，对照88.0基线+双臂分项+60-99v haystack仓",
+          "压轴复测 verify×ruleB=86.0%(−2pp)：verify兑现ss-assist+4(.80→.96)但密度抬升44%冲垮≥90顶点枚举阈值(12/25 ms题被错路由)；裁决臂ms恒走profile .72 vs .48全分仓胜→阈值废除，ruleB收敛为纯题型路由，投影150q=90.0%≈oracle上限90.7%——路由题解到头(#78/#79/#80)",
+          "LoCoMo-10全量终局：总64.0%(1271/1986)，cat5对抗94.4%(421/446)——relaxed gate防线全量站稳；cat3多跳推理35.4%为最弱域(#81)"
+        ]
+      }
+    ]
+  },
+  "goal_desc": "待拍板：① M2 typed-record stage-2 立项——段1 oracle 已验（5/5残尾救回+2/2留出无伤，表征层非瓶颈；报告 results/lme_resid150/stage1/），段2=抽取器typed字段保真实测需重摄入烧LLM ② GLM充值 ③ v3.5硬蕴含核 backlog"
 }

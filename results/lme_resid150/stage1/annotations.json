@@ -1,0 +1,573 @@
+{
+  "_meta": {
+    "purpose": "stage-1 oracle falsification for M2 typed-record design (TYPED_RECORD_DESIGN_V2.md): hand-annotated ideal typed fields on real snapshot records (results/lme150_rlx1/models/, selfc-era ingest stack). If deterministic aggregation over perfect fields cannot rescue the residual enum questions, this schema+chain implementation is falsified.",
+    "record_schema": {
+      "rid": "source record id",
+      "event_id": "independent id per record (never merged)",
+      "kind": "asserted|negated|planned|cancelled",
+      "verb": "normalized predicate",
+      "object": "what the predicate acts on",
+      "quantity": "number|null",
+      "quantifier": "explicit|unspecified|null",
+      "when_abs": "ISO date or null",
+      "granularity": "day|week|month|year|null",
+      "dup_links": "suspected-duplicate rids (edge, not merge)",
+      "counts_toward": "the question's predicate universe: in|out|boundary"
+    }
+  },
+  "questions": [
+    {
+      "qid": "0a995998",
+      "question": "How many items of clothing do I need to pick up or return from a store?",
+      "gold": "3",
+      "qdate": "2023-02-15",
+      "flat_answer": "2",
+      "aggregate": {
+        "op": "count_events",
+        "select": "obligation_status in {awaiting_pickup, awaiting_return}",
+        "note": "gold reads 'return' loosely: lent-item return counts"
+      },
+      "records": [
+        {
+          "rid": "llm_738566_1_1",
+          "event_id": "e_blazer",
+          "kind": "asserted",
+          "verb": "dry_cleaning_dropoff",
+          "object": "navy blue blazer",
+          "obligation_status": "awaiting_pickup",
+          "counterparty": "dry cleaner",
+          "when_abs": null,
+          "granularity": null,
+          "counts_toward": "in"
+        },
+        {
+          "rid": "llm_738566_4_30",
+          "event_id": "e_zara_boots",
+          "kind": "asserted",
+          "verb": "exchange",
+          "object": "Zara boots (larger size)",
+          "obligation_status": "awaiting_pickup",
+          "counterparty": "Zara",
+          "when_abs": "2023-02-05",
+          "granularity": "day",
+          "dup_links": [
+            "llm_738566_7_43"
+          ],
+          "counts_toward": "in"
+        },
+        {
+          "rid": "llm_738566_7_43",
+          "event_id": "e_zara_boots_dup",
+          "kind": "asserted",
+          "verb": "exchange",
+          "object": "Zara boots",
+          "obligation_status": "awaiting_pickup",
+          "counterparty": "Zara",
+          "when_abs": "2023-02-05",
+          "granularity": "day",
+          "dup_links": [
+            "llm_738566_4_30"
+          ],
+          "counts_toward": "in"
+        },
+        {
+          "rid": "llm_738566_2_28",
+          "event_id": "e_sweater",
+          "kind": "asserted",
+          "verb": "lent",
+          "object": "green sweater",
+          "obligation_status": "awaiting_return",
+          "counterparty": "sister",
+          "when_abs": null,
+          "granularity": null,
+          "counts_toward": "boundary: gold counts it (return obligation); strict 'store' reading excludes it"
+        }
+      ]
+    },
+    {
+      "qid": "88432d0a",
+      "question": "How many times did I bake something in the past two weeks?",
+      "gold": "4",
+      "qdate": "2023-05-30",
+      "flat_answer": "5",
+      "aggregate": {
+        "op": "count_events",
+        "select": "verb=bake AND kind=asserted",
+        "window": {
+          "kind": "past_days",
+          "days": 14,
+          "ref": "qdate"
+        },
+        "note": "window edge decides e1 (exactly 14d out); outcome filter is an alternative gold convention that also yields 4"
+      },
+      "records": [
+        {
+          "rid": "llm_738660_2_2",
+          "event_id": "e_bake1",
+          "kind": "asserted",
+          "verb": "bake",
+          "object": "sourdough bread (new recipe)",
+          "outcome": "failed (dense/heavy)",
+          "when_abs": "2023-05-16",
+          "granularity": "day",
+          "counts_toward": "boundary: exactly qdate-14d edge"
+        },
+        {
+          "rid": "llm_738663_2_45",
+          "event_id": "e_bake2",
+          "kind": "asserted",
+          "verb": "bake",
+          "object": "cookies (convection)",
+          "outcome": "success",
+          "when_abs": "2023-05-18",
+          "granularity": "day",
+          "dup_links": [
+            "llm_738664_5_74"
+          ],
+          "counts_toward": "in"
+        },
+        {
+          "rid": "llm_738664_5_74",
+          "event_id": "e_bake2_dup",
+          "kind": "asserted",
+          "verb": "bake",
+          "object": "cookies",
+          "outcome": "success",
+          "when_abs": "2023-05-18",
+          "granularity": "day",
+          "dup_links": [
+            "llm_738663_2_45"
+          ],
+          "counts_toward": "in"
+        },
+        {
+          "rid": "llm_738660_7_7",
+          "event_id": "e_bake3",
+          "kind": "asserted",
+          "verb": "bake",
+          "object": "chocolate cake (sister birthday)",
+          "outcome": "success",
+          "when_abs": "2023-05-20",
+          "granularity": "day",
+          "dup_links": [
+            "llm_738663_1_13"
+          ],
+          "counts_toward": "in"
+        },
+        {
+          "rid": "llm_738663_1_13",
+          "event_id": "e_bake3_dup",
+          "kind": "asserted",
+          "verb": "bake",
+          "object": "chocolate cake (sister birthday)",
+          "outcome": "success",
+          "when_abs": "2023-05-20",
+          "granularity": "day",
+          "dup_links": [
+            "llm_738660_7_7"
+          ],
+          "counts_toward": "in"
+        },
+        {
+          "rid": "llm_738663_8_20",
+          "event_id": "e_bake4",
+          "kind": "asserted",
+          "verb": "bake",
+          "object": "whole wheat baguette",
+          "outcome": "success",
+          "when_abs": "2023-05-20",
+          "granularity": "day",
+          "dup_links": [
+            "llm_738664_1_70"
+          ],
+          "counts_toward": "in"
+        },
+        {
+          "rid": "llm_738664_1_70",
+          "event_id": "e_bake4_dup",
+          "kind": "asserted",
+          "verb": "bake",
+          "object": "whole wheat baguette",
+          "outcome": "success",
+          "when_abs": "2023-05-20",
+          "granularity": "day",
+          "dup_links": [
+            "llm_738663_8_20"
+          ],
+          "counts_toward": "in"
+        },
+        {
+          "rid": "llm_738664_9_78",
+          "event_id": "e_bake5",
+          "kind": "asserted",
+          "verb": "bake",
+          "object": "bread (sourdough retry)",
+          "outcome": "failed (dough didn't rise)",
+          "when_abs": "2023-05-23",
+          "granularity": "day",
+          "counts_toward": "in"
+        },
+        {
+          "rid": "llm_738663_0_43",
+          "event_id": "e_wings",
+          "kind": "planned",
+          "verb": "bake",
+          "object": "chicken wings (dinner)",
+          "when_abs": "2023-05-23",
+          "granularity": "day",
+          "counts_toward": "out: planned not asserted"
+        },
+        {
+          "rid": "llm_738664_0_69",
+          "event_id": "e_italian",
+          "kind": "planned",
+          "verb": "bake",
+          "object": "rustic Italian bread",
+          "when_abs": null,
+          "granularity": null,
+          "counts_toward": "out: planned"
+        },
+        {
+          "rid": "llm_738663_4_47",
+          "event_id": "e_wwplan",
+          "kind": "planned",
+          "verb": "bake",
+          "object": "whole wheat bread recipe",
+          "when_abs": null,
+          "granularity": null,
+          "counts_toward": "out: planned"
+        }
+      ]
+    },
+    {
+      "qid": "d682f1a2",
+      "question": "How many different types of food delivery services have I used recently?",
+      "gold": "3",
+      "qdate": "2023-05-30",
+      "flat_answer": "2",
+      "aggregate": {
+        "op": "count_distinct",
+        "select": "verb=use AND object_class=food_delivery_service AND kind=asserted",
+        "field": "object",
+        "note": "gold counts Domino's Pizza as a delivery service despite it being a restaurant brand"
+      },
+      "records": [
+        {
+          "rid": "llm_738662_2_23",
+          "event_id": "e_dominos",
+          "kind": "asserted",
+          "verb": "use",
+          "object": "Domino's Pizza",
+          "object_class": "food_delivery_service",
+          "quantity": 3,
+          "quantifier": "explicit",
+          "when_abs": null,
+          "granularity": "week",
+          "counts_toward": "boundary: brand-vs-service classification; gold counts it"
+        },
+        {
+          "rid": "llm_738668_1_88",
+          "event_id": "e_ue",
+          "kind": "asserted",
+          "verb": "use",
+          "object": "Uber Eats",
+          "object_class": "food_delivery_service",
+          "when_abs": null,
+          "granularity": null,
+          "counts_toward": "in"
+        },
+        {
+          "rid": "llm_738660_3_3",
+          "event_id": "e_ff",
+          "kind": "asserted",
+          "verb": "use",
+          "object": "Fresh Fusion",
+          "object_class": "food_delivery_service",
+          "when_abs": null,
+          "granularity": null,
+          "counts_toward": "in"
+        }
+      ]
+    },
+    {
+      "qid": "gpt4_7fce9456",
+      "question": "How many properties did I view before making an offer on the townhouse in the Brookside neighborhood?",
+      "gold": "4",
+      "qdate": "2023-03-08",
+      "flat_answer": "5",
+      "aggregate": {
+        "op": "count_events",
+        "select": "verb=view AND kind=asserted AND object!=referent(target_property) AND when_abs < offer_event.when_abs",
+        "note": "gold excludes the target townhouse itself (the offer's object); viewing-by-offer-implication counts for the 2-bed condo"
+      },
+      "records": [
+        {
+          "rid": "llm_738587_0_8",
+          "event_id": "e_view1",
+          "kind": "asserted",
+          "verb": "view",
+          "object": "3-bed bungalow, Oakwood",
+          "when_abs": "2023-01-22",
+          "granularity": "day",
+          "counts_toward": "in"
+        },
+        {
+          "rid": "llm_738587_2_99",
+          "event_id": "e_view2",
+          "kind": "asserted",
+          "verb": "view",
+          "object": "property, Cedar Creek",
+          "when_abs": "2023-02-01",
+          "granularity": "day",
+          "counts_toward": "in"
+        },
+        {
+          "rid": "llm_738587_3_3",
+          "event_id": "e_view3",
+          "kind": "asserted",
+          "verb": "view",
+          "object": "1-bed condo",
+          "when_abs": "2023-02-10",
+          "granularity": "day",
+          "counts_toward": "in"
+        },
+        {
+          "rid": "llm_738587_3_67",
+          "event_id": "e_offer_2bed",
+          "kind": "asserted",
+          "verb": "offer",
+          "object": "2-bed condo",
+          "outcome": "rejected (higher bid)",
+          "when_abs": "2023-02-17",
+          "granularity": "day",
+          "implies_event": "view(2-bed condo) before offer",
+          "counts_toward": "in: viewing implied by offer (house-hunting chain)"
+        },
+        {
+          "rid": "llm_738587_1_43",
+          "event_id": "e_view_th",
+          "kind": "asserted",
+          "verb": "view",
+          "object": "3-bed townhouse, Brookside [TARGET]",
+          "when_abs": "2023-02-22",
+          "granularity": "day",
+          "counts_toward": "out: object = question referent"
+        },
+        {
+          "rid": "llm_738587_2_44",
+          "event_id": "e_offer_th",
+          "kind": "asserted",
+          "verb": "offer",
+          "object": "3-bed townhouse, Brookside [TARGET]",
+          "when_abs": "2023-02-25",
+          "granularity": "day",
+          "counts_toward": "reference: supplies the before-boundary"
+        }
+      ]
+    },
+    {
+      "qid": "7024f17c",
+      "question": "How many hours of jogging and yoga did I do last week?",
+      "gold": "0.5 hours",
+      "qdate": "2023-05-30",
+      "flat_answer": "refused",
+      "aggregate": {
+        "op": "sum",
+        "select": "verb in {jog, yoga} AND kind=asserted",
+        "field": "duration_hours",
+        "window": {
+          "kind": "loose_last_week",
+          "note": "gold's 'last week' is a loose ~7-14d lookback; strict calendar week (5-22..5-28) yields 0"
+        },
+        "note": "flat stack refused on strict-window empty set; typed record converts refusal to evidence-backed answer"
+      },
+      "records": [
+        {
+          "rid": "llm_738665_0_81",
+          "event_id": "e_jog1",
+          "kind": "asserted",
+          "verb": "jog",
+          "object": "neighborhood jog",
+          "duration_hours": 0.5,
+          "when_abs": "2023-05-20",
+          "granularity": "day",
+          "counts_toward": "boundary: 10d before qdate — inside loose window, outside strict calendar week"
+        },
+        {
+          "rid": "llm_738662_5_42",
+          "event_id": "e_yoga_plan",
+          "kind": "planned",
+          "verb": "yoga",
+          "object": "MWF 7am practice",
+          "duration_hours": null,
+          "when_abs": null,
+          "granularity": null,
+          "counts_toward": "out: planned"
+        },
+        {
+          "rid": "llm_738662_1_38",
+          "event_id": "e_yoga_hist",
+          "kind": "asserted",
+          "verb": "yoga",
+          "object": "3x/week 2h sessions (historical habit)",
+          "duration_hours": null,
+          "quantifier": "unspecified",
+          "when_abs": null,
+          "granularity": null,
+          "counts_toward": "out: habit statement, not a windowed event"
+        }
+      ]
+    },
+    {
+      "qid": "b5ef892d",
+      "held_out": true,
+      "question": "How many days did I spend on camping trips in the United States this year?",
+      "gold": "8 days",
+      "qdate": "2023-04-29",
+      "flat_answer": "8 (correct)",
+      "aggregate": {
+        "op": "sum",
+        "select": "verb=camp AND kind=asserted AND location=US AND when_abs.year=2023",
+        "field": "duration_days",
+        "note": "the Utah trip must be excluded by kind=negated on its camping record — the four-kind schema's payoff"
+      },
+      "records": [
+        {
+          "rid": "llm_738639_1_1",
+          "event_id": "e_camp1",
+          "kind": "asserted",
+          "verb": "camp",
+          "object": "solo camping trip, Big Sur",
+          "duration_days": 3,
+          "when_abs": "2023-04",
+          "granularity": "month",
+          "location": "US",
+          "counts_toward": "in"
+        },
+        {
+          "rid": "llm_738639_1_92",
+          "event_id": "e_camp2",
+          "kind": "asserted",
+          "verb": "camp",
+          "object": "camping trip, Yellowstone",
+          "duration_days": 5,
+          "when_abs": "2023-03",
+          "granularity": "month",
+          "location": "US",
+          "counts_toward": "in"
+        },
+        {
+          "rid": "llm_738639_3_30",
+          "event_id": "e_utah",
+          "kind": "negated",
+          "verb": "camp",
+          "object": "Utah road trip (no camping)",
+          "duration_days": 7,
+          "when_abs": "2023-02",
+          "granularity": "month",
+          "location": "US",
+          "counts_toward": "out: negated — trip happened, camping did not"
+        },
+        {
+          "rid": "llm_738639_3_3",
+          "event_id": "e_yellowhike",
+          "kind": "asserted",
+          "verb": "hike",
+          "object": "Yellowstone trails",
+          "duration_days": null,
+          "when_abs": "2023-03",
+          "granularity": "month",
+          "counts_toward": "out: verb=hike not camp"
+        }
+      ]
+    },
+    {
+      "qid": "gpt4_f2262a51",
+      "held_out": true,
+      "question": "How many different doctors did I visit?",
+      "gold": "3 (primary care, ENT, dermatologist)",
+      "qdate": "2023-05-30",
+      "flat_answer": "3 (correct)",
+      "aggregate": {
+        "op": "count_distinct",
+        "select": "verb=visit AND object_class=doctor AND kind=asserted",
+        "field": "object",
+        "note": "diagnosis events imply a visit; planned appointments excluded"
+      },
+      "records": [
+        {
+          "rid": "llm_738660_1_1",
+          "event_id": "e_derm",
+          "kind": "asserted",
+          "verb": "visit",
+          "object": "dermatologist Dr. Lee (biopsy follow-up)",
+          "when_abs": "2023-05-20",
+          "granularity": "day",
+          "counts_toward": "in",
+          "object_class": "doctor"
+        },
+        {
+          "rid": "llm_738665_0_40",
+          "event_id": "e_ent",
+          "kind": "asserted",
+          "verb": "visit",
+          "object": "ENT specialist Dr. Patel",
+          "when_abs": null,
+          "granularity": null,
+          "dup_links": [
+            "llm_738663_4_11"
+          ],
+          "counts_toward": "in",
+          "object_class": "doctor"
+        },
+        {
+          "rid": "llm_738663_4_11",
+          "event_id": "e_ent_dup",
+          "kind": "asserted",
+          "verb": "visit",
+          "object": "ENT specialist",
+          "when_abs": null,
+          "granularity": null,
+          "dup_links": [
+            "llm_738665_0_40"
+          ],
+          "counts_toward": "in",
+          "object_class": "doctor"
+        },
+        {
+          "rid": "llm_738663_1_8",
+          "event_id": "e_pcp",
+          "kind": "asserted",
+          "verb": "visit",
+          "object": "primary care physician Dr. Smith (UTI)",
+          "when_abs": null,
+          "granularity": null,
+          "counts_toward": "in",
+          "object_class": "doctor"
+        },
+        {
+          "rid": "llm_738665_9_49",
+          "event_id": "e_ent_plan",
+          "kind": "planned",
+          "verb": "visit",
+          "object": "Dr. Patel follow-up",
+          "when_abs": null,
+          "granularity": null,
+          "counts_toward": "out: planned",
+          "object_class": "doctor"
+        },
+        {
+          "rid": "llm_738665_10_50",
+          "event_id": "e_pcp_plan",
+          "kind": "planned",
+          "verb": "visit",
+          "object": "primary care physician",
+          "when_abs": null,
+          "granularity": null,
+          "counts_toward": "out: planned",
+          "object_class": "doctor"
+        }
+      ]
+    }
+  ]
+}
