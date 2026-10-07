@@ -1,0 +1,733 @@
+{
+ "0a995998": {
+  "spec": {
+   "op": "count_events",
+   "any_of": [
+    {
+     "verbs": null,
+     "object_class": [
+      "clothing"
+     ],
+     "objects_contain": null,
+     "obligation_status": [
+      "awaiting_pickup",
+      "awaiting_return"
+     ],
+     "location": null,
+     "kind": null,
+     "window": null
+    },
+    {
+     "verbs": [
+      "pick_up",
+      "dry_cleaning_pickup",
+      "dry_cleaning_dropoff",
+      "exchange",
+      "store"
+     ],
+     "object_class": [
+      "clothing"
+     ],
+     "objects_contain": null,
+     "obligation_status": null,
+     "location": null,
+     "kind": [
+      "planned",
+      "asserted"
+     ],
+     "window": null
+    },
+    {
+     "verbs": null,
+     "object_class": [
+      "clothing"
+     ],
+     "objects_contain": null,
+     "obligation_status": null,
+     "location": [
+      "Zara",
+      "professional cleaner"
+     ],
+     "kind": null,
+     "window": null
+    }
+   ],
+   "field": "object",
+   "explain": "Counts clothing records that are open obligations (awaiting_pickup/awaiting_return), or framed as pickup/dropoff/exchange/store actions, or tied to a store/cleaner location.",
+   "_qdate": "2023-02-15"
+  },
+  "result": {
+   "answer": 7,
+   "evidence": [
+    "llm_738566_1_1",
+    "llm_738566_22_22",
+    "llm_738566_25_25",
+    "llm_738566_2_28",
+    "llm_738566_4_30",
+    "llm_738566_8_34",
+    "llm_738566_6_42"
+   ],
+   "pool": 51
+  },
+  "gold": "3",
+  "flat": "2",
+  "match": false
+ },
+ "88432d0a": {
+  "spec": {
+   "op": "count_events",
+   "any_of": [
+    {
+     "verbs": [
+      "bake"
+     ],
+     "object_class": null,
+     "objects_contain": null,
+     "obligation_status": null,
+     "location": null,
+     "kind": [
+      "asserted"
+     ],
+     "window": {
+      "kind": "past_days",
+      "days": 14
+     },
+     "field": "object",
+     "explain": "Baking events explicitly typed as verb=bake within the last 14 days"
+    },
+    {
+     "verbs": [
+      "make",
+      "create",
+      "mix",
+      "roast"
+     ],
+     "object_class": [
+      "food"
+     ],
+     "objects_contain": [
+      "bread",
+      "cake",
+      "tart",
+      "cookie",
+      "muffin",
+      "pastry",
+      "sourdough",
+      "baguette"
+     ],
+     "obligation_status": null,
+     "location": null,
+     "kind": [
+      "asserted"
+     ],
+     "window": {
+      "kind": "past_days",
+      "days": 14
+     },
+     "field": "object",
+     "explain": "Baking recorded under cooking verbs with baked-good objects in the last 14 days"
+    },
+    {
+     "verbs": [
+      "bake"
+     ],
+     "object_class": null,
+     "objects_contain": null,
+     "obligation_status": null,
+     "location": null,
+     "kind": [
+      "asserted"
+     ],
+     "window": null,
+     "field": "object",
+     "explain": "Baking events typed as verb=bake that lack a when_abs date so the window would silently drop them"
+    }
+   ],
+   "field": "object",
+   "explain": "Counts baking episodes in the past two weeks across plausible frames",
+   "_qdate": "2023-05-30"
+  },
+  "result": {
+   "answer": 7,
+   "evidence": [
+    "llm_738660_7_7",
+    "llm_738663_3_15",
+    "llm_738663_8_20",
+    "llm_738663_2_45",
+    "llm_738663_8_51",
+    "llm_738663_9_52",
+    "llm_738664_5_74"
+   ],
+   "pool": 93
+  },
+  "gold": "4",
+  "flat": "5",
+  "match": false
+ },
+ "d682f1a2": {
+  "spec": {
+   "op": "count_distinct",
+   "any_of": [
+    {
+     "verbs": [
+      "use",
+      "try",
+      "find",
+      "choose"
+     ],
+     "object_class": [
+      "service"
+     ],
+     "objects_contain": [
+      "delivery",
+      "Uber Eats",
+      "Domino",
+      "Fresh Fusion"
+     ],
+     "kind": [
+      "asserted"
+     ],
+     "window": {
+      "kind": "past_days",
+      "days": 90
+     }
+    },
+    {
+     "verbs": [
+      "use",
+      "try",
+      "find",
+      "choose",
+      "eat",
+      "buy"
+     ],
+     "object_class": [
+      "food",
+      "service",
+      "meal"
+     ],
+     "objects_contain": [
+      "delivery",
+      "Uber Eats",
+      "Domino",
+      "Fresh Fusion"
+     ],
+     "kind": [
+      "asserted"
+     ],
+     "window": {
+      "kind": "past_days",
+      "days": 90
+     }
+    },
+    {
+     "verbs": null,
+     "object_class": null,
+     "objects_contain": [
+      "food delivery services",
+      "Uber Eats",
+      "Domino's Pizza",
+      "Fresh Fusion"
+     ],
+     "kind": [
+      "asserted"
+     ],
+     "window": null
+    }
+   ],
+   "field": "object",
+   "explain": "Count distinct food-delivery service objects (Uber Eats, Domino's, Fresh Fusion, generic 'food delivery services') referenced by use/try/find/choose/eat events in the last 90 days, with a fallback clause that ignores window since when_abs may be null.",
+   "_qdate": "2023-05-30"
+  },
+  "result": {
+   "answer": 4,
+   "evidence": [
+    "llm_738660_2_2",
+    "llm_738662_2_23",
+    "llm_738668_1_88",
+    "llm_738660_3_3"
+   ],
+   "pool": 126
+  },
+  "gold": "3",
+  "flat": "2",
+  "match": false
+ },
+ "gpt4_7fce9456": {
+  "spec": {
+   "op": "count_distinct",
+   "any_of": [
+    {
+     "verbs": [
+      "view"
+     ],
+     "object_class": [
+      "property"
+     ],
+     "location": null,
+     "obligation_status": null,
+     "kind": [
+      "asserted"
+     ],
+     "window": null
+    },
+    {
+     "verbs": [
+      "view"
+     ],
+     "object_class": null,
+     "objects_contain": [
+      "townhouse",
+      "condo",
+      "bungalow",
+      "house",
+      "property"
+     ],
+     "location": null,
+     "obligation_status": null,
+     "kind": [
+      "asserted"
+     ],
+     "window": null
+    },
+    {
+     "verbs": [
+      "view"
+     ],
+     "object_class": [
+      "property"
+     ],
+     "location": null,
+     "obligation_status": null,
+     "kind": [
+      "asserted"
+     ],
+     "window": {
+      "kind": "past_days",
+      "days": 365
+     }
+    }
+   ],
+   "field": "object",
+   "explain": "Count distinct properties viewed (verb=view, class=property or object naming a home type) ahead of the Brookside townhouse offer; undated views are covered by the window-less clauses.",
+   "_qdate": "2023-03-08"
+  },
+  "result": {
+   "answer": 4,
+   "evidence": [
+    "llm_738587_3_3",
+    "llm_738587_0_8",
+    "llm_738587_1_43",
+    "llm_738587_2_99"
+   ],
+   "pool": 125
+  },
+  "gold": "4",
+  "flat": "5",
+  "match": true
+ },
+ "7024f17c": {
+  "spec": {
+   "op": "sum",
+   "any_of": [
+    {
+     "verbs": [
+      "jog"
+     ],
+     "object_class": null,
+     "objects_contain": null,
+     "obligation_status": null,
+     "location": null,
+     "kind": [
+      "asserted"
+     ],
+     "window": {
+      "kind": "loose_last_week"
+     }
+    },
+    {
+     "verbs": null,
+     "object_class": [
+      "fitness_activity"
+     ],
+     "objects_contain": [
+      "yoga"
+     ],
+     "obligation_status": null,
+     "location": null,
+     "kind": [
+      "asserted"
+     ],
+     "window": {
+      "kind": "loose_last_week"
+     }
+    },
+    {
+     "verbs": [
+      "practice",
+      "workout",
+      "attend",
+      "start",
+      "resume",
+      "incorporate",
+      "try"
+     ],
+     "object_class": null,
+     "objects_contain": [
+      "yoga",
+      "jog"
+     ],
+     "obligation_status": null,
+     "location": null,
+     "kind": [
+      "asserted"
+     ],
+     "window": {
+      "kind": "loose_last_week"
+     }
+    }
+   ],
+   "field": "duration_hours",
+   "explain": "Sum duration_hours for asserted jogging or yoga sessions (any plausible frame) dated in the last week.",
+   "_qdate": "2023-05-30"
+  },
+  "result": {
+   "answer": 0.5,
+   "evidence": [
+    "llm_738665_0_81"
+   ],
+   "pool": 89
+  },
+  "gold": "0.5 hours",
+  "flat": "refused",
+  "match": true
+ },
+ "b5ef892d": {
+  "spec": {
+   "op": "sum",
+   "any_of": [
+    {
+     "verbs": [
+      "camping_trip",
+      "camp",
+      "take_trip",
+      "road_trip",
+      "trek",
+      "day_trip"
+     ],
+     "object_class": [
+      "event",
+      "campground",
+      "park",
+      "location"
+     ],
+     "location": [
+      "Aspen",
+      "Moab",
+      "White Rim Road",
+      "Utah",
+      "Rocky Mountain National Park",
+      "Yellowstone",
+      "Canyonlands National Park",
+      "Dead Horse Point State Park",
+      "Glenwood Springs",
+      "Maroon Bells",
+      "Big Sur",
+      "Moab, Utah",
+      "Arches National Park, Moab",
+      "Downtown Moab",
+      "Arches National Park",
+      "Canyonlands",
+      "Moab Brands Trails",
+      "Canyonlands Island in the Sky District",
+      "Hovenweep National Monument",
+      "Zion National Park",
+      "Bryce Canyon National Park",
+      "Mesa Verde National Park, Colorado",
+      "Natural Bridges National Monument",
+      "Island in the Sky"
+     ],
+     "obligation_status": null,
+     "kind": [
+      "asserted",
+      "planned"
+     ],
+     "window": {
+      "kind": "year",
+      "year": 2023
+     },
+     "field": "duration_days",
+     "explain": "Camping/trip events at US locations this year, summing duration_days"
+    },
+    {
+     "verbs": [
+      "camping_trip",
+      "camp",
+      "take_trip",
+      "road_trip",
+      "trek",
+      "day_trip"
+     ],
+     "object_class": [
+      "event",
+      "campground",
+      "park",
+      "location"
+     ],
+     "location": [
+      "Aspen",
+      "Moab",
+      "White Rim Road",
+      "Utah",
+      "Rocky Mountain National Park",
+      "Yellowstone",
+      "Canyonlands National Park",
+      "Dead Horse Point State Park",
+      "Glenwood Springs",
+      "Maroon Bells",
+      "Big Sur",
+      "Moab, Utah",
+      "Arches National Park, Moab",
+      "Downtown Moab",
+      "Arches National Park",
+      "Canyonlands",
+      "Moab Brands Trails",
+      "Canyonlands Island in the Sky District",
+      "Hovenweep National Monument",
+      "Zion National Park",
+      "Bryce Canyon National Park",
+      "Mesa Verde National Park, Colorado",
+      "Natural Bridges National Monument",
+      "Island in the Sky"
+     ],
+     "obligation_status": null,
+     "kind": [
+      "asserted",
+      "planned"
+     ],
+     "window": null,
+     "field": "duration_days",
+     "explain": "Same US camping/trip events when when_abs is null, so undated trips still count"
+    },
+    {
+     "verbs": [
+      "attend",
+      "visit",
+      "have",
+      "take",
+      "plan",
+      "start"
+     ],
+     "object_class": [
+      "event",
+      "campground",
+      "park",
+      "location"
+     ],
+     "objects_contain": [
+      "camp",
+      "trip",
+      "trek"
+     ],
+     "location": [
+      "Aspen",
+      "Moab",
+      "White Rim Road",
+      "Utah",
+      "Rocky Mountain National Park",
+      "Yellowstone",
+      "Canyonlands National Park",
+      "Dead Horse Point State Park",
+      "Glenwood Springs",
+      "Maroon Bells",
+      "Big Sur",
+      "Moab, Utah",
+      "Arches National Park, Moab",
+      "Downtown Moab",
+      "Arches National Park",
+      "Canyonlands",
+      "Moab Brands Trails",
+      "Canyonlands Island in the Sky District",
+      "Hovenweep National Monument",
+      "Zion National Park",
+      "Bryce Canyon National Park",
+      "Mesa Verde National Park, Colorado",
+      "Natural Bridges National Monument",
+      "Island in the Sky"
+     ],
+     "obligation_status": null,
+     "kind": [
+      "asserted",
+      "planned"
+     ],
+     "window": {
+      "kind": "year",
+      "year": 2023
+     },
+     "field": "duration_days",
+     "explain": "Alternate frame where a camping trip is an attended/visited event object this year"
+    },
+    {
+     "verbs": [
+      "attend",
+      "visit",
+      "have",
+      "take",
+      "plan",
+      "start"
+     ],
+     "object_class": [
+      "event",
+      "campground",
+      "park",
+      "location"
+     ],
+     "objects_contain": [
+      "camp",
+      "trip",
+      "trek"
+     ],
+     "location": [
+      "Aspen",
+      "Moab",
+      "White Rim Road",
+      "Utah",
+      "Rocky Mountain National Park",
+      "Yellowstone",
+      "Canyonlands National Park",
+      "Dead Horse Point State Park",
+      "Glenwood Springs",
+      "Maroon Bells",
+      "Big Sur",
+      "Moab, Utah",
+      "Arches National Park, Moab",
+      "Downtown Moab",
+      "Arches National Park",
+      "Canyonlands",
+      "Moab Brands Trails",
+      "Canyonlands Island in the Sky District",
+      "Hovenweep National Monument",
+      "Zion National Park",
+      "Bryce Canyon National Park",
+      "Mesa Verde National Park, Colorado",
+      "Natural Bridges National Monument",
+      "Island in the Sky"
+     ],
+     "obligation_status": null,
+     "kind": [
+      "asserted",
+      "planned"
+     ],
+     "window": null,
+     "field": "duration_days",
+     "explain": "Alternate-frame camping trips with no date, still counted toward the day total"
+    }
+   ],
+   "field": "duration_days",
+   "explain": "Sum duration_days for 2023 camping trips at US locations, covering both direct trip verbs and attended/visited event frames, including undated records",
+   "_qdate": "2023-04-29"
+  },
+  "result": {
+   "answer": 0.8437499999999999,
+   "evidence": [
+    "llm_738639_44_71",
+    "llm_738639_45_72",
+    "llm_738639_46_73",
+    "llm_738639_47_74",
+    "llm_738639_48_75",
+    "llm_738639_49_76",
+    "llm_738639_50_77"
+   ],
+   "pool": 140
+  },
+  "gold": "8 days",
+  "flat": "8 (correct)",
+  "match": false
+ },
+ "gpt4_f2262a51": {
+  "spec": {
+   "op": "count_distinct",
+   "field": "object",
+   "any_of": [
+    {
+     "verbs": [
+      "visit",
+      "attend",
+      "consult",
+      "undergo",
+      "biopsy",
+      "schedule"
+     ],
+     "object_class": null,
+     "objects_contain": [
+      "Dr.",
+      "doctor",
+      "physician",
+      "provider",
+      "appointment",
+      "colonoscopy",
+      "biopsy"
+     ],
+     "obligation_status": null,
+     "location": null,
+     "kind": null,
+     "window": null,
+     "explain": "explicit visit/consult/appointment frames naming a clinician or procedure encounter"
+    },
+    {
+     "verbs": null,
+     "object_class": null,
+     "objects_contain": [
+      "Dr.",
+      "doctor",
+      "physician",
+      "healthcare provider",
+      "primary care"
+     ],
+     "obligation_status": null,
+     "location": null,
+     "kind": null,
+     "window": null,
+     "explain": "any record whose object directly names a doctor or care provider, regardless of verb"
+    },
+    {
+     "verbs": [
+      "diagnose",
+      "treat",
+      "prescribe",
+      "recommend",
+      "have",
+      "experience"
+     ],
+     "object_class": [
+      "medical_condition",
+      "symptom",
+      "medical_procedure"
+     ],
+     "objects_contain": null,
+     "obligation_status": null,
+     "location": null,
+     "kind": null,
+     "window": null,
+     "explain": "clinical-encounter frames (diagnosis/treatment) where the doctor entity is implicit; window left null since when_abs is often missing"
+    }
+   ],
+   "explain": "Counts distinct doctor/encounter objects across all plausible realizations of a doctor visit; no window so null-dated records are included.",
+   "_qdate": "2023-05-30"
+  },
+  "result": {
+   "answer": 5,
+   "evidence": [
+    "llm_738660_1_1",
+    "llm_738660_3_3",
+    "llm_738663_0_7",
+    "llm_738663_1_8",
+    "llm_738663_2_9"
+   ],
+   "pool": 61
+  },
+  "gold": "3 (primary care, ENT, dermatologist)",
+  "flat": "3 (correct)",
+  "match": false
+ }
+}
