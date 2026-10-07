@@ -1,0 +1,22 @@
+  b5ef892d chunk3: 20/20
+llm call failed (attempt 1/6): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/6): HTTP Error 429: Too Many Requests
+  b5ef892d chunk0: 20/20
+  b5ef892d chunk2: 20/20
+  b5ef892d chunk1: 20/20
+  b5ef892d chunk6: 20/20
+  b5ef892d chunk4: 20/20
+  b5ef892d chunk5: 20/20
+b5ef892d: 140 records -> 140 typed, 2 dup groups
+  7024f17c chunk3: 20/20
+llm call failed (attempt 1/6): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/6): HTTP Error 429: Too Many Requests
+llm call failed (attempt 3/6): HTTP Error 429: Too Many Requests
+  7024f17c chunk4: 9/9
+  7024f17c chunk2: 20/20
+truncated at cap; continuing (cont #1, 3488 chars so far)
+llm call failed (attempt 1/6): HTTP Error 429: Too Many Requests
+truncated; retrying max_tokens=16384
+  7024f17c chunk1: 20/20
+  7024f17c chunk0: 20/20
+7024f17c: 89 records -> 89 typed, 0 dup groups

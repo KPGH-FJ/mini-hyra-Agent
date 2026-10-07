@@ -1,0 +1,95 @@
+=== FIELD FIDELITY (per question, annotated rids only) ===
+
+0a995998: {"kind": "3/4", "verb": "4/4", "object": "4/4", "when_abs": "4/4", "granularity": "4/4", "obligation_status": "4/4", "counterparty": "1/4"}
+   miss llm_738566_1_1 kind: gold='asserted' real='planned'
+   miss llm_738566_1_1 counterparty: gold='dry cleaner' real=None
+   miss llm_738566_4_30 counterparty: gold='Zara' real=None
+   miss llm_738566_7_43 counterparty: gold='Zara' real=None
+
+88432d0a: {"kind": "11/11", "verb": "7/11", "object": "9/11", "when_abs": "9/11", "granularity": "7/11"}
+   miss llm_738660_2_2 verb: gold='bake' real='try'
+   miss llm_738660_2_2 object: gold='sourdough bread (new recipe)' real='sourdough bread recipe'
+   miss llm_738660_7_7 when_abs: gold='2023-05-20' real=None
+   miss llm_738660_7_7 granularity: gold='day' real=None
+   miss llm_738663_1_13 when_abs: gold='2023-05-20' real=None
+   miss llm_738663_1_13 granularity: gold='day' real='week'
+   miss llm_738664_9_78 verb: gold='bake' real='try'
+   miss llm_738664_9_78 object: gold='bread (sourdough retry)' real='sourdough bread recipe'
+
+d682f1a2: {"kind": "3/3", "verb": "1/3", "object": "3/3", "quantity": "1/1", "quantifier": "1/1", "when_abs": "3/3", "granularity": "2/3", "object_class": "3/3"}
+   miss llm_738662_2_23 verb: gold='use' real='eat'
+   miss llm_738668_1_88 granularity: gold=None real='week'
+   miss llm_738660_3_3 verb: gold='use' real='find'
+
+gpt4_7fce9456: {"kind": "5/6", "verb": "6/6", "object": "1/6", "when_abs": "6/6", "granularity": "6/6"}
+   miss llm_738587_0_8 object: gold='3-bed bungalow, Oakwood' real='3-bedroom bungalow'
+   miss llm_738587_3_3 object: gold='1-bed condo' real='1-bedroom condo'
+   miss llm_738587_3_67 kind: gold='asserted' real='negated'
+   miss llm_738587_3_67 object: gold='2-bed condo' real='2-bedroom condo'
+   miss llm_738587_1_43 object: gold='3-bed townhouse, Brookside [TARGET]' real='3-bedroom townhouse'
+   miss llm_738587_2_44 object: gold='3-bed townhouse, Brookside [TARGET]' real='Brookside townhouse'
+
+7024f17c: {"kind": "3/3", "verb": "1/3", "object": "1/3", "quantifier": "0/1", "when_abs": "3/3", "granularity": "3/3"}
+   miss llm_738662_5_42 verb: gold='yoga' real='schedule'
+   miss llm_738662_5_42 object: gold='MWF 7am practice' real='yoga practice'
+   miss llm_738662_1_38 verb: gold='yoga' real='practice'
+   miss llm_738662_1_38 object: gold='3x/week 2h sessions (historical habit)' real='yoga'
+   miss llm_738662_1_38 quantifier: gold='unspecified' real='explicit'
+
+b5ef892d: {"kind": "3/4", "verb": "2/4", "object": "4/4", "when_abs": "3/4", "granularity": "3/4", "location": "0/3"}
+   miss llm_738639_1_1 location: gold='US' real='Big Sur'
+   miss llm_738639_1_92 verb: gold='camp' real='attend'
+   miss llm_738639_1_92 location: gold='US' real='Yellowstone National Park'
+   miss llm_738639_3_30 kind: gold='negated' real='asserted'
+   miss llm_738639_3_30 verb: gold='camp' real='hike'
+   miss llm_738639_3_30 when_abs: gold='2023-02' real=None
+   miss llm_738639_3_30 granularity: gold='month' real=None
+   miss llm_738639_3_30 location: gold='US' real='Utah'
+
+gpt4_f2262a51: {"kind": "6/6", "verb": "0/6", "object": "0/6", "when_abs": "6/6", "granularity": "6/6", "object_class": "0/6"}
+   miss llm_738660_1_1 verb: gold='visit' real='attend'
+   miss llm_738660_1_1 object: gold='dermatologist Dr. Lee (biopsy follow-up)' real='follow-up appointment for mole biopsy'
+   miss llm_738660_1_1 object_class: gold='doctor' real='event'
+   miss llm_738665_0_40 verb: gold='visit' real='diagnose'
+   miss llm_738665_0_40 object: gold='ENT specialist Dr. Patel' real='chronic sinusitis'
+   miss llm_738665_0_40 object_class: gold='doctor' real='medical_condition'
+   miss llm_738663_4_11 verb: gold='visit' real='diagnose'
+   miss llm_738663_4_11 object: gold='ENT specialist' real='chronic sinusitis'
+
+=== TOTAL FIELD ACCURACY ===
+  kind: 34/37 = 0.92
+  verb: 21/37 = 0.57
+  object: 22/37 = 0.59
+  when_abs: 34/37 = 0.92
+  granularity: 31/37 = 0.84
+  obligation_status: 4/4 = 1.00
+  counterparty: 1/4 = 0.25
+  quantity: 1/1 = 1.00
+  quantifier: 1/2 = 0.50
+  object_class: 3/9 = 0.33
+  location: 0/3 = 0.00
+  dup_links: recall=4/5 precision=4/10
+
+=== RESCUE (real fields, full-snapshot candidates) ===
+TARGET 0a995998 | gold=3 | real=2 | flat=2 | MISS  (pool=11)
+   evidence: ['llm_738566_2_28', 'llm_738566_4_30']
+   predicate-excluded: [('llm_738566_9_45', 'predicate')]
+TARGET 88432d0a | gold=4 | real=3 | flat=5 | MISS  (pool=18)
+   evidence: ['llm_738663_8_20', 'llm_738663_2_45', 'llm_738664_5_74']
+   predicate-excluded: [('llm_738663_29_41', 'predicate'), ('llm_738663_6_49', 'predicate'), ('llm_738663_10_53', 'predicate'), ('llm_738663_23_66', 'predicate')]
+TARGET d682f1a2 | gold=3 | real=0 | flat=2 | MISS  (pool=9)
+   evidence: []
+   predicate-excluded: [('llm_738660_2_2', 'predicate'), ('llm_738662_2_23', 'predicate'), ('llm_738668_1_88', 'predicate'), ('llm_738660_3_3', 'predicate'), ('llm_738662_51_72', 'predicate')]
+TARGET gpt4_7fce9456 | gold=4 | real=4 | flat=5 | MATCH  (pool=13)
+   evidence: ['llm_738587_3_3', 'llm_738587_0_8', 'llm_738587_1_43', 'llm_738587_2_99']
+   predicate-excluded: [('llm_738587_0_0', 'predicate'), ('llm_738587_1_9', 'predicate'), ('llm_738587_5_5', 'predicate'), ('llm_738587_2_44', 'predicate'), ('llm_738587_5_69', 'predicate'), ('llm_738587_28_92', 'predicate'), ('llm_738587_17_114', 'predicate'), ('llm_738587_23_120', 'predicate')]
+TARGET 7024f17c | gold=0.5 hours | real=0.5 | flat=refused | MATCH  (pool=1)
+   evidence: ['llm_738665_0_81']
+HELDOUT b5ef892d | gold=8 days | real=0 | flat=8 (correct) | MISS  (pool=18)
+   evidence: []
+   predicate-excluded: [('llm_738639_1_1', 'predicate'), ('llm_738639_3_3', 'predicate'), ('llm_738639_2_29', 'predicate'), ('llm_738639_3_30', 'predicate'), ('llm_738639_14_41', 'predicate'), ('llm_738639_15_42', 'predicate'), ('llm_738639_16_43', 'predicate'), ('llm_738639_17_44', 'predicate'), ('llm_738639_18_45', 'predicate'), ('llm_738639_53_80', 'predicate'), ('llm_738639_54_81', 'predicate'), ('llm_738639_55_82', 'predicate'), ('llm_738639_56_83', 'predicate'), ('llm_738639_1_92', 'predicate'), ('llm_738639_44_135', 'predicate')]
+HELDOUT gpt4_f2262a51 | gold=3 (primary care, ENT, dermatologist) | real=0 | flat=3 (correct) | MISS  (pool=4)
+   evidence: []
+   predicate-excluded: [('llm_738665_8_48', 'predicate'), ('llm_738663_2_9', 'predicate'), ('llm_738663_26_33', 'predicate')]
+
+targets rescued with real fields: 2/5
