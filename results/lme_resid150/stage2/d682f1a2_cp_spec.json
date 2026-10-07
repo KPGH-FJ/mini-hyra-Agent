@@ -1,0 +1,32 @@
+{
+ "spec": {
+  "op": "count_distinct",
+  "verbs": null,
+  "object_class": null,
+  "objects_contain": null,
+  "obligation_status": null,
+  "counterparties": [
+   "Uber Eats",
+   "Fresh Fusion",
+   "Domino's Pizza"
+  ],
+  "location": null,
+  "kind": [
+   "asserted"
+  ],
+  "window": {
+   "kind": "past_days",
+   "days": 30
+  },
+  "field": "object",
+  "exclude_objects_contain": null,
+  "explain": "Count distinct food delivery service counterparties used in the past 30 days.",
+  "_qdate": "2023-05-30"
+ },
+ "result": {
+  "answer": 0,
+  "evidence": [],
+  "pool": 126
+ },
+ "gold": "3"
+}

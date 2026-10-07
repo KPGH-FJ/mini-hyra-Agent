@@ -47,7 +47,27 @@ def cmp_field(rid, field, gold_v, real_v):
     return gold_v == real_v
 
 
+def _date_compat(a, b):
+    """dup-merge requires the two records' stated dates to be compatible:
+    shared-precision prefix must agree (year, then month, then day).
+    A missing/coarser field is never a disagreement."""
+    wa, wb = a.get("when_abs"), b.get("when_abs")
+    if not wa or not wb:
+        return True
+    if "-W" in str(wa) or "-W" in str(wb):
+        return True
+    ga = "day" if len(str(wa)) == 10 else "month" if len(str(wa)) == 7 \
+        else "year"
+    gb = "day" if len(str(wb)) == 10 else "month" if len(str(wb)) == 7 \
+        else "year"
+    depth = min({"year": 1, "month": 2, "day": 3}[ga],
+                {"year": 1, "month": 2, "day": 3}[gb])
+    cut = {1: 4, 2: 7, 3: 10}[depth]
+    return str(wa)[:cut] == str(wb)[:cut]
+
+
 def resolve_dups(recs):
+    by_rid = {r["rid"]: r for r in recs}
     parent = {r["rid"]: r["rid"] for r in recs}
     def find(x):
         while parent.get(x, x) != x:
@@ -55,7 +75,7 @@ def resolve_dups(recs):
         return x
     for r in recs:
         for d in r.get("dup_links", []):
-            if d in parent:
+            if d in parent and _date_compat(r, by_rid[d]):
                 ra, rb = find(r["rid"]), find(d)
                 if ra != rb:
                     parent[max(ra, rb)] = min(ra, rb)
@@ -83,6 +103,23 @@ def _abs_day(w):
 
 def in_window(rec, win, qd):
     w = rec.get("when_abs")
+    # optional null-date policy: "strict" (default, null fails),
+    # "mention_day" (fall back to the record's mention day, days-since-epoch
+    # int in `_day`), "tolerant" (null passes).
+    nm = win.get("null_mode", "strict")
+    if w is None and nm != "strict":
+        if nm == "tolerant":
+            return True
+        md = rec.get("_day")
+        if md:
+            d = date.fromordinal(int(md))  # store `day` is an ordinal
+            if win["kind"] == "past_days":
+                return qd - timedelta(days=win["days"]) < d <= qd
+            if win["kind"] == "loose_last_week":
+                return qd - timedelta(days=14) < d <= qd
+            if win["kind"] == "year":
+                return d.year == win["year"]
+        return None
     if win["kind"] == "past_days":
         if rec.get("granularity") != "day":
             return None
