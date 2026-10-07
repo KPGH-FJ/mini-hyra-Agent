@@ -1,0 +1,65 @@
+  0a995998 chunk2: 11/11
+truncated; retrying max_tokens=16384
+truncated; retrying max_tokens=16384
+  0a995998 chunk0: 20/20
+truncated; retrying max_tokens=32768
+llm call failed (attempt 3/6): HTTP Error 429: Too Many Requests
+  0a995998 chunk1: 20/20
+0a995998: 51 records -> 51 typed, 14 dup groups
+  88432d0a chunk0: 20/20
+truncated at cap; continuing (cont #1, 1884 chars so far)
+truncated; retrying max_tokens=16384
+truncated; retrying max_tokens=16384
+  88432d0a chunk4: 13/13
+  88432d0a chunk1: 20/20
+  88432d0a chunk2: 20/20
+truncated; retrying max_tokens=32768
+truncated; retrying max_tokens=65536
+  88432d0a chunk3: 20/20
+88432d0a: 93 records -> 93 typed, 9 dup groups
+  d682f1a2 chunk1: 20/20
+truncated at cap; continuing (cont #1, 998 chars so far)
+truncated at cap; continuing (cont #1, 6133 chars so far)
+llm call failed (attempt 1/6): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/6): HTTP Error 429: Too Many Requests
+llm call failed (attempt 3/6): HTTP Error 429: Too Many Requests
+truncated; retrying max_tokens=16384
+  d682f1a2 chunk2: 20/20
+llm call failed (attempt 1/6): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/6): HTTP Error 429: Too Many Requests
+llm call failed (attempt 3/6): HTTP Error 429: Too Many Requests
+  d682f1a2 chunk3: 0/20
+  d682f1a2 chunk0: 20/20
+truncated at cap; continuing (cont #1, 2816 chars so far)
+llm call failed (attempt 1/6): HTTP Error 429: Too Many Requests
+  d682f1a2 chunk4: 20/20
+truncated; retrying max_tokens=16384
+truncated; retrying max_tokens=16384
+  d682f1a2 chunk6: 6/6
+  d682f1a2 chunk5: 20/20
+truncated; retrying max_tokens=16384
+stream cut mid-flight; resuming (cont #1, 0 chars so far)
+d682f1a2: 126 records -> 126 typed, 2 dup groups
+  b5ef892d chunk2: 20/20
+llm call failed (attempt 1/6): HTTP Error 429: Too Many Requests
+llm call failed (attempt 2/6): HTTP Error 429: Too Many Requests
+llm call failed (attempt 3/6): HTTP Error 429: Too Many Requests
+  b5ef892d chunk3: 20/20
+  b5ef892d chunk0: 20/20
+llm call failed (attempt 1/6): HTTP Error 429: Too Many Requests
+truncated; retrying max_tokens=16384
+  b5ef892d chunk4: 20/20
+truncated; retrying max_tokens=16384
+  b5ef892d chunk6: 20/20
+  b5ef892d chunk5: 20/20
+  b5ef892d chunk1: 20/20
+b5ef892d: 140 records -> 140 typed, 2 dup groups
+  gpt4_f2262a51 chunk3: 1/1
+  gpt4_f2262a51 chunk0: 20/20
+truncated at cap; continuing (cont #1, 6838 chars so far)
+  gpt4_f2262a51 chunk1: 20/20
+truncated; retrying max_tokens=16384
+truncated; retrying max_tokens=32768
+llm call failed (attempt 3/6): HTTP Error 429: Too Many Requests
+  gpt4_f2262a51 chunk2: 20/20
+gpt4_f2262a51: 61 records -> 61 typed, 16 dup groups

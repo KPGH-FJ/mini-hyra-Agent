@@ -1,0 +1,25 @@
+TARGET 0a995998 | gold=3 | vocab-spec=3 | flat=2 | MATCH
+   spec: {"op": "count_events", "verbs": null, "object_class": ["clothing"], "objects_contain": null, "obligation_status": ["awaiting_pickup", "awaiting_return"], "location": null, "kind": ["asserted"], "window": null, "field": null, "exclude_objects_contain": null, "explain": "Count clothing records still m
+   evidence(3): ['llm_738566_1_1', 'llm_738566_2_28', 'llm_738566_4_30']
+TARGET 88432d0a | gold=4 | vocab-spec=3 | flat=5 | MISS
+   spec: {"op": "count_events", "verbs": ["bake"], "object_class": null, "objects_contain": null, "obligation_status": null, "location": null, "kind": ["asserted"], "window": {"kind": "past_days", "days": 14}, "field": null, "exclude_objects_contain": null, "explain": "Count bake events in the 14 days before
+   evidence(3): ['llm_738663_8_20', 'llm_738663_2_45', 'llm_738664_5_74']
+llm call failed (attempt 1/6): HTTP Error 429: Too Many Requests
+TARGET d682f1a2 | gold=3 | vocab-spec=0 | flat=2 | MISS
+   spec: {"op": "count_distinct", "verbs": ["use"], "object_class": null, "objects_contain": ["delivery", "Uber Eats", "Domino", "Fresh Fusion"], "obligation_status": null, "location": null, "kind": ["asserted"], "window": {"kind": "past_days", "days": 30}, "field": "object", "exclude_objects_contain": null,
+   evidence(0): []
+truncated at cap; continuing (cont #1, 379 chars so far)
+TARGET gpt4_7fce9456 | gold=4 | vocab-spec=4 | flat=5 | MATCH
+   spec: {"op": "count_distinct", "verbs": ["view"], "object_class": ["property"], "objects_contain": null, "obligation_status": null, "location": null, "kind": ["asserted"], "window": null, "field": "object", "exclude_objects_contain": null, "explain": "Count distinct asserted 'view' events on property-clas
+   evidence(4): ['llm_738587_3_3', 'llm_738587_0_8', 'llm_738587_1_43', 'llm_738587_2_99']
+TARGET 7024f17c | gold=0.5 hours | vocab-spec=0.5 | flat=refused | MATCH
+   spec: {"op": "sum", "verbs": ["jog", "practice"], "object_class": null, "objects_contain": null, "obligation_status": null, "location": null, "kind": ["asserted"], "window": {"kind": "loose_last_week"}, "field": "duration_hours", "exclude_objects_contain": null, "explain": "Sum duration_hours for jog and 
+   evidence(1): ['llm_738665_0_81']
+HELDOUT b5ef892d | gold=8 days | vocab-spec=10.0 | flat=8 (correct) | MISS
+   spec: {"op": "sum", "verbs": ["camp", "offroad", "trek", "travel"], "object_class": null, "objects_contain": null, "obligation_status": null, "location": ["Moab", "Aspen", "White Rim Road", "Maroon Bells Scenic Trail", "Utah", "Canyonlands National Park", "Rocky Mountain National Park", "Big Sur", "Yellow
+   evidence(2): ['llm_738639_1_1', 'llm_738639_2_29']
+HELDOUT gpt4_f2262a51 | gold=3 (primary care, ENT, dermatologist) | vocab-spec=3 | flat=3 (correct) | MATCH
+   spec: {"op": "count_distinct", "verbs": ["visit", "consult"], "object_class": null, "objects_contain": ["Dr.", "doctor", "physician", "specialist", "provider"], "obligation_status": null, "location": null, "kind": ["asserted"], "window": null, "field": "object", "exclude_objects_contain": null, "explain":
+   evidence(3): ['llm_738660_1_1', 'llm_738663_26_33', 'llm_738663_32_39']
+
+vocab-spec rescue: 3/5 targets, 1/2 heldout preserved

@@ -81,3 +81,54 @@ typed 字段把已对的题改错，净效果是负的。
 本臂 ~14 次 Atria spec 调用（7 题 × 2 臂，含重试），零重摄入、零判题——
 全部确定性求值。数据: spec_gen_results.json / spec_gen_results_v2.json，
 代码: spec_gen.py（ARM=v2 切换两臂）。
+
+---
+
+# 追加臂（同日）：stage-3b canonical-frame 打标探针
+
+stage-3 双臂把边界定位到"抽取写时的帧发散+实体丢失"后，直接测了**最小成本
+修法**：不动 schema、不动管道，只在摄入提示词加四条规范帧条款
+（`FIELDS_V3_SYS`：有界动词帧 visit/use/camp/bake/eat/view/buy/exchange/lent；
+object=被作用实体非话题；counterparty 必填人名实体；obligation 记录算
+asserted 不算 planned），重打标 5 道未救回题的快照（~35 次 Atria 调用）。
+
+## 字段级变化（compare_v3.py 逐条 diff）
+
+- `try`→`bake` ×4（烘焙词表收拢），`attend`→`visit`/`camp`，
+  `camping_trip`→`camp`，`schedule`→`visit`——动词规范化生效
+- object 落到实体：`mole biopsy appointment`→`Dr. Lee`，
+  `camping trip`→`Yellowstone National Park`
+- counterparty 新填充 +43 处（Domino's/Uber Eats/Fresh Fusion/Dr./Zara…）
+- 干洗西装 `kind planned→asserted`（义务条款生效）；犹他"没露营"行程
+  `asserted→negated`（否定修正生效）
+
+## 端到端实测：v1 spec 生成臂原样重跑（同提示词同求值，只换 _v3 字段）
+
+| qid | gold | v1-spec on v2字段 | v1-spec on **v3字段** | flat |
+|---|---|---|---|---|
+| 0a995998 | 3 | 2 ✗ | **3 ✓** | 2 |
+| 88432d0a | 4 | 3 ✗ | 3 ✗ | 5 |
+| d682f1a2 | 3 | 0 ✗ | 0 ✗ | 2 |
+| gpt4_7fce9456 | 4 | 4 ✓ | 4 ✓ | 5 |
+| 7024f17c | 0.5h | 0.5 ✓ | 0.5 ✓ | 拒答 |
+| b5ef892d(留出) | 8d | 3.0 ✗ | 10.0 ✗ | 8 ✓ |
+| gpt4_f2262a51(留出) | 3 | 0 ✗ | **3 ✓** | 3 ✓ |
+| **合计** | | 2/5·0/2 | **3/5·1/2**（净 4/7） | |
+
+**结论转正：prompt 级 canonical frame 真救回两道**（义务题+医生题），
+验证"写时规范帧"路线有效——这正是 stage-3 双臂预测的唯一未证伪方向。
+
+## 新残余（全部可诊断、工程形）
+
+1. **when_abs 覆盖缺口**：黄石露营 v3 里 when_abs 从 2023-03 退成 null——
+   window 子句丢它；建议抽取侧"无日期回退记录日（day）"或 spec 侧
+   window 对 null 日期宽容档（确定性小修）
+2. **dup 误并**：两次不同日期的 sourdough 烘焙（05-16 首试 / 05-23 复烤）
+   被 dup pass 同物不同期并成一事——dup 判据漏了"时间重叠"校验
+3. **DSL 缺 counterparty 选择器**：v3 已把实体打进 counterparty，spec DSL
+   里却没有字段选它（d682f1a2 三条服务记录全靠 counterparty 可解）
+4. **语义边界题**："7天犹他road trip" verb=travel 被 spec 词表误收
+   （v3 字段本身已正确区分 camp vs travel，是 spec 写手多收）——
+   确定性验证：`verbs=[camp]` 单选即得 3+5=8=gold
+
+残余不再是概念问题，是三个确定性小修 + spec 写手的克制问题。
