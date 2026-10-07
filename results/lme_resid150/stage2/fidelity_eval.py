@@ -199,7 +199,7 @@ def answer_enum(q, pool):
 
 def load_typed(qid):
     """prefer the revised-schema file (typed_<qid>_v2) when present."""
-    for suf in ("_v2", ""):
+    for suf in ("_v3", "_v2", ""):
         p = f"{OUT}/typed_{qid}{suf}.json"
         if os.path.exists(p):
             return json.load(open(p))

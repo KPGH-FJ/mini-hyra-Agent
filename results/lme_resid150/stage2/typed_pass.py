@@ -74,6 +74,41 @@ Rules:
 - "planned" facts keep the planned date in when_abs, not the mention day
 - Return ONLY the JSON array."""
 
+FIELDS_V3_SYS = FIELDS_SYS.replace(
+    '"verb": "snake_case" — normalized predicate (buy, exchange, lent,\n'
+    '   view, visit, attend, dry_cleaning_dropoff, ...),',
+    '"verb": "snake_case" — normalized predicate, chosen from the\n'
+    '   CANONICAL frame the user would search by, not the outcome or\n'
+    '   surface phrasing: visiting a professional/person -> visit\n'
+    '   (NOT diagnose/schedule); using a service or product -> use\n'
+    '   (NOT eat/find); a trip staying outdoors -> camp; making\n'
+    '   bread/cake/cookies -> bake (NOT try/experiment); eating a\n'
+    '   meal -> eat; viewing a property -> view; buying -> buy;\n'
+    '   exchanging -> exchange; lending -> lent. Other verbs allowed\n'
+    '   when no canonical frame fits,',
+).replace(
+    '"object": short noun phrase — what the verb acts on,',
+    '"object": short noun phrase — the ENTITY the verb acts on: the\n'
+    '   person visited, service used, place stayed at, item made —\n'
+    '   NEVER the topic/condition/outcome (for "saw the ENT about\n'
+    '   sinusitis" object = "ENT specialist", not the condition; for\n'
+    '   "ordered Domino\'s" object = the service, not the food),',
+).replace(
+    '"counterparty": person/org name or null,',
+    '"counterparty": person/org name — REQUIRED whenever the record\n'
+    '   involves a named person, professional or organization\n'
+    '   ("Dr. Patel", "ENT specialist", "Zara"); null only when the\n'
+    '   record involves no one but the user,',
+).replace(
+    '- "planned" facts keep the planned date in when_abs, not the mention day',
+    '- "planned" facts keep the planned date in when_abs, not the mention day\n'
+    '- records carrying obligation_status are asserted STATES (the\n'
+    '  obligation exists now): kind=asserted, not planned — even if\n'
+    '  fulfillment lies in the future',)
+
+PROMPT = os.environ.get("PROMPT", "v2")
+FIELDS_ACTIVE = FIELDS_V3_SYS if PROMPT == "v3" else FIELDS_SYS
+
 DUP_SYS = """You get ALL records of one user's memory as compact lines:
 `rid | kind | verb | object | when_abs | value-prefix`.
 Two records are a SUSPECTED DUPLICATE when they describe the same real
@@ -118,7 +153,7 @@ def _json_list(text):
 async def type_chunk(llm, chunk):
     prompt = ("RECORDS:\n" + json.dumps(chunk, ensure_ascii=False)
               + "\n\nTyped fields JSON array:")
-    text = await llm.complete(FIELDS_SYS, prompt)
+    text = await llm.complete(FIELDS_ACTIVE, prompt)
     out = _json_list(text)
     return {o["rid"]: o for o in out if isinstance(o, dict) and o.get("rid")}
 

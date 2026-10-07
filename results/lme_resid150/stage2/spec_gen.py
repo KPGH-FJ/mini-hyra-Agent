@@ -252,7 +252,8 @@ async def main():
         print(f"   evidence({len(res['evidence'])}): {res['evidence']}")
     print(f"\nvocab-spec rescue: {rescued}/{targets} targets, "
           f"{heldok}/2 heldout preserved")
-    suffix = "_v2" if os.environ.get("ARM") == "v2" else ""
+    arm = os.environ.get("ARM", "")
+    suffix = f"_{arm}" if arm else ""
     json.dump(out, open(f"{OUT}/spec_gen_results{suffix}.json", "w"),
               ensure_ascii=False, indent=1)
 
