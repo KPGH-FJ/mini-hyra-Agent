@@ -78,8 +78,11 @@ async def run_scope(convs, ci, scope, llm, out_dir):
                     R.aanswer(m, llm, row["question"], QD,
                               premise_check=gate, assist=True),
                     ANS_TIMEOUT)
+                verify = r.get("verify") or {}
                 rec = {**row, "response": r["response"],
-                       "verdict": (r.get("verify") or {}).get("verdict")}
+                       "verdict": verify.get("verdict"),
+                       "atoms": verify.get("atoms"),
+                       "lex_violation": verify.get("lex_violation")}
             except Exception as e:
                 rec = {**row, "response": f"(error: {e})",
                        "verdict": "ERROR"}
