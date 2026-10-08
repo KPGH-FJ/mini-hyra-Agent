@@ -168,7 +168,7 @@ def _drop_nonselective(clause, typed):
     for key, vkey in (("verbs", "verbs"), ("object_class", "object_class"),
                       ("location", "location"),
                       ("counterparties", "counterparty")):
-        lst = clause.get(key)
+        lst = _list(clause.get(key))
         tot = len(vocab.get(vkey, {}))
         if lst and tot and len(lst) >= max(tot * 0.8, tot - 2):
             clause[key] = None
@@ -181,37 +181,48 @@ def norm_clause(spec, typed):
     return spec
 
 
+def _list(v):
+    """spec writers sometimes emit a bare string where the DSL wants a
+    list — coerce so None-valued record fields don't crash `in`."""
+    if v is None:
+        return None
+    return v if isinstance(v, list) else [v]
+
+
 def _clause_passes(clause, r, qd):
     if clause.get("kind"):
-        if r.get("kind") not in clause["kind"]:
+        if r.get("kind") not in _list(clause["kind"]):
             return False
     elif r.get("kind") != "asserted":
         return False
-    if clause.get("verbs") and r.get("verb") not in clause["verbs"]:
+    if clause.get("verbs") and r.get("verb") not in _list(clause["verbs"]):
         return False
     if clause.get("object_class") and \
-            r.get("object_class") not in clause["object_class"]:
+            r.get("object_class") not in _list(clause["object_class"]):
         return False
     if clause.get("objects_contain"):
         o = norm(r.get("object"))
-        if not any(norm(s) in o for s in clause["objects_contain"]):
+        if not any(norm(s) in o
+                   for s in _list(clause["objects_contain"])):
             return False
     if clause.get("exclude_objects_contain"):
         o = norm(r.get("object"))
-        if any(norm(s) in o for s in clause["exclude_objects_contain"]):
+        if any(norm(s) in o
+               for s in _list(clause["exclude_objects_contain"])):
             return False
     if clause.get("obligation_status") and \
-            r.get("obligation_status") not in clause["obligation_status"]:
+            r.get("obligation_status") not in \
+            _list(clause["obligation_status"]):
         return False
     if clause.get("location") and \
-            r.get("location") not in clause["location"]:
+            r.get("location") not in _list(clause["location"]):
         return False
     if clause.get("counterparties"):
         c = norm(r.get("counterparty"))
         if not c:
             return False
         if not any(norm(s) in c or c in norm(s)
-                   for s in clause["counterparties"]):
+                   for s in _list(clause["counterparties"])):
             return False
     w = clause.get("window")
     if w and in_window(r, w, qd) is not True:
@@ -262,7 +273,7 @@ def validate_spec(spec, typed):
                           ("object_class", "object_class"),
                           ("location", "location"),
                           ("counterparties", "counterparty")):
-            for v in clause.get(key) or []:
+            for v in _list(clause.get(key)) or []:
                 if v not in vocab.get(vkey, {}):
                     near = [w for w in vocab.get(vkey, {})
                             if norm(v) in norm(w) or norm(w) in norm(v)][:3]
