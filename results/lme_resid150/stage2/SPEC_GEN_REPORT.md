@@ -213,3 +213,7 @@ prompt 全量上 M1 + spec-verify 两拍作为 M4 枚举题的作答机制。
 | gpt4_f2262a51 | 3 | **3 ✓** | 空选型回落→检索通道答对 |
 
 **6/7 端到端救回**（5 经 spec、1 经回落网）。活体新抓两个机制问题已修：spec 写手偶发裸串值（`"verbs":"x"`）撞上 null 字段记录崩 `in`——`_list()` 强转已下沉 typed_agg；gpt4_f2262a51 回落后检索通道自己答对，回落网按设计兑现"机械空集不顶包"。
+
+## when_abs 空洞复核（生产 TYPED_SYS 条款，2026-10-03）
+
+对 7 条"文本含日期但 when_abs=null"的残尾记录（正是 4.7% 空洞的那批）跑生产版 TYPED_SYS（含"括号/松散锚日期必须落字段"条款）：**7/7 全部补上 when_abs**，且粒度标注正确——`last/this/next weekend`→week、`last month`→month，不强解到日（anchor-v2 教训被条款兑现）。注意 when_abs 值此时是相对短语而非 ISO——窗口求值靠 granularity 保护不会被日窗误收。跨后端验证（Atria 429 期间用 OR 补跑，结论一致）。
