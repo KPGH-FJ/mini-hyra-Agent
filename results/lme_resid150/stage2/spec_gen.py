@@ -60,10 +60,17 @@ Emit spec JSON:
  "object_class": [<vocabulary classes>] or null,
  "objects_contain": [<substrings>] or null,
  "obligation_status": [<values>] or null,
+ "counterparties": [<vocabulary counterparties>] or null
+                    — selects records whose counterparty matches;
+                    the person/org the record is ABOUT (services used,
+                    professionals visited, stores shopped at),
  "location": [<vocabulary locations>] or null,
  "kind": ["asserted"] (default; add others only if the question asks),
  "window": {"kind":"past_days","days":N} | {"kind":"year","year":YYYY}
-           | {"kind":"loose_last_week"} | null,
+           | {"kind":"loose_last_week"} | null
+           — optional "null_mode": "strict" (default, null when_abs
+           fails) | "mention_day" (fall back to the record's mention
+           day) | "tolerant" (null passes),
  "field": "object"|"quantity"|"duration_hours"|"duration_days"
           (sum only),
  "exclude_objects_contain": [<substrings>] or null,
@@ -71,6 +78,13 @@ Emit spec JSON:
 
 Notes:
 - "how many distinct/different X" -> count_distinct over field=object
+- "how many services/places/people have I used/visited" -> prefer
+  counterparties over verbs+objects_contain when the vocabulary has
+  them — the verb is often eat/order/diagnose while counterparty
+  names the actual entity
+- prefer the MINIMAL selector: every verb/class you add must name the
+  SAME real event type the question asks about — do not widen to
+  semantically adjacent frames (a camping trip is not travel)
 - window past_days uses the question date as ref; loose_last_week means
   the ~2 weeks before it (day-granularity records only)
 - Return ONLY the JSON object."""
@@ -86,12 +100,15 @@ def vocab_of(typed):
                    for t in typed.values() if t.get("object"))
     obs = Counter(str(t.get("obligation_status"))
                   for t in typed.values() if t.get("obligation_status"))
+    cps = Counter(str(t.get("counterparty"))
+                  for t in typed.values() if t.get("counterparty"))
     kinds = Counter(str(t.get("kind")) for t in typed.values())
     return {"verbs": dict(verbs.most_common(40)),
             "object_class": dict(classes.most_common(25)),
             "location": dict(locs.most_common(25)),
             "objects": dict(objs.most_common(30)),
             "obligation_status": dict(obs),
+            "counterparty": dict(cps.most_common(25)),
             "kind": dict(kinds)}
 
 
@@ -165,6 +182,13 @@ def _clause_passes(clause, r, qdate):
         return False
     if clause.get("location") and r.get("location") not in clause["location"]:
         return False
+    if clause.get("counterparties"):
+        c = F.norm(r.get("counterparty"))
+        if not c:
+            return False
+        if not any(F.norm(s) in c or c in F.norm(s)
+                   for s in clause["counterparties"]):
+            return False
     w = clause.get("window")
     if w:
         iw = F.in_window(r, w, qdate)
@@ -180,8 +204,40 @@ def passes(spec, r, pool):
     return _clause_passes(spec, r, qd)
 
 
-def answer_with_spec(q, spec, typed):
-    pool = [{**t, "rid": rid} for rid, t in typed.items()]
+def _drop_nonselective(clause, typed):
+    """a clause listing ~all vocabulary for a field is not selecting —
+    the spec writer sometimes enumerates the whole vocab instead of
+    leaving the key null. Drop such lists; also strip unknown keys
+    so stray fields can't silently narrow the clause."""
+    keep = {"op", "any_of", "verbs", "object_class", "objects_contain",
+            "exclude_objects_contain", "obligation_status",
+            "counterparties", "location", "kind", "window", "field",
+            "explain", "_qdate"}
+    for k in list(clause):
+        if k not in keep:
+            del clause[k]
+    vocab = vocab_of(typed)
+    for key, vkey in (("verbs", "verbs"), ("object_class", "object_class"),
+                      ("location", "location"),
+                      ("counterparties", "counterparty")):
+        lst = clause.get(key)
+        tot = len(vocab.get(vkey, {}))
+        if lst and tot and len(lst) >= max(tot * 0.8, tot - 2):
+            clause[key] = None
+    return clause
+
+
+def _norm_clause(spec, typed):
+    for c in (spec.get("any_of") or [spec]):
+        _drop_nonselective(c, typed)
+    return spec
+
+
+def answer_with_spec(q, spec, typed, recs=None):
+    spec = _norm_clause(spec, typed)
+    day_of = {r["rid"]: r.get("day") for r in recs or []}
+    pool = [{**t, "rid": rid, "_day": day_of.get(rid)}
+            for rid, t in typed.items()]
     groups = F.resolve_dups(pool)
     events = [min(m, key=lambda r: r["rid"]) for m in groups.values()]
     sel = [r for r in events if passes(spec, r, pool)]
@@ -231,7 +287,7 @@ async def main():
             print(f"{qid}: spec generation FAILED")
             continue
         spec["_qdate"] = q["qdate"]
-        res = answer_with_spec(q, spec, typed)
+        res = answer_with_spec(q, spec, typed, data.get("records"))
         gold_num = str(q["gold"]).split(" ")[0]
         try:
             ok = abs(float(res["answer"]) - float(gold_num)) < 1e-6

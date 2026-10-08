@@ -1,0 +1,41 @@
+{
+ "spec": {
+  "op": "sum",
+  "verbs": [
+   "camp"
+  ],
+  "object_class": null,
+  "objects_contain": null,
+  "obligation_status": null,
+  "counterparties": null,
+  "location": null,
+  "kind": [
+   "asserted"
+  ],
+  "window": {
+   "kind": "year",
+   "year": 2023,
+   "null_mode": "include"
+  },
+  "field": "duration_days",
+  "exclude_objects_contain": [
+   "New Zealand"
+  ],
+  "explain": "Sum duration_days of asserted camp events in calendar year 2023 (including undated records) at US locations, excluding New Zealand; adds the undated 5-day Yellowstone camp to the 3-day Big Sur camp.",
+  "_qdate": "2023-04-29"
+ },
+ "result": {
+  "answer": 8.0,
+  "evidence": [
+   "llm_738639_1_1",
+   "llm_738639_1_92",
+   "llm_738639_13_104",
+   "llm_738639_14_105",
+   "llm_738639_15_106",
+   "llm_738639_16_107",
+   "llm_738639_17_108"
+  ],
+  "pool": 140
+ },
+ "gold": "8 days"
+}

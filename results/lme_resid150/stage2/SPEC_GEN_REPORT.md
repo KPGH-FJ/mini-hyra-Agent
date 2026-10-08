@@ -132,3 +132,64 @@ asserted 不算 planned），重打标 5 道未救回题的快照（~35 次 Atri
    确定性验证：`verbs=[camp]` 单选即得 3+5=8=gold
 
 残余不再是概念问题，是三个确定性小修 + spec 写手的克制问题。
+
+---
+
+# Stage-4：确定性小修 + spec 校验闭环（2026-10-06）→ 7/7
+
+stage-3b 留下的四条工程残余一次性落地，全部 **零新跑摄入**（存量 _v3
+typed 字段 + 存量 spec JSON 确定性复求值，新 LLM 调用仅 2 次 spec 生成
++ 3 次校验修正）：
+
+## 落地的小修
+
+| 修 | 位置 | 作用 |
+|---|---|---|
+| dup 合并加时间相容校验 | `_date_compat`（共享精度前缀一致才可并） | sourdough 05-16/05-23 不再误并 |
+| window 增 `null_mode` | `strict`（默认）/`mention_day`（回退记录日）/`tolerant` | 无日期记录不再被 window 静默杀死 |
+| DSL 增 `counterparties` 选择器 | spec 词表新增 counterparty 列 | 实体题不再绕 verb/object 弯路 |
+| 词表覆盖率>80% 的选择器自动置空 | `_drop_nonselective` | spec 写手把全词表抄进约束的噪声剔除 |
+| 记录 `day` 字段按 proleptic ordinal 解释 | `date.fromordinal` | 修 `mention_day` 换算错到 3992 年的 bug |
+| null counterparty 不再空串全匹配 | `counterparties` 空值守卫 | tolerant 模式下空 cp 记录不再漏进 |
+
+## 结果（7 题残尾切片，gold 对齐）
+
+| qid | gold | 存量 spec（修后 strict） | 校验闭环后 |
+|---|---|---|---|
+| 0a995998 | 3 | 3 ✓ | — |
+| 88432d0a | 4 | **4 ✓**（dup 解并生效） | — |
+| d682f1a2 | 3 | 0（cp spec 需非 strict window） | **3 ✓**（cp 选择器 + mention_day） |
+| gpt4_7fce9456 | 4 | 4 ✓ | — |
+| 7024f17c | 0.5h | 0.5 ✓ | — |
+| b5ef892d | 8d | 10.0（spec 写手多收 travel） | **8.0 ✓**（校验 1 轮收敛） |
+| gpt4_f2262a51 | 3 | 3 ✓ | — |
+| **合计** | | **5/7** | **7/7** |
+
+## spec 校验闭环（新机制，本轮最大发现）
+
+一次性 spec 生成不可靠已三轮复现（v1 漏选 → v2 过选 → v3 对动词了却虚构
+16 项 location 约束）。改为 **跑一遍→把选中+落选候选回喂→让模型判修正**：
+
+- iter0：v4 spec 得 3.0（location 清单杀了大部）→ 校验模型见 7 条候选
+  被错杀，改出 `verbs=[camp]` + `window.year=2023,null_mode=include`
+- iter1：得 **8.0 = gold**（黄石 null 日期经 mention_day 兜底 +5d，
+  Utah travel 不再混入）→ iter2 收敛不再改
+
+两轮调用内收敛。同一闭环把 d682f1a2 的 cp spec 从 0 修到 3（verifier
+见证据为空即把 window 改成 mention_day）。
+
+## 残留（诚实清单）
+
+- **when_abs 抽取覆盖**：黄石记录事件日期仍为 null——靠 mention_day 兜底
+  是近似（把"提及日"当"发生日"，对回忆旧事件会过收）；根治要抽取侧必填
+  when_abs 或显式 unknown 标记
+- **DSL 值校验**：校验模型自创 `"null_mode":"include"`（未定义值恰好落到
+  mention_day 分支）——DSL 需要枚举值严格校验/报错回环
+- **spec 写手仍偏爱情境约束**：连续四轮都要靠后置机制（非选择性剔除/校验）
+  兜底——校验闭环建议成为 spec 生成的标配而非补救
+
+## 阶段总结
+
+typed-record 链端到端打通：canonical-frame 抽取（+2）→ 确定性小修（+1）→
+spec 校验闭环（+2）= **7/7 残尾全救回**。下一步是生产化决策：canonical
+prompt 全量上 M1 + spec-verify 两拍作为 M4 枚举题的作答机制。

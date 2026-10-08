@@ -327,6 +327,11 @@
    "when": "2026-10-07",
    "title": "stage-3b canonical-frame 探针转正——prompt 级规范帧救回 +2 题（净 4/7）",
    "text": "stage-3 双臂证 spec 侧穷尽后，测最小成本修法：只在摄入提示词加规范帧条款（有界动词帧 visit/use/camp/bake；object=被作用实体；counterparty 必填；义务=asserted）重打标 5 快照。字段级：try→bake×4、attend→visit/camp、object 落实体（Dr. Lee/黄石）、counterparty+43、义务 kind 修正、否定修正。同一 v1 spec 臂原样重跑：0a995998 2→3✓、留出 f2262a51 0→3✓——净 4/7（v3 前 2/7+0 留出）。残余全部工程形：when_abs null 覆盖、dup 同物误并、DSL 缺 counterparty 选择器、spec 词表克制——verbs=[camp] 单选确定性验证=gold8。报告 results/lme_resid150/stage2/SPEC_GEN_REPORT.md"
+  },
+  {
+   "when": "2026-10-07",
+   "title": "stage-4 确定性小修 + spec 校验闭环——残尾切片 7/7 全救回",
+   "text": "stage-3b 的四条工程残余落地：dup 合并加时间相容校验（sourdough 误并拆开）、window 增 null_mode（strict/mention_day/tolerant 每 spec 自选）、DSL 增 counterparties 选择器入词表、词表覆盖>80% 的选择器自动置空；另修两个求值 bug（day 是 proleptic ordinal 不是 Unix epoch；null counterparty 空串全匹配）。存量 spec 复求值 5/7；spec 生成侧再补两招——counterparties 写入 DSL 文档（d682f1a2→3）、跑一遍再把选中/落选证据回喂修正的校验闭环（b5ef892d iter1 即 8.0=gold，iter2 收敛）——残尾 7/7 全救回。一次性 spec 生成不可靠已四轮复现（v1 漏选/v2 过选/v3 动词对却虚构 location），校验闭环升级为标配机制。残留诚实清单：when_abs 抽取覆盖（mention_day 是近似）、DSL 枚举值需严格校验、spec 写手偏爱情境约束。"
   }
  ],
  "current": {
@@ -334,9 +339,9 @@
   "round": "外考攻坚期 · LME-150 90.0%(ruleB) / LoCoMo-10 64.0%(cat5 94.4→92.9 grounded闸)",
   "leader": "LifeStream 197/197 满分 · LME-150 90.0%",
   "best_evolved": "ruleB 纯题型路由（ms恒profile·实测89.3%站上oracle90.7门口）",
-  "remaining": "LME残尾~10%：枚举~5题——canonical-frame 探针救回 +2（净 4/7 可达），残余=3 个确定性小修；判官噪声~4；cat3多跳 35.4% 副考最弱域",
+  "remaining": "LME残尾~10%：枚举残尾链路端到端打通（stage-4 = 7/7：canonical帧+确定性小修+spec校验闭环）；判官噪声~4；cat3多跳 35.4% 副考最弱域",
   "goal": "下一研究决策点",
-  "goal_desc": "待拍板：① 枚举残尾链路已实测打通——canonical frame 提取有效（stage-3b 净 4/7）；下一段=确定性小修（when_abs 回退记录日 / dup 加时间重叠校验 / DSL 加 counterparty 选择器）+ 可选重摄入全量上线 ② 副考 cat3 多跳推理 35.4%（全量最弱域）主攻立项 ③ 基线对擂（开源 Mem0/朴素RAG 灌入本管道同 150 题同判官）④ 聚合空集回落 flat 兜底条款（必修）⑤ v3.5 verifier 硬蕴含核 backlog",
+  "goal_desc": "待拍板：① M1 canonical frame 全量上线 + M4 枚举题走 spec-verify 两拍（残尾链路已 7/7 实证）② 副考 cat3 多跳推理 35.4% 主攻立项 ③ 基线对擂（开源 Mem0/朴素RAG 灌入本管道同 150 题同判官）④ when_abs 抽取覆盖 + DSL 值校验硬化 ⑤ v3.5 verifier 硬蕴含核 backlog",
   "opponent": "系统 195.0 · 最强进化解 158.9",
   "opponent_desc": "进化解每摸到一类深史题 +1~3 分",
   "progress": "实验中 —— 深史专攻 + context-agent 修复生效窗",

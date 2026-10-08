@@ -1,0 +1,57 @@
+{
+ "spec": {
+  "op": "sum",
+  "verbs": [
+   "camp"
+  ],
+  "object_class": null,
+  "objects_contain": null,
+  "obligation_status": null,
+  "counterparties": null,
+  "location": [
+   "Moab",
+   "Aspen",
+   "White Rim Road",
+   "Maroon Bells Scenic Trail",
+   "Utah",
+   "Canyonlands National Park",
+   "Rocky Mountain National Park",
+   "Big Sur",
+   "Yellowstone",
+   "Arches National Park",
+   "Glenwood Springs",
+   "Moab, Utah",
+   "Dead Horse Point State Park",
+   "Downtown Moab",
+   "Canyonlands",
+   "White Rim Overlook Trail",
+   "Grand View Point Trail",
+   "Mesa Arch Trail",
+   "Upheaval Dome Trail",
+   "Rocky Mountains, Colorado",
+   "Yellowstone National Park",
+   "Garden of the Gods",
+   "Denver to Durango",
+   "Buena Vista"
+  ],
+  "kind": [
+   "asserted"
+  ],
+  "window": {
+   "kind": "year",
+   "year": 2023
+  },
+  "field": "duration_days",
+  "exclude_objects_contain": null,
+  "explain": "Sum duration_days of asserted camp events in 2023 at US locations (excludes New Zealand).",
+  "_qdate": "2023-04-29"
+ },
+ "result": {
+  "answer": 3.0,
+  "evidence": [
+   "llm_738639_1_1"
+  ],
+  "pool": 140
+ },
+ "gold": "8 days"
+}
