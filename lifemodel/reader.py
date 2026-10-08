@@ -336,6 +336,59 @@ async def _pverify(llm, question: str, qdate: str, listing: str,
     return _pv_gate(verify, records)
 
 
+def _bound_texts(verify: dict, records: dict) -> list:
+    """Record texts the verifier's atoms bound to — the attestation
+    pool for grounded_lex's lexical check."""
+    texts = []
+    for a in verify.get("atoms") or []:
+        if isinstance(a, dict) and a.get("record") in records:
+            texts.append(str(records[a["record"]]))
+    return texts
+
+
+def _unattested_values(resp: str, bound: list, question: str) -> list:
+    """Concrete values asserted in the answer tail that appear verbatim
+    nowhere in the bound records nor the question — the leak detector
+    for grounded_lex. Checks capitalized phrases and bare numbers."""
+    text = " ".join(bound).lower()
+    qlow = question.lower()
+    cand = re.findall(r"[A-Z][\w'-]*(?:\s+[A-Z][\w'-]*){0,3}", resp)
+    cand += re.findall(r"\b\d[\d,.]*\b", resp)
+    bad, seen = [], set()
+    for p in cand:
+        pl = p.lower().strip()
+        if len(pl) < 2 or pl in seen:
+            continue
+        seen.add(pl)
+        if pl in text or pl in qlow:
+            continue
+        if pl in _LEX_ALLOW:
+            continue
+        bad.append(p)
+    return bad
+
+
+_LEX_ALLOW = {
+    "i", "a", "the", "no", "yes", "not", "my", "his", "her",
+    "memory", "memory records", "records", "record", "question",
+    "today", "unknown", "unclear", "likely", "probably", "maybe",
+    "best", "in", "on", "at", "it", "this", "that", "these",
+    "those", "he", "she", "they", "we", "you", "there", "here",
+    "monday", "tuesday", "wednesday", "thursday", "friday",
+    "saturday", "sunday", "january", "february", "march", "april",
+    "may", "june", "july", "august", "september", "october",
+    "november", "december", "supported", "given", "based",
+    "however", "therefore", "although", "though", "but", "so",
+    "since", "while", "if", "when", "because", "additionally",
+    "furthermore", "instead", "meanwhile", "notably", "specifically",
+    "unfortunately", "interestingly", "overall", "note", "also",
+    "actually", "indeed", "clearly", "obviously", "certainly",
+    "perhaps", "still", "then", "thus", "hence", "yet", "nor",
+    "either", "neither", "whether", "unless", "until", "among",
+    "within", "without", "despite", "regarding", "concerning",
+}
+
+
 def _pv_abstain(verify: dict, records: dict | None = None,
                 model=None) -> str:
     """Abstention text for a failed premise verification.
@@ -506,6 +559,13 @@ async def aanswer(model, llm, question: str, qdate: str,
     unrecorded and infers only from bound records instead of
     abstaining outright, never asserting a concrete value for the
     missing slot.
+    premise_check="grounded_lex" relaxes that tail: the answerer may
+    name a concrete value ONLY when it appears verbatim in the bound
+    records, and a deterministic post-check (`_unattested_values`)
+    regenerates once under the strict no-values instruction when the
+    response asserts an unattested name/number — the leak is caught by
+    substring attestation, not by trusting the model's entailment
+    judgment (the v3 arm's failure mode).
 
     assist adds a candidate-extraction stage before answering: the
     answerer receives a deterministically deduped/sorted/counted item
@@ -536,8 +596,11 @@ async def aanswer(model, llm, question: str, qdate: str,
         listing, records = _numbered_records(model, keys)
         verify = await _pverify(llm, question, qdate, listing, records,
                                 relaxed=(premise_check in
-                                         ("relaxed", "grounded")),
-                                grounded=(premise_check == "grounded"))
+                                         ("relaxed", "grounded",
+                                          "grounded_lex")),
+                                grounded=(premise_check in
+                                          ("grounded",
+                                           "grounded_lex")))
         if verify["verdict"] in ("SPLICED", "ABSENT"):
             return {"response": _pv_abstain(verify, records,
                                             model=model),
@@ -563,25 +626,54 @@ async def aanswer(model, llm, question: str, qdate: str,
             "PRE-EXTRACTED CANDIDATES (deduped, sorted, deterministic "
             f"count={len(items)}):\n{table}\n\n")
     ground_block = ""
+    lex = premise_check == "grounded_lex"
     if verify and verify.get("verdict") == "GROUNDED_OK":
         missing = "; ".join(
             str(a["part"]) for a in verify.get("atoms") or []
             if isinstance(a, dict) and not a.get("record")
             and a.get("part"))
-        ground_block = (
-            "PREMISE NOTE: memory has no record of "
-            f"{missing or 'the asked fact'}. Answer by grounded "
-            "inference from the records above: state plainly that the "
-            "specific fact is not recorded, then give the best-"
-            "supported inference — but NEVER assert a concrete value "
-            "for the missing slot (no invented names, places, dates, "
-            "counts or objects); qualify every inference to what the "
-            "bound records actually support, or abstain if nothing "
-            "supports an answer. Never present an inference as a "
-            "recorded fact.\n\n")
+        if lex:
+            ground_block = (
+                "PREMISE NOTE: memory has no record of "
+                f"{missing or 'the asked fact'}. Answer by grounded "
+                "inference from the records above: state plainly that "
+                "the specific fact is not recorded, then give the "
+                "best-supported inference. You MAY name a concrete "
+                "value (place, name, object, date, count) ONLY when "
+                "that exact value appears verbatim in the records "
+                "above — otherwise describe it without inventing "
+                "specifics. Never present an inference as a recorded "
+                "fact.\n\n")
+        else:
+            ground_block = (
+                "PREMISE NOTE: memory has no record of "
+                f"{missing or 'the asked fact'}. Answer by grounded "
+                "inference from the records above: state plainly that "
+                "the specific fact is not recorded, then give the "
+                "best-supported inference — but NEVER assert a "
+                "concrete value for the missing slot (no invented "
+                "names, places, dates, counts or objects); qualify "
+                "every inference to what the bound records actually "
+                "support, or abstain if nothing supports an answer. "
+                "Never present an inference as a recorded fact.\n\n")
     prompt = (f"Today's date: {qdate}\n\nMEMORY:\n{dg}\n\n{assist_block}"
               f"{ground_block}QUESTION: {question}\n\nAnswer:")
     resp = (await llm.complete(ANSWER_SYS, prompt)).strip()
+    if lex and verify and verify.get("verdict") == "GROUNDED_OK":
+        bad = _unattested_values(
+            resp, _bound_texts(verify, records), question)
+        if bad:
+            verify["lex_violation"] = bad
+            strict = prompt.replace(
+                "You MAY name a concrete "
+                "value (place, name, object, date, count) ONLY when "
+                "that exact value appears verbatim in the records "
+                "above — otherwise describe it without inventing "
+                "specifics.",
+                "NEVER assert a concrete value for the missing slot "
+                "(no invented names, places, dates, counts or "
+                "objects).")
+            resp = (await llm.complete(ANSWER_SYS, strict)).strip()
     return {"response": resp, "selected": keys, "digest": dg,
             "verify": verify}
 

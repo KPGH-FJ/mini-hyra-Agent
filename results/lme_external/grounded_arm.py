@@ -48,7 +48,8 @@ def load_model(out_dir, ci, resolve=False):
 
 async def run_scope(convs, ci, scope, llm, out_dir):
     resolve = scope == "cat2fix"
-    gate = "grounded" if scope in ("cat3", "cat5") else "relaxed"
+    gate = os.environ.get(
+        "GATE", "grounded" if scope in ("cat3", "cat5") else "relaxed")
     cat = {"cat3": 3, "cat5": 5, "cat2fix": 2}[scope]
     m = load_model(out_dir, ci, resolve)
     tag = os.environ.get("ARM_TAG", "")
