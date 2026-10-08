@@ -118,6 +118,8 @@ async def judge_file(path, jllm):
         for r in rows:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
     n = len(rows)
+    if not n:
+        return 0, 0
     s = sum(1 for r in rows if r.get("correct"))
     print(f"{os.path.basename(path)}: {s}/{n} "
           f"({s / n * 100:.1f}%)", flush=True)
@@ -136,12 +138,12 @@ async def main():
     cis = _conv_range(args.convs)
 
     if args.scope == "judge":
+        import glob as _g
         jllm = atria_llm()
-        for pat in ("grnd_cat3", "grnd_cat5", "anch_cat2"):
-            for ci in cis:
-                p = os.path.join(args.out_dir, f"{pat}_c{ci}.jsonl")
-                if os.path.exists(p):
-                    await judge_file(p, jllm)
+        for pat in ("grnd*_cat3", "grnd*_cat5", "anch*_cat2"):
+            for p in sorted(_g.glob(os.path.join(
+                    args.out_dir, f"{pat}_c*.jsonl"))):
+                await judge_file(p, jllm)
         return
 
     llm = atria_llm(thinking=True)
