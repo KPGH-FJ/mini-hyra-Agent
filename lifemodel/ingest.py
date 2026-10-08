@@ -33,5 +33,6 @@ def normalize(rec: dict) -> dict:
         "about": rec.get("about"),      # entity the claim is about (None = self)
         "authoritative": src == "self" and kind in (WRITES | {"retraction"}),
         "text": rec.get("text", ""),
+        "typed": rec.get("typed"),     # canonical-frame fields (opt-in M1 pass)
     }
     return ev

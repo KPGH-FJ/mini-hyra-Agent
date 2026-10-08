@@ -82,6 +82,11 @@ class TemporalGraph:
         # by a killer that was itself erased comes back alive
         self.exp: dict = {}   # slot -> expires_day (slot-scoped lease)
         self.rvid: dict = {}  # slot -> latest self-write record id (prov2)
+        self.typed: dict = {}  # record id -> typed fields {verb, object,
+        # when_abs, kind, dup_links, ...} — M1 typed-record layer:
+        # canonical frame per record enables deterministic enumeration
+        # (grep+aggregate) instead of LLM recall. Parallel to rsv:
+        # keyed by record id, pruned by the same erasures.
         self.aliases: dict = {}  # alias -> canonical person (M1)
         self.revoked: set = set()  # purposes whose use is withdrawn (M5)
         self.journal: list = []    # control-op log, survives export (M5)
@@ -112,6 +117,8 @@ class TemporalGraph:
         if ev.get("id"):
             self.rsv[ev["id"]] = (ev["slot"], ev["value"])
             self._rday[ev["id"]] = ev["day"]
+            if ev.get("typed"):
+                self.typed[ev["id"]] = dict(ev["typed"])
         who = (f'{ev["source"]}|{ev["about"]}' if ev.get("about")
                else ev["source"])   # claimer|about|slot vertex
         self.hist.setdefault(_key(who, ev["slot"]), []).append(
@@ -245,6 +252,10 @@ class TemporalGraph:
         keys = [k for k in self.hist if k.split("|", 1)[1] == slot]
         n = len(keys) + (slot in self.prov)
         for k in keys:
+            for e in self.hist[k]:
+                if len(e) > 4 and e[4]:
+                    self.rsv.pop(e[4], None)
+                    self.typed.pop(e[4], None)
             del self.hist[k]
         self.prov.pop(slot, None)
         self.drv.pop(slot, None)
@@ -287,6 +298,7 @@ class TemporalGraph:
                 for e in self.hist[k]:
                     if lo <= e[1] <= hi and e[4]:
                         self.rsv.pop(e[4], None)
+                        self.typed.pop(e[4], None)
             if kept:
                 self.hist[k] = kept
             else:
@@ -416,6 +428,7 @@ class TemporalGraph:
         d = {"hist": self.hist, "prov": self.prov,
              "journal": self.journal,
              "rsv": self.rsv, "drv": self.drv, "exp": self.exp,
+             "typed": self.typed,
              "rvid": self.rvid, "aliases": self.aliases,
              "wday": self._wday, "now": self._now,
              "rday": self._rday,
@@ -432,6 +445,8 @@ class TemporalGraph:
                         if len(e) > 4 and e[4]}
             d["rsv"] = {k: v for k, v in self.rsv.items()
                         if k in live_ids}
+            d["typed"] = {k: v for k, v in self.typed.items()
+                          if k in live_ids}
             for reg in ("prov", "drv", "exp", "rvid", "wday"):
                 d[reg] = {k: v for k, v in d[reg].items() if k in keep}
             # owner-level registries must not leak out-of-scope data:
@@ -456,6 +471,7 @@ class TemporalGraph:
         self.hist = {k: [list(e) for e in v] for k, v in d["hist"].items()}
         self.prov = {k: list(v) for k, v in d["prov"].items()}
         self.rsv = {k: tuple(v) for k, v in d["rsv"].items()}
+        self.typed = {k: dict(v) for k, v in d.get("typed", {}).items()}
         self.drv = {k: {"premises": dict(v["premises"]),
                         "value": v["value"]}
                     for k, v in d["drv"].items()}
