@@ -198,7 +198,7 @@ def _clause_passes(clause, r, qdate):
 
 
 def passes(spec, r, pool):
-    qd = F.qdate(spec["_qdate"])
+    qd = F.qdate(spec.get("_qdate")) if spec.get("_qdate") else None
     if spec.get("any_of"):
         return any(_clause_passes(c, r, qd) for c in spec["any_of"])
     return _clause_passes(spec, r, qd)
@@ -233,6 +233,31 @@ def _norm_clause(spec, typed):
     return spec
 
 
+def validate_spec(spec, typed):
+    """Out-of-vocab enum values in selector lists — a clause whose
+    verbs/classes/locations/counterparties are all unseen can only
+    return 0 silently. Warn + nearest-vocab hints (substring/prefix
+    family) so the verify loop or caller sees why. Free-form
+    substring matchers (objects_contain etc.) are skipped by design."""
+    vocab = vocab_of(typed)
+    norms = {vk: {F.norm(k): k for k in vocab.get(vk, {})}
+             for vk in ("verbs", "object_class", "location", "counterparty")}
+    checks = {"verbs": "verbs", "object_class": "object_class",
+              "location": "location", "counterparties": "counterparty"}
+    warns = []
+    for i, c in enumerate(spec.get("any_of") or [spec]):
+        for key, vkey in checks.items():
+            for v in c.get(key) or []:
+                nv = F.norm(v)
+                if nv not in norms[vkey]:
+                    near = [orig for nk, orig in norms[vkey].items()
+                            if nk.startswith(nv) or nv.startswith(nk)
+                            or nv in nk or nk in nv][:3]
+                    warns.append({"clause": i, "key": key,
+                                  "value": v, "nearest": near})
+    return warns
+
+
 def answer_with_spec(q, spec, typed, recs=None):
     spec = _norm_clause(spec, typed)
     day_of = {r["rid"]: r.get("day") for r in recs or []}
@@ -253,7 +278,7 @@ def answer_with_spec(q, spec, typed, recs=None):
     else:
         result = None
     return {"answer": result, "evidence": [r["rid"] for r in sel],
-            "pool": len(pool)}
+            "pool": len(pool), "warnings": validate_spec(spec, typed)}
 
 
 async def main():
