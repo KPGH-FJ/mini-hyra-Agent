@@ -24,7 +24,6 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import adv_cov as A                              # noqa: E402
 
 from lifemodel.model import LifeModel            # noqa: E402
-from lifemodel.ingest_llm import _resolve_rel_anchors  # noqa: E402
 import lifemodel.reader as R                     # noqa: E402
 from locomo_final import atria_llm, _conv_range, QD, ANS_SEM, JDG_SEM, \
     ANS_TIMEOUT                                   # noqa: E402
@@ -34,6 +33,7 @@ def load_model(out_dir, ci, resolve=False):
     asset = json.load(open(os.path.join(out_dir,
                                         f"ingest_final_c{ci}.json")))
     if resolve:
+        from lifemodel.ingest_llm import _resolve_rel_anchors
         n = 0
         for edges in asset.get("hist", {}).values():
             for e in edges:
