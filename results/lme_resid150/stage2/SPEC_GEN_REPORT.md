@@ -193,3 +193,7 @@ typed 字段 + 存量 spec JSON 确定性复求值，新 LLM 调用仅 2 次 spe
 typed-record 链端到端打通：canonical-frame 抽取（+2）→ 确定性小修（+1）→
 spec 校验闭环（+2）= **7/7 残尾全救回**。下一步是生产化决策：canonical
 prompt 全量上 M1 + spec-verify 两拍作为 M4 枚举题的作答机制。
+
+## 附：when_abs 抽取覆盖审计（离线，零成本）
+
+471 条 `_v3` typed 记录中 **22 条（4.7%）文本含日期但 `when_abs` 为 null**。失败模式集中：括号尾注日期 `(on 2023-02-05)` 与松散锚 `(on last week)` 被抽取器跳过——正是 spec 校验闭环需要 `mention_day`/`tolerant` 救场的那批记录。修复属 M1 canonical-frame 上线议题（提示词补"括号日期也算"），此处先量化入账。

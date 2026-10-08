@@ -24,7 +24,6 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import adv_cov as A                              # noqa: E402
 
 from lifemodel.model import LifeModel            # noqa: E402
-from lifemodel.ingest_llm import _resolve_rel_anchors  # noqa: E402
 import lifemodel.reader as R                     # noqa: E402
 from locomo_final import atria_llm, _conv_range, QD, ANS_SEM, JDG_SEM, \
     ANS_TIMEOUT                                   # noqa: E402
@@ -34,6 +33,7 @@ def load_model(out_dir, ci, resolve=False):
     asset = json.load(open(os.path.join(out_dir,
                                         f"ingest_final_c{ci}.json")))
     if resolve:
+        from lifemodel.ingest_llm import _resolve_rel_anchors
         n = 0
         for edges in asset.get("hist", {}).values():
             for e in edges:
@@ -48,7 +48,8 @@ def load_model(out_dir, ci, resolve=False):
 
 async def run_scope(convs, ci, scope, llm, out_dir):
     resolve = scope == "cat2fix"
-    gate = "grounded" if scope in ("cat3", "cat5") else "relaxed"
+    gate = os.environ.get(
+        "GATE", "grounded" if scope in ("cat3", "cat5") else "relaxed")
     cat = {"cat3": 3, "cat5": 5, "cat2fix": 2}[scope]
     m = load_model(out_dir, ci, resolve)
     tag = os.environ.get("ARM_TAG", "")
@@ -77,8 +78,11 @@ async def run_scope(convs, ci, scope, llm, out_dir):
                     R.aanswer(m, llm, row["question"], QD,
                               premise_check=gate, assist=True),
                     ANS_TIMEOUT)
+                verify = r.get("verify") or {}
                 rec = {**row, "response": r["response"],
-                       "verdict": (r.get("verify") or {}).get("verdict")}
+                       "verdict": verify.get("verdict"),
+                       "atoms": verify.get("atoms"),
+                       "lex_violation": verify.get("lex_violation")}
             except Exception as e:
                 rec = {**row, "response": f"(error: {e})",
                        "verdict": "ERROR"}
@@ -117,6 +121,8 @@ async def judge_file(path, jllm):
         for r in rows:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
     n = len(rows)
+    if not n:
+        return 0, 0
     s = sum(1 for r in rows if r.get("correct"))
     print(f"{os.path.basename(path)}: {s}/{n} "
           f"({s / n * 100:.1f}%)", flush=True)
@@ -135,12 +141,12 @@ async def main():
     cis = _conv_range(args.convs)
 
     if args.scope == "judge":
+        import glob as _g
         jllm = atria_llm()
-        for pat in ("grnd_cat3", "grnd_cat5", "anch_cat2"):
-            for ci in cis:
-                p = os.path.join(args.out_dir, f"{pat}_c{ci}.jsonl")
-                if os.path.exists(p):
-                    await judge_file(p, jllm)
+        for pat in ("grnd*_cat3", "grnd*_cat5", "anch*_cat2"):
+            for p in sorted(_g.glob(os.path.join(
+                    args.out_dir, f"{pat}_c*.jsonl"))):
+                await judge_file(p, jllm)
         return
 
     llm = atria_llm(thinking=True)
