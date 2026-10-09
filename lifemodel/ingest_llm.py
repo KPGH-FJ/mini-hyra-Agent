@@ -127,6 +127,70 @@ it, "text": "<=160 char quote or summary"}.
 Do NOT re-emit anything already extracted. Return ONLY a JSON array of
 the MISSED records (empty array if nothing was missed)."""
 
+TYPED_SYS = """You type memory records for a personal memory system. Each input
+record is {"rid", "slot", "kind", "day", "value"} where `value` is the
+natural-language fact text and `kind` is the extractor's coarse label
+(statement/update/correction/retraction/suggestion/hearsay).
+
+For EACH record emit one JSON object:
+{"rid": <same rid>,
+ "event_id": "e_<short slug>" — a fresh identifier per RECORD. Do NOT
+   merge two records into one event_id even if they look like the same
+   event; duplicates are linked separately,
+ "kind": "asserted|negated|planned|cancelled" — the fact's polarity:
+   asserted = it happened/is true; negated = explicitly did NOT happen
+   or is no longer true; planned = intended/scheduled but not done;
+   cancelled = was planned, now called off,
+ "verb": "snake_case" — normalized predicate, chosen from the
+   CANONICAL frame the user would search by, not the outcome or
+   surface phrasing: visiting a professional/person -> visit
+   (NOT diagnose/schedule); using a service or product -> use
+   (NOT eat/find); a trip staying outdoors -> camp; making
+   bread/cake/cookies -> bake (NOT try/experiment); eating a
+   meal -> eat; viewing a property -> view; buying -> buy;
+   exchanging -> exchange; lending -> lent. Other verbs allowed
+   when no canonical frame fits,
+ "object": short noun phrase — the ENTITY the verb acts on: the
+   person visited, service used, place stayed at, item made —
+   NEVER the topic/condition/outcome (for "saw the ENT about
+   sinusitis" object = "ENT specialist", not the condition; for
+   "ordered Domino's" object = the service, not the food),
+ "object_class": coarse category or null — e.g. clothing, property,
+   event, vehicle, electronics, pet, document,
+ "quantity": number or null — a COUNT/AMOUNT only when the value states
+   one; null otherwise,
+ "quantifier": "explicit|unspecified|null" — explicit = a number in the
+   value; unspecified = plural/no number stated; null = not countable,
+ "when_abs": ISO event time or null — "YYYY-MM-DD" when a day is
+   stated/resolvable; PARTIAL dates keep their stated precision:
+   "YYYY-MM" (e.g. June 2023), "YYYY" (a whole year). null only when
+   the record states no event time at all,
+ "granularity": "day|week|month|year|null" — the precision of
+   when_abs (day only for exact dates; month for YYYY-MM),
+ "duration_value": number or null — a DURATION amount when the value
+   states one ("3-day trip" -> 3, "2h yoga" -> 2),
+ "duration_unit": "minutes|hours|days|weeks|null" — unit of
+   duration_value,
+ "obligation_status": null|"awaiting_pickup"|"awaiting_return"|
+   "fulfilled"|"none" — for items owed to/by someone,
+ "counterparty": person/org name — REQUIRED whenever the record
+   involves a named person, professional or organization
+   ("Dr. Patel", "ENT specialist", "Zara"); null only when the
+   record involves no one but the user,
+ "location": place name or null}.
+
+Rules:
+- one output object per input record, same order; rids echoed verbatim
+- unknown/unstated fields are null — never invent
+- "planned" facts keep the planned date in when_abs, not the mention day
+- records carrying obligation_status are asserted STATES (the
+  obligation exists now): kind=asserted, not planned — even if
+  fulfillment lies in the future
+- when the value text states a date-like event time — including
+  parenthesized `(on ...)` annotations — when_abs MUST be set to it
+  (loose anchors keep verbatim granularity, never left null)
+- Return ONLY the JSON array."""
+
 _SLOT_TOKEN_RE = re.compile(r"[a-z0-9]+")
 
 
@@ -186,7 +250,7 @@ class LLMIngestor:
     """
 
     def __init__(self, llm, day_of=None, audit=False,
-                 yield_guard=True, verify=True):
+                 yield_guard=True, verify=True, typed=False):
         self.llm = llm
         # day_of(date_or_label) -> int day; default = caller supplies ints
         self.day_of = day_of or (lambda d: int(d))
@@ -203,11 +267,19 @@ class LLMIngestor:
         # a directed "what did you miss" pass beats re-sampling
         # (ss-assist lesions: .96 vs .88 union / .80 flat, lab-verified).
         self.verify = verify
+        # typed=True adds a canonical-frame annotation pass per session
+        # (chunks of 20 records/call): every record gains a `typed`
+        # dict (verb/object/when_abs/kind/quantity/...) that the store
+        # persists rid-keyed — the typed-record layer enabling
+        # deterministic enumeration at read. Lab-validated chain:
+        # oracle fields 5/5 -> canonical frame 4/7 -> spec-verify 7/7.
+        self.typed = typed
         self.n_extracted = 0
         # telemetry: guard/verify fire rates feed cost calibration
         self.stats = {"sessions": 0, "empty_retries": 0,
                       "yield_guard_fires": 0, "yield_recs": 0,
-                      "verify_fires": 0, "verify_recs": 0}
+                      "verify_fires": 0, "verify_recs": 0,
+                      "typed_recs": 0}
 
     async def _aaudit(self, turns: list, recs: list, ents: list) -> list:
         """Re-align every record's source/about to the named utterance
@@ -359,9 +431,44 @@ class LLMIngestor:
                 "text": str(r.get("text", ""))[:200],
             })
             self.n_extracted += 1
+        if self.typed and out:
+            await self._atype_fields(out)
+            self.stats["typed_recs"] += sum(
+                1 for r in out if r.get("typed"))
         if self.audit and out:
             out = await self._aaudit(turns, out, ents)
         return out
+
+    async def _atype_fields(self, recs: list, chunk: int = 20) -> None:
+        """Canonical-frame typing pass: annotate each record with typed
+        fields in-place. Rids the pass drops get one focused retry;
+        still-missing records simply carry no `typed` key (absence =
+        untyped, never guess)."""
+        items = [{"rid": r["id"], "slot": r["slot"], "kind": r["kind"],
+                  "day": r["day"], "value": r["value"]} for r in recs]
+        got = {}
+        for i in range(0, len(items), chunk):
+            part = items[i:i + chunk]
+            prompt = ("RECORDS:\n" + json.dumps(part, ensure_ascii=False)
+                      + "\n\nTyped fields JSON array:")
+            for o in _json_list(await self.llm.complete(TYPED_SYS, prompt)):
+                if isinstance(o, dict) and o.get("rid"):
+                    rid = str(o.pop("rid"))
+                    got[rid] = o
+            missing = [it for it in part if it["rid"] not in got]
+            if missing:
+                prompt = ("RECORDS:\n" + json.dumps(missing,
+                                                  ensure_ascii=False)
+                          + "\n\nTyped fields JSON array:")
+                for o in _json_list(
+                        await self.llm.complete(TYPED_SYS, prompt)):
+                    if isinstance(o, dict) and o.get("rid"):
+                        rid = str(o.pop("rid"))
+                        got[rid] = o
+        for r in recs:
+            t = got.get(r["id"])
+            if t:
+                r["typed"] = t
 
     def extract(self, date_label, turns: list, model=None) -> list:
         return asyncio.run(self.aextract(date_label, turns, model))
