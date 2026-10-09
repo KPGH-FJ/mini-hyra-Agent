@@ -357,6 +357,11 @@
     "PR #103",
     "results/lme_verify150/H2H_REPORT.md"
    ]
+  },
+  {
+   "when": "2026-10-08",
+   "title": "基线对擂实测：lifemodel 89.3% vs 朴素RAG 82.7%（同题同判官）",
+   "text": "BM25 top-20 逐句检索+通用答题，同 150 题同 Atria 判官。净差 +6.6pp（pass2 复判收窄至 +5~7pp）。分题型：偏好综合 +36pp（画像通道实证价值）、多会话 +8pp、知识更新 +4pp、时序持平、ss-assist 持平、ss-user −8pp 被反超（画像概括丢精确事实的召回代价）。逐题归因：我们独有对=枚举聚合题（RAG 漏条目），RAG 独有对=画像覆盖洞~4+判官噪声。结论：+6pp 是记忆系统真实增量非检索红利；画像通道需\"概括丢事实→回落原文\"的混合下探。"
   }
  ],
  "current": {
@@ -364,7 +369,7 @@
   "round": "外考攻坚期 · LME-150 90.0%(ruleB) / LoCoMo-10 64.0%(cat5 94.4→92.9 grounded闸)",
   "leader": "LifeStream 197/197 满分 · LME-150 90.0%",
   "best_evolved": "ruleB 纯题型路由（ms恒profile·实测89.3%站上oracle90.7门口）",
-  "remaining": "LME残尾~10%：枚举链路 7/7 实证打通；cat3 闸线四臂收敛于 v2（41.7%+残尾为立场/测量题非病灶）；判官噪声~4",
+  "remaining": "LME残尾~10%：枚举链路实证；cat3 闸线收敛v2；画像覆盖洞新发现（RAG反超 ss-user）",
   "goal": "下一研究决策点",
   "goal_desc": "新成绩：M4 hybrid fallback 实装+实测（#103，+2救回0误伤）。待拍板：① M1 canonical frame + spec-verify 全量上线 ② cat3 事件级归属闸（backlog，使能件已落库）③ L1/L4 立场题决策 ④ when_abs/DSL 硬化 ⑤ 完整 Mem0 对擂（naive RAG 已测 82.7 vs 89.3）",
   "opponent": "系统 195.0 · 最强进化解 158.9",
