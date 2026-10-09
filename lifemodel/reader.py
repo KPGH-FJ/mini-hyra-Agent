@@ -493,6 +493,20 @@ line of justification citing the profile facts used."""
 
 _ROUTE_PROFILE_TYPES = {"temporal", "ms", "pref"}
 
+# Profile channel self-reports insufficiency in plain language; when the
+# routed question comes back like this, the coverage gap is real — fall
+# through to raw-record retrieval+assist (head-to-head finding: profile
+# summarization drops the precise fact ~4/150).
+_PROFILE_MISS = re.compile(
+    r"profile (does ?n'?t|does not) (say|contain|record|mention|list|"
+    r"include|have)|not (in|recorded in|present in) (the |your |my )?"
+    r"profile|profile (lacks|has no)|no (such |relevant )?(information|"
+    r"record|entry) in (the |your )?profile"
+    r"|i (don't|do not) (have|see|find)[^.]*? in (my|your|the) "
+    r"(profile|records|notes)"
+    r"|i (can't|cannot|couldn't|could not) (determine|tell|find|answer)"
+    r"[^.]*?(profile|records|notes)", re.I)
+
 
 def _qclass(question: str) -> str:
     """Cheap question-type heuristic when the caller has no manifest type."""
@@ -694,6 +708,7 @@ async def aanswer(model, llm, question: str, qdate: str,
     Atria A/B: dropped families, dedupe collisions, date misfilters) —
     off by default, opt-in for weak backends.
     """
+    fell_back = None
     if route == "ruleB":
         qt = (qtype or _qclass(question)).lower()
         on_profile = qt in _ROUTE_PROFILE_TYPES
@@ -707,8 +722,15 @@ async def aanswer(model, llm, question: str, qdate: str,
         resp = (await llm.complete(
             PROFILE_ANSWER_SYS.format(qdate=qdate),
             f"PROFILE:\n{prof}\n\nQUESTION: {question}")).strip()
-        return {"response": resp, "selected": [], "digest": prof,
-                "verify": None, "profile": prof}
+        # only first-clause misses count: a hedged real answer states
+        # the answer first ("3 weddings — though the profile doesn't
+        # list a fourth"); a true miss leads with the declaration.
+        first = re.split(r"(?<=[.!?])\s|\n|—", resp, 1)[0]
+        if not (route == "ruleB" and _PROFILE_MISS.search(first)):
+            return {"response": resp, "selected": [], "digest": prof,
+                    "verify": None, "profile": prof}
+        via_profile, assist = False, True  # profile missed -> raw records
+        fell_back = resp
     if agg == "spec" and _ENUM_Q.search(question):
         spec_ans = await _spec_aggregate(model, llm, question, qdate)
         if spec_ans is not None:
@@ -799,7 +821,7 @@ async def aanswer(model, llm, question: str, qdate: str,
                 "objects).")
             resp = (await llm.complete(ANSWER_SYS, strict)).strip()
     return {"response": resp, "selected": keys, "digest": dg,
-            "verify": verify}
+            "verify": verify, "profile_fallback": fell_back}
 
 
 def answer(model, llm, question: str, qdate: str) -> str:
