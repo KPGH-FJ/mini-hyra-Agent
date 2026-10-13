@@ -4,6 +4,12 @@ You are evolving an implementation of a **Life Model asset**: a store that
 ingests a stream of records about one person and answers probes about that
 person — honestly, updatably, and cheaply.
 
+Benchmark truth revision: `record-grounded-v1` (in generated metadata).
+Derived gold is resolved from public support record IDs, and same-day
+citations use last arrival. Unsupported authored derivations remain
+negative queries. Gold and probe coverage differ from older unversioned
+runs; a score change across revisions is not a model improvement.
+
 > ⚠ CONTRACT-FIRST: a submission with no `asset.py` exposing `ingest()` and
 > `answer()` scores **−1e9 outright** — 6 of 24 scored submissions in the last
 > window died this way. Ship the contract file FIRST, then optimize.
@@ -71,14 +77,27 @@ at day ~84, and `state()`/`import_state(d)` export-import at day ~72.
 
 ## Probes (answered by `answer()`)
 
-Each probe dict: `{q, type, slot, ckpt, value?, day?, person?,
-post_import?, budget?, slots?, purpose?, purpose_slots?}` — `ckpt` is
+Each candidate-visible probe dict: `{id?, q, type, slot, ckpt, value?,
+day?, person?, about?, slot2?, op?, post_import?, budget?, slots?,
+purpose?, purpose_slots?}` — `id` is an optional correlation label; `ckpt` is
 the day the probe is asked (use for expiry), `value` is the claimed
 value (prov only), `day`/`person` are the v2 temporal/attribution
 fields, `post_import` marks continuity probes answered after the
 export->import round-trip. v4 serve fields: `budget` is a byte cap on
 the scored part of your answer, `slots` lists the slots to pack,
 `purpose`/`purpose_slots` name a use-case view and its slot set.
+`about` selects the claim's entity, `slot2` is the other slot for a
+`before` comparison, and `op` selects the control operation to audit.
+
+The evaluator passes a fresh deep copy of these explicitly allowed fields
+to `answer()`. Gold `expect`/`must_not`, export-document grading flags
+(`post_partial`), and any unrecognized metadata are evaluator-only. They
+are never answer inputs; references to them below explain scoring only.
+Mutating a query does not change the scorer's probe or later queries.
+This is API-level separation, not a security sandbox: candidates still
+run in the evaluator process and may access its runtime/filesystem.
+Do not run untrusted candidates or real private data without stronger
+process, filesystem, environment and network isolation.
 
 - `state`   — current value of a slot; "未知" if unknown/retracted/expired.
 - `stale`   — same but the answer must NOT contain the superseded old value.
@@ -142,7 +161,11 @@ same-day writes (the later record wins).
 Answer with the raw value string — short, no prose. Scoring is substring
 match (normalized), with a hard penalty for surfacing a `must_not` value.
 Authoritative spec: `docs/PROBE_SEMANTICS.md`; executable gate:
-`tests/test_lifemodel_contract.py <asset_dir>` (18 clauses).
+`python tests/test_lifemodel_contract.py lm`. The default all-implementation
+run gates `lm` and reports intentionally incomplete baselines as diagnostics;
+add `--strict` to require every selected implementation to pass.
+Evaluator API isolation regressions run with
+`python -m unittest discover -s tests -v`.
 
 ## Cost accounting
 
