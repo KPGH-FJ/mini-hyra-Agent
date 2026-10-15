@@ -1,0 +1,170 @@
+{
+ "a3838d2b": {
+  "rag2": false,
+  "ours2": true,
+  "rag1": false,
+  "ours1": true,
+  "type": "temporal-reasoning"
+ },
+ "c4a1ceb8": {
+  "rag2": false,
+  "ours2": true,
+  "rag1": false,
+  "ours1": true,
+  "type": "multi-session"
+ },
+ "dd2973ad": {
+  "rag2": true,
+  "ours2": false,
+  "rag1": true,
+  "ours1": false,
+  "type": "multi-session"
+ },
+ "gpt4_d84a3211": {
+  "rag2": false,
+  "ours2": true,
+  "rag1": false,
+  "ours1": true,
+  "type": "multi-session"
+ },
+ "80ec1f4f": {
+  "rag2": false,
+  "ours2": true,
+  "rag1": false,
+  "ours1": true,
+  "type": "multi-session"
+ },
+ "gpt4_483dd43c": {
+  "rag2": true,
+  "ours2": false,
+  "rag1": true,
+  "ours1": false,
+  "type": "temporal-reasoning"
+ },
+ "28dc39ac": {
+  "rag2": false,
+  "ours2": true,
+  "rag1": false,
+  "ours1": true,
+  "type": "multi-session"
+ },
+ "f9e8c073": {
+  "rag2": false,
+  "ours2": true,
+  "rag1": false,
+  "ours1": true,
+  "type": "knowledge-update"
+ },
+ "6d550036": {
+  "rag2": false,
+  "ours2": true,
+  "rag1": false,
+  "ours1": true,
+  "type": "multi-session"
+ },
+ "9ea5eabc": {
+  "rag2": true,
+  "ours2": false,
+  "rag1": true,
+  "ours1": false,
+  "type": "knowledge-update"
+ },
+ "88432d0a": {
+  "rag2": true,
+  "ours2": false,
+  "rag1": true,
+  "ours1": false,
+  "type": "multi-session"
+ },
+ "852ce960": {
+  "rag2": false,
+  "ours2": true,
+  "rag1": false,
+  "ours1": true,
+  "type": "knowledge-update"
+ },
+ "gpt4_2f8be40d": {
+  "rag2": true,
+  "ours2": false,
+  "rag1": true,
+  "ours1": false,
+  "type": "multi-session"
+ },
+ "3b6f954b": {
+  "rag2": true,
+  "ours2": true,
+  "rag1": true,
+  "ours1": false,
+  "type": "single-session-user"
+ },
+ "afdc33df": {
+  "rag2": false,
+  "ours2": true,
+  "rag1": false,
+  "ours1": true,
+  "type": "single-session-preference"
+ },
+ "66f24dbb": {
+  "rag2": true,
+  "ours2": true,
+  "rag1": true,
+  "ours1": false,
+  "type": "single-session-user"
+ },
+ "75f70248": {
+  "rag2": false,
+  "ours2": false,
+  "rag1": false,
+  "ours1": true,
+  "type": "single-session-preference"
+ },
+ "1da05512": {
+  "rag2": false,
+  "ours2": true,
+  "rag1": false,
+  "ours1": true,
+  "type": "single-session-preference"
+ },
+ "57f827a0": {
+  "rag2": false,
+  "ours2": true,
+  "rag1": false,
+  "ours1": true,
+  "type": "single-session-preference"
+ },
+ "54026fce": {
+  "rag2": false,
+  "ours2": true,
+  "rag1": false,
+  "ours1": true,
+  "type": "single-session-preference"
+ },
+ "caf03d32": {
+  "rag2": false,
+  "ours2": true,
+  "rag1": false,
+  "ours1": true,
+  "type": "single-session-preference"
+ },
+ "38146c39": {
+  "rag2": false,
+  "ours2": true,
+  "rag1": false,
+  "ours1": true,
+  "type": "single-session-preference"
+ },
+ "d6233ab6": {
+  "rag2": false,
+  "ours2": false,
+  "rag1": false,
+  "ours1": true,
+  "type": "single-session-preference"
+ },
+ "fca70973": {
+  "rag2": true,
+  "ours2": false,
+  "rag1": false,
+  "ours1": true,
+  "type": "single-session-preference"
+ }
+}
