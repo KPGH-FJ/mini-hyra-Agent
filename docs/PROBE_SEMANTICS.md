@@ -5,26 +5,87 @@ fields a probe carries. This is the spec evolved solutions evolve
 against — the contract suite (`tests/test_lifemodel_contract.py`)
 encodes the same invariants as executable checks.
 
+## Truth revision and comparability
+
+Generated metadata now contains `truth_version="record-grounded-v1"`.
+Earlier unversioned results used an independent, hand-supplied premise
+dictionary for derived truth. That could disagree with the public record's
+`supports` IDs. This revision resolves each premise from the exact cited
+record; missing or future-dated support cannot become an unconditional
+inference. The public records and support relationships are unchanged.
+
+Before a derivation's planned invalidating operation, its state queries
+are retained even if the premise was already invalid when it was authored.
+Such queries expect `未知` and forbid the unsupported derived value. This
+preserves negative coverage instead of deleting a question when truth is
+corrected. Previously omitted cases can add probes; generated probe IDs
+are positional labels and may shift. Living post-erasure revivals continue
+to be queried under the existing semantics.
+
+Purpose views also retain authored derived values as forbidden when they
+are invalid or outside the view. A derivation disappearing from live truth
+must not silently make it legal to append to an otherwise correct answer.
+Values whose normalized text already occurs in a legitimate expected value
+are excluded from this penalty to avoid contradictory substring gold.
+
+Citation selection follows the same `(authored day, arrival order)` rule
+as self-write state: among same-day surviving writes, cite the last one
+in the delivered record stream. Record-ID lexical order is irrelevant.
+
+These are benchmark truth/coverage corrections, not implementation gains.
+Do not compare scores from this revision directly with historical
+unversioned scores as though they used identical questions and gold.
+Preserve public input, query inventory, expected-answer and forbidden-value
+deltas separately from changes in asset answers. Run generator-only
+invariants with `python tests/test_generator_truth.py`; they include minimal
+positive/negative fixtures, all seeds0–399, and density/storm checks without
+using LifeModel's answers as an oracle.
+
 ## Probe fields
+
+The generator's **trusted grading probe** contains both query and scoring
+fields. `evaluate.candidate_probe()` projects it onto the following public
+query allowlist and deep-copies the result before each `asset.answer()`:
+
+`id`, `q`, `type`, `slot`, `ckpt`, `value`, `day`, `person`, `about`,
+`slot2`, `purpose`, `purpose_slots`, `budget`, `slots`, `op`, `post_import`.
+
+Optional fields remain absent when not supplied. `id` is a correlation
+label; `post_import` remains a public lifecycle hint for compatibility.
+The evaluator retains `expect`, `must_not`, `post_partial` and unknown
+metadata. New fields are private unless explicitly added to the query
+allowlist. Deep copying also prevents nested list mutations (including
+aliases shared with gold or later probes) from changing scoring inputs.
+The generator must construct query content without embedding private gold.
+
+This is **API separation only**, not a process or filesystem sandbox.
+Candidate modules still run in the scorer's Python process; reflection,
+imports and filesystem access remain possible channels. State snapshots
+and access counters are still supplied by the asset, not independently
+enforced resource measurements. Use a stronger execution boundary before
+running untrusted candidates or exposing real personal data or credentials.
 
 | field | meaning |
 |---|---|
+| `id` / `q` | correlation label / natural-language query |
 | `ckpt` | read day the answer is evaluated at (18/36/54/72/90) |
 | `type` | probe family (below) |
 | `slot` | the claim slot under test |
-| `expect` | scalar or list — scored substring match on the answer |
-| `must_not` | list of leak strings — any hit scores −0.5 immediately |
+| `expect` | evaluator-only scalar or list — scored substring match on the answer |
+| `must_not` | evaluator-only list of leak strings — any hit scores −0.5 immediately |
 | `about` | entity the claim is about (`None`/`absent` = self) |
 | `person` | the claimer for subject probes |
 | `day` | explicit day for as_of |
+| `slot2` | second slot for a before comparison (join's requested slot is `slot`) |
 | `purpose`/`purpose_slots` | use-view name + its slot list |
 | `slots`/`budget` | packing probes: slot list, byte cap |
 | `op` | ops audit: `forget`/`forget_range`/`correct`/`revoke_purpose` |
-| `partial` | scoped-export content check — answer is the doc, not an answer() |
 | `post_import` | also score on the day-72 export→import snapshot |
-| `post_partial` | answer taken from the scoped export doc (not answer()) |
+| `post_partial` | evaluator-only: answer taken from the scoped export doc (not answer()) |
 | `value` | prov probe's queried value |
 | `supports` | (records only) derived premises `[record_id]` |
+
+`partial` is a probe type, not a generated probe field.
 
 ## Scoring
 
@@ -140,3 +201,9 @@ score = quality + cost-curve terms (see evaluate.py weights).
     about the entity; post-forget mentions under ANY name form
     still canonicalize to X's (now empty) vertex rather than
     fragmenting into fresh canonicals
+18. Oracle premises resolve public `supports` record IDs to their recorded
+    slot/value; they must not substitute the slot's later live value.
+    Birth validity is a separate replay decision. Unknown/future support
+    is invalid, rather than an empty premise set.
+19. Self-write citation ties use the last arriving record on the latest
+    authored day, consistently with self-state tie-breaking.

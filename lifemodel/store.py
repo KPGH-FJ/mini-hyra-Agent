@@ -43,6 +43,10 @@ All contents stay JSON-serializable: snapshot() emits them verbatim.
 """
 from __future__ import annotations
 
+import copy
+
+from .replay import TemporalReplayUnavailable, replay
+
 SELF = "self"
 WRITES = {"statement", "update", "correction"}
 AUTH = WRITES | {"retraction"}
@@ -80,6 +84,8 @@ class TemporalGraph:
         # derived from; an erasure rewrites the underlying log, so drv
         # state must be REBUILT, not merely re-pruned: a derived pruned
         # by a killer that was itself erased comes back alive
+        self._drv_seq: int = 0  # arrival-order high-water mark; never reuse
+        # a surviving event's seq after erasure creates gaps in the log
         self.exp: dict = {}   # slot -> expires_day (slot-scoped lease)
         self.rvid: dict = {}  # slot -> latest self-write record id (prov2)
         self.aliases: dict = {}  # alias -> canonical person (M1)
@@ -89,6 +95,8 @@ class TemporalGraph:
         self._rday: dict = {}   # record id -> authored day (premise
         # day-order checks for deferred derived resolution)
         self._now: int = 0    # latest observed event day (read-day clock)
+        self._next_arrival_seq: int = 0
+        self._legacy_order: bool = False
 
     def forms_of(self, person):
         """person + known aliases (alias records resolve names at read)."""
@@ -102,6 +110,21 @@ class TemporalGraph:
 
     # ---- writes ----
     def append(self, ev: dict) -> None:
+        """Stage exceptional historical writes before publishing any change."""
+        if (ev["slot"] is not None and ev["source"] == SELF
+                and not ev.get("about") and ev["kind"] in AUTH
+                and ev["day"] < self._now):
+            affected = self._affected_derived(
+                {ev["slot"]}, {ev["id"]} if ev.get("id") else ())
+            if affected:
+                staged = copy.deepcopy(self)
+                staged._append(ev)
+                staged._replay_drv(affected)
+                self.__dict__.update(staged.__dict__)
+                return
+        self._append(ev)
+
+    def _append(self, ev: dict) -> None:
         """Every normalized event becomes an edge on its source vertex."""
         if ev["slot"] is None:
             return
@@ -114,9 +137,11 @@ class TemporalGraph:
             self._rday[ev["id"]] = ev["day"]
         who = (f'{ev["source"]}|{ev["about"]}' if ev.get("about")
                else ev["source"])   # claimer|about|slot vertex
+        arrival = self._next_arrival_seq
+        self._next_arrival_seq += 1
         self.hist.setdefault(_key(who, ev["slot"]), []).append(
             [ev["value"], ev["day"], ev["kind"], ev.get("expires"),
-             ev.get("id")])
+             ev.get("id"), arrival])
         if ev["source"] == SELF and ev["kind"] in WRITES:
             # rvid (prov2 citation) tracks self writes on any vertex —
             # keyed by slot for self claims, about|slot for entity claims
@@ -134,18 +159,19 @@ class TemporalGraph:
                 if ev.get("expires"):
                     self.exp[ev["slot"]] = ev["expires"]
         if ev["kind"] == "derived":
-            self._drv_log.append(
-                {"slot": ev["slot"], "value": ev["value"],
-                 "supports": list(ev.get("supports") or []),
-                 "day": ev["day"], "id": ev.get("id"),
-                 "src": ev.get("source", "inference"),
-                 "seq": len(self._drv_log)})
-            pre = self._premises(ev)
-            if pre is not None:   # dangling supports: dead at birth
-                self.drv[ev["slot"]] = {"premises": pre,
-                                        "value": ev["value"]}
-            else:
-                self._pending_drv.append(ev)
+            dev = {"slot": ev["slot"], "value": ev["value"],
+                   "supports": list(ev.get("supports") or []),
+                   "day": ev["day"], "id": ev.get("id"),
+                   "src": ev.get("source", "inference"),
+                   "vertex": _key(who, ev["slot"]),
+                   "arrival_seq": arrival,
+                   "seq": self._drv_seq}
+            self._drv_seq += 1
+            self._drv_log.append(dev)
+            # Use the same per-record day gate for an already-resolved
+            # premise as for a premise that arrives later.
+            if self._reg_drv(dev) == "pending":
+                self._pending_drv.append(dev)
         self._prune()
 
     def _premises(self, ev):
@@ -185,41 +211,107 @@ class TemporalGraph:
         """Register one derived event if resolvable + day-gated;
         returns 'live' | 'pending' | 'dead'."""
         pre = {}
-        pdays = {}
         for rid in dev["supports"]:
-            if rid not in self.rsv:
+            if rid not in self.rsv or rid not in self._rday:
                 return "pending"
+            if self._rday[rid] > dev["day"]:
+                return "dead"
             s, v = self.rsv[rid]
             pre[s] = v
-            pdays[s] = self._rday.get(rid, 0)
-        if not all(d <= dev["day"] for d in pdays.values()):
-            return "dead"   # a premise postdates it → dead at birth in
-            # day order too (never registers)
         self.drv[dev["slot"]] = {"premises": pre, "value": dev["value"]}
         return "live"
 
-    def _rebuild_drv(self):
-        """Recompute drv state from the derived-event log after an
-        erasure rewrote the underlying record log. Surviving derived
-        events replay in (day, arrival) order against the post-erasure
-        rsv/live state — a premise killed by an edge that was itself
-        erased revives the derived, matching the evaluator's rewritten-
-        log semantics."""
-        self.drv = {}
-        self._pending_drv = []
-        for dev in sorted(self._drv_log,
-                          key=lambda d: (d["day"], d["seq"])):
-            # the event itself must have survived the erasure — its own
-            # edge still on the src|slot vertex
-            if not any(e[1] == dev["day"]
-                       and (dev["id"] is None or e[4] == dev["id"])
-                       for e in self.hist.get(
-                           f"{dev['src']}|{dev['slot']}", [])):
-                continue
-            st = self._reg_drv(dev)
-            if st == "pending":
-                self._pending_drv.append(dev)
+    def _affected_derived(self, slots, record_ids=(), derived_slots=()):
+        changed, outputs = set(slots), set(derived_slots)
+        changed.update(outputs)
+        removed = set(record_ids)
+        # Cached premises are useful dependency evidence in old snapshots
+        # even when their replay log is incomplete. Missing history is a
+        # reason to reject an affected replay, never to skip invalidation.
+        if changed or removed:
+            logged = {d['slot'] for d in self._drv_log}
+            outputs.update(k.rsplit('|', 1)[-1] for k, edges in self.hist.items()
+                           if any(e[2] == 'derived' for e in edges)
+                           and k.rsplit('|', 1)[-1] not in logged)
+            changed.update(outputs)
+        while True:
+            before = len(outputs)
+            for dev in self._drv_log:
+                if (dev["slot"] in changed or removed.intersection(dev['supports']) or any(
+                        rid in self.rsv and self.rsv[rid][0] in changed
+                        for rid in dev["supports"])):
+                    outputs.add(dev["slot"])
+                    changed.add(dev["slot"])
+            for slot, entry in self.drv.items():
+                if slot in changed or changed.intersection(entry['premises']):
+                    outputs.add(slot)
+                    changed.add(slot)
+            if len(outputs) == before:
+                return outputs
+
+    def _replay_drv(self, affected):
+        if not affected:
+            return
+        drv, pending = replay(self.hist, self._drv_log, self._now, affected)
+        self.drv = {s: d for s, d in self.drv.items() if s not in affected}
+        self.drv.update(drv)
+        self._pending_drv = [d for d in self._pending_drv
+                             if d["slot"] not in affected] + pending
         self._prune()
+
+    def _rebuild_drv(self):
+        if getattr(self, '_defer_rebuild', False):
+            return
+        self._replay_drv(getattr(self, "_erase_affected",
+                                 {d["slot"] for d in self._drv_log}))
+
+    def _refresh_record_ids(self, record_ids):
+        """Erasure rewrites duplicate-ID last-arrival caches as well."""
+        for rid in record_ids:
+            entries = [(k, e) for k, edges in self.hist.items()
+                       for e in edges if e[4] == rid]
+            if not entries:
+                self.rsv.pop(rid, None)
+                self._rday.pop(rid, None)
+                continue
+            known = [(k, e) for k, e in entries if len(e) > 5]
+            if known:
+                vertex, edge = max(known, key=lambda pair: pair[1][5])
+            elif len({k for k, _e in entries}) == 1:
+                vertex, edge = entries[-1]
+            elif all((k.rsplit('|', 1)[-1], e[:2]) ==
+                     (entries[0][0].rsplit('|', 1)[-1], entries[0][1][:2])
+                     for k, e in entries):
+                vertex, edge = entries[0]
+            else:
+                raise TemporalReplayUnavailable('legacy duplicate record ID order is ambiguous')
+            self.rsv[rid] = (vertex.rsplit('|', 1)[-1], edge[0])
+            self._rday[rid] = edge[1]
+
+    def _erase_atomically(self, method, selected, *args):
+        staged = copy.deepcopy(self)
+        slots = {k.rsplit('|', 1)[-1] for k, e in selected
+                 if k.count('|') == 1 and k.split('|')[0] == SELF and e[2] in AUTH}
+        # A non-authoritative event may still be the clock tick that
+        # killed a leased premise before its later renewal. Removing that
+        # tick can change derived history without changing any owner edge.
+        removed_days = {e[1] for _k, e in selected}
+        slots.update(k.rsplit('|', 1)[-1] for k, edges in self.hist.items()
+                     if k.count('|') == 1 and k.split('|')[0] == SELF
+                     and any(e[2] in WRITES and e[3] is not None
+                             and any(e[1] <= day and e[3] < day for day in removed_days)
+                             for e in edges))
+        ids = {e[4] for _k, e in selected if e[4]}
+        derived = {k.rsplit('|', 1)[-1] for k, e in selected if e[2] == 'derived'}
+        staged._erase_affected = self._affected_derived(slots, ids, derived)
+        staged._defer_rebuild = True
+        result = getattr(staged, method)(*args)
+        del staged._defer_rebuild
+        staged._refresh_record_ids(ids | (set(self.rsv) - set(staged.rsv)))
+        staged._rebuild_drv()
+        del staged._erase_affected
+        self.__dict__.update(staged.__dict__)
+        return result
 
     def _prune(self):
         """Fixpoint sweep: resolve pending derived, then kill drv
@@ -240,35 +332,150 @@ class TemporalGraph:
                     del self.drv[s]
                     moved = True
 
+    def _erase_record_refs(self, removed_ids, removed_vertices=()) -> None:
+        """Physically erase dependents of permanently erased records.
+
+        This is narrower than deleting a whole derived slot: an
+        independent user write or derivation on that slot must survive.
+        Range erasure does not use this helper: deleting a killer there
+        is allowed to revive an earlier surviving derived event.
+        """
+        removed = set(removed_ids)
+        vertices = set(removed_vertices)
+        # Old no-id logs cannot prove their entity from current edges:
+        # their original edge may already have been erased. Refuse an
+        # affected legacy deletion before changing any state.
+        for dev in self._drv_log:
+            if not dev.get("id") and "vertex" not in dev and any(
+                    k.split("|", 1)[0] == dev["src"]
+                    and k.rsplit("|", 1)[-1] == dev["slot"] for k in vertices):
+                raise ValueError("ambiguous derived event: legacy record "
+                                 "has no id or vertex")
+        erased = []
+        remaining = self._drv_log
+        while True:
+            kept, changed = [], False
+            for dev in remaining:
+                if (dev.get("id") in removed or dev.get("vertex") in vertices
+                        or any(rid in removed for rid in dev["supports"])):
+                    erased.append(dev)
+                    if dev.get("id"):
+                        removed.add(dev["id"])
+                    changed = True
+                else:
+                    kept.append(dev)
+            remaining = kept
+            if not changed:
+                break
+        edge_plan = []
+        for dev in erased:
+            # The log predates entity metadata. An existing record id
+            # still identifies its exact edge across two/three-part
+            # vertices; do not assume every derived edge is src|slot.
+            if not dev.get("id") and "vertex" not in dev:
+                raise ValueError("ambiguous derived event: legacy record "
+                                 "has no id or vertex")
+            keys = [k for k, edges in self.hist.items()
+                    if k.split("|", 1)[0] == dev["src"]
+                    and k.rsplit("|", 1)[-1] == dev["slot"]
+                    and ("vertex" not in dev or k == dev["vertex"])
+                    and any(e[2] == "derived"
+                            and ("arrival_seq" not in dev or
+                                 len(e) > 5 and e[5] == dev["arrival_seq"])
+                            and ((dev.get("id") and e[4] == dev["id"])
+                                 or (not dev.get("id") and not e[4]
+                                     and e[1] == dev["day"]
+                                     and e[0] == dev["value"]))
+                            for e in edges)]
+            if len(keys) > 1:
+                # Legacy logs have no about field. Do not guess which
+                # entity owns an id-less event and erase an independent
+                # same-slot fact. Preflight the whole closure before any
+                # mutation so the caller can report a failed deletion.
+                raise ValueError("ambiguous derived event: cannot safely erase "
+                                 "records across multiple vertices")
+            edge_plan.append((dev, keys))
+        self._drv_log = remaining
+        for dev, keys in edge_plan:
+            for key in keys:
+                edges = self.hist.get(key, [])
+                # One log event corresponds to one edge. Do not erase
+                # independent explicit writes on the same output slot.
+                for i, edge in enumerate(edges):
+                    if (edge[2] == "derived"
+                            and ("arrival_seq" not in dev or
+                                 len(edge) > 5 and edge[5] == dev["arrival_seq"])
+                            and ((dev.get("id") and edge[4] == dev["id"])
+                                 or (not dev.get("id") and not edge[4]
+                                     and edge[1] == dev["day"]
+                                     and edge[0] == dev["value"]))):
+                        del edges[i]
+                        break
+                if key in self.hist and not edges:
+                    del self.hist[key]
+        for rid in removed:
+            self.rsv.pop(rid, None)
+            self._rday.pop(rid, None)
+
     def forget_slot(self, slot) -> int:
+        selected = [(k, e) for k, edges in self.hist.items()
+                    if k.rsplit('|', 1)[-1] == slot for e in edges]
+        return self._erase_atomically("_forget_slot", selected, slot)
+
+    def _forget_slot(self, slot) -> int:
         """Erase the slot across every vertex (history AND derivations)."""
-        keys = [k for k in self.hist if k.split("|", 1)[1] == slot]
+        keys = [k for k in self.hist if k.rsplit("|", 1)[-1] == slot]
         n = len(keys) + (slot in self.prov)
+        removed_ids = {rid for rid, (s, _v) in self.rsv.items() if s == slot}
         for k in keys:
-            del self.hist[k]
+            removed_ids.update(e[4] for e in self.hist[k] if e[4])
+        self._erase_record_refs(removed_ids, keys)
+        for k in keys:
+            self.hist.pop(k, None)
         self.prov.pop(slot, None)
         self.drv.pop(slot, None)
         self.exp.pop(slot, None)
-        self.rvid.pop(slot, None)
-        self._wday.pop(slot, None)
+        for reg in (self.rvid, self._wday):
+            for key in list(reg):
+                if key.rsplit("|", 1)[-1] == slot:
+                    del reg[key]
         self._drv_log = [d for d in self._drv_log if d["slot"] != slot]
+        # Keep auditable operation metadata without retaining a value
+        # the owner explicitly asked to erase.
+        for entry in self.journal:
+            if entry.get("slot") == slot:
+                entry.pop("value", None)
         self._rebuild_drv()   # dependents of the forgotten slot die too
         return n
 
     def forget_about(self, about) -> int:
+        selected = [(k, e) for k, edges in self.hist.items()
+                    if k.count("|") == 2 and k.split("|")[1] in self.forms_of(about)
+                    for e in edges]
+        return self._erase_atomically("_forget_about", selected, about)
+
+    def _forget_about(self, about) -> int:
         """Forget a person: erase every vertex about them (all claimers,
         all name forms of the entity)."""
         keys = [k for k in self.hist
                 if k.count("|") == 2
                 and k.split("|")[1] in self.forms_of(about)]
+        removed_ids = {e[4] for k in keys for e in self.hist[k] if e[4]}
+        self._erase_record_refs(removed_ids, keys)
         for k in keys:
-            del self.hist[k]
+            self.hist.pop(k, None)
             akey = k.split("|", 1)[1]
             self._wday.pop(akey, None)
             self.rvid.pop(akey, None)
+        self._rebuild_drv()
         return len(keys)
 
     def forget_range(self, lo, hi) -> int:
+        selected = [(k, e) for k, edges in self.hist.items()
+                    for e in edges if lo <= e[1] <= hi]
+        return self._erase_atomically("_forget_range", selected, lo, hi)
+
+    def _forget_range(self, lo, hi) -> int:
         """Erase edges whose from_day falls in [lo, hi]."""
         n = 0
         touched = set()
@@ -421,7 +628,10 @@ class TemporalGraph:
              "rday": self._rday,
              "pending_drv": self._pending_drv,
              "drv_log": self._drv_log,
-             "revoked": sorted(self.revoked)}
+             "revoked": sorted(self.revoked),
+             "temporal_order_version": 1,
+             "legacy_order": self._legacy_order,
+             "next_arrival_seq": self._next_arrival_seq}
         slots = (scope or {}).get("slots")
         if slots:
             keep = set(slots)
@@ -434,6 +644,11 @@ class TemporalGraph:
                         if k in live_ids}
             for reg in ("prov", "drv", "exp", "rvid", "wday"):
                 d[reg] = {k: v for k, v in d[reg].items() if k in keep}
+            # Do not turn a conditional claim into an unconditional one
+            # by stripping just its premises. Omit the entire active
+            # derivation when its justification cannot leave this scope.
+            d["drv"] = {k: v for k, v in d["drv"].items()
+                        if all(s in keep for s in v["premises"])}
             # owner-level registries must not leak out-of-scope data:
             # journal entries carry corrected values, aliases map
             # person identities — the scoped doc gets neither verbatim
@@ -444,14 +659,46 @@ class TemporalGraph:
             # out-of-scope derived VALUES verbatim — scope them too,
             # and only keep day-marks for the rids that survive
             d["drv_log"] = [e for e in d["drv_log"]
-                            if e["slot"] in keep]
+                            if e["slot"] in keep
+                            and e.get("vertex", "").count("|") <= 1]
             d["pending_drv"] = [e for e in d["pending_drv"]
-                                if e["slot"] in keep]
+                                if e["slot"] in keep
+                                and e.get("vertex", "").count("|") <= 1]
             d["rday"] = {k: v for k, v in d["rday"].items()
                          if k in live_ids}
+            # Absolute sequence gaps/high-water reveal excluded activity.
+            # Rank-rebase only exported events, always on independent copies.
+            ranks = {seq: i for i, seq in enumerate(sorted(
+                e[5] for edges in d["hist"].values() for e in edges
+                if len(e) > 5))}
+            d["hist"] = {k: [e[:5] + [ranks[e[5]]] if len(e) > 5
+                              else list(e) for e in edges]
+                         for k, edges in d["hist"].items()}
+            for reg in ("drv_log", "pending_drv"):
+                d[reg] = [dict(e, arrival_seq=ranks[e["arrival_seq"]])
+                          if "arrival_seq" in e else copy.deepcopy(e)
+                          for e in d[reg]]
+            derived_ranks = {seq: i for i, seq in enumerate(sorted(
+                e['seq'] for e in d['drv_log']))}
+            for reg in ('drv_log', 'pending_drv'):
+                d[reg] = [dict(e, seq=derived_ranks[e['seq']]) for e in d[reg]]
+            d["next_arrival_seq"] = len(ranks)
+            d["legacy_order"] = any(len(e) < 6 for edges in d["hist"].values()
+                                    for e in edges)
+            # IDs may be reused across slots. Filtering the global cache
+            # by ID alone can copy an excluded record's value/date.
+            projected = TemporalGraph()
+            projected.hist = d['hist']
+            projected._refresh_record_ids(live_ids)
+            d['rsv'], d['rday'] = projected.rsv, projected._rday
         return d
 
     def restore(self, d):
+        staged = TemporalGraph()
+        staged._restore(copy.deepcopy(d))
+        self.__dict__.update(staged.__dict__)
+
+    def _restore(self, d):
         """Reload a snapshot() dict — export/import continuity hook."""
         self.hist = {k: [list(e) for e in v] for k, v in d["hist"].items()}
         self.prov = {k: list(v) for k, v in d["prov"].items()}
@@ -469,4 +716,102 @@ class TemporalGraph:
         self._rday = dict(d.get("rday", {}))
         self._pending_drv = [dict(e) for e in d.get("pending_drv", [])]
         self._drv_log = [dict(e) for e in d.get("drv_log", [])]
+        self._drv_seq = max((e["seq"] for e in self._drv_log), default=-1) + 1
+        self._restore_order(d)
         self._prune()
+
+    def _restore_order(self, d):
+        version = d.get("temporal_order_version")
+        marked = "temporal_order_version" in d
+        if marked and (type(version) is not int or version != 1):
+            raise ValueError("unsupported temporal order version")
+        if marked and any(key not in d for key in (
+                'legacy_order', 'next_arrival_seq', 'rday', 'drv_log', 'pending_drv')):
+            raise ValueError("ordered snapshot lacks required temporal metadata")
+        legacy = d.get("legacy_order") if marked else True
+        if type(legacy) is not bool:
+            raise ValueError("legacy_order must be a boolean")
+        orders = {}
+        missing = False
+        for vertex, edges in self.hist.items():
+            previous = -1
+            for edge in edges:
+                if len(edge) == 4 and not marked:
+                    edge.append(None)
+                if len(edge) not in (5, 6):
+                    raise ValueError("invalid history edge shape")
+                if len(edge) == 5:
+                    if marked and not legacy:
+                        raise ValueError("complete order requires every edge sequence")
+                    missing = True
+                    if previous >= 0:
+                        raise ValueError("legacy edge follows a newly ordered edge")
+                    continue
+                seq = edge[5]
+                if (not marked or type(seq) is not int or seq < 0
+                        or seq in orders or seq <= previous):
+                    raise ValueError("invalid or duplicate arrival sequence")
+                orders[seq] = (vertex, edge)
+                previous = seq
+        by_id = {}
+        for vertex, edges in self.hist.items():
+            for edge in edges:
+                if edge[4]:
+                    by_id.setdefault(edge[4], []).append((vertex, edge))
+        if marked and 'rday' not in d:
+            raise ValueError("ordered snapshot lacks record dates")
+        for rid, entries in by_id.items():
+            ordered = [(v, e) for v, e in entries if len(e) > 5]
+            latest = max(ordered, key=lambda item: item[1][5]) if ordered else None
+            if latest is None and len({v for v, _e in entries}) == 1:
+                latest = entries[-1]  # one vertex retains its arrival order
+            expected_day = latest[1][1] if latest is not None else None
+            if rid not in self._rday:
+                if marked:
+                    raise ValueError("ordered snapshot lacks a retained record date")
+                if expected_day is not None:
+                    self._rday[rid] = expected_day
+            elif (type(self._rday[rid]) is not int or
+                  expected_day is not None and self._rday[rid] != expected_day):
+                raise ValueError("record date contradicts retained history")
+            if marked and latest is not None:
+                vertex, edge = latest
+                if self.rsv.get(rid) != (vertex.rsplit('|', 1)[-1], edge[0]):
+                    raise ValueError("record value contradicts retained history")
+        births = set()
+        for dev in self._drv_log:
+            if marked and (not isinstance(dev.get('supports'), list)
+                           or type(dev.get('seq')) is not int or dev['seq'] < 0
+                           or type(dev.get('day')) is not int):
+                raise ValueError("invalid derived birth metadata")
+            seq = dev.get("arrival_seq")
+            if seq is None and legacy:
+                if any(e[2] == 'derived' and e[1] == dev['day']
+                       and e[4] == dev.get('id') and len(e) > 5
+                       for e in self.hist.get(dev.get('vertex',
+                           f"{dev['src']}|{dev['slot']}"), [])):
+                    raise ValueError("ordered derived edge lacks ordered birth metadata")
+                missing = True
+                continue
+            if type(seq) is not int or seq not in orders or seq in births:
+                raise ValueError("derived birth lacks a valid arrival sequence")
+            births.add(seq)
+            vertex, edge = orders[seq]
+            if (vertex != dev.get("vertex") or edge[2] != "derived"
+                    or vertex.rsplit('|', 1)[-1] != dev['slot']
+                    or vertex.split('|', 1)[0] != dev['src']
+                    or edge[1] != dev["day"] or edge[0] != dev["value"]
+                    or edge[4] != dev.get("id")):
+                raise ValueError("derived birth does not match its history edge")
+        if any(edge[2] == 'derived' and seq not in births
+               for seq, (_vertex, edge) in orders.items()):
+            raise ValueError("ordered derived edge is absent from derived log")
+        for pending in self._pending_drv:
+            if pending not in self._drv_log:
+                raise ValueError("pending birth is absent from derived log")
+        next_seq = d.get("next_arrival_seq", 0) if marked else 0
+        if (type(next_seq) is not int or next_seq < 0
+                or orders and next_seq <= max(orders)):
+            raise ValueError("invalid arrival sequence high-water mark")
+        self._next_arrival_seq = next_seq
+        self._legacy_order = missing

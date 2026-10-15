@@ -6,11 +6,17 @@ must satisfy every clause; baseline divergences are reported honestly
 
 Run:  python tests/test_lifemodel_contract.py [impl ...]
 impls:  lm tms esr raw ledger flat rag  (default: all)
+      python tests/test_lifemodel_contract.py --strict [impl ...]
+
+Exit status gates LifeModel (lm) by default. The other implementations are
+comparison baselines with deliberately incomplete semantics; their failures
+remain visible diagnostics. --strict gates every selected implementation.
 
 Each clause drives a minimal hand-built lifecycle through the same
 method surface the evaluator uses: ingest / answer / forget / correct /
 revoke_purpose / state / import_state.
 """
+import argparse
 import sys
 from pathlib import Path
 
@@ -375,8 +381,18 @@ def _(a):
     assert a.answer(P("before", "diet", slot2="city", ckpt=20)) == "是"
 
 
-def main():
-    names = sys.argv[1:] or list(IMPLS)
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--strict", action="store_true",
+                        help="fail on any selected implementation, including baselines")
+    parser.add_argument("impl", nargs="*", metavar="impl",
+                        help="implementation names (default: all)")
+    args = parser.parse_args(argv)
+    names = args.impl or list(IMPLS)
+    unknown = [name for name in names if name not in IMPLS]
+    if unknown:
+        parser.error("unknown implementation(s): " + ", ".join(unknown))
+    names = list(dict.fromkeys(names))
     results = {}
     for name in names:
         for cname, fn in CASES:
@@ -401,7 +417,13 @@ def main():
         print(f"{n}: {npass}/{len(results[n])} conformant")
         for c, m in fails:
             print(f"    - {c}\n        {m}")
+    gated = names if args.strict else [n for n in names if n == "lm"]
+    diagnostic = [n for n in names if n not in gated]
+    if diagnostic:
+        print("Diagnostic baselines (not exit-status gates): " + ", ".join(diagnostic))
+    print("Exit-status gates: " + (", ".join(gated) or "none (diagnostic run)"))
+    return int(any(not ok for n in gated for _, ok, _ in results[n]))
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
