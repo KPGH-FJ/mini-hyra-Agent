@@ -1,0 +1,10 @@
+[3/25] gpt4_76048e76 recs=142 extract={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0} answer={'prompt_tokens': 0, 'completion_tokens': 0, 'calls': 0}
+[gpt4_2312f94c] ingest aborted @2023/03/15 (Wed) 00:56: HTTP Error 429: Too Many Requests
+[0bb5a684] ingest aborted @2023/01/13 (Fri) 18:07: HTTP Error 429: Too Many Requests
+[08f4fc43] ingest aborted @2023/02/20 (Mon) 12:15: HTTP Error 429: Too Many Requests
+[2c63a862] ingest aborted @2022/03/02 (Wed) 22:25: HTTP Error 429: Too Many Requests
+[gpt4_385a5000] ingest aborted @2023/03/10 (Fri) 08:29: HTTP Error 429: Too Many Requests
+[2a1811e2] ingest aborted @2023/03/26 (Sun) 22:45: HTTP Error 429: Too Many Requests
+[bbf86515] ingest aborted @2023/06/28 (Wed) 20:06: HTTP Error 429: Too Many Requests
+[gpt4_5dcc0aab] ingest aborted @2023/05/30 (Tue) 16:26: HTTP Error 429: Too Many Requests
+[gpt4_0b2f1d21] ingest aborted @2023/05/22 (Mon) 09:38: HTTP Error 429: Too Many Requests

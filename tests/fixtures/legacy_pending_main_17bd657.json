@@ -1,0 +1,61 @@
+{
+  "hist": {
+    "inference|derived": [
+      [
+        "D",
+        2,
+        "derived",
+        null,
+        "old-derived"
+      ]
+    ]
+  },
+  "prov": {},
+  "journal": [],
+  "rsv": {
+    "old-derived": [
+      "derived",
+      "D"
+    ]
+  },
+  "drv": {},
+  "exp": {},
+  "rvid": {},
+  "aliases": {},
+  "wday": {},
+  "now": 2,
+  "rday": {
+    "old-derived": 2
+  },
+  "pending_drv": [
+    {
+      "id": "old-derived",
+      "day": 2,
+      "source": "inference",
+      "kind": "derived",
+      "slot": "derived",
+      "value": "D",
+      "expires": null,
+      "supports": [
+        "late-support"
+      ],
+      "about": null,
+      "authoritative": false,
+      "text": ""
+    }
+  ],
+  "drv_log": [
+    {
+      "slot": "derived",
+      "value": "D",
+      "supports": [
+        "late-support"
+      ],
+      "day": 2,
+      "id": "old-derived",
+      "src": "inference",
+      "seq": 0
+    }
+  ],
+  "revoked": []
+}

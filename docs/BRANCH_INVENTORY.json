@@ -1,0 +1,824 @@
+{
+  "as_of": "2026-11-10",
+  "base_main": "17bd65751708f2d1509d72ff280db68b87fb3d03",
+  "policy": "No branch deletion performed. Ancestry alone does not establish author inactivity.",
+  "branches": [
+    {
+      "branch": "dash-module-plain",
+      "sha": "9ab68a4b64c4d0f908f2422f7c6c6292e24c5eda",
+      "date": "2026-09-28 05:49:48 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "dashboard-v31",
+      "sha": "e0b375e448abdbf623d854c9e760161a411bd102",
+      "date": "2026-09-26 06:15:56 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "dashboard-v4",
+      "sha": "338f2cf33358fed891244dc49bc3f7c4b2cf19c1",
+      "date": "2026-09-26 07:28:44 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790579989-m4-retrieval-ingest-llm",
+      "sha": "e68ec056b5d4cd71eae7ab880e8ea5eb3db3fa03",
+      "date": "2026-09-28 07:19:49 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790584919-ingest-twostage",
+      "sha": "34e912a05b2d34071be866654eef0a81af5e2c95",
+      "date": "2026-09-28 08:41:59 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790586520-research-external",
+      "sha": "7838147b91bbf4fd3ac8830303b21a6de648fb6c",
+      "date": "2026-09-28 09:10:44 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790590787-locomo-adapter",
+      "sha": "525e1b992302a35e7ae6f8f5ccc764022772c926",
+      "date": "2026-09-28 10:19:47 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790593044-event-dates",
+      "sha": "cd374771028a2201ea17ce9de84fa75cde7aca4a",
+      "date": "2026-09-28 10:57:24 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790595820-lme150",
+      "sha": "83eee6819138d141f20da913913e2690cb2b54f8",
+      "date": "2026-09-28 11:43:40 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790608285-artifact-decompose",
+      "sha": "6488b851d66433c99b5ceb79f7042fe5f94cef66",
+      "date": "2026-09-28 15:11:25 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790608610-reader-aggregate",
+      "sha": "8f0e60e47bde39dfb8e1f10584c4a3d7f60913a3",
+      "date": "2026-09-28 15:16:50 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790614556-reader-personal",
+      "sha": "ad7eba005ea518ba2b93069bc21bc2faf219af13",
+      "date": "2026-09-30 02:53:14 +0000",
+      "unique_commits": 2,
+      "disposition": "retain_pending_content_and_activity_review",
+      "historical_main_ancestor": false
+    },
+    {
+      "branch": "devin/1790737543-premise-gate",
+      "sha": "0a993835213c098ff8349c179e69e6918147e5e6",
+      "date": "2026-09-30 03:05:43 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790738799-reexam-data",
+      "sha": "c3ab4db3d6d7725ce7c84a6633d8e404fcde607e",
+      "date": "2026-09-30 03:26:47 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790738840-assist-param",
+      "sha": "99709a2481271dd92234d155c2f5324c7a8a6907",
+      "date": "2026-10-01 14:08:01 +0800",
+      "unique_commits": 1,
+      "disposition": "retain_pending_content_and_activity_review",
+      "historical_main_ancestor": false
+    },
+    {
+      "branch": "devin/1790776397-informative-abstain",
+      "sha": "1df9788480b6893205eb3815c80262f9ad742f98",
+      "date": "2026-09-30 14:10:24 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790784461-selfcontained",
+      "sha": "a15253f488ba0c51c4207041cf6a30f8bd9ebea5",
+      "date": "2026-09-30 16:47:42 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790851352-relaxed-gate",
+      "sha": "333e9c882d4e8c4deb29c82c9b69e0cd8877098d",
+      "date": "2026-10-01 10:42:32 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790858592-research-v12",
+      "sha": "95b9ae62976cc05e1d316bb5405133efb917afad",
+      "date": "2026-10-01 12:43:12 +0000",
+      "unique_commits": 1,
+      "disposition": "retain_pending_content_and_activity_review",
+      "historical_main_ancestor": false
+    },
+    {
+      "branch": "devin/1790862095-dash-ext",
+      "sha": "b33d1086c43a1758cfd38f38b2763b00409445b9",
+      "date": "2026-10-01 13:41:52 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790866297-ext-rounds-render",
+      "sha": "82959de61c7ece32433025b5292cf40c8b1973a6",
+      "date": "2026-10-01 14:52:04 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790875622-assist-default",
+      "sha": "3fdfffc174670732de20a283ccc7c0ce1ed780ae",
+      "date": "2026-10-02 00:20:47 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790883279-profile",
+      "sha": "4e3758f4e7255684c794e4d949093ce2571fbe2f",
+      "date": "2026-10-02 14:52:17 +0800",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790896156-v13-dash",
+      "sha": "41cb62c6b8c8725a5d13bc3f0ad6d43013444934",
+      "date": "2026-10-01 23:09:16 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790910983-yieldguard",
+      "sha": "a9ccea95a16dd7f5e32daddf1eb24f3b1cd75da1",
+      "date": "2026-10-02 04:43:57 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790924256-v14-dash",
+      "sha": "6dffb8ddd833e6c17252cd1871482a70c2807301",
+      "date": "2026-10-02 06:57:36 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790938780-route-simplify",
+      "sha": "efe9bf5efec246a769ab77ce6e47bea86a02f1c6",
+      "date": "2026-10-02 10:59:58 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790939995-v14b",
+      "sha": "ee863f25e685184c42f4f0b43d525342ab5dee6a",
+      "date": "2026-10-02 11:19:55 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790959641-grounded-gate",
+      "sha": "b38969ee571000e5b8fdae7927cd39227537f511",
+      "date": "2026-10-02 22:21:37 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790980840-v14c",
+      "sha": "aa1d7655c090f430ac86e9be3fe91fdd2da6f568",
+      "date": "2026-10-02 22:40:40 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790983714-board",
+      "sha": "a228c4075562548f8623a18e81f2dcc6dd2478c5",
+      "date": "2026-10-03 00:08:33 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790986047-telemetry",
+      "sha": "d30aa553405859b9a1a639b2fd3124365feb0d8d",
+      "date": "2026-10-03 00:08:36 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1790986074-mislabels",
+      "sha": "b4021bc5a13d1cbc8145e17152ec7b7b5a7cf232",
+      "date": "2026-10-03 00:08:15 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1791013887-grounded-cal",
+      "sha": "c1190e696829daee173a24777be556e5302faa27",
+      "date": "2026-10-03 08:03:17 +0000",
+      "unique_commits": 2,
+      "disposition": "retain_pending_content_and_activity_review",
+      "historical_main_ancestor": false
+    },
+    {
+      "branch": "devin/1791045554-typedv2",
+      "sha": "e54a34e8ed7386cabcb1ddb2cca2e90852f96a93",
+      "date": "2026-10-03 16:39:14 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1791048651-board893",
+      "sha": "280dce42107d8e63f10d561fdc8b43f80213ef4d",
+      "date": "2026-10-03 17:30:51 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1791270166-stage1-oracle",
+      "sha": "11b3062d2161d9b132f8b4f7498b221b33a698ba",
+      "date": "2026-10-06 07:02:56 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1791303458-glossary-plain",
+      "sha": "634f1221ce3c1c84568d9a3e7f4b9170d51b9fe2",
+      "date": "2026-10-06 16:18:10 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1791305721-m6-viz",
+      "sha": "65814eeafb57450f5323ad7a141236af22b9cf0c",
+      "date": "2026-10-06 17:20:08 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1791317310-resid-stage2",
+      "sha": "86964698a655143e9dda8d433d9554639e12445d",
+      "date": "2026-10-06 20:10:48 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1791334815-stage3-spec-gen",
+      "sha": "38a4066731871de567e3f3346b5f4ab57c84f380",
+      "date": "2026-10-07 04:55:02 +0000",
+      "unique_commits": 1,
+      "disposition": "retain_pending_content_and_activity_review",
+      "historical_main_ancestor": false
+    },
+    {
+      "branch": "devin/1791348916-stage3b-canonical",
+      "sha": "6b4bd85fa139dd21b4852599cbbf9e8be4028052",
+      "date": "2026-10-07 04:55:37 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1791351668-stage4-verifyloop",
+      "sha": "11618464943484d1b7ec886156238faa04e1b8ba",
+      "date": "2026-10-07 05:41:16 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1791447063-research-continue",
+      "sha": "2964a6657571c9fd2159b468028b7c8dbcfe4d6d",
+      "date": "2026-10-08 12:38:20 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1791476369-baseline-h2h",
+      "sha": "0f2669096c78d55ee50c2d9f3b1a874b519aeb89",
+      "date": "2026-10-09 02:52:55 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1791479212-profile-fallback",
+      "sha": "3d990800687f00cd848b2a803d1f590c80a6500c",
+      "date": "2026-10-08 17:08:53 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "devin/1791480542-typed-layer",
+      "sha": "45f0519ed52936c9f1106243651af28e22b05fce",
+      "date": "2026-10-15 09:40:48 +0000",
+      "unique_commits": 10,
+      "disposition": "retain_pending_content_and_activity_review",
+      "historical_main_ancestor": false
+    },
+    {
+      "branch": "docs/dashboard-design",
+      "sha": "dffa5c9a339b341fef0c464179d58eef92624415",
+      "date": "2026-09-26 06:27:48 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "eval/probe-guard",
+      "sha": "5e2d7c41bf98d8a8c9c3eb9ad7eb78fd5999fa2f",
+      "date": "2026-09-26 06:47:18 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "ext/lme-harness",
+      "sha": "d2ec3394400fa94ea029a01154be9db8cb0cb12c",
+      "date": "2026-09-28 05:50:21 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "feature/dashboard-research",
+      "sha": "90bcf1811ff1e5029e0dc38c7f9bd5181101076a",
+      "date": "2026-09-26 00:58:52 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "feature/harness-fixes",
+      "sha": "2c5ce3a551c162ec42d9f590df6df8fff99c5aa1",
+      "date": "2026-09-26 03:30:54 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "feature/harness-fixes-2",
+      "sha": "13055f12f339cf5245820e973ba687b40b2274fe",
+      "date": "2026-09-26 06:19:08 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "feature/m3-round",
+      "sha": "802425663811faac75e3caf290e46bdcaa630d7c",
+      "date": "2026-09-25 20:38:53 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "feature/p3-serve",
+      "sha": "26d658e6868b705193e03a333e5d96e3e12aa400",
+      "date": "2026-09-26 02:48:46 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "fix/context-json-parse",
+      "sha": "553e5a589be2f123f4aefdebd6efd95d141d47a1",
+      "date": "2026-09-26 12:32:29 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "fix/eval-verdict-scan",
+      "sha": "53ccbfa2f3b1e125b153d6dda050886fd668f01a",
+      "date": "2026-09-26 22:57:13 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "fix/store-review-followups",
+      "sha": "952fe481a37dc0541d4500813490b3814c43858b",
+      "date": "2026-09-24 17:25:47 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "flynn/takeover-first-repairs",
+      "sha": "7c6156645169da348a4041ac3d9a3b22e8636b5a",
+      "date": "2026-10-13 18:21:21 +0800",
+      "unique_commits": 1,
+      "disposition": "retain_pending_content_and_activity_review",
+      "historical_main_ancestor": false
+    },
+    {
+      "branch": "lifemodel/m2-winning-store",
+      "sha": "751f903eed384a939d1a36204a09f6d31319fc6b",
+      "date": "2026-09-24 12:46:35 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "lit/m1-ingest",
+      "sha": "146cd9da5cf857a9116cf0a966a1fefa99f1d403",
+      "date": "2026-09-23 14:53:35 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "lit/m2-representation",
+      "sha": "2ca44a1380d262b42012d3b4eff9813eecbdc531",
+      "date": "2026-09-23 14:55:26 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "lit/m3-update",
+      "sha": "1a19fcfe5fbfaceb71dddfb8cbad3c6c917f05d1",
+      "date": "2026-09-23 14:54:15 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "lit/m4-serve",
+      "sha": "fd4909d160b098eb3ad70a95a2ac5ad93bae696a",
+      "date": "2026-09-23 14:58:00 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "lit/m5-control",
+      "sha": "cf06be54e19ec8d59216f5c5ec7d80b065d9f4d2",
+      "date": "2026-09-23 14:50:05 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "p1-consolidation",
+      "sha": "e684f75a42d62af3692f37e04e91e0f02c78deed",
+      "date": "2026-09-23 15:23:30 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "research/answer-shapes",
+      "sha": "322f6b02ba84a5af8111232187612b85d972fe3a",
+      "date": "2026-09-26 15:27:05 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "research/gapmap-s0096",
+      "sha": "5115578a12067d6c09d6fbf04158a98cf43c16aa",
+      "date": "2026-09-27 06:49:02 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "research/life-model-v1",
+      "sha": "936e10e3e670a5346bcc403a7f599192d5ca5c75",
+      "date": "2026-09-23 13:33:20 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "research/m2-family-race",
+      "sha": "4c73544abe9aadc2bc53c8821a1ad8a50e5b300a",
+      "date": "2026-09-26 01:35:39 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "research/next-round-m4",
+      "sha": "002826e9ade865d3bf38e733c06b79a9bc0fabfb",
+      "date": "2026-09-26 07:27:46 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "research/timeline-w3",
+      "sha": "89694ab3ab86c12f52ed9b272d1ef6f19f964d98",
+      "date": "2026-09-26 17:12:54 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "research/w4-wrap",
+      "sha": "dad7209d869d4f073db074b1fae3d2abc73d1b81",
+      "date": "2026-09-26 06:18:53 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/grounded-anchor",
+      "sha": "1c3fe358ddfd67affdeeeedc038502bb157def42",
+      "date": "2026-10-02 22:07:16 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/lifemodel-abstain-dial",
+      "sha": "6cddc7f122cb911066b2de800ffd54a574b361a5",
+      "date": "2026-09-30 16:33:14 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/lifemodel-locomo-fixstack",
+      "sha": "138edebed110996b522cd1b631abc748300ae612",
+      "date": "2026-09-30 10:26:11 +0800",
+      "unique_commits": 1,
+      "disposition": "retain_pending_content_and_activity_review",
+      "historical_main_ancestor": false
+    },
+    {
+      "branch": "results/lifemodel-m1-variants",
+      "sha": "0f88008f36396cb2f84cc1ca7297e6d347d2917e",
+      "date": "2026-09-28 08:37:30 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/lifemodel-m4-runv8",
+      "sha": "32ec60520d08aab009b1219ead46d37b77d24c7c",
+      "date": "2026-09-27 12:46:44 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/lifemodel-p3-m2",
+      "sha": "6e69e622866d3e16f119a75f15a952ca293fa6b4",
+      "date": "2026-09-24 12:47:51 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/lifemodel-p3-m3",
+      "sha": "fb6cf7027be967f1d4f7c1e7945896bdf8730598",
+      "date": "2026-09-25 00:39:33 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/lifemodel-p3-m4",
+      "sha": "be9c610d95f5713b86a905e0fe39661222568671",
+      "date": "2026-09-26 01:58:43 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/lifemodel-p3-m4-w2",
+      "sha": "764684c524714dc217df77d8ac6728503a43562d",
+      "date": "2026-09-26 06:43:42 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/lifemodel-p3-m4-w3",
+      "sha": "42a29d2c2e4e2dc4150c184d802203b32b664a97",
+      "date": "2026-09-26 12:30:38 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/lifemodel-p3-m4-w4",
+      "sha": "6f1ce0872d5a8be154857ba4c8fd957d30b2ceb0",
+      "date": "2026-09-26 22:54:48 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/lifemodel-p3-m5",
+      "sha": "c4d31db8b106492d38477826ba3fad83d68aee64",
+      "date": "2026-09-25 16:50:48 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/lifemodel-p3-runv9",
+      "sha": "230b576690c26943fd7ee9ea20e8f2a01c6f617c",
+      "date": "2026-09-27 06:42:30 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/lifemodel-p3-v5",
+      "sha": "fd476505fd6c662bd370106b7209aa1564eafff5",
+      "date": "2026-09-25 18:49:44 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/lifemodel-p3-v5-w3",
+      "sha": "6ace9fa288207397b7aab4b696813aca763b24d6",
+      "date": "2026-09-26 02:35:24 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/lifemodel-p3-v5-w4",
+      "sha": "a2017373038f8bf5d8d1accadf923d779955492f",
+      "date": "2026-09-26 05:31:01 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/lifemodel-pref-autopsy",
+      "sha": "8be0d5c96d8b6d8b8be7d819b38dd0d012c39bf6",
+      "date": "2026-09-28 16:54:05 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/lifemodel-reexam-150",
+      "sha": "3e77f9f1e9d5c3d503ca71db773f7f7ba729ee7c",
+      "date": "2026-09-29 21:49:20 +0000",
+      "unique_commits": 2,
+      "disposition": "retain_pending_content_and_activity_review",
+      "historical_main_ancestor": false
+    },
+    {
+      "branch": "results/locomo-final",
+      "sha": "a769f2f67947337601a57b1931b3c9654f639c84",
+      "date": "2026-10-02 11:25:43 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/m4-agg-refine",
+      "sha": "e7164fed7c604adecaed22f5226d70a22c7189ce",
+      "date": "2026-09-30 00:52:32 +0000",
+      "unique_commits": 2,
+      "disposition": "retain_pending_content_and_activity_review",
+      "historical_main_ancestor": false
+    },
+    {
+      "branch": "results/m4-answering-agg",
+      "sha": "f416f535d7407cff7d185095b9d468e5cdb55bbf",
+      "date": "2026-09-30 10:26:25 +0800",
+      "unique_commits": 5,
+      "disposition": "retain_pending_content_and_activity_review",
+      "historical_main_ancestor": false
+    },
+    {
+      "branch": "results/m4-decomp-ms",
+      "sha": "20011d0e2712123eec48afd3a8e760298be91ee9",
+      "date": "2026-10-02 04:27:34 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/m4-msprofile",
+      "sha": "a99a168f85b16e74170df26a306cf1dd977cc8ea",
+      "date": "2026-10-02 10:37:07 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/m4-resid150",
+      "sha": "badecdbf956acfa23249fdb811a490a29ac253d5",
+      "date": "2026-10-02 13:21:16 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/m4-retrieval-completeness",
+      "sha": "01cbc7eb825c2db32a294b06ee497fbd7772425b",
+      "date": "2026-09-30 10:25:26 +0800",
+      "unique_commits": 2,
+      "disposition": "retain_pending_content_and_activity_review",
+      "historical_main_ancestor": false
+    },
+    {
+      "branch": "results/m4-retrieval-variants",
+      "sha": "d56df971e85541b974453963e058e48c335b6cca",
+      "date": "2026-09-28 08:55:58 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/m4-ruleB150",
+      "sha": "d54bf5b35a8f40ee02465da280b0c20a90628c5d",
+      "date": "2026-10-03 17:25:49 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/m4-verify150",
+      "sha": "6ed9afca64662c41b4ae51a4f5ae2875be049206",
+      "date": "2026-10-02 08:45:28 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    },
+    {
+      "branch": "results/rlx-cat5-sentinel",
+      "sha": "c270ca3e1b539a2697f0319daaf7691f97bb312b",
+      "date": "2026-10-01 16:11:06 +0000",
+      "unique_commits": 0,
+      "disposition": "retain_pending_activity_check",
+      "historical_main_ancestor": true
+    }
+  ],
+  "excluded_symbolic_ref": "refs/remotes/origin/HEAD -> origin/main"
+}

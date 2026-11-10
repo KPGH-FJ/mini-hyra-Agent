@@ -525,13 +525,160 @@ def _qclass(question: str) -> str:
     return "other"
 
 
+async def _spec_aggregate(model, llm, question: str, qdate: str):
+    """Deterministic enumeration over store.typed: LLM writes a
+    closed-DSL spec against the store's actual vocabulary, the
+    evaluator runs it verbatim, one verify round shows the model its
+    own selection and lets it revise (lab: one round took 5/7 -> 7/7).
+    Returns a response dict, or None to fall through — an empty or
+    broken selection must NEVER displace the normal channel (the
+    stage-2 warning: an empty mechanical answer is worse than none)."""
+    from .typed_agg import (answer_with_spec, vocab_of, validate_spec, valid_spec_shape)
+    # Production aggregation accepts only self-attributed histories without
+    # corrections/retractions. The flat registry cannot reconcile those safely.
+    typed = {}
+    for key, edges in model.store.hist.items():
+        if not key.startswith("self|") or key.count("|") != 1:
+            continue
+        if any(e[2] in {"update", "correction", "retraction"} for e in edges):
+            return None
+        for edge in edges:
+            # Source attribution is not authority: hearsay/suggestion and
+            # derived/unknown kinds must not become asserted events merely
+            # because the typing model labeled their frame "asserted".
+            # Updates/corrections/retractions have already forced fallback.
+            if len(edge) <= 2 or edge[2] != "statement":
+                continue
+            if len(edge) <= 4 or edge[4] not in model.store.typed:
+                return None  # partial typing cannot justify an exact total
+            typed[edge[4]] = model.store.typed[edge[4]]
+    if not typed:
+        return None
+    recs = [{"rid": rid, "day": d}
+            for rid, d in model.store._rday.items() if rid in typed]
+    vocab = vocab_of(typed)
+
+    async def gen(sys_prompt, prompt):
+        for _ in range(3):
+            txt = (await llm.complete(sys_prompt, prompt)).strip()
+            i, j = txt.find("{"), txt.rfind("}")
+            try:
+                value = json.loads(txt[i:j + 1])
+                if valid_spec_shape(value):
+                    return value
+            except Exception:
+                continue
+        return None
+
+    def eval_spec(spec):
+        spec = dict(spec)
+        spec["_qdate"] = qdate
+        try:
+            return answer_with_spec(spec, typed, recs)
+        except (ValueError, TypeError, KeyError, OverflowError):
+            return {"answer": None, "evidence": [], "pool": len(typed)}
+
+    prompt = (f"QUESTION: {question}\nQUESTION DATE: {qdate}\n\n"
+              f"STORE VOCABULARY:\n{json.dumps(vocab, indent=1)}\n\n"
+              "Spec JSON:")
+    spec = await gen(_SPEC_SYS, prompt)
+    if spec is None:
+        return None
+    res = eval_spec(spec)
+    # one verify round: show the model its own selection + validation
+    # warnings, offer revision. Converges over- and under-selection
+    # without gold anywhere in the loop.
+    ev = {rid: model.store.rsv.get(rid, ("", ""))[1]
+          for rid in res["evidence"]}  # rsv: rid -> (slot, value)
+    warns = validate_spec(spec, typed)
+    rejected = {rid: model.store.rsv.get(rid, ("", ""))[1]
+                for rid in typed if rid not in res["evidence"]}
+    fix_prompt = (f"QUESTION: {question}\nQUESTION DATE: {qdate}\nSPEC:\n"
+                  f"{json.dumps(spec, ensure_ascii=False)}\n\n"
+                  f"SELECTED {len(res['evidence'])} of {res['pool']} "
+                  f"records -> answer {res['answer']}\n"
+                  f"SELECTED VALUES: {json.dumps(ev, ensure_ascii=False)[:3000]}\n"
+                  + f"VOCABULARY: {json.dumps(vocab, ensure_ascii=False)}\n"
+                  + f"REJECTED VALUES: {json.dumps(rejected, ensure_ascii=False)}\n"
+                  + (f"VOCABULARY WARNINGS: {json.dumps(warns, ensure_ascii=False)}\n" if warns else "")
+                  + "\nRevised spec JSON (or repeat the spec if fine):")
+    spec2 = await gen(_SPEC_FIX_SYS, fix_prompt)
+    if spec2 is not None:
+        res2 = eval_spec(spec2)
+        if res2["answer"] is not None:
+            spec, res = spec2, res2
+    if res["answer"] is None or not res["evidence"]:
+        return None
+    return {"response": str(res["answer"]),
+            "selected": res["evidence"],
+            "digest": f"typed-agg spec: {json.dumps(spec, ensure_ascii=False)[:400]}",
+            "verify": None, "agg_spec": spec, "agg_evidence": res["evidence"]}
+
+
+_ENUM_Q = re.compile(
+    r"\bhow (many|much|often|long)|\bnumber of|\bcount of|\btimes\b|\b(total|altogether|combined|sum)\b", re.I)
+_STATE_Q = re.compile(r"\b(currently|now|own|owns|have|has|possess)\b", re.I)
+
+_SPEC_SYS = """You write a deterministic aggregation spec for a personal-memory
+store whose records carry typed fields: kind (asserted|negated|planned|
+cancelled), verb, object, object_class, quantity, quantifier, when_abs
+(ISO or partial YYYY-MM/YYYY), granularity (day|week|month|year),
+duration_value+duration_unit, obligation_status (awaiting_pickup|
+awaiting_return|fulfilled), counterparty, location, dup_links.
+
+You will see the QUESTION, its date, and the store's ACTUAL vocabulary
+(distinct values with counts). Pick verbs/classes/locations ONLY from
+that vocabulary — a predicate using a word the store doesn't have
+matches nothing. For "how many times did I X" questions choose every
+vocabulary verb that could denote the asked activity, and filter with
+objects_contain / object_class when the question names the target.
+
+Emit spec JSON:
+{"op": "count_events"|"count_distinct"|"sum",
+ "verbs": [<vocabulary verbs>] or null,
+ "object_class": [<vocabulary classes>] or null,
+ "objects_contain": [<substrings>] or null,
+ "obligation_status": [<values>] or null,
+ "counterparties": [<vocabulary counterparties>] or null,
+ "location": [<vocabulary locations>] or null,
+ "kind": ["asserted"] (default; add others only if the question asks),
+ "window": {"kind":"past_days","days":N} | {"kind":"year","year":YYYY}
+           | {"kind":"loose_last_week"} | null
+           — optional "null_mode": "strict" (default) |
+             "mention_day" | "tolerant",
+ "field": "quantity"|"duration_hours"|"duration_days"
+          (sum only),
+ "exclude_objects_contain": [<substrings>] or null,
+ "explain": "one line"}
+
+Notes:
+- "how many distinct/different X" -> count_distinct over field=object
+- prefer counterparties over verbs+objects_contain when the vocabulary
+  has them — the verb is often eat/order while counterparty names the
+  actual entity
+- prefer the MINIMAL selector: every verb/class you add must name the
+  SAME real event type the question asks about — do not widen to
+  semantically adjacent frames (a camping trip is not travel)
+- Return ONLY the JSON object."""
+
+_SPEC_FIX_SYS = """You just wrote an aggregation spec; here is what it
+selected. If the selection missed record types the question clearly
+covers, or over-selected adjacent event types, revise the spec.
+Common fixes: add a vocabulary verb you missed, drop a location list
+that killed everything, relax window null_mode to "mention_day" when
+records lack dates, or split into "any_of" alternative clauses.
+Revise ONLY if the selection looks wrong — emit the same spec shape.
+Return ONLY the JSON spec."""
+
+
 async def aanswer(model, llm, question: str, qdate: str,
                   premise_check: bool = False,
                   assist: bool = False,
                   via_profile: bool = False,
                   profile: str | None = None,
                   route: str | None = None,
-                  qtype: str | None = None) -> dict:
+                  qtype: str | None = None,
+                  agg: str | None = None) -> dict:
     """Two-stage answer. Returns {response, selected_vertices, digest}.
 
     route="ruleB" (150q-validated: 88.0% vs best single channel 86.7;
@@ -588,6 +735,10 @@ async def aanswer(model, llm, question: str, qdate: str,
     Atria A/B: dropped families, dedupe collisions, date misfilters) —
     off by default, opt-in for weak backends.
     """
+    if agg == "spec" and _ENUM_Q.search(question) and not _STATE_Q.search(question) and re.search(r"\b(I|my)\b", question, re.I):
+        spec_ans = await _spec_aggregate(model, llm, question, qdate)
+        if spec_ans is not None:
+            return spec_ans
     fell_back = None
     if route == "ruleB":
         qt = (qtype or _qclass(question)).lower()

@@ -1,0 +1,252 @@
+{
+  "schema_version": 1,
+  "scope": "saved report inventory, not a leaderboard",
+  "reports": [
+    {
+      "path": "results/life_model/REPORT.md",
+      "title": "LifeModel research run v1 — report",
+      "sha256": "a226512e492194fc026303f4b1684b84b9d7c143c7b6671892252d7fa5458c45",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/life_model_run_v9/REPORT.md",
+      "title": "P3 run_v9 — fresh EB, M4 serve deep-history focus (s0096-study seeding)",
+      "sha256": "d3977010e7e1811ae47a190cdf7a421e4731bba72c249ae0ec5ea8f093005af9",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/life_model_v2/REPORT.md",
+      "title": "P3 round 1 — M2 representation evolution results",
+      "sha256": "d6484234d5e0128a1231108b1dde111eca849746616ee47ea99a52d21b893842",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/life_model_v3/REPORT.md",
+      "title": "P3 r2 — M3 Update evolution: REPORT",
+      "sha256": "6ecf916d3585b2a1c9f8d7fc9dcf1baa42ebfde36863066a7291b5ee732d6496",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/life_model_v5/REPORT.md",
+      "title": "P3 r3 — M1 Ingest + serve pressure (v5 bench): REPORT",
+      "sha256": "7c8598ee1f41276458ba6dad857f1fffffa30e1d801a753e65b3a3c2d0e992c9",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/life_model_v7/REPORT.md",
+      "title": "LifeModel P3 round 5 — M5 control evolution (run_v6) — report",
+      "sha256": "32ad230484d1bcaf99a67bcd4da10dddcdd6e6df49d9de2afce341e05498d601",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/life_model_v8/REPORT.md",
+      "title": "LifeModel M4 — run_v8 deep-history serve round — report",
+      "sha256": "2f276054d60ec34c4bd7e1d9d99279b2bde29e6973024b20d4a55db9b512c11b",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/life_model_v9/REPORT.md",
+      "title": "LifeModel P3 round 6 — M4 serve-surface evolution (run_v7) — report",
+      "sha256": "7f6e21f2c5190d9a8513d766a619108c2c24947d1c62ceb985d4d6135786c5f6",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/life_model_v9_w2/REPORT.md",
+      "title": "LifeModel P3 r6 W2 — M4 serve-surface evolution, second window (run_v7) — report",
+      "sha256": "3744af59bb02354d35b9924794f6d7c61d3bb69c5663a9aaa3690b4f0aed13fc",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/life_model_v9_w3/REPORT.md",
+      "title": "LifeModel P3 r6 W3 — M4 serve deep-history window (run_v7, same EB) — report",
+      "sha256": "3020b3771541633f0023ba614c8356aff1aefb8215d6ccec54612b4521b461ec",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/life_model_v9_w4/REPORT.md",
+      "title": "P3 r6 W4 — run_v7 window 4 (deep-history + context-agent fix validation)",
+      "sha256": "4e713265aa659cbc77962d36cb5c95e1317a67205c858bc0ab806314a0fbe627",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme150_assist/REPORT.md",
+      "title": "150q 终局选型：nogate×assist = 86.0% — 首个反超老栈的栈",
+      "sha256": "43a73db7092c576cb3f355fb1140bf032ed41c0b2dc1e9210464c7ce853297ad",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme150_rlx/REPORT.md",
+      "title": "宽化 premise gate（方案 B）150q 复测",
+      "sha256": "cdbd12ff491f1ef2bfe49bd14ec97ed7cbea0f1da108f241641372a1216501ab",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme150_sc/REPORT.md",
+      "title": "150q 全栈复测：selfc 摄入 × {无gate, gate-all} × 老栈（里程碑三方对比）",
+      "sha256": "65ca79fe1dd69f13dbb6c64c453f5e370ba18b573ffd4c0b4e5cad5cae8c8baa",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_agg_atria/REPORT.md",
+      "title": "M4 code-assist 成本精修 — temporal-25（Atria 全链）",
+      "sha256": "52042b60aa2427cd0d71d33f5a4b4d96221b4621c1c0a902ddf39365ed8a3578",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_answering_or/REPORT.md",
+      "title": "M4 作答端聚合对照 — LME oracle multi-session ×25（OR 作答+判分）",
+      "sha256": "b48d963409ed617554fd7d70b9f209cc1eccc5ade6974132cdb46e0831d51141",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_assist25/REPORT.md",
+      "title": "ms-25 全量 assist=True 验证轮（里程碑）",
+      "sha256": "ed1b921154c823eeff3ff62039f45bd0c4c2b32d14fd8dc9915b7b4e8097cca7",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_catfix/REPORT.md",
+      "title": "LME Catalog-Crowding Repair Ablation (multi-session-25, all-Atria)",
+      "sha256": "ce99c5b0643448e0c789fdaa45a59ec521c0b930f9796fb3eb76ec62b5a75e12",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_completeness/REPORT.md",
+      "title": "M4 检索完备性对照 — LME oracle multi-session ×25",
+      "sha256": "128797145a235ec17098b940ddd389d689b9fa93cac6c86989d4211958fb6e2e",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_consol/REPORT.md",
+      "title": "LME Ingest-Fragmentation Test: offline consolidation arm (ms-25, all-Atria)",
+      "sha256": "119f6b81690eb563cfb5c7271521ab81426216c4da0f0cd93868fa4d742c3eac",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_decomp_ms/REPORT.md",
+      "title": "M4 ms-72→28 归因分解（2×2 切片臂，全 Atria）",
+      "sha256": "33e58cdc740142e2a2adb37a20972c1c4258890b35021455fc0312359b80453f",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_hybrid/REPORT.md",
+      "title": "Hybrid-oracle ceiling + pref-bleed prompt fix (post profile@150q)",
+      "sha256": "93765ebf06966c2804803661b81a1e716e36a0a34b3c4f360bd4ae68b9e6a720",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_ms25_grid/REPORT.md",
+      "title": "ms-25 组合矩阵收官：{gate}×{assist} 四格 — 候选栈假设定案",
+      "sha256": "a8f23889b07988dce93d950ccc7ea8d755d41510b32ec164507efeda3a5b7332",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_profile/REPORT.md",
+      "title": "画像完备性探针：profile-only 作答 87.5% — 画像超过所有检索臂",
+      "sha256": "7b8db77347b56133ed568ec4b5aa26804be9fbbfd734ae427e5f3cf70ec22023",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_profile150/REPORT.md",
+      "title": "画像压缩损失曲线 @150q：profile 83.3% — 拐点 60+ 顶点，枚举/偏好是双病灶",
+      "sha256": "f2d479a1ef6c1dc18e9177891dafc710d0b28a49b80d252c1b5e310ea2d7ed20",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_randfix/REPORT.md",
+      "title": "Extraction-randomness lesion: union2 vs verify_pass (ss-assist-25, Atria)",
+      "sha256": "494ef668b2a8cc77dfef2b20aa5583862d3201e1b0c99f68331e48f5fbb3944c",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_recorddiff/REPORT.md",
+      "title": "Record-Diff Dissection: what the new ingest's decompose actually loses",
+      "sha256": "b6d2f7a2c1d221785dba78d7cdf873e21fb098a876de8fdc6f1ff4c1024821a0",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_resid/REPORT.md",
+      "title": "Residual lesion dissection: the 10 remaining ms-25 misses after v_selfc",
+      "sha256": "beee19d5f7007018047ab18f4c8a55263b526d20333e7877e3df91c33d1ff316",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_resid150/REPORT.md",
+      "title": "Residual Anatomy — verify150 批次全部判负题逐题归因",
+      "sha256": "b66206a95238b883f8c95658882d2a8376fcced9aaac503c7585c6b0a75e8297",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_resid150/stage1/STAGE1_REPORT.md",
+      "title": "M2 typed-record — stage-1 oracle 证伪结果",
+      "sha256": "e3d8d488511245bd8446745e8c4c4c6eab8b65201f000f5054ed5109baa7a84d",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_resid150/stage2/SPEC_GEN_REPORT.md",
+      "title": "Stage-3: vocabulary-aware spec generation — 报告",
+      "sha256": "af33703b6678e4fec5bda7b0e9d4143c60a94374d034ae3a260ef13d75f4ed97",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_resid150/stage2/STAGE2_REPORT.md",
+      "title": "M2 typed-record · stage-2 抽取保真实测",
+      "sha256": "7dd0580d02eba3fb1b9cf947d16cd0c545f0dc958806c0bef02eb3766e0a64dd",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_retrieval/REPORT.md",
+      "title": "M4 retrieval-layer ablation — LongMemEval oracle 72-question stratified sample",
+      "sha256": "99a00c86fa7cd013e5147b628824616c3c4af186db9bd523e6bf4e4740b67505",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_secpick/REPORT.md",
+      "title": "Domain-sectioned profile answering (sec_pick / sec_all) on >=60v memories",
+      "sha256": "50553282293e82b9d926819cab8e2d254a04ed16031726db7f2198df103bf94a",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_selfc/REPORT.md",
+      "title": "Self-Containment Fix: EXTRACT_SYS bullet repairs the ms collapse",
+      "sha256": "326db209e9365f590f35768eefe61e1245a8d36ccf8bdb625d31e385ff47d68d",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_srcfix/REPORT.md",
+      "title": "LME Source-Dilution Repair Ablation (multi-session-25, all-Atria)",
+      "sha256": "9d925aa645740d5da0b570996bfa3bc74fb615a21307c8590ea6eff62db9c548",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_ssassist/REPORT.md",
+      "title": "ss-assist double-blind attribution (the biggest shared-blind type)",
+      "sha256": "1d5493dadafb26e5376dc1b69a267b81f0549a33c8c6a325f9c574deca3eb10e",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_verify150/H2H_REPORT.md",
+      "title": "基线对擂：lifemodel ruleB vs 朴素 RAG（同题同判官）",
+      "sha256": "9fa12ff3890ba784b108eff55e6c6dfb5d383c3f3945602cd86a4e5bf281c91f",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_verify150/REPORT.md",
+      "title": "verify-ingest × ruleB routing — 150q full retest (Atria)",
+      "sha256": "c1d0dfc76a46fac1066bb9ace496a323359b08f632f3bac0171fe7c6eca59ed3",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/lme_yieldguard/REPORT.md",
+      "title": "Yield-guard verification (ss-assist A-lesion re-ingest)",
+      "sha256": "376d52cb2977e764bf122bbef8fc0500a850a3cf7e9b8cd412316b890a683017",
+      "evidence_status": "historical_not_revalidated"
+    },
+    {
+      "path": "results/reexam150/REPORT.md",
+      "title": "LME-150 full-stack A/B: old-stack vs new-stack (Atria end-to-end)",
+      "sha256": "5a8ff4e5b2885c118067cda16fe581b6eebfbb222348920226692bd3f278718f",
+      "evidence_status": "historical_not_revalidated"
+    }
+  ]
+}
