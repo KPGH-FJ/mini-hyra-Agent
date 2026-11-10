@@ -1,7 +1,8 @@
 # Historical branch review
 
 Baseline: main `17bd65751708f2d1509d72ff280db68b87fb3d03`, checked 2026-11-10.
-No branch was deleted or synthetically merged to manufacture ancestry. Full names
+This records the pre-cleanup content audit; subsequent verified archival and
+branch deletion are recorded in `REPOSITORY_CLEANUP.md`. Full names
 and original heads are recorded in `BRANCH_INVENTORY.json`.
 
 ## Ten non-ancestor historical branches (excluding PRs #104/#105)
@@ -26,4 +27,5 @@ upstream provenance checks are in `results/HISTORICAL_RECOVERY_REVIEW.json`.
 
 The 90 remaining non-main historical heads are ancestors of baseline main.
 That establishes content/history recovery through main, not that collaborators
-have ceased work. No blanket branch deletion is justified by this check alone.
+have ceased work. Deletion additionally required exact-head/activity checks and, for non-ancestor
+heads, independently verified restoration from the Space archive.
