@@ -376,19 +376,19 @@
   }
  ],
  "current": {
-  "verdict": "仓库整合与独立验收中",
-  "round": "统一入口、研究证据与待合并修复",
-  "leader": "历史成绩见 reports；当前修复以最终离线验收为准",
+  "verdict": "整合完成 · main 为唯一工作分支",
+  "round": "入口、研究索引、修复与分支历史已统一",
+  "leader": "离线验收：131 测试 / 31 契约 / 79,289 探针",
   "best_evolved": "历史候选成绩保留，跨版本不可直接比较",
-  "remaining": "PR #104 / #105 修复与联合回归；分支历史保全",
-  "goal": "单一 main，保留可追溯研究历史",
-  "goal_desc": "先验证实际代码与证据，再整合；不以七题诊断替代全量验证。",
+  "remaining": "后续研究：生产安全、真实语言质量与大规模 legacy 重放仍待专项验证",
+  "goal": "维护单一 main，历史版本可恢复",
+  "goal_desc": "源 PR #104/#105 经修复并通过 #106 整合；历史分支备份已在 Space 取回并完整恢复验证。",
   "opponent": "历史基线对比",
   "opponent_desc": "不同 oracle / 数据切片 / judge 不混算",
-  "progress": "整合中；未宣称远端实验正在运行",
-  "window": "当前无已验证的运行窗口",
-  "approach": "离线回归 + 结果索引 + 分支可恢复性核查",
-  "approach_desc": "不启动付费实验，不部署，不摄入真实个人资料。",
+  "progress": "代码整合与历史分支清理完成；未启动新实验",
+  "window": "没有宣称任何实验正在运行",
+  "approach": "main 开发 + 可恢复历史归档 + 离线 CI",
+  "approach_desc": "Python 3.10/3.12/3.13 CI通过；研究结论边界保持不变。",
   "progress_pct": null
  },
  "glossary": [
@@ -992,6 +992,7 @@
   ],
   "current_is_live_monitor": false,
   "status_document": "docs/PROJECT_STATUS.md",
-  "results_index": "results/INDEX.md"
+  "results_index": "results/INDEX.md",
+  "cleanup_record": "docs/REPOSITORY_CLEANUP.md"
  }
 }

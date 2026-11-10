@@ -35,14 +35,21 @@ fallback. The old selected-seven-question result is not revalidated for the
 changed aggregator. No paid model calls, deployment or personal-data ingestion
 was performed.
 
-## Remote verification and remaining work
+## Remote verification and cleanup
 
-The offline CI definition covers Python 3.10, 3.12 and 3.13. Local checks do not
-claim those remote jobs have passed; inspect the integration PR's exact head.
-The Git Data publication may have a different commit SHA because commit metadata
-is regenerated; its entire tree must match the reviewed local tree before merge.
+The final compatibility follow-up used reviewed local `f7176cd`, published as
+`a327457806e5935c112568f700174273dbf8ef97` with identical tree
+`116ae13aeb2c0b6769ff85d6bf86b1c2ff44a420`. It adds four legacy pending-restore
+regressions, bringing the final suite to 131 tests. Strict contracts remain 31/31
+and the 400-seed sweep is 79,289/79,289.
 
-All 102 original non-main branches are retained pending history/activity review.
-No `ours` history merge or branch deletion was performed. The separate desktop
-research workspace is outside this repository cleanup. Production security,
-legacy worst-case replay cost and real-language quality remain unverified.
+[Remote CI run 42775643071](https://github.com/KPGH-FJ/mini-hyra-Agent/actions/runs/42775643071)
+passed on Python 3.10, 3.12 and 3.13. Code/security reviews completed; the legacy
+compatibility finding was repaired and independently reviewed before merging.
+Main merge `04eaeb232536b920c1d464c5d2f8f09fc7573481` has the same verified tree.
+
+Branch preservation and final cleanup are recorded in
+[REPOSITORY_CLEANUP.md](REPOSITORY_CLEANUP.md). The separate desktop research
+workspace was not modified. Production security, legacy worst-case replay cost
+and real-language quality remain unverified; historical scores are not upgraded
+by this repository cleanup.

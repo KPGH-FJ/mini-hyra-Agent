@@ -22,15 +22,17 @@ for the current repository overview. A progress label is not proof of a running 
 
 ## Integration status
 
-This consolidation is based on main `17bd657` plus source PRs #104
-(typed records) and #105 (evaluation/control/temporal repairs). Neither PR's
-historical acceptance claims replace independent verification of the final combined
-code. Local integration validation is recorded in `docs/INTEGRATION_VALIDATION.md`.
+PRs #104 and #105 were repaired, independently reviewed and integrated via #106.
+The integration merge is `04eaeb232536b920c1d464c5d2f8f09fc7573481`.
+Python 3.10, 3.12 and 3.13 remote CI passed, including 131 regression tests,
+31 strict contracts, 79,289 probes and installed package/CLI checks.
 
-Historical branches and results must be preserved before branch pruning. Do not
-restore obsolete reader implementations merely to recover experiment artifacts.
-`docs/BRANCH_INVENTORY.json`, when present, records pre-cleanup branch heads and
-preservation decisions. Git history remains the record of earlier implementations.
+The working branch is `main`. Superseded branch refs were removed only after
+checking exact heads and recoverability. Ten non-ancestor historical heads were
+saved in the owner's Space, downloaded again and independently restored before
+branch deletion. See [cleanup and recovery](REPOSITORY_CLEANUP.md).
+`BRANCH_INVENTORY.json` preserves the original head identities and dispositions.
+No old-code bulk merge or content-discarding ancestry merge was used.
 
 ## Evidence and comparison rules
 
