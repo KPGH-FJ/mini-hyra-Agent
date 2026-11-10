@@ -776,6 +776,54 @@ class TemporalGraph:
                       if typed_counts.get(rid) == 1 and rid in self.rsv}
         self._prune()
 
+    def _canonicalize_legacy_pending(self):
+        """Recover old normalized-event queues only with a unique birth.
+
+        Before temporal metadata, pending entries used source/kind while
+        drv_log used src/seq. They describe the same event in two shapes.
+        Do not guess among duplicate births or accept a fabricated queue.
+        """
+        canonical = []
+        used = set()
+        for pending in self._pending_drv:
+            if pending in self._drv_log:
+                canonical.append(pending)
+                continue
+            if (pending.get("kind") != "derived"
+                    or not isinstance(pending.get("source"), str)
+                    or not isinstance(pending.get("slot"), str)
+                    or type(pending.get("day")) is not int
+                    or not isinstance(pending.get("supports"), list)
+                    or "value" not in pending):
+                raise ValueError("invalid legacy pending event")
+            matches = [(i, birth) for i, birth in enumerate(self._drv_log)
+                       if birth.get("src") == pending["source"]
+                       and all(birth.get(key) == pending.get(key) for key in
+                               ("id", "slot", "value", "day", "supports"))
+                       and type(birth.get("seq")) is int and birth["seq"] >= 0]
+            if len(matches) != 1 or matches[0][0] in used:
+                raise ValueError("legacy pending event has no unique birth")
+            index, birth = matches[0]
+            source = pending["source"]
+            if pending.get("about"):
+                source = f'{source}|{pending["about"]}'
+            vertex = _key(source, pending["slot"])
+            edges = [(key, edge) for key, history in self.hist.items()
+                     for edge in history
+                     if key.split("|", 1)[0] == pending["source"]
+                     and key.rsplit("|", 1)[-1] == pending["slot"]
+                     and edge[0] == pending["value"] and edge[1] == pending["day"]
+                     and edge[2] == "derived" and edge[4] == pending.get("id")]
+            if (len(edges) != 1 or edges[0][0] != vertex
+                    or birth.get("vertex", vertex) != vertex):
+                raise ValueError("legacy pending event has no unique retained edge")
+            # The old pending event retains entity ownership even when
+            # the old birth log did not. Preserve only this proven fact.
+            birth["vertex"] = vertex
+            used.add(index)
+            canonical.append(dict(birth))
+        self._pending_drv = canonical
+
     def _restore_order(self, d):
         version = d.get("temporal_order_version")
         marked = "temporal_order_version" in d
@@ -834,6 +882,8 @@ class TemporalGraph:
                 vertex, edge = latest
                 if self.rsv.get(rid) != (vertex.rsplit('|', 1)[-1], edge[0]):
                     raise ValueError("record value contradicts retained history")
+        if not marked:
+            self._canonicalize_legacy_pending()
         births = set()
         for dev in self._drv_log:
             if marked and (not isinstance(dev.get('supports'), list)
