@@ -14,4 +14,4 @@ dependencies = []
 hyra = "hyra.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["hyra*"]
+include = ["hyra*", "lifemodel*"]

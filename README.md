@@ -1,4 +1,4 @@
-# hyra — clean-room reimplementation of Tencent Hunyuan's Hyra harness
+# mini-hyra-Agent: research harness + LifeModel
 
 An **unofficial** reimplementation of the Hyra (Hunyuan Research Agent) loop,
 rebuilt only from public materials: the Hyra-1.0 launch post
@@ -8,6 +8,38 @@ rebuilt only from public materials: the Hyra-1.0 launch post
 Built for real automated-research use: point it at a task, give it an LLM,
 and it runs a producer–consumer search that keeps improving solutions until
 the budget is spent.
+
+
+## Start here
+
+This repository contains two connected components, not two competing projects:
+
+- **Hyra** (`hyra/`): the clean-room automated research harness described below.
+- **LifeModel** (`lifemodel/`): the experimental memory system developed and
+  evaluated with that harness. Public Python entry point: `from lifemodel import LifeModel`.
+
+Use `python -m hyra` or the installed `hyra` command for the same harness CLI.
+Run commands from the repository root when using tasks, tests or research assets;
+these assets are not bundled into the Python wheel.
+
+- [Current status and entry points](docs/PROJECT_STATUS.md)
+- [Historical experiment reports](results/INDEX.md)
+- [LifeModel architecture](docs/LIFEMODEL_ARCHITECTURE.md)
+- `research.json`: dashboard data. Its `current` section is the current integration
+  status; its historical tables and timeline are not a live experiment monitor.
+
+Offline verification (no model calls):
+
+```sh
+python scripts/check_project.py
+python -m unittest discover -s tests -v
+python tests/test_lifemodel_contract.py --strict lm
+python tests/test_bench_sweep.py
+```
+
+LifeModel is experimental. Synthetic scores and small selected external slices do
+not establish production readiness, general capability, or privacy guarantees.
+See the limitations in the status document before using personal data.
 
 ## Architecture
 

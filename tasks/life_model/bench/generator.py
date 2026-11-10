@@ -28,9 +28,13 @@ what the round selects for.
 from __future__ import annotations
 
 import random
+import unicodedata
 
 DAYS = 90
 CHECKPOINTS = [18, 36, 54, 72, 90]
+# Gold and query-coverage revision, not a model improvement. Results from
+# earlier unversioned truth must not be compared as the same benchmark.
+TRUTH_VERSION = "record-grounded-v1"
 
 SLOTS = ["city", "job", "goal", "time_budget", "family", "diet",
          "exercise", "learning", "risk", "contact", "sleep", "device"]
@@ -87,6 +91,119 @@ def _txt(kind, slot, value, src, day):
     return f"{zh}：{value}"
 
 
+def _record_truth_event(record, records_by_id):
+    """Build oracle input from the same public record the asset receives.
+
+    Derived premises must come from the cited record values, never from
+    a separate current-state lookup. None marks an unresolved or future
+    support: it cannot silently become an unconditional derivation.
+    """
+    day, kind = record["day"], record["kind"]
+    event = {"day": day, "slot": record["slot"], "id": record["id"]}
+    if kind == "derived":
+        premises = {}
+        for rid in record.get("supports", []):
+            support = records_by_id.get(rid)
+            if support is None or support["day"] > day:
+                premises = None
+                break
+            premises[support["slot"]] = support["value"]
+        return dict(event, op="set_derived", value=record["value"],
+                    premises=premises)
+    if (record["source"] == "self" and not record.get("about")
+            and kind in ("statement", "update", "correction")):
+        return dict(event, op="set", value=record["value"],
+                    expires_day=record.get("expires_day"))
+    if kind == "retraction" and not record.get("about"):
+        return dict(event, op="del")
+    return None
+
+
+def _replay_truth(truth_events, day, erased_range=None):
+    """Replay day/arrival-ordered oracle events, optionally erasing a range."""
+    cur, prov, exp, drv = {}, {}, {}, {}
+
+    def prune_derived():
+        moved = True
+        while moved:
+            moved = False
+            for s, d in list(drv.items()):
+                if any(cur.get(ps) != pv for ps, pv in d["premises"].items()):
+                    del drv[s]
+                    cur.pop(s, None)
+                    prov.pop(s, None)
+                    moved = True
+
+    for e in truth_events:
+        if e["day"] > day:
+            continue
+        if erased_range and erased_range[0] <= e["day"] <= erased_range[1]:
+            continue
+        if e["op"] == "del":
+            cur.pop(e["slot"], None)
+            prov.pop(e["slot"], None)
+        elif e["op"] == "set_derived":
+            if e["premises"] is None:
+                continue
+            drv[e["slot"]] = {"premises": e["premises"]}
+            cur[e["slot"]] = e["value"]
+            prov[e["slot"]] = "inference"
+        else:
+            cur[e["slot"]] = e["value"]
+            prov[e["slot"]] = "self"
+            if e.get("expires_day"):
+                exp[e["slot"]] = e["expires_day"]
+        prune_derived()
+    for s, d in list(exp.items()):
+        if day > d and s in cur:
+            cur.pop(s)
+            prov.pop(s, None)
+    prune_derived()
+    return cur, prov
+
+
+def _latest_self_record_id(records, slot, day, alive=None):
+    """Latest retained self-write citation; later arrival wins day ties.
+
+    This cites the retained write record, including a lapsed lease. It
+    does not assert that the slot is still live at the query day.
+    """
+    rid, latest_day = None, -1
+    for record in records:
+        if (record["source"] == "self" and record["slot"] == slot
+                and record["kind"] in ("statement", "update", "correction")
+                and not record.get("about")
+                and latest_day <= record["day"] <= day
+                and (alive is None or alive(record, day))):
+            rid, latest_day = record["id"], record["day"]
+    return rid
+
+
+def _derived_leak_values(records, day, current, allowed_slots, expected_values):
+    """Keep authored but invalid/out-of-view derived values as forbidden.
+
+    Losing live status does not make a claim safe to emit in a purpose
+    view. Avoid impossible gold if a forbidden value's normalized text
+    is already part of a legitimate answer (the scorer uses substrings).
+    """
+    def normalized(value):
+        return "".join(unicodedata.normalize("NFKC", str(value)).split()).lower()
+
+    expected = [normalized(value) for value in expected_values]
+    forbidden = []
+    for record in records:
+        if record["kind"] != "derived" or record["day"] > day:
+            continue
+        value = record["value"]
+        if record["slot"] in allowed_slots and current.get(record["slot"]) == value:
+            continue
+        token = normalized(value)
+        if (token and not any(token in answer for answer in expected)
+                and value not in forbidden):
+            forbidden.append(value)
+    return forbidden
+
+
 def generate(seed: int = 7, density: int = 1, storm: bool = False):
     """density scales record VOLUME (ambient/noise loops) inside the
     same 90-day semantics — a scale-stress knob: impls that pay per
@@ -100,6 +217,7 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
     real gradient without touching the cost coefficients."""
     rng = random.Random(seed)
     records = []
+    records_by_id = {}
     truth_events = []          # ordered (day, op, slot, value, source)
     probes = []
     rid = 0
@@ -123,7 +241,7 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
         return forms
 
     def rec(day, source, kind, slot, value, expires=None,
-            supports=None, premises=None, about=None):
+            supports=None, about=None):
         nonlocal rid
         r = {"id": f"r{rid:04d}", "day": day, "source": source,
              "kind": kind, "slot": slot, "value": value,
@@ -135,20 +253,11 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
         if about:
             r["about"] = about
         records.append(r)
+        records_by_id[r["id"]] = r
         rid += 1
-        if kind == "derived":
-            truth_events.append(
-                {"day": day, "op": "set_derived", "slot": slot,
-                 "value": value, "premises": dict(premises or {}),
-                 "id": r["id"]})
-        elif (source == "self" and kind in (
-                "statement", "update", "correction") and about is None):
-            truth_events.append(
-                {"day": day, "op": "set", "slot": slot, "value": value,
-                 "expires_day": expires, "id": r["id"]})
-        elif kind == "retraction" and about is None:
-            truth_events.append({"day": day, "op": "del", "slot": slot,
-                                 "id": r["id"]})
+        event = _record_truth_event(r, records_by_id)
+        if event is not None:
+            truth_events.append(event)
         return r
 
     # phase 1: establish all slots (self), plus noise
@@ -243,27 +352,25 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
     d3_day = min(18, change_day[corr_slot] - 2)
     rec(d3_day, "inference", "derived",
         "elder_plan", d3_val,
-        supports=[first_rec_id[corr_slot]],
-        premises={corr_slot: first_val[corr_slot]})
-    # supports must name the record actually carrying the premised value —
-    # the change record only if its day precedes the derivation, else the
-    # initial statement (a wrong id makes honest premise resolution kill
-    # the derived at birth)
+        supports=[first_rec_id[corr_slot]])
+    # Preserve the declared support in the synthetic input: intervening
+    # writes may have superseded it by day 46. The oracle resolves this
+    # exact record and tests the resulting premise; it must not silently
+    # substitute liveval(forget_slot, 46) and reward an unsupported claim.
     d1_sup = (change_rec_id[forget_slot]
               if forget_slot in change_rec_id
               and change_day[forget_slot] <= 46
               else first_rec_id[forget_slot])
     r_d1 = rec(46, "inference", "derived", "plan_hint", "周末上午安排",
-               supports=[d1_sup],
-               premises={forget_slot: liveval(forget_slot, 46)})
+               supports=[d1_sup])
     rec(50, "inference", "derived", "routine_fit", "晚间例行可保留",
-        supports=[r_d1["id"]], premises={"plan_hint": "周末上午安排"})
+        supports=[r_d1["id"]])
     # a derived whose premise never dies — gives the drvprov probes a
     # living citation target (all the other derived are designed to
     # die young on premise invalidation)
     r_anchor = rec(5, "self", "statement", "creed", "每天记录")
     rec(60, "inference", "derived", "habit_fit", "记录习惯可持续",
-        supports=[r_anchor["id"]], premises={"creed": "每天记录"})
+        supports=[r_anchor["id"]])
 
     # ---- M1 pressure ---------------------------------------------------
     # alias registry: person names arrive in short forms too. Delivered
@@ -374,48 +481,8 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
         was live at 54' sees post-erasure history)."""
         if read_day is None:
             read_day = day
-        cur, prov, exp, drv = {}, {}, {}, {}
-
-        def prune_derived():
-            """Kill live derived facts whose premises no longer hold —
-            premise slot absent or its live value diverged; transitive via
-            cur (derived values live there while valid)."""
-            moved = True
-            while moved:
-                moved = False
-                for s, d in list(drv.items()):
-                    if any(cur.get(ps) != pv
-                           for ps, pv in d["premises"].items()):
-                        del drv[s]
-                        cur.pop(s, None)
-                        prov.pop(s, None)
-                        moved = True
-
-        for e in truth_events:
-            if e["day"] > day:
-                continue
-            if (read_day > FORGET2_DAY and SKIP
-                    and SKIP[0] <= e["day"] <= SKIP[1]):
-                continue            # range-forgotten writes never wrote
-            if e["op"] == "del":
-                cur.pop(e["slot"], None)
-                prov.pop(e["slot"], None)
-            elif e["op"] == "set_derived":
-                drv[e["slot"]] = {"premises": e["premises"]}
-                cur[e["slot"]] = e["value"]
-                prov[e["slot"]] = "inference"
-            else:
-                cur[e["slot"]] = e["value"]
-                prov[e["slot"]] = "self"
-                if e.get("expires_day"):
-                    exp[e["slot"]] = e["expires_day"]
-            prune_derived()
-        for s, d in list(exp.items()):
-            if day > d and s in cur:
-                cur.pop(s)
-                prov.pop(s, None)
-        prune_derived()   # expiry kills dependents too
-        return cur, prov
+        erased_range = SKIP if read_day > FORGET2_DAY else None
+        return _replay_truth(truth_events, day, erased_range)
 
     truth = {}
     for c in CHECKPOINTS:
@@ -423,6 +490,12 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
         truth[c] = {"slots": cur, "prov": prov}
 
     # ---- probes ----
+    dval = {r["slot"]: r["value"] for r in records if r["kind"] == "derived"}
+    asserted_day = {r["slot"]: r["day"] for r in records
+                    if r["kind"] == "derived"}
+    death = {"plan_hint": (FORGET_DAY, "cascade"),
+             "routine_fit": (FORGET_DAY, "cascade"),
+             "elder_plan": (change_day[corr_slot], "derive")}
     pid = 0
     meta_pending = []
 
@@ -469,14 +542,17 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
             else:
                 probe(c, "state", slot, "未知",
                       q=f"此人当前的{slot}是什么？")
-        # derived-value serving: while a derived fact's premises hold,
-        # its VALUE is a first-class answer — only the premise-citation
-        # probes exercised it before. Dead deriveds are covered by
-        # cascade/drvprov instead, so only probe the living.
+        # Before the planned invalidating operation, query every authored
+        # derivation even if its cited premise was invalid at birth. Keep
+        # these as unknown-valued negative examples rather than dropping
+        # questions when the truth model correctly rejects a derivation.
+        # Revived living deriveds after the operation stay covered too.
         for ds in ("plan_hint", "routine_fit", "habit_fit",
                    "elder_plan"):
-            if ds in cur:
-                probe(c, "state", ds, cur[ds],
+            if (ds in cur or asserted_day[ds] <= c <
+                    death.get(ds, (10**9, None))[0]):
+                probe(c, "state", ds, cur.get(ds, "未知"),
+                      must_not=[dval[ds]] if ds not in cur else [],
                       q=f"此人当前的{ds}是什么？")
         # stale probe: first old value must NOT surface
         # (find earliest 'set' for the slot before a later change)
@@ -672,19 +748,12 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
     # ---- M3 probes: derived facts tracked while live, gone when the
     # premise dies (deletion of a supporting slot -> 'cascade' on the
     # derived slot; premise superseded by correction -> 'derive').
-    dval = {"plan_hint": "周末上午安排",
-            "routine_fit": "晚间例行可保留",
-            "elder_plan": "陪护优先排程"}
-    death = {"plan_hint": (FORGET_DAY, "cascade"),
-             "routine_fit": (FORGET_DAY, "cascade"),
-             "elder_plan": (change_day[corr_slot], "derive")}
-    asserted_day = {"plan_hint": 46, "routine_fit": 50,
-                    "elder_plan": d3_day}
     for c in CHECKPOINTS:
         cur_c, _ = state_at(c)
         for ds, (d_day, ptype) in death.items():
-            if asserted_day[ds] <= c < d_day and ds in cur_c:
-                probe(c, "state", ds, cur_c[ds],
+            if asserted_day[ds] <= c < d_day:
+                probe(c, "state", ds, cur_c.get(ds, "未知"),
+                      must_not=[dval[ds]] if ds not in cur_c else [],
                       q=f"此人的{DSLOT_ZH[ds]}是什么？")
             elif c >= d_day:
                 # the erasure may have rewritten the log so the
@@ -968,6 +1037,13 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
                       if s not in pslots}
             leak = [cur_c[s] for s in others
                     if s in cur_c and cur_c[s] not in exp_vals]
+            # Oracle corrections may remove an unsupported derivation
+            # from cur_c. Its authored value is still forbidden here;
+            # otherwise adding that false/out-of-view claim could turn
+            # a leak penalty into a perfect answer after a truth repair.
+            for value in _derived_leak_values(records, c, cur_c, pslots, exp_vals):
+                if value not in leak:
+                    leak.append(value)
             probe(c, "purpose", "_view", exp_vals, must_not=leak,
                   q=f"为{pname}提供相关值（只列该用途相关槽位的当前值，"
                     "逗号分隔）",
@@ -1172,14 +1248,7 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
     # prov2: evidence citation — the answer must name the record id that
     # carries the current assertion (ALCE-style attribution).
     def latest_rid(slot, day):
-        rid_, md = None, -1
-        for r in records:
-            if (r["source"] == "self" and r["slot"] == slot
-                    and r["kind"] in ("statement", "update", "correction")
-                    and r["day"] <= day and r["day"] > md
-                    and not r.get("about") and alive(r, day)):
-                rid_, md = r["id"], r["day"]
-        return rid_
+        return _latest_self_record_id(records, slot, day, alive)
 
     for c in CHECKPOINTS[3:]:           # 72, 90
         p2_slots = [s for s in changed
@@ -1218,7 +1287,8 @@ def generate(seed: int = 7, density: int = 1, storm: bool = False):
                      if s in cur],
               q="为他制定本周计划需要哪些当前约束？列出相关值，逗号分隔")
 
-    meta = {"changed": changed, "retract_slot": retract_slot,
+    meta = {"truth_version": TRUTH_VERSION,
+            "changed": changed, "retract_slot": retract_slot,
             "exp_day": exp_day, "n_records": len(records),
             "corr_slot": corr_slot, "export_day": EXPORT_DAY,
             "forget": {"slot": forget_slot, "day": FORGET_DAY}}

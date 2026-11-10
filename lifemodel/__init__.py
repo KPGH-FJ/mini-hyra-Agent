@@ -1,4 +1,4 @@
-"""lifemodel — LifeModel system v0 skeleton.
+"""lifemodel — LifeModel experimental memory system.
 
 Five modules behind one facade (see docs/LIFEMODEL_ARCHITECTURE.md):
 

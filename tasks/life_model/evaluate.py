@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
 """LifeStream lifecycle evaluator for the life_model task.
 
-Driven-by-evaluator protocol (anti reward-hacking: truth never touches the
-solution's filesystem):
+Driven-by-evaluator protocol (gold is withheld from the answer() API):
 
     for each phase (streams split at CHECKPOINT days):
         for each record in the phase:  asset.ingest(record)
-        for each probe due at the checkpoint:  asset.answer(probe)
+        for each probe due at the checkpoint:
+            asset.answer(candidate_probe(probe))
+
+candidate_probe() sends only the documented query fields on a detached
+deep copy; expect/must_not and export-document grading flags remain on
+the evaluator side. This is an API boundary, NOT a security sandbox:
+asset.py is still imported in this process, with access to its Python
+runtime and filesystem. Untrusted candidates require separate process,
+filesystem, environment and network isolation before they can run safely.
 
 The solution dir must contain `asset.py` exposing module-level:
 
@@ -37,9 +44,10 @@ Probe types (v3): state | stale | prov | retract | transfer — plus
              post_import score 0 if the round-trip is missing/failed
              (asset must expose import_state(d) to earn them)
 
-Cost is MEASURED, not self-reported (v1 fix: s0023 gamed stats()): when the
-asset exposes state()/probe_bytes() the evaluator serializes them itself;
-stats() values are only a fallback and are flagged as "reported".
+Cost prefers serialization of the asset's state() and its probe_bytes()
+counter; stats() values are only a fallback and are flagged as "reported".
+The legacy "measured" label does not prove that the asset returned its full
+state or reported its access counter honestly; neither is enforced here.
 
 solve.sh is a trivial no-op (`#!/bin/bash\nexit 0`) — the evaluator imports
 asset.py itself and drives the whole lifecycle.
@@ -56,6 +64,7 @@ Usage: python3 evaluate.py <solution_dir>   → prints {"score", "feedback"}
 """
 from __future__ import annotations
 
+import copy
 import importlib.util
 import json
 import os
@@ -70,6 +79,30 @@ EVAL_SEED = int(sys.argv[2]) if len(sys.argv) > 2 else 7
 COST_ASSET = 0.002    # per KB of retained asset
 COST_PROBE = 0.0002   # per KB consulted across all probes
 COST_TOK = 0.0002     # per LLM token (0 for deterministic impls)
+
+
+# Public query schema, shared by all probe families (docs/PROBE_SEMANTICS.md).
+# Keep id for correlation and the documented post_import lifecycle hint;
+# neither carries an expected answer. New grading metadata is private by
+# default: extend this allowlist deliberately when adding a query field.
+CANDIDATE_PROBE_FIELDS = frozenset({
+    "id", "q", "type", "slot", "ckpt", "value", "day", "person", "about",
+    "slot2", "purpose", "purpose_slots", "budget", "slots", "op",
+    "post_import",
+})
+
+
+def candidate_probe(probe: dict) -> dict:
+    """Return the candidate-visible query without gold or shared mutables.
+
+    Copy after projection so private fields never enter the candidate's
+    object graph. Nested slot lists may alias the scorer's expected values
+    or another probe; mutating the query must not rewrite either of them.
+    The trusted generator is responsible for constructing query content.
+    This does not isolate a candidate from same-process Python side channels.
+    """
+    return copy.deepcopy({key: value for key, value in probe.items()
+                          if key in CANDIDATE_PROBE_FIELDS})
 
 
 def norm(s: str) -> str:
@@ -170,7 +203,7 @@ def drive(asset, records, probes, meta=None):
                 ans = scoped_doc if scoped_doc is not None else ""
             else:
                 try:
-                    ans = asset.answer(p)
+                    ans = asset.answer(candidate_probe(p))
                 except Exception:
                     # one crashing probe must not kill the whole
                     # submission — it scores 0 honestly and drive
@@ -1230,15 +1263,13 @@ def main():
     records, probes, truth, meta = generate(
         EVAL_SEED, density=int(os.environ.get("EVAL_DENSITY", "1")),
         storm=os.environ.get("EVAL_STORM", "0") == "1")
-    # fresh copies per driver so _fed flags don't leak
-    import copy
-
     asset = load_asset(sol)
     if asset is None or not hasattr(asset, "ingest"):
         print(json.dumps({"score": -1e9,
                           "feedback": "no asset.py with ingest()/answer()"}))
         return
 
+    # fresh copies per driver so _fed flags don't leak
     recs = copy.deepcopy(records)
     try:
         rows, cost, how = drive(asset, recs, probes, meta)

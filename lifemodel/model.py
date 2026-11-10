@@ -23,8 +23,8 @@ class LifeModel:
     # ---- evaluator/record pipeline (M1 -> M3) ----
     def ingest(self, rec: dict) -> None:
         ev = m_ingest.normalize(rec)
-        self.control.observe_day(ev["day"])
         m_update.apply(self.store, ev)
+        self.control.observe_day(ev["day"])
 
     # ---- usage (M4) ----
     def answer(self, probe: dict) -> str:
@@ -53,6 +53,9 @@ class LifeModel:
 
     def import_state(self, d: dict) -> None:
         self.store.restore(d)
+        # Import replaces the timeline, including when this instance
+        # previously observed a later day than the restored snapshot.
+        self.control._day = self.store._now
 
     def probe_bytes(self) -> int:
         return m_serve.probe_bytes()
